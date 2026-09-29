@@ -1,16 +1,21 @@
+mod audio;
 mod correction_monitor;
+mod history;
 mod skills;
+mod startup;
 mod text_api;
 #[cfg(windows)]
 mod uia;
 mod vocabulary;
 
 use std::{
+    collections::HashSet,
     fs,
+    future::Future,
     path::PathBuf,
     sync::{
         atomic::{AtomicBool, Ordering},
-        Mutex,
+        Arc, Mutex, OnceLock,
     },
     thread,
     time::{Duration, Instant},
@@ -27,6 +32,18 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 
 const SERVICE_NAME: &str = "app.typefree.windows.unofficial";
 const ACCOUNT_NAME: &str = "qwen-asr-api-key";
+
+#[derive(Default)]
+struct PasteSessions {
+    active: HashSet<String>,
+    cancelled: HashSet<String>,
+}
+
+static PASTE_SESSIONS: OnceLock<Mutex<PasteSessions>> = OnceLock::new();
+
+fn paste_sessions() -> &'static Mutex<PasteSessions> {
+    PASTE_SESSIONS.get_or_init(|| Mutex::new(PasteSessions::default()))
+}
 
 /// 与前端 src/text/settingsMigration.js 的默认值一致。
 const DEFAULT_DICTATION_SHORTCUT: &str = "Ctrl+Alt+Space";
@@ -61,6 +78,7 @@ struct AnswerCardState(Mutex<Option<AnswerCardData>>);
 struct AnswerCardData {
     question: String,
     answer: String,
+    request_id: Option<String>,
 }
 
 /// 把配置里的字符串和插件回调拿到的 Shortcut 对比。
@@ -83,7 +101,7 @@ struct TranscribeRequest {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct TranscribeResponse {
+pub(crate) struct TranscribeResponse {
     text: String,
     duration_ms: u128,
 }
@@ -161,8 +179,17 @@ fn get_answer_card(app: AppHandle) -> Option<AnswerCardData> {
 }
 
 #[tauri::command]
-fn show_answer_card(app: AppHandle, question: String, answer: String) -> Result<(), String> {
-    let card = AnswerCardData { question, answer };
+fn show_answer_card(
+    app: AppHandle,
+    question: String,
+    answer: String,
+    request_id: Option<String>,
+) -> Result<(), String> {
+    let card = AnswerCardData {
+        question,
+        answer,
+        request_id,
+    };
     *app.state::<AnswerCardState>()
         .0
         .lock()
@@ -211,11 +238,13 @@ fn api_key() -> Result<String, String> {
 }
 
 fn api_url(endpoint: &str, path: &str) -> String {
-    format!(
-        "{}/{}",
-        endpoint.trim_end_matches('/'),
-        path.trim_start_matches('/')
-    )
+    let base = endpoint.trim().trim_end_matches('/');
+    let suffix = path.trim_start_matches('/');
+    if base.ends_with(&format!("/{suffix}")) {
+        base.to_string()
+    } else {
+        format!("{base}/{suffix}")
+    }
 }
 
 #[tauri::command]
@@ -230,12 +259,38 @@ fn save_api_key(key: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn test_connection(endpoint: String) -> Result<(), String> {
-    let started = Instant::now();
+async fn test_connection(endpoint: String, model: String) -> Result<(), String> {
+    if endpoint.trim().is_empty() || model.trim().is_empty() {
+        return Err("请先填写 ASR 地址和模型名称".into());
+    }
+    // A generic transcription service need not expose GET /models. Exercise the
+    // selected protocol with a complete, one-second PCM16 WAV instead.
+    let mut wav = Vec::with_capacity(44 + 32_000);
+    wav.extend_from_slice(b"RIFF");
+    wav.extend_from_slice(&(32_000u32 + 36).to_le_bytes());
+    wav.extend_from_slice(b"WAVEfmt ");
+    wav.extend_from_slice(&16u32.to_le_bytes());
+    wav.extend_from_slice(&1u16.to_le_bytes());
+    wav.extend_from_slice(&1u16.to_le_bytes());
+    wav.extend_from_slice(&16_000u32.to_le_bytes());
+    wav.extend_from_slice(&32_000u32.to_le_bytes());
+    wav.extend_from_slice(&2u16.to_le_bytes());
+    wav.extend_from_slice(&16u16.to_le_bytes());
+    wav.extend_from_slice(b"data");
+    wav.extend_from_slice(&32_000u32.to_le_bytes());
+    wav.resize(44 + 32_000, 0);
+    let part = reqwest::multipart::Part::bytes(wav)
+        .file_name("connection-test.wav")
+        .mime_str("audio/wav")
+        .map_err(|error| format!("无法准备测试 WAV：{error}"))?;
+    let form = reqwest::multipart::Form::new()
+        .text("model", model)
+        .part("file", part);
     let response = reqwest::Client::new()
-        .get(api_url(&endpoint, "models"))
+        .post(api_url(&endpoint, "audio/transcriptions"))
         .bearer_auth(api_key()?)
-        .timeout(Duration::from_secs(8))
+        .multipart(form)
+        .timeout(Duration::from_secs(30))
         .send()
         .await
         .map_err(|error| format!("无法连接 ASR 服务：{error}"))?;
@@ -243,50 +298,103 @@ async fn test_connection(endpoint: String) -> Result<(), String> {
     if !response.status().is_success() {
         return Err(format!("ASR 服务返回 HTTP {}", response.status()));
     }
-    if started.elapsed() > Duration::from_secs(8) {
-        return Err("ASR 服务响应超时".into());
+    let body: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|_| "ASR 服务响应不是有效 JSON".to_string())?;
+    if body.get("text").and_then(|value| value.as_str()).is_none()
+        && body
+            .pointer("/choices/0/message/content")
+            .and_then(|value| value.as_str())
+            .is_none()
+    {
+        return Err("ASR 服务响应缺少 text 字段".into());
     }
     Ok(())
 }
 
 #[tauri::command]
 async fn transcribe_audio(request: TranscribeRequest) -> Result<TranscribeResponse, String> {
-    let started = Instant::now();
     let audio = STANDARD
         .decode(request.audio_base64)
         .map_err(|error| format!("录音数据无效：{error}"))?;
+    transcribe_bytes(
+        audio,
+        request.filename,
+        "audio/wav",
+        request.endpoint,
+        request.model,
+    )
+    .await
+}
 
-    // 前端上传的是自己打包的 WAV（见 src/dictation/wav.js 的 encodeWav）。
-    // 这里必须跟着写 audio/wav：服务端解析时长时会看 Content-Type，
-    // 若仍标成 audio/webm 会再次走 EBML 分支并抛 500。
+pub(crate) async fn transcribe_bytes(
+    audio: Vec<u8>,
+    filename: String,
+    mime: &str,
+    endpoint: String,
+    model: String,
+) -> Result<TranscribeResponse, String> {
+    transcribe_bytes_with_cancel(audio, filename, mime, endpoint, model, None).await
+}
+
+async fn cancellable_request<T, F>(
+    future: F,
+    cancelled: Option<&Arc<AtomicBool>>,
+    context: &str,
+) -> Result<T, String>
+where
+    F: Future<Output = Result<T, reqwest::Error>>,
+{
+    let result = if let Some(flag) = cancelled {
+        tokio::select! {
+            value = future => value,
+            _ = async {
+                while !flag.load(Ordering::Relaxed) { tokio::time::sleep(Duration::from_millis(40)).await; }
+            } => return Err("录音已取消".into()),
+        }
+    } else {
+        future.await
+    };
+    result.map_err(|error| format!("{context}：{error}"))
+}
+
+pub(crate) async fn transcribe_bytes_with_cancel(
+    audio: Vec<u8>,
+    filename: String,
+    mime: &str,
+    endpoint: String,
+    model: String,
+    cancelled: Option<Arc<AtomicBool>>,
+) -> Result<TranscribeResponse, String> {
+    let started = Instant::now();
+    // Windows 采集线程和浏览器预览都交付真实的 PCM16 WAV。
+    // 文件名、MIME 与字节格式必须一致。
     let part = reqwest::multipart::Part::bytes(audio)
-        .file_name(request.filename)
-        .mime_str("audio/wav")
+        .file_name(filename)
+        .mime_str(mime)
         .map_err(|error| format!("录音格式无效：{error}"))?;
     let form = reqwest::multipart::Form::new()
-        .text("model", request.model)
+        .text("model", model)
         .part("file", part);
 
-    let response = reqwest::Client::new()
-        .post(api_url(&request.endpoint, "audio/transcriptions"))
-        .bearer_auth(api_key()?)
-        .multipart(form)
-        .timeout(Duration::from_secs(120))
-        .send()
-        .await
-        .map_err(|error| format!("语音识别请求失败：{error}"))?;
+    let response = cancellable_request(
+        reqwest::Client::new()
+            .post(api_url(&endpoint, "audio/transcriptions"))
+            .bearer_auth(api_key()?)
+            .multipart(form)
+            .timeout(Duration::from_secs(120))
+            .send(),
+        cancelled.as_ref(),
+        "语音识别请求失败",
+    )
+    .await?;
 
     let status = response.status();
-    let body = response
-        .text()
-        .await
-        .map_err(|error| format!("读取识别结果失败：{error}"))?;
     if !status.is_success() {
-        return Err(format!(
-            "ASR 服务返回 HTTP {status}：{}",
-            body.chars().take(300).collect::<String>()
-        ));
+        return Err(format!("ASR 服务返回 HTTP {status}"));
     }
+    let body = cancellable_request(response.text(), cancelled.as_ref(), "读取识别结果失败").await?;
     let json: serde_json::Value =
         serde_json::from_str(&body).map_err(|error| format!("无法解析识别结果：{error}"))?;
     let text = json
@@ -391,20 +499,32 @@ async fn paste_text(
     learn: Option<bool>,
     session_id: Option<String>,
 ) -> Result<(), String> {
+    let session_id = session_id.unwrap_or_default();
+    if !session_id.is_empty() {
+        let mut sessions = paste_sessions().lock().map_err(|error| error.to_string())?;
+        sessions.active.insert(session_id.clone());
+        sessions.cancelled.remove(&session_id);
+    }
     tauri::async_runtime::spawn_blocking(move || {
         correction_monitor::stop_learning_monitor();
         #[cfg(windows)]
         let monitor = if learn == Some(true) && correction_monitor::is_enabled() {
-            correction_monitor::prepare(app, text.clone(), session_id.unwrap_or_default())
+            correction_monitor::prepare(app, text.clone(), session_id.clone())
         } else {
             None
         };
         #[cfg(not(windows))]
-        let _ = (app, learn, session_id);
-        let result = paste_to_foreground(text);
+        let _ = (app, learn);
+        let result = paste_to_foreground(text, &session_id);
         #[cfg(windows)]
         if let Some(monitor) = monitor {
             let _ = monitor.send(result.is_ok());
+        }
+        if !session_id.is_empty() {
+            if let Ok(mut sessions) = paste_sessions().lock() {
+                sessions.active.remove(&session_id);
+                sessions.cancelled.remove(&session_id);
+            }
         }
         result
     })
@@ -412,7 +532,32 @@ async fn paste_text(
     .map_err(|e| e.to_string())?
 }
 
-fn paste_to_foreground(text: String) -> Result<(), String> {
+#[tauri::command]
+fn cancel_paste(session_id: String) -> Result<(), String> {
+    if session_id.is_empty() {
+        return Ok(());
+    }
+    let mut sessions = paste_sessions().lock().map_err(|error| error.to_string())?;
+    if sessions.active.contains(&session_id) {
+        sessions.cancelled.insert(session_id);
+    }
+    Ok(())
+}
+
+fn paste_was_cancelled(session_id: &str) -> bool {
+    if session_id.is_empty() {
+        return false;
+    }
+    paste_sessions()
+        .lock()
+        .map(|sessions| sessions.cancelled.contains(session_id))
+        .unwrap_or(true)
+}
+
+fn paste_to_foreground(text: String, session_id: &str) -> Result<(), String> {
+    if paste_was_cancelled(session_id) {
+        return Err("输入已取消".into());
+    }
     let mut clipboard =
         arboard::Clipboard::new().map_err(|error| format!("无法打开剪贴板：{error}"))?;
     let previous = clipboard.get_text().ok();
@@ -420,6 +565,14 @@ fn paste_to_foreground(text: String) -> Result<(), String> {
         .set_text(text.clone())
         .map_err(|error| format!("复制失败：{error}"))?;
     thread::sleep(Duration::from_millis(70));
+    if paste_was_cancelled(session_id) {
+        if clipboard.get_text().ok().as_deref() == Some(text.as_str()) {
+            if let Some(previous) = previous {
+                let _ = clipboard.set_text(previous);
+            }
+        }
+        return Err("输入已取消".into());
+    }
     let result = send_ctrl_v();
     let restore_delay = if result.is_ok() { 900 } else { 0 };
 
@@ -671,6 +824,10 @@ pub fn run() {
         .setup(|app| {
             let handle = app.handle().clone();
             let saved = load_settings(handle.clone()).unwrap_or(serde_json::json!({}));
+            if saved.get("launchAtLogin").and_then(|value| value.as_bool()) == Some(true) {
+                #[cfg(windows)]
+                let _ = startup::apply(true);
+            }
             correction_monitor::set_enabled(
                 saved
                     .get("autoLearn")
@@ -739,6 +896,20 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            audio::list_audio_devices,
+            audio::list_recoverable_audio,
+            audio::start_audio_session,
+            audio::stop_audio_session,
+            audio::cancel_audio_session,
+            audio::release_native_audio,
+            audio::retain_native_audio,
+            audio::cleanup_history_audio,
+            history::load_history,
+            history::save_history,
+            history::export_history,
+            audio::transcribe_native_audio,
+            startup::get_launch_at_login,
+            startup::set_launch_at_login,
             correction_monitor::stop_learning_monitor,
             vocabulary::load_vocabulary,
             vocabulary::save_vocabulary,
@@ -752,12 +923,15 @@ pub fn run() {
             show_answer_card,
             hide_answer_card,
             paste_text,
+            cancel_paste,
             set_shortcut,
             set_shortcut_capture_active,
             set_overlay_state,
             text_api::save_text_api_key,
             text_api::test_text_connection,
             text_api::process_text,
+            text_api::stream_answer,
+            text_api::cancel_text_request,
             skills::load_custom_skills,
             skills::save_custom_skills,
         ])

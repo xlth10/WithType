@@ -18,12 +18,12 @@ import {
   toPersistedSettings,
 } from "../src/text/settingsMigration.js";
 
-test("默认处理模式必须是原文，不能让 AI 模式成为所有人的默认路径", () => {
-  assert.equal(DEFAULT_PROCESSING_MODE, "original");
-  assert.equal(DEFAULT_SETTINGS.processingMode, "original");
+test("新安装默认自动整理，旧配置仍按迁移规则保留", () => {
+  assert.equal(DEFAULT_PROCESSING_MODE, "smart");
+  assert.equal(DEFAULT_SETTINGS.processingMode, "smart");
   assert.equal(DEFAULT_SETTINGS.autoIntent, false);
-  assert.equal(normalizeSettings({}).settings.processingMode, "original");
-  assert.equal(normalizeSettings(null).settings.processingMode, "original");
+  assert.equal(normalizeSettings({}).settings.processingMode, "smart");
+  assert.equal(normalizeSettings(null).settings.processingMode, "smart");
 });
 
 test("旧版 mode 迁移到 processingMode", () => {
@@ -41,8 +41,8 @@ test("旧的 translate 模式落到原文，并给出逐字提示", () => {
 });
 
 test("未知的 mode 值不迁移，回落到默认模式", () => {
-  assert.equal(normalizeSettings({ mode: "teleport" }).settings.processingMode, "original");
-  assert.equal(normalizeSettings({ mode: 123 }).settings.processingMode, "original");
+  assert.equal(normalizeSettings({ mode: "teleport" }).settings.processingMode, "smart");
+  assert.equal(normalizeSettings({ mode: 123 }).settings.processingMode, "smart");
 });
 
 test("已有的 processingMode 优先于旧 mode", () => {

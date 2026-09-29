@@ -9,7 +9,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { AUTO_COMMAND_CONFIDENCE, createPipeline } from "../src/dictation/pipeline.js";
+import { AUTO_COMMAND_CONFIDENCE, classifyAsrError, createPipeline } from "../src/dictation/pipeline.js";
+
+test("ASR 错误分类区分认证、限流、格式与临时故障", () => {
+  assert.equal(classifyAsrError("ASR 服务返回 HTTP 401 Unauthorized"), "auth");
+  assert.equal(classifyAsrError("ASR 服务返回 HTTP 429 Too Many Requests"), "rate-limit");
+  assert.equal(classifyAsrError("ASR 服务返回 HTTP 415 Unsupported Media Type"), "format");
+  assert.equal(classifyAsrError("语音识别请求失败：connection reset"), "transient");
+});
 import { BUILTIN_SKILLS } from "../src/text/builtinSkills.js";
 import { DEFAULT_SETTINGS } from "../src/text/settingsMigration.js";
 
@@ -199,7 +206,7 @@ test("取消后迟到的 ASR 结果不改状态、不上屏", async () => {
 
   assert.deepEqual(await task, { ok: false, stage: "cancelled", stale: true });
   assert.deepEqual(events, [], "过期任务不许发出任何事件");
-  assert.deepEqual(calls, ["transcribe_audio"]);
+  assert.deepEqual(calls, ["transcribe_audio", "cancel_paste", "cancel_audio_session", "cancel_text_request"]);
   assert.deepEqual(pasted, [], "取消后的任务绝不能上屏");
   assert.equal(pipeline.current(), null);
 });
@@ -220,7 +227,7 @@ test("取消后迟到的文字结果同样不上屏", async () => {
   resolveText({ text: "生成好的邮件正文", durationMs: 10 });
 
   assert.deepEqual(await task, { ok: false, stage: "cancelled", stale: true });
-  assert.deepEqual(calls, ["transcribe_audio", "process_text"]);
+  assert.deepEqual(calls, ["transcribe_audio", "process_text", "cancel_paste", "cancel_audio_session", "cancel_text_request"]);
   assert.deepEqual(pasted, []);
 });
 
@@ -418,23 +425,25 @@ test("insertRaw 对普通口述会走完上屏流程", async () => {
 
 test("smart 模式缺少文字服务时保留原文并说明原因", async () => {
   const { pipeline, events, calls, pasted } = makePipeline({
-    transcribe_audio: async () => ({ text: "嗯那个明天开会", durationMs: 120 }),
+    transcribe_audio: async () => ({ text: "嗯那个明天上午我们在会议室开会", durationMs: 120 }),
   });
 
   const snapshot = pipeline.begin({ intent: "dictation", settings: { ...LOCAL_SETTINGS, processingMode: "smart" } });
   const result = await pipeline.complete({ snapshot, audio: AUDIO });
 
-  assert.equal(result.ok, false);
-  assert.equal(result.stage, "text");
-  // 已知行为：没配文字服务时不自动上屏原文，只把原文交给界面上的「插入原文」。
-  assert.deepEqual(calls, ["transcribe_audio"], "没配置就不该发文字请求，也不该自动上屏");
-  assert.deepEqual(pasted, []);
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls, ["transcribe_audio", "paste_text"]);
+  assert.deepEqual(pasted, ["嗯那个明天上午我们在会议室开会"]);
+  assert.equal(findEvent(events, "done").warning, "尚未配置文字模型，已按原文处理");
+});
 
-  const failed = findEvent(events, "text-failed");
-  assert.equal(failed.message, "尚未配置文字模型，已按原文处理");
-  assert.equal(failed.finalText, "嗯那个明天开会", "原文要交给界面，由用户决定是否插入");
-  assert.equal(failed.rawText, "嗯那个明天开会");
-  assert.equal(failed.usedTextService, false);
+test("固定版 Typefree 短句不调用文字服务，并去掉末尾句号", async () => {
+  const { pipeline, calls, pasted } = makePipeline({ transcribe_audio: async () => ({ text: "明天见。。" }) });
+  const settings = { ...TEXT_SETTINGS, processingMode: "smart" };
+  const result = await pipeline.complete({ snapshot: pipeline.begin({ intent: "dictation", settings }), audio: AUDIO });
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls, ["transcribe_audio", "paste_text"]);
+  assert.deepEqual(pasted, ["明天见"]);
 });
 
 test("smart 模式发送专用的自然文字整理规则", async () => {
@@ -453,9 +462,55 @@ test("smart 模式发送专用的自然文字整理规则", async () => {
   assert.equal(result.text, "我后天发报告。");
   assert.deepEqual(calls, ["transcribe_audio", "process_text", "paste_text"]);
   assert.equal(sent.task, "smart");
-  assert.ok(sent.messages[0].content.includes("明确改口时可以删去已被推翻的旧说法"));
+  assert.ok(sent.messages[0].content.includes("不添加用户没说过的内容"));
   assert.ok(!sent.messages[0].content.includes("待确认"));
   assert.ok(!sent.messages[0].content.includes("用短标题或「栏目：内容」"));
+});
+
+test("文字模型按速度路由，临时错误才进入用户配置的备用队列", async () => {
+  const models = [];
+  const { pipeline } = makePipeline({
+    transcribe_audio: async () => ({ text: "把这句话翻译成英文：明天开会", durationMs: 80 }),
+    process_text: async ({ request }) => {
+      models.push(request.model);
+      if (request.model === "fast-model") throw new Error("文字模型响应超时");
+      return { text: "Meeting tomorrow.", durationMs: 20 };
+    },
+  });
+  const settings = { ...TEXT_SETTINGS, textFastModel: "fast-model", textFallbackModels: "backup-model" };
+  const result = await pipeline.complete({ snapshot: pipeline.begin({ intent: "translate", settings }), audio: AUDIO });
+  assert.equal(result.ok, true);
+  assert.deepEqual(models, ["fast-model", "internal-text-model"]);
+});
+
+test("认证失败不切换备用文字模型", async () => {
+  const models = [];
+  const { pipeline } = makePipeline({
+    transcribe_audio: async () => ({ text: "帮我写封邮件", durationMs: 80 }),
+    process_text: async ({ request }) => { models.push(request.model); throw new Error("文字模型认证失败（401）"); },
+  });
+  const settings = { ...TEXT_SETTINGS, textFallbackModels: "backup-model" };
+  const result = await pipeline.complete({ snapshot: pipeline.begin({ intent: "command", settings }), audio: AUDIO });
+  assert.equal(result.ok, false);
+  assert.deepEqual(models, ["internal-text-model"]);
+});
+
+test("明确额度用尽后本次运行跳过该文字模型", async () => {
+  const models = [];
+  const { pipeline } = makePipeline({
+    transcribe_audio: async () => ({ text: "帮我写封邮件", durationMs: 80 }),
+    process_text: async ({ request }) => {
+      models.push(request.model);
+      if (request.model === "internal-text-model") throw new Error("文字模型额度用尽（403）");
+      return { text: "邮件正文" };
+    },
+  });
+  const settings = { ...TEXT_SETTINGS, textFallbackModels: "backup-model" };
+  for (let index = 0; index < 2; index++) {
+    const result = await pipeline.complete({ snapshot: pipeline.begin({ intent: "command", settings }), audio: AUDIO });
+    assert.equal(result.ok, true);
+  }
+  assert.deepEqual(models, ["internal-text-model", "backup-model", "backup-model"]);
 });
 
 test("skill 模式的选中项已丢失时提示重新选择", async () => {
@@ -469,10 +524,10 @@ test("skill 模式的选中项已丢失时提示重新选择", async () => {
   });
   const result = await pipeline.complete({ snapshot, audio: AUDIO });
 
-  assert.equal(result.ok, false);
-  assert.deepEqual(calls, ["transcribe_audio"], "Skill 失效时不该发请求，也不该自动上屏");
-  assert.deepEqual(pasted, []);
-  assert.equal(findEvent(events, "text-failed").message, "所选 Skill 已不可用，请重新选择");
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls, ["transcribe_audio", "paste_text"], "Skill 失效时退回原文并提示");
+  assert.deepEqual(pasted, ["整理一下这段"]);
+  assert.equal(findEvent(events, "done").warning, "所选 Skill 已不可用，请重新选择");
 });
 
 test("skill 模式选中内置 Skill 时把它的说明发给文字模型", async () => {

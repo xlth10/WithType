@@ -61,6 +61,12 @@ button { color: inherit; }
 .answer-card footer { border-top: 1px solid var(--line); }
 .answer-card footer button { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; }
 .answer-card footer button:hover { text-decoration: underline; }
+.answer-turn + .answer-turn { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.answer-error { color: #b43a32; font-size: 11px; }
+.answer-followup { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--line); }
+.answer-followup input { flex: 1; min-width: 0; padding: 7px 9px; border: 1px solid var(--line-strong); border-radius: 6px; font-size: 12px; }
+.answer-followup button { display: grid; place-items: center; width: 30px; border: 0; border-radius: 6px; background: var(--ink); color: #fff; cursor: pointer; }
+.answer-followup button:disabled { opacity: .45; cursor: default; }
 
 .page-content { width: min(820px, calc(100vw - 282px)); margin: 0 auto; padding: 48px 0 68px; }
 .page-heading { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 30px; }

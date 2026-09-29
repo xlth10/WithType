@@ -249,6 +249,22 @@ mod platform {
                 let started = Instant::now();
                 let mut last = delivered.clone();
                 let mut changed = Instant::now();
+                let emit_correction = |edited: String| {
+                    if edited != delivered
+                        && GENERATION.load(Ordering::SeqCst) == generation
+                        && is_enabled()
+                    {
+                        let _ = app.emit_to(
+                            "main",
+                            "vocabulary-correction",
+                            Correction {
+                                original: delivered.clone(),
+                                edited,
+                                session_id: session_id.clone(),
+                            },
+                        );
+                    }
+                };
                 while started.elapsed() < Duration::from_secs(60) {
                     if !matches!(
                         control_rx.recv_timeout(Duration::from_millis(500)),
@@ -256,10 +272,11 @@ mod platform {
                     ) {
                         return;
                     }
-                    if GENERATION.load(Ordering::SeqCst) != generation
-                        || !is_enabled()
-                        || !field.is_focused()
-                    {
+                    if GENERATION.load(Ordering::SeqCst) != generation || !is_enabled() {
+                        return;
+                    }
+                    if !field.is_focused() {
+                        emit_correction(last);
                         return;
                     }
                     let Some(value) = field.read() else {
@@ -276,23 +293,15 @@ mod platform {
                         changed = Instant::now();
                     }
                     if last != delivered && changed.elapsed() >= Duration::from_secs(4) {
-                        if GENERATION.load(Ordering::SeqCst) == generation
-                            && is_enabled()
-                            && field.is_focused()
-                        {
-                            let _ = app.emit_to(
-                                "main",
-                                "vocabulary-correction",
-                                Correction {
-                                    original: delivered,
-                                    edited: last,
-                                    session_id,
-                                },
-                            );
+                        if field.is_focused() {
+                            emit_correction(last);
                         }
                         return;
                     }
                 }
+                // A real correction can occur just before focus changes or the
+                // observation window ends. Keep the last range-safe value.
+                emit_correction(last);
             })
             .ok()?;
         if ready_rx

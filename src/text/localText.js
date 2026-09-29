@@ -45,3 +45,13 @@ export function lightlyCleanText(text) {
     .replace(/([，。！？,.!?])\1+/g, "$1")
     .trim();
 }
+
+/** 固定版 Typefree 的短句直出：去掉 ASR 常加的末尾句号，保留问号和感叹号。 */
+export function stripShortTrailingFullStop(text) {
+  return String(text || "").trim().replace(/。+$/u, "");
+}
+
+/** 按汉字、字母和数字计数，忽略空格与标点。 */
+export function effectiveTextLength(text) {
+  return (String(text || "").match(/[\p{L}\p{N}]/gu) || []).length;
+}

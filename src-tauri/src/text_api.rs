@@ -5,9 +5,14 @@
 // 2. 任何错误消息都不回显密钥、也不回显服务端返回的完整响应体——
 //    私有网关的报错里经常会带上请求头或回显请求内容。
 
-use std::{sync::OnceLock, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::{Arc, Mutex, OnceLock},
+    time::Duration,
+};
 
 use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter};
 
 use crate::SERVICE_NAME;
 
@@ -28,6 +33,51 @@ const MAX_TIMEOUT_MS: u64 = 300_000;
 /// 复用同一个 Client：每次请求新建 Client 会重复建连接池和 TLS 上下文，
 /// 在「按一下快捷键就要秒回」的路径上是实打实的开销。
 static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+#[derive(Default)]
+struct TextSessions {
+    active: HashMap<String, Arc<tokio::sync::Notify>>,
+    cancelled: HashSet<String>,
+}
+static TEXT_SESSIONS: OnceLock<Mutex<TextSessions>> = OnceLock::new();
+fn sessions() -> &'static Mutex<TextSessions> {
+    TEXT_SESSIONS.get_or_init(|| Mutex::new(TextSessions::default()))
+}
+
+#[tauri::command]
+pub fn cancel_text_request(request_id: String) {
+    if let Ok(mut state) = sessions().lock() {
+        state.cancelled.insert(request_id.clone());
+        if let Some(notify) = state.active.get(&request_id) {
+            notify.notify_one();
+        }
+        if state.cancelled.len() > 128 {
+            state.cancelled = state.cancelled.iter().take(64).cloned().collect();
+        }
+    }
+}
+
+async fn cancellable<F, T>(request_id: &str, future: F) -> Result<T, String>
+where
+    F: std::future::Future<Output = Result<T, String>>,
+{
+    let notify = Arc::new(tokio::sync::Notify::new());
+    {
+        let mut state = sessions().lock().map_err(|e| e.to_string())?;
+        if state.cancelled.contains(request_id) {
+            return Err("文字请求已取消".into());
+        }
+        state.active.insert(request_id.to_string(), notify.clone());
+    }
+    let result = tokio::select! {
+        output = future => output,
+        _ = notify.notified() => Err("文字请求已取消".into()),
+    };
+    if let Ok(mut state) = sessions().lock() {
+        state.active.remove(request_id);
+    }
+    result
+}
 
 fn client() -> &'static reqwest::Client {
     CLIENT.get_or_init(|| {
@@ -86,6 +136,14 @@ struct ChatRequest {
     messages: Vec<OutgoingMessage>,
     temperature: f32,
     stream: bool,
+}
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct AnswerStreamEvent {
+    request_id: String,
+    question: String,
+    text: String,
 }
 
 fn text_api_key() -> Result<String, String> {
@@ -164,6 +222,26 @@ fn parse_content(body: &str) -> Result<String, String> {
     Ok(content.chars().take(MAX_OUTPUT_CHARS).collect())
 }
 
+fn is_quota_error(body: &str) -> bool {
+    serde_json::from_str::<serde_json::Value>(body)
+        .ok()
+        .is_some_and(|value| {
+            let code = value
+                .pointer("/error/code")
+                .and_then(|item| item.as_str())
+                .or_else(|| value.get("code").and_then(|item| item.as_str()))
+                .unwrap_or("")
+                .to_ascii_lowercase();
+            [
+                "insufficient_quota",
+                "quotaexceeded",
+                "arrearage",
+                "accountoverdueerror",
+            ]
+            .contains(&code.as_str())
+        })
+}
+
 async fn post_chat(request: &ProcessTextRequest) -> Result<String, String> {
     if request.model.trim().is_empty() {
         return Err("尚未配置文字模型名称".into());
@@ -203,12 +281,142 @@ async fn post_chat(request: &ProcessTextRequest) -> Result<String, String> {
         return Err("文字模型认证失败（401），请检查 API Key 或认证方式".into());
     }
     if status == reqwest::StatusCode::FORBIDDEN {
+        if is_quota_error(&body) {
+            return Err("文字模型额度用尽（403）".into());
+        }
         return Err("文字模型拒绝访问（403），请确认账号是否有该模型权限".into());
+    }
+    if status == reqwest::StatusCode::TOO_MANY_REQUESTS && is_quota_error(&body) {
+        return Err("文字模型额度用尽（429）".into());
     }
     if !status.is_success() {
         return Err(format!("文字模型返回 HTTP {status}：{}", excerpt(&body)));
     }
     parse_content(&body)
+}
+
+/// OpenAI-compatible SSE. Gate each emission by requestId in the WebView.
+/// Gateways that ignore or reject stream=true are retried once as a normal response.
+async fn post_chat_stream(app: &AppHandle, request: &ProcessTextRequest) -> Result<String, String> {
+    if request.model.trim().is_empty() || request.endpoint.trim().is_empty() {
+        return Err("尚未配置文字模型地址或名称".into());
+    }
+    let mut body = build_chat_request(request);
+    body.stream = true;
+    let mut builder = client()
+        .post(chat_endpoint(&request.endpoint))
+        .json(&body)
+        .timeout(clamp_timeout(request.timeout_ms));
+    if request.auth_mode.as_deref() != Some("none") {
+        builder = builder.bearer_auth(text_api_key()?);
+    }
+    let mut response = builder.send().await.map_err(|error| {
+        if error.is_timeout() {
+            "文字模型响应超时".to_string()
+        } else {
+            format!("文字模型请求失败：{error}")
+        }
+    })?;
+    if !response.status().is_success() {
+        if response.status() == reqwest::StatusCode::FORBIDDEN
+            || response.status() == reqwest::StatusCode::TOO_MANY_REQUESTS
+        {
+            let status = response.status();
+            let body = response.text().await.unwrap_or_default();
+            if is_quota_error(&body) {
+                return Err(format!("文字模型额度用尽（{}）", status.as_u16()));
+            }
+            if status == reqwest::StatusCode::FORBIDDEN {
+                return Err("文字模型拒绝访问（403），请确认账号是否有该模型权限".into());
+            }
+            return Err("文字模型返回 HTTP 429".into());
+        }
+        if response.status().as_u16() == 400
+            || response.status().as_u16() == 404
+            || response.status().as_u16() == 422
+        {
+            return post_chat(request).await;
+        }
+        return Err(format!("文字模型返回 HTTP {}", response.status()));
+    }
+    if !response
+        .headers()
+        .get(reqwest::header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .contains("text/event-stream")
+    {
+        let body = response
+            .text()
+            .await
+            .map_err(|e| format!("读取文字模型响应失败：{e}"))?;
+        let text = parse_content(&body)?;
+        let _ = app.emit(
+            "answer-stream",
+            AnswerStreamEvent {
+                request_id: request.request_id.clone(),
+                question: request.raw_text.clone(),
+                text: text.clone(),
+            },
+        );
+        return Ok(text);
+    }
+    let mut pending = Vec::new();
+    let mut text = String::new();
+    while let Some(chunk) = response
+        .chunk()
+        .await
+        .map_err(|e| format!("读取流式回答失败：{e}"))?
+    {
+        pending.extend_from_slice(&chunk);
+        while let Some(index) = pending.iter().position(|byte| *byte == b'\n') {
+            let line = String::from_utf8_lossy(&pending[..index])
+                .trim_end_matches('\r')
+                .to_string();
+            pending.drain(..=index);
+            let Some(data) = line.strip_prefix("data:") else {
+                continue;
+            };
+            let data = data.trim();
+            if data == "[DONE]" {
+                if text.trim().is_empty() {
+                    return post_chat(request).await;
+                }
+                return Ok(text.trim().to_string());
+            }
+            let Ok(value) = serde_json::from_str::<serde_json::Value>(data) else {
+                continue;
+            };
+            if let Some(piece) = value
+                .pointer("/choices/0/delta/content")
+                .and_then(|item| item.as_str())
+            {
+                let remaining = MAX_OUTPUT_CHARS.saturating_sub(text.chars().count());
+                if remaining == 0 {
+                    break;
+                }
+                text.extend(piece.chars().take(remaining));
+                let _ = app.emit(
+                    "answer-stream",
+                    AnswerStreamEvent {
+                        request_id: request.request_id.clone(),
+                        question: request.raw_text.clone(),
+                        text: text.clone(),
+                    },
+                );
+            }
+        }
+        if text.chars().count() >= MAX_OUTPUT_CHARS {
+            break;
+        }
+        if pending.len() > 1_000_000 {
+            return Err("文字模型流式响应过长".into());
+        }
+    }
+    if text.trim().is_empty() {
+        return post_chat(request).await;
+    }
+    Ok(text.trim().to_string())
 }
 
 #[tauri::command]
@@ -264,7 +472,23 @@ pub async fn process_text(request: ProcessTextRequest) -> Result<ProcessTextResp
     // 输入上限在 Rust 侧再兜一次：前端可能被绕过，而且截断点必须和消息组装一致。
     let mut request = request;
     request.raw_text = request.raw_text.chars().take(MAX_INPUT_CHARS).collect();
-    let text = post_chat(&request).await?;
+    let text = cancellable(&request.request_id, post_chat(&request)).await?;
+    Ok(ProcessTextResponse {
+        text,
+        duration_ms: started.elapsed().as_millis(),
+    })
+}
+
+#[tauri::command]
+pub async fn stream_answer(
+    app: AppHandle,
+    request: ProcessTextRequest,
+) -> Result<ProcessTextResponse, String> {
+    let started = std::time::Instant::now();
+    if request.task != "ask" {
+        return Err("流式接口仅用于问答".into());
+    }
+    let text = cancellable(&request.request_id, post_chat_stream(&app, &request)).await?;
     Ok(ProcessTextResponse {
         text,
         duration_ms: started.elapsed().as_millis(),

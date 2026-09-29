@@ -61,3 +61,26 @@
 3. 自动学习仅跟随普通口述的自动粘贴；关闭开关立即终止观察，已有词保留。手动词优先，自动规则有限额，删除的规则不再学习。历史纠正作为无法读取输入框时的显式教学入口。
 4. 学到的词在下一次任务生效，通过本地替换接入现有语音/文字链路；不假定私有 Qwen ASR 支持未验证的热词参数。
 5. 当前 Mac 验证纯逻辑、界面、Rust 可编译部分与构建入口；Windows 快捷键/UIA/WebView2/安装包仍须 Windows 环境实测。
+
+## 2026-09-29 语音处理架构修订
+
+用户进一步要求：主要面向 Windows EXE；采用 Typefree 的边录边提交；ASR 与文字模型自行定义，其余语音处理行为对齐 Typefree。此前确定的 vibevoice 快捷键、墨珠动效及构建路线继续保留。
+
+### 研究决定
+
+- 正式桌面采集目标改为 Rust 后端的 WASAPI 共享模式，前端负责控制与电平显示。修订时浏览器预览仍用 `ScriptProcessorNode`，MDN 已将它标为弃用；实施中已改为 AudioWorklet。
+- 采集和上传编码解耦。采集采用设备支持的格式，后台完成下混与连续重采样；分段分析使用 16 kHz 单声道 PCM。
+- 原版 AAC 参数已核实为 24 kbps 单声道；当前 PCM16 WAV 为 256 kbps。1 分钟理论载荷分别约 180 KB、1.92 MB，未计容器开销。
+- Microsoft 系统 AAC 编码器文档列出的输入采样率为 44.1/48 kHz、码率从 96 kbps 起，不能声称 Windows 原生编码直接复现 macOS 的 16 kHz/24 kbps 压缩参数。编码和 ASR 能力确认后优先 M4A；能力未确认保持 WAV。
+- 原版当前入口默认边录边发：2 秒评估、目标段长约 6 秒、最短约 3.5 秒、末端安全边距约 1.5 秒；按停顿提交 HTTP 请求，结束后处理尾段，最终统一输入。
+- 文本短句判断、最终词库纠正、失败原文回退、ASR 同模型重试、历史/音频恢复、翻译与问答列为对齐目标。ASR 格式、上下文参数和限流由自定义服务实际能力决定。
+
+完整设计、差距和验收基线见 [Windows 语音处理设计](docs/audio-architecture.md)。实施已进入源码，但 Windows 真实设备和服务验收仍未完成；以设计文档的分层状态为准。
+
+### 关键来源与待验证
+
+- [Typefree M4AEncoder](https://github.com/kdsz001/typefree/blob/9d16762c52906f054285b630935017a431e9e627/mac/VoicePolishCore/Sources/VoicePolishCore/M4AEncoder.swift)：参数与回退实现，GPL-3.0，证据高。
+- [Microsoft WASAPI](https://learn.microsoft.com/en-us/windows/win32/coreaudio/wasapi) 与 [AAC Encoder](https://learn.microsoft.com/en-us/windows/win32/medfound/aac-encoder)：Windows 平台接口与编码器约束，证据高。
+- [MDN ScriptProcessorNode](https://developer.mozilla.org/en-US/docs/Web/API/ScriptProcessorNode/audioprocess_event)：现有浏览器采集节点的弃用状态，证据高。
+
+用户已选通用 OpenAI 兼容 WAV 接口：实现固定使用 16 kHz PCM16 WAV，不假设 M4A/AAC、词汇上下文或额外并发额度。WASAPI 共享采集不等价于浏览器的回声消除/降噪，需用实际设备录音比较；原生采集不能直接推导为识别更准。未声称尚未测量的性能提升。

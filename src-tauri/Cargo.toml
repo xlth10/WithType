@@ -23,14 +23,15 @@ base64 = "0.22"
 # 漏掉它会静默退化成 mock（纯内存、零持久化），
 # 表现为 save_api_key 返回成功但 get_password 永远 NoEntry。
 keyring = { version = "3.6", features = ["windows-native"] }
-reqwest = { version = "0.12", features = ["json", "multipart", "rustls-tls"], default-features = false }
+reqwest = { version = "0.12", features = ["json", "multipart", "rustls-tls", "stream"], default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-single-instance = "2"
-tokio = { version = "1", features = ["time"] }
+tokio = { version = "1", features = ["time", "macros", "sync"] }
 
 [target.'cfg(windows)'.dependencies]
+cpal = "0.18.2"
 windows = { version = "0.61.3", features = ["Win32_System_Com", "Win32_UI_Accessibility"] }
-windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_Threading", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }

@@ -256,9 +256,9 @@ test("智能整理使用自然正文规则，不混入 Skill 的栏目约束", (
     rawText: "嗯，我说明天，不对，后天把报告发给小王。",
   });
   const system = messages[0].content;
-  assert.ok(system.includes("明确改口时可以删去已被推翻的旧说法"));
-  assert.ok(system.includes("句子绕或断裂时可轻微调整语序"));
-  assert.ok(system.includes("自然分段"));
+  assert.ok(system.includes("不要回答或回应用户说的内容"));
+  assert.ok(system.includes("轻微调整语序"));
+  assert.ok(system.includes("适当分段"));
   assert.ok(!system.includes("待确认"));
   assert.ok(!system.includes("用短标题或「栏目：内容」"));
   assert.ok(!system.includes("不要删减内容"));

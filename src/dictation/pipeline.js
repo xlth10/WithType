@@ -9,13 +9,23 @@
 
 import { ASK_INSTRUCTION, BUILTIN_SKILLS, COMMAND_INSTRUCTION, SMART_INSTRUCTION, buildMessages, findBuiltinSkill } from "../text/builtinSkills.js";
 import { applyLearnedVocabulary } from "../vocabulary/learning.js";
-import { applyVocabulary, lightlyCleanText } from "../text/localText.js";
+import { applyVocabulary, effectiveTextLength, lightlyCleanText, stripShortTrailingFullStop } from "../text/localText.js";
 import { parseOutputLanguage, translationInstruction } from "../text/outputLanguage.js";
 
 export const INTENTS = ["dictation", "command", "ask", "translate", "skill"];
 
 /** 命令识别的最低置信度：低于它一律按普通口述处理，避免误拦用户的正常输入。 */
 export const AUTO_COMMAND_CONFIDENCE = 0.85;
+
+export function classifyAsrError(error) {
+  const message = String(error?.message || error || "");
+  if (/HTTP (401|403)\b|API Key|凭据库|认证|权限/i.test(message)) return "auth";
+  if (/HTTP 429\b|限流|额度/i.test(message)) return "rate-limit";
+  if (/HTTP (400|415|422)\b|格式/i.test(message)) return "format";
+  if (/超时|请求失败|无法连接|网络|HTTP 5\d\d\b/i.test(message)) return "transient";
+  if (/麦克风|设备|录音/i.test(message)) return "device";
+  return "unknown";
+}
 
 /** 送去整理的单条文本上限，避免超长文本拖垮私有文字服务。 */
 const MAX_TEXT_CHARS = 12000;
@@ -39,6 +49,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
   /** 预览不占当前任务序号，用自己的一个 id：否则预览会把飞行中的录音任务判成过期。 */
   let previewId = null;
   let cancelled = new Set();
+  const quotaCooldown = new Map();
 
   const nextRequestId = () => {
     counter += 1;
@@ -67,6 +78,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
       intent: INTENTS.includes(intent) ? intent : "dictation",
       processingMode: settings.processingMode,
       selectedSkillId: selectedSkill ? selectedSkill.id : "",
+      translationLanguage: settings.defaultTranslationLanguage || "英文",
       skill: selectedSkill,
       windowContext,
       vocabulary: settings.vocabulary || "",
@@ -76,11 +88,14 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         asrModel: settings.asrModel,
         textEndpoint: settings.textEndpoint,
         textModel: settings.textModel,
+        textFastModel: settings.textFastModel,
+        textFallbackModels: settings.textFallbackModels,
         textTimeoutMs: settings.textTimeoutMs,
         textAuthMode: settings.textAuthMode,
         autoPaste: settings.autoPaste,
         autoLearn: settings.autoLearn,
         autoIntent: settings.autoIntent,
+        keepHistoryAudio: settings.keepHistoryAudio,
       },
       startedAt: now(),
     };
@@ -95,7 +110,14 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
 
   /** 使当前任务失效：之后任何迟到的结果都不会落地。 */
   const cancel = () => {
-    if (currentId) cancelled.add(currentId);
+    const requestId = currentId;
+    if (requestId) {
+      cancelled.add(requestId);
+      // 原生投递有独立线程；必须把取消送到 Rust，在 Ctrl+V 前再次检查。
+      void invoke("cancel_paste", { sessionId: requestId }, () => Promise.resolve()).catch(() => {});
+      void invoke("cancel_audio_session", { sessionId: requestId }, () => Promise.resolve()).catch(() => {});
+      void invoke("cancel_text_request", { requestId }, () => Promise.resolve()).catch(() => {});
+    }
     currentId = null;
     // 只保留最近一批 id，避免长时间运行后集合无限增长。
     if (cancelled.size > 64) cancelled = new Set(Array.from(cancelled).slice(-32));
@@ -107,6 +129,21 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
   const textReady = (settings) => Boolean(settings.textEndpoint && settings.textModel);
 
   async function callTranscribe(snapshot, audio) {
+    if (audio.nativeSessionId) {
+      if (audio.deviceError) throw new Error(audio.deviceError);
+      if (audio.transcriptionError) throw new Error(audio.transcriptionError);
+      if (audio.transcript !== null && audio.transcript !== undefined) {
+        return { text: audio.transcript, durationMs: audio.asrMs || 0 };
+      }
+      return invoke("transcribe_native_audio", {
+        request: {
+          sessionId: audio.nativeSessionId,
+          requestId: snapshot.requestId,
+          endpoint: snapshot.settings.asrEndpoint,
+          model: snapshot.settings.asrModel,
+        },
+      });
+    }
     return invoke(
       "transcribe_audio",
       {
@@ -127,23 +164,31 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
 
   async function callProcessText(snapshot, { task, rawText, instruction, outputFormat, skillId }) {
     const messages = buildMessages({ instruction, outputFormat, rawText, task });
-    return invoke(
-      "process_text",
-      {
-        request: {
-          requestId: snapshot.requestId,
-          task,
-          rawText,
-          skillId: skillId || null,
-          endpoint: snapshot.settings.textEndpoint,
-          model: snapshot.settings.textModel,
-          timeoutMs: snapshot.settings.textTimeoutMs,
-          authMode: snapshot.settings.textAuthMode,
-          messages,
-        },
-      },
-      () => new Promise((resolve) => setTimeout(() => resolve({ text: rawText, durationMs: 10 }), 600)),
-    );
+    const fast = ["intent", "translate"].includes(task) ? snapshot.settings.textFastModel : "";
+    const fallback = String(snapshot.settings.textFallbackModels || "").split(/[\n,，]/).map((name) => name.trim()).filter(Boolean).slice(0, 5);
+    const configured = [...new Set([fast, snapshot.settings.textModel, ...fallback].filter(Boolean))];
+    const available = configured.filter((model) => (quotaCooldown.get(model) || 0) <= Date.now());
+    const models = available.length ? available : configured.slice(0, 1);
+    let lastError;
+    for (const [index, model] of models.entries()) {
+      try {
+        return await invoke(task === "ask" && typeof window !== "undefined" && window.__TAURI_INTERNALS__ ? "stream_answer" : "process_text", {
+          request: {
+            requestId: snapshot.requestId, task, rawText, skillId: skillId || null,
+            endpoint: snapshot.settings.textEndpoint, model,
+            timeoutMs: snapshot.settings.textTimeoutMs, authMode: snapshot.settings.textAuthMode,
+            messages,
+          },
+        }, () => new Promise((resolve) => setTimeout(() => resolve({ text: rawText, durationMs: 10 }), 600)));
+      } catch (error) {
+        lastError = error;
+        const message = String(error?.message || error);
+        if (/额度用尽/.test(message)) quotaCooldown.set(model, Date.now() + 20 * 60 * 60 * 1000);
+        const transient = /超时|无法连接|请求失败|额度用尽|HTTP (429|500|502|503|504)/i.test(message);
+        if (!transient || index === models.length - 1 || !guard(snapshot)) throw error;
+      }
+    }
+    throw lastError || new Error("尚未配置文字模型");
   }
 
   /** 调用文字模型，并把「原文」作为失败时的兜底一起返回，绝不让调用方丢掉原文。 */
@@ -205,7 +250,17 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
    */
   async function complete(args) {
     try {
-      return await runTask(args);
+      const result = await runTask(args);
+      if ((result.ok || result.stage === "paste") && args.audio?.nativeSessionId) {
+        if (args.snapshot.settings.keepHistoryAudio || args.snapshot.preserveAudio) {
+          await invoke("retain_native_audio", { sessionId: args.audio.nativeSessionId }, () => Promise.resolve()).catch((error) => {
+            onEvent({ type: "retention-warning", requestId: args.snapshot.requestId, message: String(error?.message || error) });
+          });
+        } else if (result.ok) {
+          await invoke("release_native_audio", { sessionId: args.audio.nativeSessionId }, () => Promise.resolve()).catch(() => {});
+        }
+      }
+      return result;
     } finally {
       release(args.snapshot.requestId);
     }
@@ -219,6 +274,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
       }
       return { ok: false, stage: "record" };
     }
+    snapshot.nativeAudioSessionId = audio.nativeSessionId || null;
 
     const asrStarted = now();
     let asr;
@@ -231,6 +287,11 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
           requestId: snapshot.requestId,
           stage: "asr",
           message: String(error && error.message ? error.message : error),
+          errorKind: classifyAsrError(error),
+          audioSessionId: audio.nativeSessionId || null,
+          audioMs: audio.audioMs || 0,
+          intent: snapshot.intent,
+          windowContext: snapshot.windowContext,
         });
       }
       return { ok: false, stage: "asr" };
@@ -295,7 +356,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         if (stage.ok && stage.text) finalText = stage.text;
         else textFailure = stage.error || "文字模型没有返回内容";
       }
-    } else if (intent === "skill" || snapshot.processingMode === "smart" || snapshot.processingMode === "skill") {
+    } else if (intent === "skill" || snapshot.processingMode === "skill" || (snapshot.processingMode === "smart" && effectiveTextLength(corrected) > 10)) {
       const skill = intent === "skill" || snapshot.processingMode === "skill" ? snapshot.skill : null;
       const modeReady = textReady(snapshot.settings);
       const skillReady = (intent !== "skill" && snapshot.processingMode !== "skill") || Boolean(skill);
@@ -318,12 +379,17 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         textFailure = modeReady ? "所选 Skill 已不可用，请重新选择" : "尚未配置文字模型，已按原文处理";
         finalText = corrected;
       }
+    } else if (snapshot.processingMode === "smart" && effectiveTextLength(corrected) <= 10) {
+      // Typefree 短句路径：无需文字请求；去掉 ASR 附加的末尾句号。
+      finalText = stripShortTrailingFullStop(corrected);
     } else if (snapshot.processingMode === "clean") {
       finalText = lightlyCleanText(corrected);
     }
 
-    // 文字阶段失败：按意图分流。命令失败绝不上屏，普通口述保留原文交给用户决定。
-    if (textFailure) {
+    // 普通口述整理失败时自动回退识别原文，同时把原因写入完成事件和历史。
+    // 提问、翻译、命令及明确运行的技能仍交给用户重试，避免输入指令句。
+    if (textFailure && intent === "dictation") finalText = corrected;
+    else if (textFailure) {
       onEvent({
         type: "text-failed",
         requestId: snapshot.requestId,
@@ -335,6 +401,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         timings,
         usedTextService,
         windowContext: snapshot.windowContext,
+        audioSessionId: snapshot.settings.keepHistoryAudio || snapshot.preserveAudio ? snapshot.nativeAudioSessionId : null,
       });
       return { ok: false, stage: "text", intent, rawText: corrected, timings };
     }
@@ -349,11 +416,17 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         text: finalText,
         timings,
         windowContext: snapshot.windowContext,
+        audioSessionId: snapshot.settings.keepHistoryAudio || snapshot.preserveAudio ? snapshot.nativeAudioSessionId : null,
       });
       return { ok: true, text: finalText, intent, timings, pasted: false };
     }
 
-    return deliver(snapshot, { intent, finalText, rawText: corrected, timings, usedTextService });
+    // 用户词库需作用于口述类最终成稿，防止模型再次改回错误术语。
+    // 语音命令生成的内容不是用户口述，不应用个人词库。
+    if (intent !== "command") {
+      finalText = applyVocabulary(applyLearnedVocabulary(finalText, snapshot.learnedEntries, snapshot.vocabulary), snapshot.vocabulary);
+    }
+    return deliver(snapshot, { intent, finalText, rawText: corrected, timings, usedTextService, warning: textFailure });
   }
 
   /**
@@ -361,7 +434,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
    * 所以「原文 / 整理结果 / 命令生成结果 / 用户点插入原文」四条路径
    * 对取消、自动粘贴开关、耗时统计的判定完全一致。
    */
-  async function deliver(snapshot, { intent, finalText, rawText, timings, usedTextService, insertedRaw = false }) {
+  async function deliver(snapshot, { intent, finalText, rawText, timings, usedTextService, insertedRaw = false, warning = null }) {
     if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
 
     const pasteStarted = now();
@@ -377,6 +450,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
           type: "paste-failed", requestId: snapshot.requestId, intent,
           text: finalText, rawText, message, pasted: false, timings,
           usedTextService, windowContext: snapshot.windowContext,
+          audioSessionId: snapshot.settings.keepHistoryAudio || snapshot.preserveAudio ? snapshot.nativeAudioSessionId : null,
         });
         return { ok: false, stage: "paste", text: finalText, intent, timings, pasted: false, message };
       }
@@ -395,7 +469,9 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
       pasted,
       timings,
       usedTextService,
+      audioSessionId: snapshot.settings.keepHistoryAudio || snapshot.preserveAudio ? snapshot.nativeAudioSessionId : null,
       insertedRaw,
+      warning,
       windowContext: snapshot.windowContext,
     });
     return { ok: true, text: finalText, intent, timings, pasted };
@@ -421,6 +497,12 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
     } finally {
       release(snapshot.requestId);
     }
+  }
+
+  async function retryAudio({ audioSessionId, intent, settings, customSkills = [], audioMs = 0, windowContext = null, preserveAudio = false }) {
+    const snapshot = begin({ intent, settings, customSkills, windowContext });
+    snapshot.preserveAudio = preserveAudio;
+    return complete({ snapshot, audio: { nativeSessionId: audioSessionId, audioMs, encodeMs: 0 } });
   }
 
   /**
@@ -487,5 +569,5 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
     return { ok: true, text: stage.text, textMs: stage.textMs };
   }
 
-  return { begin, cancel, current, isCurrent, complete, retry, insertRaw, preview, textReady, builtinSkills: BUILTIN_SKILLS };
+  return { begin, cancel, current, isCurrent, complete, retry, retryAudio, insertRaw, preview, textReady, builtinSkills: BUILTIN_SKILLS };
 }

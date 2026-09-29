@@ -4,8 +4,8 @@
 /** 录音结束后对 ASR 文本所做的处理。 */
 export const PROCESSING_MODES = ["original", "corrected", "clean", "smart", "skill"];
 
-/** 新安装的默认路径必须是 original：本地处理最快，也不依赖文字服务。 */
-export const DEFAULT_PROCESSING_MODE = "original";
+/** 新安装走自动整理；短句本地直出，长句在服务可用时整理。 */
+export const DEFAULT_PROCESSING_MODE = "smart";
 
 export const DEFAULT_SHORTCUT = "Ctrl+Alt+Space";
 export const DEFAULT_ASK_SHORTCUT = "Ctrl+Alt+Shift+Space";
@@ -15,18 +15,24 @@ export const ACTION_TYPES = ["translate", "skill", "command"];
 export const DEFAULT_SETTINGS = {
   asrEndpoint: "",
   asrModel: "Qwen/Qwen3-ASR-1.7B",
+  audioDeviceId: "",
   shortcut: DEFAULT_SHORTCUT,
   askShortcut: DEFAULT_ASK_SHORTCUT,
   actionShortcut: DEFAULT_ACTION_SHORTCUT,
   actionType: "translate",
+  defaultTranslationLanguage: "英文",
   actionSkillId: "",
   autoPaste: true,
   autoLearn: true,
   launchAtLogin: false,
+  historyRetentionDays: 30,
+  keepHistoryAudio: false,
   processingMode: DEFAULT_PROCESSING_MODE,
   vocabulary: "Qwen3=快问三|千问三",
   textEndpoint: "",
   textModel: "",
+  textFastModel: "",
+  textFallbackModels: "",
   textTimeoutMs: 60000,
   // bearer = 走 Authorization 头；none = 私有内网服务显式声明不需要认证。
   textAuthMode: "bearer",
@@ -109,18 +115,24 @@ export function normalizeSettings(raw) {
     settings: {
       asrEndpoint: asString(source.asrEndpoint, DEFAULT_SETTINGS.asrEndpoint).trim(),
       asrModel: asString(source.asrModel, DEFAULT_SETTINGS.asrModel).trim(),
+      audioDeviceId: asString(source.audioDeviceId, DEFAULT_SETTINGS.audioDeviceId),
       shortcut,
       askShortcut,
       actionShortcut,
       actionType: ACTION_TYPES.includes(source.actionType) ? source.actionType : legacyCommand ? "command" : DEFAULT_SETTINGS.actionType,
+      defaultTranslationLanguage: ["英文", "日文", "韩文", "中文", "法文", "德文", "西班牙文"].includes(source.defaultTranslationLanguage) ? source.defaultTranslationLanguage : DEFAULT_SETTINGS.defaultTranslationLanguage,
       actionSkillId: asString(source.actionSkillId, DEFAULT_SETTINGS.actionSkillId),
       autoPaste: asBoolean(source.autoPaste, DEFAULT_SETTINGS.autoPaste),
       autoLearn: asBoolean(source.autoLearn, DEFAULT_SETTINGS.autoLearn),
       launchAtLogin: asBoolean(source.launchAtLogin, DEFAULT_SETTINGS.launchAtLogin),
+      historyRetentionDays: [0, 7, 30, 90, 365].includes(source.historyRetentionDays) ? source.historyRetentionDays : DEFAULT_SETTINGS.historyRetentionDays,
+      keepHistoryAudio: asBoolean(source.keepHistoryAudio, DEFAULT_SETTINGS.keepHistoryAudio),
       processingMode,
       vocabulary: asString(source.vocabulary, DEFAULT_SETTINGS.vocabulary),
       textEndpoint: asString(source.textEndpoint, DEFAULT_SETTINGS.textEndpoint).trim(),
       textModel: asString(source.textModel, DEFAULT_SETTINGS.textModel).trim(),
+      textFastModel: asString(source.textFastModel, DEFAULT_SETTINGS.textFastModel).trim().slice(0, 200),
+      textFallbackModels: asString(source.textFallbackModels, DEFAULT_SETTINGS.textFallbackModels).trim().slice(0, 1000),
       textTimeoutMs: clampTimeout(source.textTimeoutMs, DEFAULT_SETTINGS.textTimeoutMs),
       textAuthMode,
       selectedSkillId: asString(source.selectedSkillId, DEFAULT_SETTINGS.selectedSkillId),

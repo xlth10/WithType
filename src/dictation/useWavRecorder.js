@@ -42,7 +42,7 @@ export function useWavRecorder({ onDeviceState } = {}) {
 
   const teardown = useCallback(() => {
     if (nodeRef.current) {
-      nodeRef.current.onaudioprocess = null;
+      nodeRef.current.port.onmessage = null;
       nodeRef.current.disconnect();
       nodeRef.current = null;
     }
@@ -58,7 +58,7 @@ export function useWavRecorder({ onDeviceState } = {}) {
     // 窗口关闭或组件卸载时释放麦克风，避免设备灯一直亮着。
     if (animationRef.current) cancelAnimationFrame(animationRef.current);
     if (nodeRef.current) {
-      nodeRef.current.onaudioprocess = null;
+      nodeRef.current.port.onmessage = null;
       nodeRef.current.disconnect();
     }
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -78,16 +78,16 @@ export function useWavRecorder({ onDeviceState } = {}) {
     streamRef.current = stream;
     contextRef.current = context;
     try {
+    await context.audioWorklet.addModule("/recorder-worklet.js");
+    if (generation !== generationRef.current) { teardown(); return; }
     const source = context.createMediaStreamSource(stream);
-    // 这一版仍然是 ScriptProcessor 路径，迁移到 AudioWorklet 是独立的一次改动：
-    // 两者都会影响采集时序，一次只动一类风险。
-    const node = context.createScriptProcessor(4096, 1, 1);
+    const node = new AudioWorkletNode(context, "typefree-capture", { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
     const mute = context.createGain();
     mute.gain.value = 0; // 只为让音频图保持运行，不把麦克风回放到扬声器
     samplesRef.current = [];
     startedRef.current = Date.now();
-    node.onaudioprocess = (event) => {
-      samplesRef.current.push(new Float32Array(event.inputBuffer.getChannelData(0)));
+    node.port.onmessage = (event) => {
+      if (generation === generationRef.current) samplesRef.current.push(event.data);
     };
     source.connect(node);
     node.connect(mute);

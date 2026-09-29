@@ -122,6 +122,12 @@ export function TextSettings({ settings, setSettings, invoke, onNotice }) {
               onChange={(event) => patch({ textModel: event.target.value })}
             />
           </Field>
+          <Field label="快速模型（可选）" hint="意图判断与翻译优先使用；留空时使用主模型。">
+            <input value={settings.textFastModel || ""} onChange={(event) => patch({ textFastModel: event.target.value })} />
+          </Field>
+          <Field label="备用模型（可选）" hint="同一服务下的模型名称，用逗号分隔。仅超时、网络错误或限流时按顺序尝试。">
+            <input value={settings.textFallbackModels || ""} onChange={(event) => patch({ textFallbackModels: event.target.value })} />
+          </Field>
           <Field label="认证方式">
             <select
               value={settings.textAuthMode}

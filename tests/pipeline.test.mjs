@@ -17,6 +17,28 @@ test("ASR 错误分类区分认证、限流、格式与临时故障", () => {
   assert.equal(classifyAsrError("ASR 服务返回 HTTP 415 Unsupported Media Type"), "format");
   assert.equal(classifyAsrError("语音识别请求失败：connection reset"), "transient");
 });
+
+test("错误消息里带上服务端摘要后，分类结果不变", () => {
+  // 2026-09 起 5xx 会回显服务端 body 的 200 字符摘要。上游 vLLM 的
+  // RuntimeError 原文里可能带 400/415 之类的词，不能因此被误判成 format。
+  assert.equal(
+    classifyAsrError('ASR 服务返回 HTTP 500 Internal Server Error：{"error":{"message":"RuntimeError(\\"Qwen response missing text: {\\"text\\": \\"\\"}\\")","type":"bad_response_status_code"}}'),
+    "transient",
+  );
+  assert.equal(
+    classifyAsrError('ASR 服务返回 HTTP 400 Bad Request：{"error":{"message":"invalid file format"}}'),
+    "format",
+  );
+  // 网关回显请求头时，摘要里的令牌必须已被打码，且不影响分类。
+  assert.equal(classifyAsrError("ASR 服务返回 HTTP 401 Unauthorized：Invalid token: Bearer sk-***"), "auth");
+});
+
+test("本地拦下的静音录音归到 silence，而不是设备故障", () => {
+  // 这两条消息都含「录音」，必须排在 device 正则之前，否则会被吃掉。
+  assert.equal(classifyAsrError("录音里没有采集到有效声音"), "silence");
+  assert.equal(classifyAsrError("录音太短，请多说几个字后再结束"), "silence");
+  assert.equal(classifyAsrError("麦克风返回了无效声道数"), "device");
+});
 import { BUILTIN_SKILLS } from "../src/text/builtinSkills.js";
 import { DEFAULT_SETTINGS } from "../src/text/settingsMigration.js";
 

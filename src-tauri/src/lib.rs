@@ -41,6 +41,26 @@ struct PasteSessions {
 
 static PASTE_SESSIONS: OnceLock<Mutex<PasteSessions>> = OnceLock::new();
 
+/// 托盘和窗口标题栏用的图标。
+///
+/// 不能用 `app.default_window_icon()`：Windows 上它取自 `icons/icon.ico`，
+/// 而 tauri-codegen 解析 ICO 时写死了 `entries()[0]`，也就是目录里的第一帧 ——
+/// 按 scripts/generate_icon.py 的写入顺序恰好是 16×16。这个 16px 位图随后被
+/// tao / tray-icon 原样交给 CreateIcon（不缩放），DPI 放大后就糊了。
+///
+/// 这里嵌的是整个 icon.ico：`tauri::Image::from_bytes` 走 image crate 的
+/// ico 解码器，它按「位深优先、再比面积」挑帧，会选到 256×256 那帧，
+/// 而不是像 tauri-codegen 那样只认第一帧。
+///
+/// 之所以用 .ico 而不是 128×128.png：本机 DLP 会把 .png 就地加密成
+/// %TSD-Header-###%，编译期 include_bytes! 读到的就是密文（.ico 不受影响），
+/// 运行时再读盘则要依赖解密，所以宁可嵌裸的 .ico 字节。
+static APP_ICON: &[u8] = include_bytes!("../icons/icon.ico");
+
+fn app_icon() -> tauri::Result<tauri::image::Image<'static>> {
+    tauri::image::Image::from_bytes(APP_ICON)
+}
+
 fn paste_sessions() -> &'static Mutex<PasteSessions> {
     PASTE_SESSIONS.get_or_init(|| Mutex::new(PasteSessions::default()))
 }
@@ -173,6 +193,81 @@ fn get_active_window_context() -> Option<ActiveWindowContext> {
     }
 }
 
+/// 双 bug 排查用的临时诊断日志，写到系统临时目录的 typefree-debug.log。
+/// 定位完成后会移除，不是正式日志设施：不记正文内容，只记定位需要的窗口与按键事实。
+fn debug_log(message: &str) {
+    use std::io::Write;
+    let path = std::env::temp_dir().join("typefree-debug.log");
+    let _ = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+        .and_then(|mut file| {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default();
+            writeln!(
+                file,
+                "[{:?}+{:03}ms] {}",
+                now.as_secs(),
+                now.subsec_millis(),
+                message
+            )
+        });
+}
+
+/// 悬浮窗的 show() 在第二次起走 SW_SHOW 会激活自己；粘贴键打到的是前台窗口，
+/// 所以显示前后都要看住前台，被抢走就还给用户正在打字的应用。
+#[cfg(target_os = "windows")]
+fn foreground_window() -> windows_sys::Win32::Foundation::HWND {
+    use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
+    unsafe { GetForegroundWindow() }
+}
+
+#[cfg(target_os = "windows")]
+fn restore_foreground(window: windows_sys::Win32::Foundation::HWND, scenario: &str) {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, SetForegroundWindow};
+    if window.is_null() {
+        return;
+    }
+    let current = unsafe { GetForegroundWindow() };
+    if current != window {
+        debug_log(&format!(
+            "{scenario}: 前台 {:p} 被换成 {:p}，SetForegroundWindow 恢复 = {}",
+            window,
+            current,
+            unsafe { SetForegroundWindow(window) } != 0
+        ));
+    }
+}
+
+/// Ctrl+V 只打前台窗口。悬浮 HUD 的 show() 第二次起是 SW_SHOW（会激活自己），
+/// 且 tao 的 force_window_active 失败时还会发 Alt 键 hack——两者都可能把前台
+/// 挪走，粘贴就打错了地方。粘贴前确认前台还是启动口述时的那个应用；不是的话
+/// 直接把前台还给那个窗口，再发键。
+#[cfg(target_os = "windows")]
+fn paste_focus_note() -> Option<isize> {
+    let hwnd = foreground_window();
+    if hwnd.is_null() {
+        debug_log("paste_focus: 启动口述时前台窗口为空");
+        return None;
+    }
+    Some(hwnd as isize)
+}
+
+#[cfg(target_os = "windows")]
+fn paste_focus_restore(hwnd: Option<isize>, scenario: &str) {
+    let Some(hwnd) = hwnd else { return };
+    restore_foreground(hwnd as windows_sys::Win32::Foundation::HWND, scenario);
+}
+
+#[cfg(target_os = "windows")]
+fn paste_focus_force(window: isize) -> bool {
+    use windows_sys::Win32::UI::WindowsAndMessaging::SetForegroundWindow;
+    let ok = unsafe { SetForegroundWindow(window as windows_sys::Win32::Foundation::HWND) };
+    ok != 0
+}
+
 #[tauri::command]
 fn get_answer_card(app: AppHandle) -> Option<AnswerCardData> {
     app.state::<AnswerCardState>().0.lock().ok()?.clone()
@@ -258,35 +353,44 @@ fn save_api_key(key: String) -> Result<(), String> {
         .map_err(|error| format!("保存 API Key 失败：{error}"))
 }
 
+/// 探针音频的形状：1 秒 16 kHz 单声道 PCM16 的 440 Hz 低幅正弦。
+///
+/// 时长维持 1 秒是有实测依据的——1 秒正弦在该上游稳定返回 200。
+/// 幅度只为避开「整段数字静音」这一个会稳定触发 500 的输入；
+/// 不要拿它去和 audio.rs 里 pause_end / has_voice 的录音阈值（0.008 / 0.012）比较，
+/// 那判的是「录音里有没有人声」，比「上游能不能解码出文字」严得多。
+const PROBE_RATE: u32 = 16_000;
+const PROBE_SAMPLES: usize = PROBE_RATE as usize;
+const PROBE_AMPLITUDE: f32 = 0.1;
+const PROBE_TONE_HZ: f32 = 440.0;
+
+/// 合成探针 WAV。复用 audio::wav_bytes，避免两套 RIFF 头各自漂移。
+fn probe_wav() -> Result<Vec<u8>, String> {
+    let samples: Vec<f32> = (0..PROBE_SAMPLES)
+        .map(|index| {
+            let phase = 2.0 * std::f32::consts::PI * PROBE_TONE_HZ * index as f32 / PROBE_RATE as f32;
+            PROBE_AMPLITUDE * phase.sin()
+        })
+        .collect();
+    audio::wav_bytes(&samples)
+}
+
 #[tauri::command]
 async fn test_connection(endpoint: String, model: String) -> Result<(), String> {
     if endpoint.trim().is_empty() || model.trim().is_empty() {
         return Err("请先填写 ASR 地址和模型名称".into());
     }
-    // A generic transcription service need not expose GET /models. Exercise the
-    // selected protocol with a complete, one-second PCM16 WAV instead.
-    let mut wav = Vec::with_capacity(44 + 32_000);
-    wav.extend_from_slice(b"RIFF");
-    wav.extend_from_slice(&(32_000u32 + 36).to_le_bytes());
-    wav.extend_from_slice(b"WAVEfmt ");
-    wav.extend_from_slice(&16u32.to_le_bytes());
-    wav.extend_from_slice(&1u16.to_le_bytes());
-    wav.extend_from_slice(&1u16.to_le_bytes());
-    wav.extend_from_slice(&16_000u32.to_le_bytes());
-    wav.extend_from_slice(&32_000u32.to_le_bytes());
-    wav.extend_from_slice(&2u16.to_le_bytes());
-    wav.extend_from_slice(&16u16.to_le_bytes());
-    wav.extend_from_slice(b"data");
-    wav.extend_from_slice(&32_000u32.to_le_bytes());
-    wav.resize(44 + 32_000, 0);
-    let part = reqwest::multipart::Part::bytes(wav)
+    // 通用转录服务不一定暴露 GET /models，所以用一次真实的 audio/transcriptions
+    // 调用验证协议。载荷必须是有内容的音频：整段数字静音在该上游会被判成
+    // 「没有解码出文字」而稳定返回 HTTP 500。
+    let part = reqwest::multipart::Part::bytes(probe_wav()?)
         .file_name("connection-test.wav")
         .mime_str("audio/wav")
         .map_err(|error| format!("无法准备测试 WAV：{error}"))?;
     let form = reqwest::multipart::Form::new()
         .text("model", model)
         .part("file", part);
-    let response = reqwest::Client::new()
+    let response = text_api::client()
         .post(api_url(&endpoint, "audio/transcriptions"))
         .bearer_auth(api_key()?)
         .multipart(form)
@@ -295,13 +399,23 @@ async fn test_connection(endpoint: String, model: String) -> Result<(), String> 
         .await
         .map_err(|error| format!("无法连接 ASR 服务：{error}"))?;
 
-    if !response.status().is_success() {
-        return Err(format!("ASR 服务返回 HTTP {}", response.status()));
-    }
-    let body: serde_json::Value = response
-        .json()
+    let status = response.status();
+    // 先把 body 读出来再判状态——response.json() 会消耗掉响应，
+    // 出错时就再也拿不到服务端的说明了。
+    let raw = response
+        .text()
         .await
-        .map_err(|_| "ASR 服务响应不是有效 JSON".to_string())?;
+        .map_err(|_| "读取 ASR 服务响应失败".to_string())?;
+    if !status.is_success() {
+        return Err(format!(
+            "ASR 服务返回 HTTP {status}：{}",
+            text_api::excerpt(&raw)
+        ));
+    }
+    let body: serde_json::Value =
+        serde_json::from_str(&raw).map_err(|_| "ASR 服务响应不是有效 JSON".to_string())?;
+    // 通过判定刻意保持宽松：空文字也算连接成功——上游对合法但无语音的音频
+    // 就是返回 ""，收紧成「text 非空」会造成确定性假失败。
     if body.get("text").and_then(|value| value.as_str()).is_none()
         && body
             .pointer("/choices/0/message/content")
@@ -379,7 +493,7 @@ pub(crate) async fn transcribe_bytes_with_cancel(
         .part("file", part);
 
     let response = cancellable_request(
-        reqwest::Client::new()
+        text_api::client()
             .post(api_url(&endpoint, "audio/transcriptions"))
             .bearer_auth(api_key()?)
             .multipart(form)
@@ -391,10 +505,15 @@ pub(crate) async fn transcribe_bytes_with_cancel(
     .await?;
 
     let status = response.status();
-    if !status.is_success() {
-        return Err(format!("ASR 服务返回 HTTP {status}"));
-    }
+    // 先读 body 再判状态：请求成功时它就是识别结果，失败时它是服务端唯一
+    // 留下的线索——只回一句「HTTP 500」用户查不出任何东西。
     let body = cancellable_request(response.text(), cancelled.as_ref(), "读取识别结果失败").await?;
+    if !status.is_success() {
+        return Err(format!(
+            "ASR 服务返回 HTTP {status}：{}",
+            text_api::excerpt(&body)
+        ));
+    }
     let json: serde_json::Value =
         serde_json::from_str(&body).map_err(|error| format!("无法解析识别结果：{error}"))?;
     let text = json
@@ -434,7 +553,7 @@ fn save_settings(app: AppHandle, settings: serde_json::Value) -> Result<(), Stri
             .unwrap_or(true),
     );
     let data = serde_json::to_vec_pretty(&settings).map_err(|error| error.to_string())?;
-    fs::write(settings_path(&app)?, data).map_err(|error| format!("保存设置失败：{error}"))
+    skills::write_atomic(&settings_path(&app)?, &data).map_err(|error| format!("保存设置失败：{error}"))
 }
 
 #[tauri::command]
@@ -515,7 +634,16 @@ async fn paste_text(
         };
         #[cfg(not(windows))]
         let _ = (app, learn);
+        // 粘贴目标是启动口述时的前台窗口；先记下来，paste_to_foreground 里恢复用。
+        #[cfg(windows)]
+        let captured_foreground = paste_focus_note();
+        // cfg 只能挂在 let 语句上，不能挂在调用参数上（表达式属性未稳定）。
+        #[cfg(windows)]
+        let result = paste_to_foreground(text, &session_id, captured_foreground);
+        #[cfg(not(windows))]
         let result = paste_to_foreground(text, &session_id);
+        #[cfg(windows)]
+        paste_focus_restore(captured_foreground, "end");
         #[cfg(windows)]
         if let Some(monitor) = monitor {
             let _ = monitor.send(result.is_ok());
@@ -554,7 +682,11 @@ fn paste_was_cancelled(session_id: &str) -> bool {
         .unwrap_or(true)
 }
 
-fn paste_to_foreground(text: String, session_id: &str) -> Result<(), String> {
+fn paste_to_foreground(
+    text: String,
+    session_id: &str,
+    #[cfg(windows)] captured_foreground: Option<isize>,
+) -> Result<(), String> {
     if paste_was_cancelled(session_id) {
         return Err("输入已取消".into());
     }
@@ -573,7 +705,57 @@ fn paste_to_foreground(text: String, session_id: &str) -> Result<(), String> {
         }
         return Err("输入已取消".into());
     }
+    // Ctrl+V 打的是前台窗口。如果这时前台已经是自己（或别的不是用户目标的应用），
+    // 键就打错了地方——先确认前台还是启动口述时的那个应用，被挪走就还回去。
+    #[cfg(windows)]
+    {
+        use windows_sys::Win32::Foundation::CloseHandle;
+        use windows_sys::Win32::System::Threading::{
+            OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION,
+        };
+        use windows_sys::Win32::UI::WindowsAndMessaging::GetWindowThreadProcessId;
+        let foreground = foreground_window();
+        let mut pid = 0u32;
+        let mut app = String::from("(空)");
+        unsafe {
+            if !foreground.is_null() {
+                GetWindowThreadProcessId(foreground, &mut pid);
+                if pid != 0 {
+                    let process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
+                    if !process.is_null() {
+                        let mut path_buf = vec![0u16; 1024];
+                        let mut path_len = path_buf.len() as u32;
+                        if QueryFullProcessImageNameW(process, 0, path_buf.as_mut_ptr(), &mut path_len)
+                            != 0
+                        {
+                            let path = String::from_utf16_lossy(&path_buf[..path_len as usize]);
+                            let file = path.rsplit(['\\', '/']).next().unwrap_or("");
+                            app = file.strip_suffix(".exe").unwrap_or(file).to_string();
+                        }
+                        CloseHandle(process);
+                    }
+                }
+            }
+        }
+        debug_log(&format!("paste_to_foreground: 前台窗口 pid={pid} app={app} hwnd={foreground:p}"));
+        // 前台被挪走了（比如 overlay 的 show 激活了自己、或用户点了别的窗口）：
+        // 把前台还给打字的应用，否则 Ctrl+V 就打进了错误窗口。
+        if pid as usize == std::process::id() as usize {
+            if let Some(captured) = captured_foreground {
+                debug_log(&format!(
+                    "paste_to_foreground: 前台是本应用，恢复到 {:p}",
+                    captured as windows_sys::Win32::Foundation::HWND
+                ));
+                let _ = paste_focus_force(captured);
+            }
+        }
+    }
     let result = send_ctrl_v();
+    #[cfg(windows)]
+    debug_log(&format!(
+        "paste_to_foreground: send_ctrl_v = {}",
+        if result.is_ok() { "已发送" } else { "失败" }
+    ));
     let restore_delay = if result.is_ok() { 900 } else { 0 };
 
     thread::spawn(move || {
@@ -667,21 +849,21 @@ fn set_shortcut_capture_active(app: AppHandle, active: bool) {
 /// 启动时按保存的配置一次性注册三个键。
 ///
 /// 刻意不再用 unregister_all()：它会连「上一个键」之后用户手工加的其它绑定一起抹掉，
-/// 而且失败时无法区分是哪一个键的问题。
+/// 而且失败时无法区分是哪一个键的问题。回退也按失败的那个键回退它自己的默认值：
+/// 只回退 dictation 会把注册成功的自定义听写键也一并注销掉。
 fn register_shortcuts(app: &AppHandle, dictation: &str, ask: &str, action: &str) -> Vec<String> {
     let mut notices = Vec::new();
-    if let Err(error) = replace_shortcut(app, "dictation", dictation) {
-        notices.push(error);
-    }
-    if let Err(error) = replace_shortcut(app, "ask", ask) {
-        notices.push(error);
-    }
-    if let Err(error) = replace_shortcut(app, "action", action) {
-        notices.push(error);
-    }
-    if !notices.is_empty() {
-        // 回退到默认值，保证至少有一个可用入口，同时让前端能提示用户。
-        let _ = replace_shortcut(app, "dictation", DEFAULT_DICTATION_SHORTCUT);
+    let attempts = [
+        ("dictation", dictation, DEFAULT_DICTATION_SHORTCUT),
+        ("ask", ask, DEFAULT_ASK_SHORTCUT),
+        ("action", action, DEFAULT_ACTION_SHORTCUT),
+    ];
+    for (key, configured, default) in attempts {
+        if let Err(error) = replace_shortcut(app, key, configured) {
+            notices.push(error);
+            // 只回退失败的那个键，保证至少有一个可用入口，同时让前端能提示用户。
+            let _ = replace_shortcut(app, key, default);
+        }
     }
     notices
 }
@@ -717,24 +899,63 @@ fn set_overlay_state(
         if state == "idle" {
             window.hide().map_err(|error| error.to_string())?;
         } else {
-            if let Some(monitor) = window
-                .current_monitor()
-                .map_err(|error| error.to_string())?
-            {
+            // 悬浮 HUD 必须出现在光标所在的那块屏幕上。这里不能用 current_monitor()：
+            // 它在 Windows 上是 MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)，
+            // 按 overlay 自己那块矩形就近吸附，而 overlay 是 visible:false 且没有配置
+            // 坐标的窗口，于是每次都吸到同一块（错误的）屏上并一直沿用下去。
+            // 改以光标为锚点，取其所在显示器。
+            // 顺手看住前台窗口：overlay 的 show 第二次起是 SW_SHOW（会激活自己），
+            // 一旦它成了前台，随后的 Ctrl+V 就打进 overlay 而不是目标应用。
+            #[cfg(target_os = "windows")]
+            let foreground_before = foreground_window();
+            let cursor = window.cursor_position().ok();
+            let monitor = cursor
+                .as_ref()
+                .and_then(|point| window.monitor_from_point(point.x, point.y).ok().flatten())
+                .or_else(|| window.primary_monitor().ok().flatten())
+                .or_else(|| window.current_monitor().ok().flatten());
+            if let Some(monitor) = monitor {
                 let monitor_size = monitor.size();
                 let monitor_position = monitor.position();
                 let window_size = window.outer_size().map_err(|error| error.to_string())?;
+                // 边距是逻辑设计值，乘目标屏的 DPI 才是物理像素——与 outer_size() 同一坐标系。
                 let bottom_margin = (44.0 * monitor.scale_factor()).round() as i32;
-                let x =
-                    monitor_position.x + (monitor_size.width as i32 - window_size.width as i32) / 2;
+                let width = window_size.width as i32;
+                let left = monitor_position.x;
+                let right = monitor_position.x + monitor_size.width as i32 - width;
+                // 水平方向随光标，但不许探出所在显示器；光标不可用时退回该屏居中。
+                let x = match cursor.as_ref() {
+                    Some(point) => {
+                        (point.x.round() as i32 - width / 2).clamp(left, right.max(left))
+                    }
+                    None => left + (right - left) / 2,
+                };
                 let y = monitor_position.y + monitor_size.height as i32
                     - window_size.height as i32
                     - bottom_margin;
                 window
                     .set_position(PhysicalPosition::new(x, y))
                     .map_err(|error| error.to_string())?;
+                debug_log(&format!(
+                    "set_overlay_state({state}): cursor={:?} monitor=({},{})+{}x{} scale={:.2} win={}x{} -> pos=({x},{y})",
+                    cursor.as_ref().map(|p| (p.x as i32, p.y as i32)),
+                    monitor_position.x,
+                    monitor_position.y,
+                    monitor_size.width,
+                    monitor_size.height,
+                    monitor.scale_factor(),
+                    window_size.width,
+                    window_size.height,
+                ));
+            } else {
+                debug_log(&format!(
+                    "set_overlay_state({state}): cursor={:?} 无可用显示器，未定位",
+                    cursor.as_ref().map(|p| (p.x as i32, p.y as i32))
+                ));
             }
             window.show().map_err(|error| error.to_string())?;
+            #[cfg(target_os = "windows")]
+            restore_foreground(foreground_before, "set_overlay_state");
         }
     }
     Ok(())
@@ -889,10 +1110,17 @@ pub fn run() {
                     "quit" => app.exit(0),
                     _ => {}
                 });
-            if let Some(icon) = app.default_window_icon() {
-                tray = tray.icon(icon.clone());
+            if let Ok(icon) = app_icon() {
+                tray = tray.icon(icon);
             }
             tray.build(app)?;
+            // 三个窗口是在 setup 回调之前由 tauri 按 tauri.conf.json 建好的，
+            // 那时挂的仍是上面那份 16px 图标，得在这里覆盖掉。
+            if let Ok(icon) = app_icon() {
+                for (_, window) in app.webview_windows() {
+                    let _ = window.set_icon(icon.clone());
+                }
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -937,4 +1165,39 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("failed to run Typefree Windows");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// 这条断言守着两件事：图标别退化成 16×16（模糊的根因），
+    /// 以及本机 DLP 加密 .png 之后，内嵌的 .ico 仍是可解码的真字节。
+    #[test]
+    fn app_icon_decodes_to_the_largest_frame() {
+        let icon = app_icon().expect("内嵌的 icons/icon.ico 应能解码");
+        assert_eq!((icon.width(), icon.height()), (256, 256));
+        assert_eq!(icon.rgba().len(), 256 * 256 * 4);
+    }
+
+    /// 探针必须是「有内容但短」的音频：形状对得上（1 秒 16 kHz 单声道 PCM16），
+    /// 而且不是整段数字静音——那正是此前稳定打出 500 的输入。
+    #[test]
+    fn probe_wav_is_a_real_tone_not_digital_silence() {
+        let bytes = probe_wav().expect("探针 WAV 应能合成");
+        assert_eq!(bytes.len(), 44 + PROBE_SAMPLES * 2);
+        assert_eq!(&bytes[0..4], b"RIFF");
+        assert_eq!(&bytes[22..24], &1u16.to_le_bytes()); // 单声道
+        assert_eq!(&bytes[24..28], &PROBE_RATE.to_le_bytes());
+        assert_eq!(&bytes[34..36], &16u16.to_le_bytes()); // 位深
+        assert!(bytes[44..].iter().any(|byte| *byte != 0), "探针不能是数字静音");
+
+        let samples: Vec<f32> = bytes[44..]
+            .chunks_exact(2)
+            .map(|pair| i16::from_le_bytes([pair[0], pair[1]]) as f32 / i16::MAX as f32)
+            .collect();
+        assert!(!audio::is_silent(&samples), "探针要能通过本地静音判定");
+        let peak = samples.iter().fold(0.0f32, |acc, v| acc.max(v.abs()));
+        assert!(peak > 0.09 && peak < 0.11, "峰值应贴近 PROBE_AMPLITUDE，实测 {peak}");
+    }
 }

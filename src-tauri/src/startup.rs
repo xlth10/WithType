@@ -33,11 +33,13 @@ mod platform {
     }
 
     pub fn apply(enabled: bool) -> Result<(), String> {
+        // command() 可能失败（exe 路径取不到），必须在打开注册表键之前完成，
+        // 否则提前返回会把已打开的键句柄泄漏掉。
+        let cmd = enabled.then(|| command()).transpose()?;
         let key = open_run_key()?;
         let name = wide(VALUE);
         let result = if enabled {
-            let cmd = command()?;
-            let data = wide(&cmd);
+            let data = wide(cmd.as_deref().unwrap_or_default());
             unsafe {
                 RegSetValueExW(
                     key,

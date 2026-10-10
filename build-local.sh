@@ -62,8 +62,14 @@ echo "Rust: $RUSTUP_TOOLCHAIN"
 echo "MinGW: $mingw_bin"
 npm ci
 npm test
+# 必须显式传 --release：不传时 cargo 用 dev profile，而 dev-dependencies
+# （test 目标要链接的那些）在 release 里不会被构建，`cargo build --release`
+# 会报 "no matching package named ... found"。目标目录与下一步共用，
+# 顺带复用依赖产物。
+cargo tauri build --target "$target" --release
+# 构建完成后分两遍跑测试，让 release 与 dev 各自复用产物、不互相污染。
+cargo test --manifest-path src-tauri/Cargo.toml --target "$target" --release --lib
 cargo test --manifest-path src-tauri/Cargo.toml --target "$target" --lib
-npm run desktop:build -- --target "$target"
 powershell.exe -NoProfile -File "$(cygpath -w "$project_root/scripts/package-windows.ps1")" \
   -ReleaseDir "$(cygpath -w "$project_root/src-tauri/target/$target/release")" \
   -OutputDir "$(cygpath -w "$project_root/dist/windows")"

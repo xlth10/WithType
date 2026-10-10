@@ -27,8 +27,8 @@
       {
         "label": "overlay",
         "title": "Typefree Windows · 录音",
-        "width": 176,
-        "height": 54,
+        "width": 88,
+        "height": 46,
         "visible": false,
         "decorations": false,
         "transparent": true,
@@ -36,7 +36,8 @@
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "resizable": false,
-        "focus": false
+        "focus": false,
+        "focusable": false
       },
       {
         "label": "answer",
@@ -51,7 +52,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' ipc: http://ipc.localhost"
+      "csp": "default-src 'self'; img-src 'self' asset: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost"
     }
   },
   "bundle": {

@@ -10,6 +10,22 @@ export const DEFAULT_PROCESSING_MODE = "smart";
 export const DEFAULT_SHORTCUT = "Ctrl+Alt+Space";
 export const DEFAULT_ASK_SHORTCUT = "Ctrl+Alt+Shift+Space";
 export const DEFAULT_ACTION_SHORTCUT = "Ctrl+Alt+Shift+T";
+
+// 与后端 replace_shortcut 一致的按键语义比较：修饰键顺序、大小写、Ctrl/Control、
+// Super/Win/Command 这类别名都不应算成两个不同的组合键。裸字符串比对会漏掉这些，
+// 于是配置里能同时存下两个「其实一样」的键，重启后其中一个注册失败。
+const MODIFIER_ALIASES = { control: "ctrl", option: "alt", command: "super", cmd: "super", win: "super", meta: "super" };
+
+/** 把一个快捷键字符串归一成可比较的形式；空值返回空串。 */
+export function shortcutKey(value) {
+  return String(value ?? "")
+    .split("+")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean)
+    .map((part) => MODIFIER_ALIASES[part] || part)
+    .sort()
+    .join("+");
+}
 export const ACTION_TYPES = ["translate", "skill", "command"];
 
 export const DEFAULT_SETTINGS = {
@@ -95,13 +111,16 @@ export function normalizeSettings(raw) {
   let askShortcut = asString(source.askShortcut, DEFAULT_ASK_SHORTCUT).trim() || DEFAULT_ASK_SHORTCUT;
   const legacyCommand = typeof source.commandShortcut === "string" && !source.actionShortcut && !source.actionType;
   let actionShortcut = asString(source.actionShortcut, legacyCommand ? source.commandShortcut : DEFAULT_ACTION_SHORTCUT).trim() || DEFAULT_ACTION_SHORTCUT;
-  if (askShortcut === shortcut) {
-    askShortcut = [DEFAULT_ASK_SHORTCUT, DEFAULT_ACTION_SHORTCUT, "Ctrl+Alt+Shift+A"].find((key) => key !== shortcut);
+  // 用归一后的键比较，而不是裸字符串：修饰键顺序或别名不同不代表键不同。
+  const taken = [shortcutKey(shortcut)];
+  if (shortcutKey(askShortcut) === taken[0]) {
+    askShortcut = [DEFAULT_ASK_SHORTCUT, DEFAULT_ACTION_SHORTCUT, "Ctrl+Alt+Shift+A"].find((key) => !taken.includes(shortcutKey(key)));
     notices.push("语音输入与随便问不能共用快捷键，已调整随便问的快捷键。");
   }
-  if (actionShortcut === shortcut || actionShortcut === askShortcut) {
+  taken.push(shortcutKey(askShortcut));
+  if (taken.includes(shortcutKey(actionShortcut))) {
     actionShortcut = [DEFAULT_ACTION_SHORTCUT, DEFAULT_ASK_SHORTCUT, "Ctrl+Alt+Shift+A"].find(
-      (key) => key !== shortcut && key !== askShortcut,
+      (key) => !taken.includes(shortcutKey(key)),
     );
     notices.push("三个入口不能共用快捷键，已调整第三个快捷键。");
   }

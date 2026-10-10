@@ -47,7 +47,7 @@ import { TextSettings } from "./components/TextSettings.jsx";
 import { createPipeline } from "./dictation/pipeline.js";
 import { useWavRecorder } from "./dictation/useWavRecorder.js";
 import { useNativeRecorder } from "./dictation/useNativeRecorder.js";
-import { displayShortcut, shortcutFromKeydown, shortcutIdentity } from "./shortcuts/capture.js";
+import { displayShortcut, shortcutFromKeydown } from "./shortcuts/capture.js";
 import { ASK_INSTRUCTION, BUILTIN_SKILLS, buildMessages, findBuiltinSkill } from "./text/builtinSkills.js";
 import { createSkillStore } from "./text/skillStore.js";
 import {
@@ -102,6 +102,16 @@ function describeError(error) {
   if (typeof error === "string") return error;
   return String(error.message || error);
 }
+
+/** 失败面板里那一句补充说明。没有对应类别就返回空串，不硬凑。 */
+const FAILURE_HINTS = {
+  auth: " · 请检查 ASR 密钥或权限",
+  "rate-limit": " · 可稍后重新转写",
+  format: " · 当前服务可能不接受 WAV 文件",
+  transient: " · 多为服务端或网络临时问题，可直接重新转写",
+  silence: " · 录音里几乎没有声音，重试前请确认麦克风未被静音",
+  device: " · 请确认麦克风仍然可用",
+};
 
 /** 把耗时拆成一句可读的说明，方便对着「慢在哪一步」排查。 */
 function breakdownOf(timings = {}) {
@@ -250,7 +260,7 @@ function ModelSettings({ settings, setSettings, online, testing, testConnection,
           <Field label="API Key" hint="保存后写入 Windows 凭据库，不进入配置文件"><div className="input-with-icon"><Key size={18} /><input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="已保存则留空" /></div></Field>
         </div>
         <div className="form-actions"><button className="button secondary" onClick={testConnection} disabled={testing}>{testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}{testing ? "正在连接" : "测试连接"}</button><button className="button primary" onClick={saveKey} disabled={saving}><LockKey size={18} weight="fill" />保存密钥</button></div>
-        <p className="test-result">测试连接会向所填模型发送 1 秒静音 WAV；服务返回空文字也算接口连接成功。</p>
+        <p className="test-result">测试连接会向所填模型发送一段 1 秒测试音频；服务能正常接收并返回 text 字段即视为连接成功。</p>
       </div>
       <div className="note-card"><ShieldCheck size={22} weight="fill" /><div><strong>音频发送范围</strong><p>音频会发送到上方填写的地址。建议使用 HTTPS，或确保设备位于可信 VPN/局域网。</p></div></div>
     </section>
@@ -314,7 +324,16 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
           setCaptureKind(null);
         }
       });
-    const onBlur = () => { if (!captureBusyRef.current) setCaptureKind(null); };
+    // 只有真正离开窗口才取消录制。之前的版本对任何一次 blur 都静默取消，
+    // 于是点一下别处再回来按组合键就「什么都没发生」——用户完全看不出原因。
+    //
+    // 注意：捕获期间三个全局快捷键仍被系统注册着，所以在窗口内按下组合键时，
+    // 到不了 keydown、而是先触发全局热键——后端会 emit shortcut-capture-pressed，
+    // 底下那个 listener 负责提示。Esc 是唯一没被注册为全局键的按键，能正常到达。
+    const onBlur = () => {
+      if (captureBusyRef.current) return;
+      setCaptureMessage("已暂停录制：焦点离开了设置窗口。点回来继续，或按 Esc 取消。");
+    };
     window.addEventListener("blur", onBlur);
     const unlisten = isTauri()
       ? listen("shortcut-capture-pressed", (event) => setCaptureMessage(event.payload === captureKind ? "这就是当前快捷键；按 Esc 保留" : "这个组合键已经被其他入口使用"))
@@ -339,16 +358,18 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
         setCaptureMessage("");
         return;
       }
-      if (!captureReady || result.kind === "waiting") return;
+      if (result.kind === "waiting") return;
+      if (!captureReady) {
+        setCaptureMessage("还在准备全局键盘钩子，请稍候再按一次。");
+        return;
+      }
       if (result.kind === "invalid") {
         setCaptureMessage(result.message);
         return;
       }
-      const others = Object.entries(fields).filter(([kind]) => kind !== captureKind);
-      if (others.some(([, field]) => shortcutIdentity(settings[field]) === shortcutIdentity(result.value))) {
-        setCaptureMessage("这个组合键已经被其他入口使用");
-        return;
-      }
+      // 这里不再自己拒绝「与其它入口相同」的组合键：后端 replace_shortcut 是先注册
+      // 新键、成功后再注销旧键，本来就支持两个入口对调。前端硬拒会让「对调」永远
+      // 做不到，而且被拒时连一句提示都没有。
       captureBusyRef.current = true;
       setCaptureBusy(true);
       setCaptureMessage("正在设置快捷键…");
@@ -408,7 +429,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
         ))}
       </div>
       <p className={`shortcut-capture-message ${captureMessage ? "error" : ""}`} role="status" aria-live="polite">
-        {captureMessage || (captureKind ? "同时按住 Ctrl、Alt 或 Win，再按字母、数字、空格或 F1–F12。" : "原有快捷键会保留到新组合键设置成功。")}
+        {captureMessage || (captureKind ? "同时按住 Ctrl、Alt 或 Win，再按字母、数字、空格、方向键、标点或 F1–F24。" : "原有快捷键会保留到新组合键设置成功；也可以和另一个入口对调。")}
       </p>
       <div className="panel form-panel compact">
         <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={20} /></div><div><h2>把常用动作放在第三个键上</h2><p>默认翻译；也可以换成一个技能或语音命令。</p></div></div>
@@ -611,6 +632,16 @@ export function App() {
   const nativeRecorder = useNativeRecorder({
     onDeviceState: ({ phase: devicePhase, message }) => {
       if (devicePhase === "recording") setPhase("record");
+      // 设备抖动：只提示，录音仍在继续。这里刻意不动 stopTask。
+      if (devicePhase === "warning") {
+        if (stateRef.current === "recording") {
+          const text = message || "麦克风短暂抖动，录音已继续";
+          notify(text, true);
+          // 抖动是过程性信息，留几秒就收，免得挡住界面要用户手动关掉。
+          setTimeout(() => setNotice((current) => (current && current.text === text ? null : current)), 6000);
+        }
+        return;
+      }
       if (devicePhase === "error" && stateRef.current === "recording") {
         notify(message || "麦克风已中断，正在保存已录内容", false);
         stopTask();
@@ -662,7 +693,9 @@ export function App() {
     stateRef.current = "recording";
     setState("recording");
     try {
-      await recorder.start(snapshot.requestId, currentSettings.audioDeviceId, currentSettings.asrEndpoint, currentSettings.asrModel);
+      // intent 随 start 落盘（spool/intent.txt）：应用重启后恢复面板靠它路由回原路径。
+      // 追加在末尾——webRecorder.start 是位置参数，插在中间会错位。
+      await recorder.start(snapshot.requestId, currentSettings.audioDeviceId, currentSettings.asrEndpoint, currentSettings.asrModel, snapshot.intent);
       if (generation !== startGenerationRef.current) return;
       startingRef.current = false;
       if (pendingStopRef.current) {
@@ -817,6 +850,8 @@ export function App() {
         stateRef.current = "error";
         setState("error");
         notify(event.message, false);
+        // 处理状态要退出来，不能停在 error 上；回 idle 后用户可以直接再按快捷键开新一轮。
+        setTimeout(() => setState((current) => (current === "error" ? "idle" : current)), 1200);
         return;
       }
       notify(event.warning ? `已按识别原文完成：${event.warning}` : event.insertedRaw ? "已插入识别原文" : "已完成", !event.warning);
@@ -1083,7 +1118,9 @@ export function App() {
     try {
       const result = await pipeline.retryAudio({
         audioSessionId: item.sessionId,
-        intent: "dictation",
+        // 重启后 pendingFailure 已丢，spool 里落盘的 intent 是唯一来源；
+        // 老录音没有这份元数据，按听写处理。
+        intent: item.intent || "dictation",
         settings: { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries },
         customSkills: customSkillsRef.current,
         audioMs: item.audioMs,
@@ -1328,7 +1365,7 @@ export function App() {
             <div className="panel-title slim">
               <div>
                 <h2>{pendingFailure.kind === "asr" ? "语音识别没有完成" : "文字整理没有完成"}</h2>
-                <p>{pendingFailure.message}{pendingFailure.errorKind === "auth" ? " · 请检查 ASR 密钥或权限" : pendingFailure.errorKind === "rate-limit" ? " · 可稍后重新转写" : pendingFailure.errorKind === "format" ? " · 当前服务可能不接受 WAV 文件" : ""}{["command", "ask"].includes(pendingFailure.intent) ? " · 原始问题或命令不会输入到当前窗口" : ""}</p>
+                <p>{pendingFailure.message}{FAILURE_HINTS[pendingFailure.errorKind] || ""}{["command", "ask"].includes(pendingFailure.intent) ? " · 原始问题或命令不会输入到当前窗口" : ""}</p>
               </div>
               <button className="icon-button" onClick={closeFailure} title="关闭"><X size={16} /></button>
             </div>

@@ -23,6 +23,9 @@ export function classifyAsrError(error) {
   if (/HTTP 429\b|限流|额度/i.test(message)) return "rate-limit";
   if (/HTTP (400|415|422)\b|格式/i.test(message)) return "format";
   if (/超时|请求失败|无法连接|网络|HTTP 5\d\d\b/i.test(message)) return "transient";
+  // 本地静音门（audio.rs）与最短长度门发出的提示。必须排在 device 之前：
+  // 这两条消息里都含「录音」，否则会被底下那条设备正则吃掉。
+  if (/没有采集到有效声音|录音太短/.test(message)) return "silence";
   if (/麦克风|设备|录音/i.test(message)) return "device";
   return "unknown";
 }

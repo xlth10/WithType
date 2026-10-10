@@ -210,12 +210,12 @@ textarea { padding: 10px; resize: vertical; line-height: 1.65; }
 .preview-box.error p { color: #b3352f; }
 
 .overlay-shell { position: fixed; inset: 0; width: 100vw; height: 100vh; display: grid; place-items: center; background: transparent; }
-.voice-hud { position: relative; width: 176px; height: 54px; display: grid; place-items: center; overflow: hidden; border-radius: 27px; background: #fbfbfa; border: 1px solid rgba(65,67,63,.08); animation: materialize .25s cubic-bezier(.2,.8,.2,1); }
-.voice-motion { display: block; width: 148px; height: 32px; transition: opacity .13s ease; }
+.voice-hud { position: relative; width: 88px; height: 46px; display: grid; place-items: center; overflow: hidden; border-radius: 23px; background: #fbfbfa; border: 1px solid rgba(65,67,63,.08); animation: materialize .25s cubic-bezier(.2,.8,.2,1); }
+.voice-motion { display: block; width: 60px; height: 20px; transition: opacity .13s ease; }
 .hud-symbol { position: absolute; }
 .hud-symbol.success { color: #708777; }
 .hud-symbol.error { color: #e0782f; filter: drop-shadow(0 0 7px rgba(224,120,47,.4)); }
-.hud-badge { position: absolute; top: 4px; right: 12px; padding: 1px 6px; border-radius: 999px; background: #eeefeb; color: #777a74; font-size: 8px; font-weight: 700; letter-spacing: .04em; }
+.hud-badge { position: absolute; top: 2px; right: 7px; padding: 1px 6px; border-radius: 999px; background: #eeefeb; color: #777a74; font-size: 8px; font-weight: 700; letter-spacing: .04em; }
 .hud-controls { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0; transition: opacity .12s ease; }
 .voice-hud:hover { background: rgba(250,250,249,.9); box-shadow: 0 8px 28px rgba(0,0,0,.13); backdrop-filter: blur(16px); }
 .voice-hud:hover .voice-motion, .voice-hud:hover .hud-symbol, .voice-hud:hover .hud-badge { opacity: .1; }

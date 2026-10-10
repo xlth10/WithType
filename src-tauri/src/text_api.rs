@@ -79,7 +79,7 @@ where
     result
 }
 
-fn client() -> &'static reqwest::Client {
+pub(crate) fn client() -> &'static reqwest::Client {
     CLIENT.get_or_init(|| {
         reqwest::Client::builder()
             .connect_timeout(Duration::from_secs(10))
@@ -157,10 +157,14 @@ fn text_api_key() -> Result<String, String> {
 ///
 /// 界面提示「填到 /v1 即可」，但用户可能填成 http://host/v1/ 或 http://host，
 /// 这里统一裁掉尾部斜杠和 /v1，再拼一次，避免出现 /v1/v1/chat/completions。
+/// 用户整段粘贴完整接口地址（以 /chat/completions 结尾）时原样返回，不再翻倍。
 fn chat_endpoint(endpoint: &str) -> String {
     let mut base = endpoint.trim();
     while base.ends_with('/') {
         base = &base[..base.len() - 1];
+    }
+    if base.ends_with("/chat/completions") {
+        return base.to_string();
     }
     if let Some(stripped) = base.strip_suffix("/v1") {
         base = stripped.trim_end_matches('/');
@@ -168,18 +172,55 @@ fn chat_endpoint(endpoint: &str) -> String {
     format!("{base}/v1/chat/completions")
 }
 
-/// 只从响应体里取一段安全摘要：去掉换行、截断长度。
+/// 只从响应体里取一段安全摘要：压平换行、给密钥打码、截断长度。
 /// 绝不整段回显，也不做任何形如 sk-xxx 的透传。
-fn excerpt(body: &str) -> String {
+pub(crate) fn excerpt(body: &str) -> String {
     let flattened: String = body
         .chars()
         .map(|ch| if ch.is_control() { ' ' } else { ch })
         .collect();
-    let mut text: String = flattened.trim().chars().take(ERROR_EXCERPT_CHARS).collect();
-    if flattened.trim().chars().count() > ERROR_EXCERPT_CHARS {
+    let masked = mask_key_shaped_tokens(&flattened);
+    let trimmed = masked.trim();
+    let mut text: String = trimmed.chars().take(ERROR_EXCERPT_CHARS).collect();
+    if trimmed.chars().count() > ERROR_EXCERPT_CHARS {
         text.push('…');
     }
     text
+}
+
+/// 把 `sk-` 开头的令牌换成 `sk-***`。
+///
+/// 私有网关的报错经常回显请求头（`Invalid token: Bearer sk-...`），
+/// 只靠 200 字符截断并不安全——令牌一旦落在前 200 字符内就会原样上屏。
+fn mask_key_shaped_tokens(body: &str) -> String {
+    let chars: Vec<char> = body.chars().collect();
+    let mut masked = String::with_capacity(body.len());
+    let mut index = 0;
+    while index < chars.len() {
+        let boundary = index == 0
+            || !(chars[index - 1].is_ascii_alphanumeric()
+                || chars[index - 1] == '-'
+                || chars[index - 1] == '_');
+        let is_prefix =
+            chars[index] == 's' && chars.get(index + 1) == Some(&'k') && chars.get(index + 2) == Some(&'-');
+        if boundary && is_prefix {
+            let mut end = index + 3;
+            while end < chars.len()
+                && (chars[end].is_ascii_alphanumeric() || chars[end] == '-' || chars[end] == '_')
+            {
+                end += 1;
+            }
+            // 孤立的 "sk-" 原样保留，只有后面确实跟着令牌时才打码。
+            if end > index + 3 {
+                masked.push_str("sk-***");
+                index = end;
+                continue;
+            }
+        }
+        masked.push(chars[index]);
+        index += 1;
+    }
+    masked
 }
 
 fn clamp_timeout(value: Option<u64>) -> Duration {
@@ -546,9 +587,14 @@ mod tests {
             chat_endpoint("  http://text.internal/v1  "),
             "http://text.internal/v1/chat/completions"
         );
+        // 完整接口地址原样返回，不再翻倍成 /v1/chat/completions/v1/chat/completions。
         assert_eq!(
             chat_endpoint("http://text.internal/v1/chat/completions"),
-            "http://text.internal/v1/chat/completions/v1/chat/completions"
+            "http://text.internal/v1/chat/completions"
+        );
+        assert_eq!(
+            chat_endpoint("  http://text.internal/v1/chat/completions/  "),
+            "http://text.internal/v1/chat/completions"
         );
     }
 
@@ -579,6 +625,23 @@ mod tests {
         let clipped = excerpt(&body);
         assert!(clipped.chars().count() <= ERROR_EXCERPT_CHARS + 1);
         assert!(!clipped.contains(FAKE_KEY_SHAPED_TEXT));
+    }
+
+    #[test]
+    fn excerpt_masks_a_key_that_sits_inside_the_first_200_chars() {
+        // 网关的 401 会回显请求头，令牌就落在开头——截断救不了它，必须打码。
+        let body = format!("Invalid token: Bearer {FAKE_KEY_SHAPED_TEXT}");
+        let clipped = excerpt(&body);
+        assert!(!clipped.contains(FAKE_KEY_SHAPED_TEXT));
+        assert!(!clipped.contains("this-is-not-a-real-key"));
+        assert!(clipped.contains("sk-***"));
+        assert!(clipped.contains("Invalid token"));
+
+        // 前缀和内部都打码，且不影响普通文本。
+        let twice = format!("a {FAKE_KEY_SHAPED_TEXT} b {FAKE_KEY_SHAPED_TEXT}");
+        assert_eq!(excerpt(&twice), "a sk-*** b sk-***");
+        assert_eq!(excerpt("服务不可用"), "服务不可用");
+        assert_eq!(excerpt("disk-usage is high"), "disk-usage is high");
     }
 
     #[test]

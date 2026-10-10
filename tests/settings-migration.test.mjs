@@ -69,6 +69,22 @@ test("自定义快捷键撞车时第三个键改用默认组合键", () => {
   assert.equal(settings.actionShortcut, DEFAULT_ACTION_SHORTCUT);
 });
 
+test("修饰键顺序、大小写或别名不同也算撞车，必须拉开", () => {
+  const reversed = normalizeSettings({ shortcut: "Ctrl+Alt+Space", askShortcut: "Alt+Ctrl+Space" });
+  assert.equal(reversed.settings.shortcut, "Ctrl+Alt+Space");
+  assert.notEqual(reversed.settings.askShortcut, "Alt+Ctrl+Space");
+
+  const lowercased = normalizeSettings({ shortcut: "Ctrl+Alt+Space", askShortcut: "ctrl+alt+space" });
+  assert.notEqual(lowercased.settings.askShortcut, "ctrl+alt+space");
+
+  const aliased = normalizeSettings({ shortcut: "Ctrl+Alt+K", actionShortcut: "Control+Option+K" });
+  assert.notEqual(aliased.settings.actionShortcut, "Control+Option+K");
+  assert.equal(aliased.settings.actionShortcut, DEFAULT_ACTION_SHORTCUT);
+
+  const winSuper = normalizeSettings({ shortcut: "Super+K", askShortcut: "Win+K" });
+  assert.notEqual(winSuper.settings.askShortcut, "Win+K");
+});
+
 test("三个快捷键不同时原样保留、不提示", () => {
   const { settings, notices } = normalizeSettings({
     shortcut: "Ctrl+Shift+D",

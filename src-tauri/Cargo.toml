@@ -26,7 +26,10 @@ keyring = { version = "3.6", features = ["windows-native"] }
 reqwest = { version = "0.12", features = ["json", "multipart", "rustls-tls", "stream"], default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri = { version = "2", features = ["tray-icon"] }
+# image-ico 不是默认特性，但托盘和标题栏图标要用 tauri::Image::from_bytes
+# 解出 RGBA，而 from_bytes 被 image-png / image-ico 门住。这里只能走 ico：
+# 本机 DLP 会把 .png 就地加密，include_bytes! 读到的就是密文（见 lib.rs 的 app_icon）。
+tauri = { version = "2", features = ["tray-icon", "image-ico"] }
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-single-instance = "2"
 tokio = { version = "1", features = ["time", "macros", "sync"] }

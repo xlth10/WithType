@@ -73,7 +73,11 @@ export function advanceEngine(engine, input, elapsed, reducedMotion = false) {
 }
 
 export function inkBeads(engine) {
-  const cx = 74, cy = 16;
+  // Canvas is 60×20; the ink itself spans 55.4×15.6 around (cx, cy), so this
+  // leaves ~2px of breathing room on each side. 平移这两个常量时，
+  // VoiceMotion.jsx 的 60/20 与 styles.css / tauri.conf.json 的窗口尺寸必须同步，
+  // 否则墨迹会被白框裁掉。
+  const cx = 30, cy = 10;
   const [current, recent, older] = engine.sampleValues;
   // All beads hear the current frame; the side pairs retain different amounts
   // of recent history, so a soft syllable never leaves only the centre moving.

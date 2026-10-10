@@ -100,7 +100,13 @@ export function SkillEditor({ customSkills, selectedSkillId, onSelect, onSaveCus
 
   const remove = async (skill) => {
     const next = customSkills.filter((item) => item.id !== skill.id);
-    await onSaveCustomSkills(next);
+    try {
+      await onSaveCustomSkills(next);
+    } catch (error) {
+      // 磁盘保存失败时保留条目，让用户能重试而不是以为已删掉。
+      setErrors([String(error && error.message ? error.message : error)]);
+      return;
+    }
     if (draft && draft.id === skill.id) setDraft(null);
     setViewedSkillId(BUILTIN_SKILLS[0].id);
     onNotice({ text: `已删除技能「${skill.name}」`, ok: true });

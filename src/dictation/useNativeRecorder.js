@@ -20,20 +20,26 @@ export function useNativeRecorder({ onDeviceState } = {}) {
     const errorListener = listen("audio-device-error", ({ payload }) => {
       if (!disposed && payload?.sessionId === sessionRef.current) callbackRef.current?.({ phase: "error", message: payload.message });
     });
+    // 设备抖动（WASAPI 的 Xrun）是可自愈的：后端仍会继续采集，这里只提示，
+    // 绝不报成 error —— error 一路上会触发「保存并结束」。
+    const warningListener = listen("audio-device-warning", ({ payload }) => {
+      if (!disposed && payload?.sessionId === sessionRef.current) callbackRef.current?.({ phase: "warning", message: payload.message });
+    });
     return () => {
       disposed = true;
       listener.then((off) => off());
       errorListener.then((off) => off());
+      warningListener.then((off) => off());
       if (sessionRef.current) invoke("cancel_audio_session", { sessionId: sessionRef.current }).catch(() => {});
     };
   }, []);
 
-  const start = useCallback(async (sessionId, deviceId = "", endpoint = "", model = "") => {
+  const start = useCallback(async (sessionId, deviceId = "", endpoint = "", model = "", intent = "") => {
     if (!sessionId) throw new Error("录音会话缺少 ID");
     const generation = ++generationRef.current;
     sessionRef.current = sessionId;
     try {
-      await invoke("start_audio_session", { sessionId, deviceId, endpoint, model });
+      await invoke("start_audio_session", { sessionId, deviceId, endpoint, model, intent });
       if (generation !== generationRef.current) {
         await invoke("cancel_audio_session", { sessionId }).catch(() => {});
         return;

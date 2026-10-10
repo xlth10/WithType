@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { advanceEngine, createEngine, inkBeads } from "./motion.js";
 
-export function VoiceMotion({ state, level }) {
+/** The same ink geometry at every size, redrawn at the current display DPR. */
+export function VoiceMotion({ state, level, width = 60, height = 20 }) {
   const canvasRef = useRef(null);
   const input = useRef({ mode: state, level });
   input.current = { mode: state, level };
@@ -14,26 +15,23 @@ export function VoiceMotion({ state, level }) {
     let frame, previous;
     const draw = (now) => {
       const dpr = window.devicePixelRatio || 1;
-      if (canvas.width !== Math.round(60 * dpr) || canvas.height !== Math.round(20 * dpr)) {
-        canvas.width = Math.round(60 * dpr);
-        canvas.height = Math.round(20 * dpr);
+      if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+        canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
       }
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.setTransform(dpr * width / 60, 0, 0, dpr * height / 20, 0, 0);
       context.clearRect(0, 0, 60, 20);
       advanceEngine(engine, input.current, previous === undefined ? 0 : (now - previous) / 1000, reduced.matches);
       previous = now;
-      if (input.current.mode !== "error") {
+      if (input.current.mode !== "error" && input.current.mode !== "done") {
         for (const shape of inkBeads(engine)) {
-          context.beginPath();
-          context.ellipse(shape.cx, shape.cy, shape.rx, shape.ry, 0, 0, Math.PI * 2);
-          context.fillStyle = shape.fill;
-          context.fill();
+          context.beginPath(); context.ellipse(shape.cx, shape.cy, shape.rx, shape.ry, 0, 0, Math.PI * 2);
+          context.fillStyle = shape.fill; context.fill();
         }
       }
       frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, []);
-  return <canvas className="voice-motion" ref={canvasRef} aria-hidden="true" />;
+  }, [width, height]);
+  return <canvas className="voice-motion" ref={canvasRef} style={{ width, height }} aria-hidden="true" />;
 }

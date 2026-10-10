@@ -74,8 +74,8 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
   };
 
   /** 把当前配置固化成快照。录音期间用户改模式、改词典、改 Skill 都不影响这一条任务。 */
-  const makeSnapshot = (requestId, { intent, settings, customSkills = [], windowContext = null }) => {
-    const selectedSkill = mergeSkill(intent === "skill" ? settings.actionSkillId : settings.selectedSkillId, customSkills);
+  const makeSnapshot = (requestId, { intent, settings, customSkills = [], windowContext = null, skillId = "" }) => {
+    const selectedSkill = mergeSkill(skillId || (intent === "skill" ? settings.actionSkillId : settings.selectedSkillId), customSkills);
     return {
       requestId,
       intent: INTENTS.includes(intent) ? intent : "dictation",
@@ -99,6 +99,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         autoLearn: settings.autoLearn,
         autoIntent: settings.autoIntent,
         keepHistoryAudio: settings.keepHistoryAudio,
+        skillDelivery: settings.skillDelivery || "paste",
       },
       startedAt: now(),
     };
@@ -294,6 +295,8 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
           audioSessionId: audio.nativeSessionId || null,
           audioMs: audio.audioMs || 0,
           intent: snapshot.intent,
+          skillId: snapshot.skill?.id,
+          skillDelivery: snapshot.settings.skillDelivery,
           windowContext: snapshot.windowContext,
         });
       }
@@ -398,6 +401,8 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         requestId: snapshot.requestId,
         message: textFailure,
         intent,
+        skillId: snapshot.skill?.id,
+        skillDelivery: snapshot.settings.skillDelivery,
         translationLanguage: snapshot.translationLanguage,
         rawText: corrected,
         finalText: intent === "command" || intent === "ask" ? "" : finalText,
@@ -428,6 +433,13 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
     // 语音命令生成的内容不是用户口述，不应用个人词库。
     if (intent !== "command") {
       finalText = applyVocabulary(applyLearnedVocabulary(finalText, snapshot.learnedEntries, snapshot.vocabulary), snapshot.vocabulary);
+    }
+    if (intent === "skill" && snapshot.settings.skillDelivery === "card") {
+      if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
+      onEvent({ type: "answer", requestId: snapshot.requestId, intent, skillId: snapshot.skill?.id, title: snapshot.skill?.name || "整理结果",
+        question: corrected, text: finalText, timings, windowContext: snapshot.windowContext,
+        audioSessionId: snapshot.settings.keepHistoryAudio || snapshot.preserveAudio ? snapshot.nativeAudioSessionId : null });
+      return { ok: true, text: finalText, intent, timings, pasted: false };
     }
     return deliver(snapshot, { intent, finalText, rawText: corrected, timings, usedTextService, warning: textFailure });
   }
@@ -488,8 +500,8 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
    * 配置用当下的（而不是当时那份快照），这样「刚填好地址就点重试」能直接生效。
    * 意图沿用原值：失败时若判定是命令，重试仍然是命令，绝不会转成普通上屏。
    */
-  async function retry({ intent, rawText, settings, customSkills = [], audioMs = 0, windowContext = null, translationLanguage = "英文" }) {
-    const snapshot = begin({ intent, settings, customSkills, windowContext });
+  async function retry({ intent, rawText, settings, customSkills = [], audioMs = 0, windowContext = null, translationLanguage = "英文", skillId = "", skillDelivery }) {
+    const snapshot = begin({ intent, skillId, settings: { ...settings, skillDelivery: skillDelivery || settings.skillDelivery }, customSkills, windowContext });
     snapshot.translationLanguage = translationLanguage;
     try {
       return await finishTask(snapshot, {
@@ -502,8 +514,8 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
     }
   }
 
-  async function retryAudio({ audioSessionId, intent, settings, customSkills = [], audioMs = 0, windowContext = null, preserveAudio = false }) {
-    const snapshot = begin({ intent, settings, customSkills, windowContext });
+  async function retryAudio({ audioSessionId, intent, settings, customSkills = [], audioMs = 0, windowContext = null, preserveAudio = false, skillId = "", skillDelivery }) {
+    const snapshot = begin({ intent, skillId, settings: { ...settings, skillDelivery: skillDelivery || settings.skillDelivery }, customSkills, windowContext });
     snapshot.preserveAudio = preserveAudio;
     return complete({ snapshot, audio: { nativeSessionId: audioSessionId, audioMs, encodeMs: 0 } });
   }

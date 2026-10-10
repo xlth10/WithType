@@ -1,4 +1,4 @@
-# Typefree Windows（非官方开发版）
+# typefree（非官方开发版）
 
 基于 [Typefree](https://github.com/kdsz001/typefree) 的语音处理与词汇学习行为，结合本机 `vibevoice-windows` 的快捷键、墨珠动效和 Windows 构建方式。ASR 使用用户选定的通用 OpenAI 兼容 WAV 接口，文字服务自行配置。当前为源码开发版，目标程序名为 `typefree.exe`，尚未完成 Windows 实机验收。
 
@@ -12,7 +12,20 @@
 | `Ctrl+Alt+Shift+Space` | 随便问，回答只显示在卡片 |
 | `Ctrl+Alt+Shift+T` | 翻译，也可改成技能或语音命令 |
 
-在「快捷键」页点击按键位后按新组合键即可修改。HUD 使用本机参考项目最新的 **D「墨珠」**：176 × 54，单色，静音收点，55 ms 短时电平驱动，两侧始终低于中央，无彩色长尾；处理阶段缓慢变化，尊重减少动态效果设置。
+在「快捷键」页点击按键位后按新组合键即可修改。HUD 使用本机参考项目最新的 **D「墨珠」**：可见区域 176 × 54 逻辑像素（196 × 74 窗口含阴影留白），单色，静音收点，55 ms 短时电平驱动，两侧始终低于中央，无彩色长尾；处理阶段缓慢变化，尊重减少动态效果设置。
+
+## 技能的使用方式
+
+技能是把口述整理成固定写法的规则。内置邮件、工作汇报、会议纪要、开发需求四个场景，各有适用说明、口述提示和静态输出示例。
+
+- **用一次**：在技能页点击「用这个技能说一段」，再次点击或使用 HUD 结束。结果先在卡片查看，不改变快捷键或日常模式。
+- **动作快捷键**：在「常用入口与整理规则」绑定技能；可选择输入光标处或先在卡片查看。原有配置保持输入方式。
+- **日常口述**：设为日常口述写法后，普通语音输入持续按该技能整理；点击已绑定的入口恢复智能整理，也可在「文字整理」切换。
+- **试用与调整**：文字试用调用当前文字模型，不输入到任何窗口、不写历史。可复制内置技能调整，也可创建自定义技能。
+
+技能页直接录音和动作快捷键均需语音模型与文字模型。技能只处理提供的内容，没有联网、文件读取或执行系统操作能力。删除自定义技能会安全恢复相关绑定。
+
+主界面、HUD 和结果卡片共用墨色、纸色、圆角与本地字体。HUD 在录音开始时确定显示器，在识别与处理过程中保留；位置依据显示器工作区计算，避开任务栏。回答卡片初始 460 × 520，可拖动、缩放；Esc 关闭，回答中关闭会取消请求。详见 [本轮界面与技能说明](docs/design/windows-ui-skills-2026-10-10.md)。
 
 ## 自动学习词汇
 
@@ -29,8 +42,10 @@
 
 ## 模型配置
 
-1. 「语音模型」填入 OpenAI 兼容 ASR 地址（到 `/v1`）、模型名称和 API Key。默认模型为 `Qwen/Qwen3-ASR-1.7B`，地址留空。
-2. 「文字模型」独立配置 `/v1/chat/completions` 服务、主模型、可选快速/备用模型及密钥。智能整理、技能、提问和翻译需要它。
+语音与文字服务合在侧栏 **「模型配置」**，页内分为「语音识别」与「文字处理」。配置字段与两项 Windows 凭据仍独立，合并页面不共享或覆盖密钥。
+
+1. 「模型配置 → 语音识别」填入 OpenAI 兼容 ASR 地址（到 `/v1`）、模型名称和 API Key。默认模型为 `Qwen/Qwen3-ASR-1.7B`，地址留空。
+2. 「模型配置 → 文字处理」独立配置 `/v1/chat/completions` 服务、主模型、可选快速/备用模型及密钥。智能整理、技能、提问和翻译需要它。
 3. 「文字整理」选择原文、术语纠错、轻度整理、智能整理或技能。新安装默认智能整理：有效字符 ≤10 的短句直出并去掉末尾句号；长句使用文字服务。已有配置按迁移规则保留。
 
 Windows 正式录音使用 Rust/CPAL 的 WASAPI 共享采集，连续重采样到 16 kHz 单声道 PCM，约每 2 秒寻找停顿并串行提交完整 WAV 段；尾段在停止后处理，最终一次性上屏。失败音频以 Windows DPAPI 加密暂存，可重启恢复。浏览器预览使用 AudioWorklet。密钥保存在 Windows 凭据库，不写入设置文件。词库在最终成稿后再次纠正；通用 WAV 接口没有已确认的词汇上下文参数，因此未发送热词。输入框上下文不发送给模型。
@@ -49,7 +64,7 @@ TYPEFREE_MINGW_DIR=/c/msys64/mingw64/bin ./build-local.sh
 
 脚本使用 GNU Rust、同一目录下的 gcc/ar/dlltool/windres 与 `-pipe`，先运行测试，再构建，不包含参考仓库里的个人用户名路径。此脚本不是 macOS 交叉编译脚本。
 
-GNU 主程序在 `src-tauri/target/x86_64-pc-windows-gnu/release/typefree.exe`；安装包在该目录的 `bundle/` 下。便携压缩包在 `dist/windows/typefree-windows-x64-portable.zip`，校验文件为同名 `.sha256`。解压后保留整个文件夹，需要系统已安装 WebView2 Runtime。
+GNU 主程序在 `src-tauri/target/x86_64-pc-windows-gnu/release/typefree.exe`；安装包在该目录的 `bundle/` 下。便携压缩包在 `dist/windows/typefree-x64-portable.zip`，校验文件为同名 `.sha256`。解压后保留整个文件夹，需要系统已安装 WebView2 Runtime。
 
 ## Windows MSVC 与 CI
 
@@ -65,7 +80,7 @@ npm run desktop:build
 
 主程序位于 `src-tauri/target/release/typefree.exe`，NSIS/MSI 位于 `release/bundle/`。打包脚本核验 x64 PE 格式、EXE/DLL 类型与压缩包校验和。
 
-`.github/workflows/build-windows.yml` 保留 Windows MSVC 构建、JS/Rust 测试和产物上传。**当本项目目录成为独立仓库根目录时**可直接启用；当前在 Emergence Lab 子目录下，GitHub 不会自动发现嵌套工作流。没有擅自创建远程仓库或发布产物。
+`.github/workflows/build-windows.yml` 保留 Windows MSVC 构建、JS/Rust 测试和产物上传。本项目已成为独立仓库；GitHub 仓库可启用该工作流，GitLab 托管不会执行 `.github/workflows`。Windows 本机构建仍可使用上述命令。
 
 ## 当前验证范围
 
@@ -78,8 +93,20 @@ cargo check --manifest-path src-tauri/Cargo.toml --offline
 
 当前 Mac 已验证 JS/Rust 逻辑与前端构建；WASAPI 音频模块、DPAPI 历史模块、登录启动模块分别做了 Windows x64 目标类型检查。**这不等于 Windows EXE 运行验证，当前尚无已构建验收的 EXE。** 本机缺少完整 Windows C/C++ SDK，不能完成整个 Tauri 应用的 Windows 链接。使用 Windows 虚拟机或 Windows 构建机，按 [Windows 验收说明](docs/windows-acceptance.md) 完成快捷键、麦克风、分段识别、跨应用粘贴、重启恢复及词汇学习实测。
 
+验收未通过时，按 [逐项处理与复验方案](docs/windows-remediation.md) 排查；包括窗口/DPI、模型、构建、音频、投递和词汇学习。
+
 逐项状态与已知缺口见 [目标完成度检查](docs/goal-audit.md)。原生取消与登录启动已有源码路径，仍需 Windows 设备和服务实测；不能将当前源码视为全部验收完成。
 
 ## 来源与许可
 
 词汇提取和近音过滤移植自 Typefree 固定版本 `9d16762c52906f054285b630935017a431e9e627`，保留 GPL-3.0 许可与来源说明；基础桌面实现和墨珠动效来自用户提供的本机 `vibevoice-windows`。详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)、[research.md](research.md)。未使用原版图标或官网素材，界面标识为非官方版本。
+
+## 应用图标
+
+新版图标根据用户提供的“墨珠沿笔迹前行”意象重构：暖纸底、深墨珠与流动笔迹，在小尺寸省去飞溅和纸张纹理。侧栏、问答卡片、浏览器标识与 Windows EXE / 托盘 / 安装程序共用 v2 资源。旧图标文件保留，新文件位于 `public/assets/typefree-ink-v2.svg` 和 `src-tauri/icons/ink-v2/`。设计来源、取舍、导出和复生成命令见 [图标交付记录](icon-design/README.md)。
+
+## 网页与桌面显示一致性
+
+网页预览和桌面主窗、HUD、问答卡片均使用 `src/main.jsx` → `App.jsx`、同一 CSS 与资源；生产桌面端加载 `dist/client`。随包提供 Noto Sans SC 可变字体（含许可），统一字形与字重，并统一滚动条样式。三窗浅色主题、缩放 1.0；主窗正常工作区的内容区为 1060×720 逻辑像素，标题栏和边框额外计算，小工作区再缩小以保证整窗可见。
+
+应用显示名称统一为 `typefree`；保留原应用标识与凭据项，现有配置/历史可继续读取。浏览器没有原生麦克风列表、快捷键和凭据功能时只禁用对应控件，桌面显示真实设备与状态。实现与验证边界见 [桌面前端一致性记录](docs/design/desktop-parity-2026-10-10.md)。

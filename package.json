@@ -1,5 +1,5 @@
 {
-  "name": "typefree-windows",
+  "name": "typefree",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
     "desktop:build": "tauri build",
     "preview": "vite preview",
     "test": "npm run test:unit",
-    "test:unit": "node --test tests/"
+    "test:unit": "node scripts/run-unit-tests.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowClockwise,
+  ArrowRight,
   BookOpenText,
   Check,
   CheckCircle,
@@ -41,8 +42,10 @@ import { HistoryCorrection } from "./components/HistoryCorrection.jsx";
 import { createVocabularyStore } from "./vocabulary/store.js";
 import { emptyVocabulary, learnCorrections, dismissCorrection } from "./vocabulary/learning.js";
 import { VoiceMotion } from "./voice/VoiceMotion.jsx";
+import { scenarioFor } from "./text/skillScenarios.js";
 import { SkillEditor } from "./components/SkillEditor.jsx";
 import { AnswerCard } from "./components/AnswerCard.jsx";
+import { AppIcon } from "./components/AppIcon.jsx";
 import { TextSettings } from "./components/TextSettings.jsx";
 import { createPipeline } from "./dictation/pipeline.js";
 import { useWavRecorder } from "./dictation/useWavRecorder.js";
@@ -158,7 +161,7 @@ function windowName(context) {
 }
 
 function Logo({ size = 34 }) {
-  return <img className="brand-icon" style={{ width: size, height: size }} src="/assets/typefree-windows-icon.svg" alt="" />;
+  return <AppIcon size={size} className="brand-icon" />;
 }
 
 function StatusDot({ online }) {
@@ -170,10 +173,10 @@ function Overlay({ state, level, intent, phase, onStop, onCancel }) {
   return (
     <main className="overlay-shell">
       <section className={`voice-hud ${state} ${intent || "dictation"}`} aria-label={label} title={label}>
-        <VoiceMotion state={state} level={level} />
+        <VoiceMotion state={state} level={level} width={76} height={26} />
         {state === "done" && <Check className="hud-symbol success" size={18} weight="bold" />}
         {state === "error" && <WarningCircle className="hud-symbol error" size={19} weight="fill" />}
-        {intent && intent !== "dictation" && state !== "idle" && <span className="hud-badge">{INTENT_META[intent]?.label || "口述"}</span>}
+        <span className="hud-status">{state === "recording" ? `${INTENT_META[intent]?.label || "口述"}中` : state === "processing" ? phase === "asr" ? "识别中" : "整理中" : state === "done" ? "已完成" : state === "error" ? "请重试" : "就绪"}</span>
         <div className="hud-controls">
           {state === "recording" && <button onClick={onStop} aria-label="结束录音"><Stop size={15} weight="fill" /></button>}
           <button onClick={onCancel} aria-label="取消或关闭"><X size={16} /></button>
@@ -186,17 +189,16 @@ function Overlay({ state, level, intent, phase, onStop, onCancel }) {
 function Sidebar({ page, setPage, online }) {
   const items = [
     ["home", House, "概览"],
-    ["model", Waveform, "语音模型"],
+    ["model", GearSix, "模型配置"],
     ["writing", Sparkle, "文字整理"],
     ["vocabulary", BookOpenText, "个人词库"],
-    ["text", TextT, "文字模型"],
     ["skills", PuzzlePiece, "技能"],
     ["shortcut", Keyboard, "快捷键"],
     ["history", ClockCounterClockwise, "历史记录"],
   ];
   return (
     <aside className="sidebar">
-      <div className="brand-row"><Logo /><div><strong>Typefree Windows</strong><span>非官方 · 声音写作</span></div></div>
+      <div className="brand-row"><Logo /><div><strong>typefree</strong><span>非官方 · 声音写作</span></div></div>
       <nav>
         {items.map(([id, Icon, label]) => (
           <button className={page === id ? "active" : ""} key={id} onClick={() => setPage(id)}>
@@ -220,7 +222,7 @@ function Toggle({ checked, onChange, disabled = false }) {
   return <button type="button" className={`toggle ${checked ? "on" : ""}`} onClick={() => onChange(!checked)} aria-pressed={checked} disabled={disabled}><i /></button>;
 }
 
-function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice }) {
+function SpeechSettings({ settings, setSettings, online, testing, testConnection, onNotice, onKeySaved }) {
   const [key, setKey] = useState("");
   const [saving, setSaving] = useState(false);
   const [devices, setDevices] = useState([]);
@@ -241,6 +243,7 @@ function ModelSettings({ settings, setSettings, online, testing, testConnection,
     try {
       await desktopInvoke("save_api_key", { key });
       setKey("");
+      onKeySaved();
       onNotice({ text: "ASR API Key 已保存到系统凭据库", ok: true });
     } catch (error) {
       onNotice({ text: describeError(error), ok: false });
@@ -249,22 +252,35 @@ function ModelSettings({ settings, setSettings, online, testing, testConnection,
     }
   };
   return (
-    <section className="page-content">
-      <header className="page-heading"><div><span className="eyebrow">服务连接</span><h1>语音模型</h1><p>填写已部署的语音服务地址。文字处理服务在「文字模型」中单独配置。</p></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{online ? "连接正常" : "等待测试"}</div></header>
+    <section className="model-section" id="speech-model" aria-labelledby="speech-model-heading">
+      <header className="model-section-heading"><div><span className="eyebrow">01 · 从声音到文字</span><h2 id="speech-model-heading">语音识别</h2><p>语音输入、随便问和技能都先在这里转写录音。</p></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{online ? "语音测试通过" : "语音待测试"}</div></header>
       <div className="panel form-panel">
-        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h2>OpenAI 兼容 ASR</h2><p>上传 16 kHz 单声道 PCM16 WAV</p></div></div>
+        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h3>OpenAI 兼容 WAV 接口</h3><p>上传 16 kHz 单声道 PCM16 WAV</p></div></div>
         <div className="form-grid">
-          <Field label="API 地址" hint="填写到 /v1 即可，例如 http://10.0.0.8:8000/v1"><input value={settings.asrEndpoint} onChange={(e) => setSettings({ ...settings, asrEndpoint: e.target.value })} /></Field>
-          <Field label="模型名称"><input value={settings.asrModel} onChange={(e) => setSettings({ ...settings, asrModel: e.target.value })} /></Field>
-          {isTauri() && <Field label="麦克风" hint="默认设备会跟随 Windows 系统设置；设备断开时会提示并保留已录内容。"><select value={settings.audioDeviceId || ""} onChange={(e) => setSettings({ ...settings, audioDeviceId: e.target.value })}><option value="">Windows 默认麦克风</option>{devices.map((device) => <option key={device.id} value={device.id}>{device.name}{device.isDefault ? "（当前默认）" : ""}</option>)}</select></Field>}
-          <Field label="API Key" hint="保存后写入 Windows 凭据库，不进入配置文件"><div className="input-with-icon"><Key size={18} /><input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="已保存则留空" /></div></Field>
+          <Field label="语音 API 地址" hint="填写到 /v1 即可，例如 http://10.0.0.8:8000/v1"><input value={settings.asrEndpoint} onChange={(e) => setSettings((current) => ({ ...current, asrEndpoint: e.target.value }))} /></Field>
+          <Field label="语音模型名称"><input value={settings.asrModel} onChange={(e) => setSettings((current) => ({ ...current, asrModel: e.target.value }))} /></Field>
+          <Field label="麦克风" hint="默认设备会跟随 Windows 系统设置；设备断开时会提示并保留已录内容。"><select value={settings.audioDeviceId || ""} disabled={!isTauri()} onChange={(e) => setSettings((current) => ({ ...current, audioDeviceId: e.target.value }))}><option value="">Windows 默认麦克风</option>{devices.map((device) => <option key={device.id} value={device.id}>{device.name}{device.isDefault ? "（当前默认）" : ""}</option>)}</select></Field>
+          <Field label="语音 API Key" hint="填写后点击保存；已保存的密钥可留空，Windows 凭据库独立保存"><div className="input-with-icon"><Key size={18} /><input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="已保存则留空" /></div></Field>
         </div>
-        <div className="form-actions"><button className="button secondary" onClick={testConnection} disabled={testing}>{testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}{testing ? "正在连接" : "测试连接"}</button><button className="button primary" onClick={saveKey} disabled={saving}><LockKey size={18} weight="fill" />保存密钥</button></div>
+        <div className="form-actions"><button className="button secondary" onClick={testConnection} disabled={testing || saving || !settings.asrEndpoint.trim() || !settings.asrModel.trim()}>{testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}{testing ? "正在测试语音" : "测试语音服务"}</button><button className="button primary" onClick={saveKey} disabled={saving || testing || !key.trim() || !isTauri()}><LockKey size={18} weight="fill" />{saving ? "保存中…" : "保存语音密钥"}</button></div>
         <p className="test-result">测试连接会向所填模型发送一段 1 秒测试音频；服务能正常接收并返回 text 字段即视为连接成功。</p>
       </div>
       <div className="note-card"><ShieldCheck size={22} weight="fill" /><div><strong>音频发送范围</strong><p>音频会发送到上方填写的地址。建议使用 HTTPS，或确保设备位于可信 VPN/局域网。</p></div></div>
     </section>
   );
+}
+
+function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice, onSpeechKeySaved }) {
+  return <section className="page-content models-page">
+    <header className="page-heading"><div><span className="eyebrow">让声音与文字接上服务</span><h1>模型配置</h1><p>在一页配置语音识别和文字处理。两类服务可以使用相同或不同地址，密钥分别保存。</p></div></header>
+    <nav className="model-jump-links" aria-label="模型分工">
+      <a href="#speech-model"><Waveform size={22} /><span><strong>语音识别</strong><small>{settings.asrModel || "填写转写模型"}</small></span><ArrowRight size={17} /></a>
+      <a href="#text-model"><TextT size={22} /><span><strong>文字处理</strong><small>{settings.textModel || "智能整理 · 随便问 · 翻译 · 技能"}</small></span><ArrowRight size={17} /></a>
+    </nav>
+    {!isTauri() && <p className="model-preview-note">浏览器用于界面预览。服务连接和 Windows 凭据保存需在桌面应用中确认。</p>}
+    <SpeechSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={onNotice} onKeySaved={onSpeechKeySaved} />
+    <TextSettings settings={settings} setSettings={setSettings} invoke={desktopInvoke} onNotice={onNotice} previewMode={!isTauri()} />
+  </section>;
 }
 
 function WritingSettings({ settings, setSettings, customSkills, onSelectSkill, textReady }) {
@@ -292,7 +308,7 @@ function WritingSettings({ settings, setSettings, customSkills, onSelectSkill, t
               </select>
             </Field>
           </div>
-          {needsText && !textReady && <p className="test-result">尚未配置文字模型地址或模型名称，这两种模式暂时会按原文处理。可前往「文字模型」页填写。</p>}
+          {needsText && !textReady && <p className="test-result">尚未配置文字模型地址或模型名称，这两种模式暂时会按原文处理。可前往「模型配置 → 文字处理」填写。</p>}
         </div>
       )}
 
@@ -488,7 +504,7 @@ function History({ history, onClear, onTeach, onExport, onRetranscribe, retentio
   );
 }
 
-function Overview({ settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady }) {
+function Overview({ settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level }) {
   const recording = state === "recording";
   const busy = state === "processing";
   const mode = MODE_META[settings.processingMode] || MODE_META.original;
@@ -499,7 +515,7 @@ function Overview({ settings, customSkills, online, setPage, state, intent, phas
       <div className="hero-card">
         <div className="hero-copy">
           <span className={`hero-status ${state}`}>{statusLabel(state, intent, phase)}</span>
-          <h2>{recording ? `${INTENT_META[intent]?.label || "口述"}录音中` : "给这段话选个去处"}</h2>
+          <h2>{recording ? `${INTENT_META[intent]?.label || "口述"}录音中` : "让思绪，自然落在纸上。"}</h2>
           <p>{recording ? "再按同一个快捷键结束；也可点击按钮结束。" : "在任意应用按一次快捷键说话，再按一次，文字进入光标处。"}</p>
           <div className="hero-actions">
             <button className="button dark" onClick={() => toggleTask("dictation")} disabled={busy || locked("dictation")}>
@@ -516,7 +532,7 @@ function Overview({ settings, customSkills, online, setPage, state, intent, phas
             </button>
           </div>
         </div>
-        <div className="hero-visual"><Microphone size={26} weight="regular" /><span>{recording ? "录音中" : "语音输入"}</span></div>
+        <div className="hero-visual"><VoiceMotion state={state} level={level} width={164} height={56} /><span>{recording ? "声音，正在成为文字" : "从一小段话开始"}</span><small>{recording ? "同一个键结束" : displayShortcut(settings.shortcut)}</small></div>
       </div>
       <div className="summary-grid">
         <button className="summary-card" onClick={() => setPage("model")}><span><Waveform size={21} /></span><div><small>语音模型</small><strong>{settings.asrModel || "未配置"}</strong><p>{online ? "连接正常" : "需要测试连接"}</p></div><CheckCircle size={20} weight={online ? "fill" : "regular"} /></button>
@@ -536,9 +552,14 @@ function Overview({ settings, customSkills, online, setPage, state, intent, phas
 export function App() {
   const previewParams = new URLSearchParams(window.location.search);
   const overlayPreview = previewParams.get("overlay");
-  const cardPreview = previewParams.get("card") === "1";
+  const cardPreview = Boolean(previewParams.get("card"));
   const [windowLabel, setWindowLabel] = useState(() => isTauri() ? getCurrentWindow().label : cardPreview ? "answer" : overlayPreview ? "overlay" : "main");
-  const [page, setPage] = useState(!isTauri() && ["shortcut", "vocabulary", "history"].includes(previewParams.get("page")) ? previewParams.get("page") : "home");
+  const previewPage = previewParams.get("page");
+  const [page, setPage] = useState(() => {
+    if (isTauri()) return "home";
+    if (previewPage === "text") return "model";
+    return ["shortcut", "vocabulary", "history", "skills", "writing", "model"].includes(previewPage) ? previewPage : "home";
+  });
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [hydrated, setHydrated] = useState(false);
   const [customSkills, setCustomSkills] = useState([]);
@@ -573,7 +594,12 @@ export function App() {
   const [audioLevel, setAudioLevel] = useState(overlayPreview === "recording" ? Math.max(0, Math.min(1, Number(previewParams.get("level") ?? 0.55) || 0)) : 0);
   const [notice, setNotice] = useState(null);
   const [lastResult, setLastResult] = useState(null);
-  const [answerCard, setAnswerCard] = useState(cardPreview ? { question: "下周的工作怎么安排？", answer: "先列出必须完成的事项，再按截止时间排优先级。" } : null);
+  const [answerCard, setAnswerCard] = useState(cardPreview ? previewParams.get("card") === "skill"
+    ? { kind: "skill", title: "会议纪要", question: scenarioFor(BUILTIN_SKILLS[2]).input, answer: scenarioFor(BUILTIN_SKILLS[2]).output }
+    : { kind: "ask", title: "随便问", question: "下周有三个项目并行，应该怎样安排工作？", answer: "先把必须按时交付的事项排在前面，再为每个项目留出一段完整的工作时间。\n\n1. 周一先确认三项交付的截止时间和依赖，选出最需要推进的一项。\n2. 每天保留一段不被会议打断的时间，完成当天最重要的工作。\n3. 把需要他人协作的事项提前发出，避免等到最后一天。\n\n如果时间不够，先与相关方确认范围与优先级，再调整承诺。" } : null);
+  const answerCardRef = useRef(answerCard);
+  const closeAnswerRef = useRef(() => {});
+  answerCardRef.current = answerCard;
   const streamingAnswerIdRef = useRef(null);
   const followupRequestIdRef = useRef(null);
   /** 文字阶段失败后留给用户选择的现场：原文、意图与耗时。 */
@@ -650,22 +676,23 @@ export function App() {
   });
   const recorder = isTauri() ? nativeRecorder : webRecorder;
 
-  const startTask = async (trigger) => {
+  const startTask = async (trigger, skillId = "") => {
     if (activeSnapshotRef.current || startingRef.current) return;
     if (stateRef.current === "recording" || stateRef.current === "processing") return;
     if (!hydrated || !historyReady) return;
-    const currentSettings = { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries };
+    const currentSettings = { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries,
+      skillDelivery: trigger === "skill" ? "card" : settingsRef.current.skillDelivery };
     if (!currentSettings.asrEndpoint || !currentSettings.asrModel) {
-      notify("请先配置语音模型地址和名称", false);
+      notify("请先在“模型配置”填写语音服务地址和模型名称", false);
       return;
     }
     const nextIntent = trigger === "action" ? currentSettings.actionType : trigger;
-    if (nextIntent === "skill" && !findSkill(currentSettings.actionSkillId, customSkillsRef.current)) {
+    if (nextIntent === "skill" && !findSkill(skillId || currentSettings.actionSkillId, customSkillsRef.current)) {
       notify("请先为第三个快捷键选择一个技能", false);
       return;
     }
     if (nextIntent !== "dictation" && (!currentSettings.textEndpoint || !currentSettings.textModel)) {
-      notify("请先配置文字模型地址和模型名称", false);
+      notify("请先在“模型配置”填写文字服务地址和模型名称", false);
       return;
     }
     startingRef.current = true;
@@ -680,6 +707,7 @@ export function App() {
     // 本次任务的技能与设置在录音开始前固定；不会改变后续口述的默认路径。
     const snapshot = pipeline.begin({
       intent: nextIntent,
+      skillId,
       settings: currentSettings,
       customSkills: customSkillsRef.current,
       windowContext,
@@ -754,7 +782,7 @@ export function App() {
     setPendingFailure(null);
   };
 
-  const toggleTask = (kind) => {
+  const toggleTask = (kind, skillId = "") => {
     if (startingRef.current) {
       if (currentTriggerRef.current === kind) pendingStopRef.current = true;
       return;
@@ -766,7 +794,7 @@ export function App() {
       return;
     }
     if (current === "processing") return;
-    startTask(kind);
+    startTask(kind, skillId);
   };
 
   toggleRef.current = toggleTask;
@@ -785,7 +813,7 @@ export function App() {
       setState("error");
       notify(event.message, false);
       if (event.stage === "asr" && event.audioSessionId) {
-        setPendingFailure({ kind: "asr", errorKind: event.errorKind, audioSessionId: event.audioSessionId, audioMs: event.audioMs, intent: event.intent, windowContext: event.windowContext, message: event.message });
+        setPendingFailure({ kind: "asr", errorKind: event.errorKind, audioSessionId: event.audioSessionId, audioMs: event.audioMs, intent: event.intent, skillId: event.skillId, skillDelivery: event.skillDelivery, windowContext: event.windowContext, message: event.message });
         refreshRecoverableAudio();
       }
       return;
@@ -794,17 +822,24 @@ export function App() {
       setState("error");
       setPendingFailure({
         intent: event.intent,
+        skillId: event.skillId,
+        skillDelivery: event.skillDelivery,
         translationLanguage: event.translationLanguage,
         rawText: event.rawText,
         audioMs: (event.timings && event.timings.audioMs) || 0,
         message: event.message,
         windowContext: event.windowContext,
       });
+      if (event.intent === "ask" && answerCardRef.current?.requestId === event.requestId) {
+        const card = { ...answerCardRef.current, streaming: false, error: event.message };
+        setAnswerCard(card);
+        if (isTauri()) desktopInvoke("show_answer_card", card, true).catch(() => {});
+      }
       notify(event.message, false);
       return;
     }
     if (event.type === "answer") {
-      const card = { question: event.question, answer: event.text, requestId: event.requestId };
+      const card = { question: event.question, answer: event.text, requestId: event.requestId, kind: event.intent || "ask", title: event.title || "随便问", streaming: false };
       setAnswerCard(card);
       if (isTauri()) desktopInvoke("show_answer_card", card, true).catch((error) => notify(describeError(error), false));
       const timings = event.timings || {};
@@ -814,7 +849,9 @@ export function App() {
         text: event.text,
         rawText: event.question,
         time: historyTime(),
-        intent: "ask",
+        intent: event.intent || "ask",
+        skillId: event.skillId,
+        skillDelivery: event.intent === "skill" ? "card" : undefined,
         ms: (timings.encodeMs || 0) + (timings.asrMs || 0) + (timings.textMs || 0),
         breakdown: breakdownOf(timings),
         audioSessionId: event.audioSessionId || null,
@@ -1056,7 +1093,7 @@ export function App() {
     }
     if (!findSkill(id, customSkillsRef.current)) return;
     setSettings({ ...settingsRef.current, actionType: "skill", actionSkillId: id });
-    notify("已设为第三个快捷键的动作", true);
+    notify(`已绑定动作快捷键：${displayShortcut(settingsRef.current.actionShortcut)}`, true);
   };
 
   const saveCustomSkills = async (next) => {
@@ -1087,12 +1124,16 @@ export function App() {
       const retry = pendingFailure.kind === "asr" ? pipeline.retryAudio({
         audioSessionId: pendingFailure.audioSessionId,
         intent: pendingFailure.intent,
+        skillId: pendingFailure.skillId,
+        skillDelivery: pendingFailure.skillDelivery,
         settings: { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries },
         customSkills: customSkillsRef.current,
         audioMs: pendingFailure.audioMs,
         windowContext: pendingFailure.windowContext,
       }) : pipeline.retry({
         intent: pendingFailure.intent,
+        skillId: pendingFailure.skillId,
+        skillDelivery: pendingFailure.skillDelivery,
         rawText: pendingFailure.rawText,
         settings: { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries },
         customSkills: customSkillsRef.current,
@@ -1145,6 +1186,8 @@ export function App() {
     if (!pendingFailure) return;
     const result = await pipeline.insertRaw({
       intent: pendingFailure.intent,
+        skillId: pendingFailure.skillId,
+        skillDelivery: pendingFailure.skillDelivery,
       rawText: pendingFailure.rawText,
       settings: { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries },
       customSkills: customSkillsRef.current,
@@ -1172,12 +1215,16 @@ export function App() {
     const unlistenStream = listen("answer-stream", (event) => {
       const payload = event.payload || {};
       if (!payload.text || !pipeline.isCurrent(payload.requestId)) return;
-      const card = { question: payload.question, answer: payload.text, requestId: payload.requestId };
+      const card = { question: payload.question, answer: payload.text, requestId: payload.requestId, kind: "ask", title: "随便问", streaming: true };
       setAnswerCard(card);
       if (streamingAnswerIdRef.current !== payload.requestId) {
         streamingAnswerIdRef.current = payload.requestId;
         desktopInvoke("show_answer_card", card, true).catch((error) => notify(describeError(error), false));
       }
+    });
+    const unlistenDismiss = listen("dismiss-result-card", (event) => {
+      if (pipeline.isCurrent(event.payload?.requestId)) cancelRef.current();
+      if (answerCardRef.current?.requestId === event.payload?.requestId) setAnswerCard(null);
     });
     const unlistenDictation = listen("toggle-dictation", () => toggleRef.current("dictation"));
     const unlistenAsk = listen("toggle-ask", () => toggleRef.current("ask"));
@@ -1190,6 +1237,7 @@ export function App() {
     });
     return () => {
       unlistenStream.then((fn) => fn());
+      unlistenDismiss.then((fn) => fn());
       unlistenDictation.then((fn) => fn());
       unlistenAsk.then((fn) => fn());
       unlistenAction.then((fn) => fn());
@@ -1202,12 +1250,13 @@ export function App() {
   useEffect(() => {
     if (!isTauri() || windowLabel !== "answer") return undefined;
     const unlisten = listen("ask-answer", (event) => setAnswerCard(event.payload));
+    const unlistenClose = listen("answer-window-close", () => closeAnswerRef.current());
     const unlistenStream = listen("answer-stream", (event) => {
       const payload = event.payload || {};
-      setAnswerCard((current) => current?.requestId === payload.requestId ? { ...current, answer: payload.text } : current);
+      setAnswerCard((current) => current?.requestId === payload.requestId ? { ...current, answer: payload.text, streaming: true } : current);
     });
     desktopInvoke("get_answer_card", {}, null).then((card) => { if (card) setAnswerCard(card); }).catch(() => {});
-    return () => { unlisten.then((fn) => fn()); unlistenStream.then((fn) => fn()); };
+    return () => { unlisten.then((fn) => fn()); unlistenStream.then((fn) => fn()); unlistenClose.then((fn) => fn()); };
   }, [windowLabel]);
 
   useEffect(() => {
@@ -1223,16 +1272,23 @@ export function App() {
     emit("dictation-level", recorder.level).catch(() => {});
   }, [recorder.level, state, windowLabel]);
 
+  useEffect(() => { setOnline(false); }, [settings.asrEndpoint, settings.asrModel]);
+
   const testConnection = async () => {
+    if (!isTauri()) {
+      notify("浏览器预览没有发起连接请求。请在桌面应用中测试语音服务。", false);
+      return;
+    }
+    const endpoint = settingsRef.current.asrEndpoint;
+    const model = settingsRef.current.asrModel;
+    const stillCurrent = () => endpoint === settingsRef.current.asrEndpoint && model === settingsRef.current.asrModel;
     setTesting(true);
     setNotice(null);
     try {
-      await desktopInvoke("test_connection", { endpoint: settings.asrEndpoint, model: settings.asrModel }, () => new Promise((resolve) => setTimeout(resolve, 700)));
-      setOnline(true);
-      notify("ASR 服务连接正常", true);
+      await desktopInvoke("test_connection", { endpoint, model });
+      if (stillCurrent()) { setOnline(true); notify("语音服务测试通过", true); }
     } catch (error) {
-      setOnline(false);
-      notify(describeError(error), false);
+      if (stillCurrent()) { setOnline(false); notify(describeError(error), false); }
     } finally {
       setTesting(false);
     }
@@ -1242,11 +1298,18 @@ export function App() {
   const busy = state === "recording" || state === "processing";
 
   const closeAnswer = () => {
+    if (answerCard?.streaming && answerCard.requestId) {
+      desktopInvoke("cancel_text_request", { requestId: answerCard.requestId }, true).catch(() => {});
+      if (windowLabel === "main" && pipeline.isCurrent(answerCard.requestId)) cancelTask();
+    }
+    if (isTauri()) emit("dismiss-result-card", { requestId: answerCard?.requestId }).catch(() => {});
     if (followupRequestIdRef.current) desktopInvoke("cancel_text_request", { requestId: followupRequestIdRef.current }, true).catch(() => {});
     followupRequestIdRef.current = null;
     setAnswerCard(null);
-    if (isTauri()) desktopInvoke("hide_answer_card", {}, true).catch(() => {});
+    if (isTauri()) desktopInvoke("hide_answer_card", { requestId: answerCard?.requestId }, true).catch(() => {});
   };
+
+  closeAnswerRef.current = closeAnswer;
 
   const followupAnswer = async ({ turns, question, onDelta }) => {
     const current = settingsRef.current;
@@ -1323,6 +1386,8 @@ export function App() {
       await pipeline.retryAudio({
         audioSessionId: item.audioSessionId,
         intent: item.intent,
+        skillId: item.skillId,
+        skillDelivery: item.skillDelivery,
         settings: { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries },
         customSkills: customSkillsRef.current,
         audioMs: 0,
@@ -1396,11 +1461,10 @@ export function App() {
           </div>
         ))}
 
-        {page === "home" && <Overview settings={settings} customSkills={customSkills} online={online} setPage={setPage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} />}
-        {page === "model" && <ModelSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={notify} />}
+        {page === "home" && <Overview settings={settings} customSkills={customSkills} online={online} setPage={setPage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} level={recorder.level} />}
+        {page === "model" && <ModelSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={notify} onSpeechKeySaved={() => setOnline(false)} />}
         {page === "writing" && <WritingSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onSelectSkill={onSelectSkill} textReady={textReady} />}
-        {page === "text" && <TextSettings settings={settings} setSettings={setSettings} invoke={desktopInvoke} onNotice={notify} />}
-        {page === "skills" && <SkillEditor customSkills={customSkills} selectedSkillId={settings.actionType === "skill" ? settings.actionSkillId : ""} onSelect={onSelectActionSkill} onSaveCustomSkills={saveCustomSkills} pipeline={pipeline} settings={settings} onNotice={notify} busy={busy} />}
+        {page === "skills" && <SkillEditor customSkills={customSkills} selectedSkillId={settings.actionType === "skill" ? settings.actionSkillId : ""} dailySkillId={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onSelect={onSelectActionSkill} onSelectDaily={onSelectSkill} onRun={(id) => toggleTask("skill", id)} running={state === "recording" && currentTriggerRef.current === "skill"} onDeliveryChange={(value) => setSettings({ ...settingsRef.current, skillDelivery: value })} onSaveCustomSkills={saveCustomSkills} pipeline={pipeline} settings={settings} onNotice={notify} busy={busy} />}
         {page === "shortcut" && <ShortcutSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onNotice={notify} busy={busy} />}
         {page === "vocabulary" && <VocabularySettings settings={settings} setSettings={setSettings} vocabulary={vocabulary} onDismiss={dismissWord} ready={vocabularyReady} />}
         {page === "history" && <History history={history} onClear={clearHistory} onTeach={teachCorrection} onExport={exportHistory} onRetranscribe={retranscribeHistory} retentionDays={settings.historyRetentionDays} onRetentionChange={changeHistoryRetention} keepAudio={settings.keepHistoryAudio} onKeepAudioChange={(value) => setSettings({ ...settingsRef.current, keepHistoryAudio: value })} busy={busy || retrying} />}

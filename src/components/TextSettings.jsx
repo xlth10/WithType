@@ -1,4 +1,4 @@
-// 文字模型设置页：地址、模型、超时、认证方式、API Key 与连接测试。
+// 模型配置中的文字处理分区：地址、模型、超时、认证方式、API Key 与连接测试。
 //
 // 两条约束：
 // 1. 密钥只走 save_text_api_key，进系统凭据库。它既不在配置文件里，
@@ -6,7 +6,7 @@
 // 2. 连接测试发一段真实短文本，而不是 GET /models：私有网关常把 /models 关掉，
 //    那样「能连上」会被误报成「连不上」。
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowClockwise,
   BookOpenText,
@@ -40,13 +40,17 @@ function Field({ label, hint, children }) {
   );
 }
 
-export function TextSettings({ settings, setSettings, invoke, onNotice }) {
+export function TextSettings({ settings, setSettings, invoke, onNotice, previewMode = false }) {
   const [key, setKey] = useState("");
   const [testing, setTesting] = useState(false);
   const [savingKey, setSavingKey] = useState(false);
   const [result, setResult] = useState(null);
 
-  const patch = (changes) => setSettings({ ...settings, ...changes });
+  const signature = JSON.stringify([settings.textEndpoint, settings.textModel, settings.textTimeoutMs, settings.textAuthMode]);
+  const signatureRef = useRef(signature);
+  signatureRef.current = signature;
+  useEffect(() => { setResult(null); }, [signature]);
+  const patch = (changes) => setSettings((current) => ({ ...current, ...changes }));
 
   const saveKey = async () => {
     if (!key.trim()) {
@@ -57,6 +61,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice }) {
     try {
       await invoke("save_text_api_key", { key });
       setKey("");
+      setResult(null);
       onNotice({ text: "文字模型 API Key 已保存到系统凭据库", ok: true });
     } catch (error) {
       onNotice({ text: String(error && error.message ? error.message : error), ok: false });
@@ -66,6 +71,11 @@ export function TextSettings({ settings, setSettings, invoke, onNotice }) {
   };
 
   const testConnection = async () => {
+    if (previewMode) {
+      setResult({ ok: null, message: "浏览器预览没有发起连接请求。请在桌面应用中测试文字服务。" });
+      return;
+    }
+    const testedSignature = signature;
     setTesting(true);
     setResult(null);
     try {
@@ -79,24 +89,24 @@ export function TextSettings({ settings, setSettings, invoke, onNotice }) {
         },
         () => "ok（浏览器预览：未真正发起请求）",
       );
-      setResult({ ok: true, message: String(reply || "") });
+      if (signatureRef.current === testedSignature) setResult({ ok: true, message: String(reply || "") });
     } catch (error) {
-      setResult({ ok: false, message: String(error && error.message ? error.message : error) });
+      if (signatureRef.current === testedSignature) setResult({ ok: false, message: String(error && error.message ? error.message : error) });
     } finally {
       setTesting(false);
     }
   };
 
   return (
-    <section className="page-content">
-      <header className="page-heading">
+    <section className="model-section" id="text-model" aria-labelledby="text-model-heading">
+      <header className="model-section-heading">
         <div>
-          <span className="eyebrow">服务连接</span>
-          <h1>文字模型</h1>
-          <p>随便问、翻译、技能和智能整理都使用这里的服务。可与语音模型分别配置。</p>
+          <span className="eyebrow">02 · 从文字到成稿</span>
+          <h2 id="text-model-heading">文字处理</h2>
+          <p>智能整理、随便问、翻译和技能使用这里的服务；仅转写录音时可留空。</p>
         </div>
         <div className={`connection-badge ${result?.ok ? "success" : ""}`}>
-          {result?.ok ? "连接正常" : "等待测试"}
+          {result?.ok ? "文字测试通过" : result?.ok === false ? "文字测试失败" : "文字待测试"}
         </div>
       </header>
 
@@ -104,19 +114,19 @@ export function TextSettings({ settings, setSettings, invoke, onNotice }) {
         <div className="panel-title">
           <div className="icon-tile"><BookOpenText size={22} weight="bold" /></div>
           <div>
-            <h2>文字服务接口</h2>
-            <p>兼容 OpenAI 的 /chat/completions 接口；目前等完整回答后显示。</p>
+            <h3>OpenAI 兼容文字接口</h3>
+            <p>使用 /chat/completions；随便问支持流式回答，不支持时回退完整响应。</p>
           </div>
         </div>
         <div className="form-grid">
-          <Field label="API 地址" hint="填写到 /v1 即可，例如 http://10.0.0.9:8000/v1；留空则不启用文字整理">
+          <Field label="文字 API 地址" hint="填写到 /v1 即可，例如 http://10.0.0.9:8000/v1；留空则不启用文字整理">
             <input
               value={settings.textEndpoint}
               placeholder={DEFAULT_SETTINGS.textEndpoint || "http://10.0.0.9:8000/v1"}
               onChange={(event) => patch({ textEndpoint: event.target.value })}
             />
           </Field>
-          <Field label="模型名称" hint="例如 Qwen3-8B、deepseek-v3；留空则不启用文字整理">
+          <Field label="文字模型名称" hint="例如 Qwen3-8B、deepseek-v3；留空则不启用文字整理">
             <input
               value={settings.textModel}
               onChange={(event) => patch({ textModel: event.target.value })}
@@ -148,7 +158,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice }) {
               ))}
             </select>
           </Field>
-          <Field label="API Key" hint="保存后写入 Windows 凭据库，不进入配置文件与浏览器存储">
+          <Field label="文字 API Key" hint="保存后写入 Windows 凭据库，不进入配置文件与浏览器存储">
             <div className="input-with-icon">
               <Key size={18} />
               <input
@@ -165,23 +175,23 @@ export function TextSettings({ settings, setSettings, invoke, onNotice }) {
           <button
             className="button secondary"
             onClick={testConnection}
-            disabled={testing || !settings.textEndpoint || !settings.textModel}
+            disabled={testing || savingKey || !settings.textEndpoint.trim() || !settings.textModel.trim()}
           >
             {testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}
-            {testing ? "正在测试" : "测试连接"}
+            {testing ? "正在测试文字" : "测试文字服务"}
           </button>
           <button
             className="button primary"
             onClick={saveKey}
-            disabled={savingKey || settings.textAuthMode === "none"}
+            disabled={savingKey || testing || settings.textAuthMode === "none" || !key.trim() || previewMode}
           >
             <LockKey size={18} weight="fill" />
-            保存密钥
+            {savingKey ? "保存中…" : "保存文字密钥"}
           </button>
         </div>
         {result && (
-          <p className={`test-result ${result.ok ? "success" : "error"}`}>
-            {result.ok ? `返回：${result.message}` : result.message}
+          <p className={`test-result ${result.ok === true ? "success" : result.ok === false ? "error" : ""}`}>
+            {result.ok === true ? `返回：${result.message}` : result.message}
           </p>
         )}
       </div>

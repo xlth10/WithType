@@ -34,7 +34,7 @@ Assert-X64Pe $loaderPath $true
 
 $null = New-Item -ItemType Directory -Force -Path $OutputDir
 $outputPath = (Resolve-Path -LiteralPath $OutputDir).Path
-$stagingPath = Join-Path $outputPath 'typefree-windows-x64'
+$stagingPath = Join-Path $outputPath 'typefree-x64'
 $null = New-Item -ItemType Directory -Force -Path $stagingPath
 $exeDestination = Join-Path $stagingPath 'typefree.exe'
 $loaderDestination = Join-Path $stagingPath 'WebView2Loader.dll'
@@ -43,12 +43,17 @@ Copy-Item -LiteralPath $loaderPath -Destination $loaderDestination -Force
 
 $noticeDestination = Join-Path $stagingPath 'THIRD_PARTY_NOTICES.md'
 $licenseDestination = Join-Path $stagingPath 'Typefree-GPL-3.0.txt'
-(Get-Content -LiteralPath (Join-Path $PSScriptRoot '../THIRD_PARTY_NOTICES.md') -Raw).Replace('LICENSES/Typefree-GPL-3.0.txt', 'Typefree-GPL-3.0.txt') | Set-Content -LiteralPath $noticeDestination -Encoding UTF8
+(Get-Content -LiteralPath (Join-Path $PSScriptRoot '../THIRD_PARTY_NOTICES.md') -Raw).Replace('LICENSES/Typefree-GPL-3.0.txt', 'Typefree-GPL-3.0.txt').Replace('public/fonts/OFL-NotoSansSC.txt', 'OFL-NotoSansSC.txt').Replace('public/fonts/COPYRIGHT-NotoSansSC.txt', 'COPYRIGHT-NotoSansSC.txt') | Set-Content -LiteralPath $noticeDestination -Encoding UTF8
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../LICENSES/Typefree-GPL-3.0.txt') -Destination $licenseDestination -Force
+
+$fontLicenseDestination = Join-Path $stagingPath 'OFL-NotoSansSC.txt'
+$fontCopyrightDestination = Join-Path $stagingPath 'COPYRIGHT-NotoSansSC.txt'
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../public/fonts/OFL-NotoSansSC.txt') -Destination $fontLicenseDestination -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../public/fonts/COPYRIGHT-NotoSansSC.txt') -Destination $fontCopyrightDestination -Force
 
 $readmePath = Join-Path $stagingPath 'README.txt' 
 @'
-Typefree Windows (unofficial) - x64 portable package
+typefree (unofficial) - Windows x64 portable package
 
 Extract the entire archive to a writable local folder. Keep typefree.exe and
 WebView2Loader.dll together, then run typefree.exe.
@@ -70,8 +75,8 @@ $checksumPath = Join-Path $stagingPath 'SHA256SUMS.txt'
     "$hash  $([System.IO.Path]::GetFileName($_))"
 } | Set-Content -LiteralPath $checksumPath -Encoding ASCII
 
-$archivePath = Join-Path $outputPath 'typefree-windows-x64-portable.zip'
-$members = @($exeDestination, $loaderDestination, $readmePath, $checksumPath, $noticeDestination, $licenseDestination)
+$archivePath = Join-Path $outputPath 'typefree-x64-portable.zip'
+$members = @($exeDestination, $loaderDestination, $readmePath, $checksumPath, $noticeDestination, $licenseDestination, $fontLicenseDestination, $fontCopyrightDestination)
 Compress-Archive -LiteralPath $members -DestinationPath $archivePath -Force
 
 # 打开压缩包并校验成员内容，避免仅凭文件存在就认为便携包完整。

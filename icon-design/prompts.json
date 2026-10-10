@@ -1,0 +1,34 @@
+[
+  {
+    "id": "ink-signal",
+    "name": "墨珠落字",
+    "prompt": "Use case: logo-brand. Asset type: Windows desktop app icon concept, centered square 1024x1024 raster reference. Product promise: spoken ideas gently become clear writing. Style: clean flat vector-like geometry, no photographic texture, no 3D mockup. Palette: ink #282c27, warm paper #f1f4eb, muted ink #676b63, restrained sage #dfe3d7. Composition: warm-paper square field, centered compact dark emblem, generous 20% padding, strong legibility at 20–48 pixels. No text, no letters, no watermark, no app-store badge, no device frame, no microphone, no bright colors, no tiny detail. Subject: A horizontal group of five dark ink beads: one large central round bead, two smaller tapered oval beads on each side, with the side beads always lower in height than the center. Beneath them is one short softly rounded ink baseline, suggesting spoken thought settling into written words. The silhouette is calm, symmetric and compact.",
+    "rationale": "与 HUD 节奏最直接；底部短笔划传达落字。风险是珠子过小或底线像播放暂停。"
+  },
+  {
+    "id": "ink-gesture",
+    "name": "一笔成形",
+    "prompt": "Use case: logo-brand. Asset type: Windows desktop app icon concept, centered square 1024x1024 raster reference. Product promise: spoken ideas gently become clear writing. Style: clean flat vector-like geometry, no photographic texture, no 3D mockup. Palette: ink #282c27, warm paper #f1f4eb, muted ink #676b63, restrained sage #dfe3d7. Composition: warm-paper square field, centered compact dark emblem, generous 20% padding, strong legibility at 20–48 pixels. No text, no letters, no watermark, no app-store badge, no device frame, no microphone, no bright colors, no tiny detail. Subject: One bold softly curved ink stroke that folds from a broad rounded speaking gesture into a compact written line, with a small ink bead nestled at its beginning. Make one clear organic silhouette, not a letter and not a generic speech bubble.",
+    "rationale": "以笔势连接表达与文字；轮廓更有机。风险是抽象含义不明确。"
+  },
+  {
+    "id": "ink-capture",
+    "name": "收声成稿",
+    "prompt": "Use case: logo-brand. Asset type: Windows desktop app icon concept, centered square 1024x1024 raster reference. Product promise: spoken ideas gently become clear writing. Style: clean flat vector-like geometry, no photographic texture, no 3D mockup. Palette: ink #282c27, warm paper #f1f4eb, muted ink #676b63, restrained sage #dfe3d7. Composition: warm-paper square field, centered compact dark emblem, generous 20% padding, strong legibility at 20–48 pixels. No text, no letters, no watermark, no app-store badge, no device frame, no microphone, no bright colors, no tiny detail. Subject: A large centered ink bead enclosed by two thick open rounded corner brackets, suggesting deliberate capture, with a short horizontal writing line beneath. The brackets and bead form a single balanced compact emblem. Avoid shield imagery.",
+    "rationale": "表达有边界的捕获与成稿。风险是更像扫描工具。"
+  },
+  {
+    "id": "ink-mark",
+    "name": "墨点与行",
+    "prompt": "Use case: logo-brand. Asset type: Windows desktop app icon concept, centered square 1024x1024 raster reference. Product promise: spoken ideas gently become clear writing. Style: clean flat vector-like geometry, no photographic texture, no 3D mockup. Palette: ink #282c27, warm paper #f1f4eb, muted ink #676b63, restrained sage #dfe3d7. Composition: warm-paper square field, centered compact dark emblem, generous 20% padding, strong legibility at 20–48 pixels. No text, no letters, no watermark, no app-store badge, no device frame, no microphone, no bright colors, no tiny detail. Subject: A minimal typographic-like emblem built only from one substantial ink bead and two thick softly rounded horizontal strokes of differing lengths, arranged diagonally to imply an ink dot settling into two lines of writing. It must be an original abstract mark, not any alphabetic letter.",
+    "rationale": "最简的声音与文字符号。风险是单珠关联 HUD 较弱。"
+  },
+  {
+    "id": "user-ink-path-v2",
+    "reference": "concepts/user-ink-path-reference.png",
+    "output": "selected/ink-path-generated-v2.png",
+    "tool": "image_gen (specific model version not exposed)",
+    "prompt": "Redesign the user reference as a practical desktop app icon. Preserve three decreasing ink beads progressing from lower-left to upper-right and one flowing S-shaped brush path. Warm paper #f1f4eb and ink #282c27. Remove splashes, tiny droplets, dry-brush striations, noisy paper fibers, external black presentation background, deep shadows and specular complexity. Three solid circles, one restrained crescent in the main bead, confident tapered S ribbon, balanced padding, readable at 20–48px. No microphone, equalizer, words, watermark, UI or mockup.",
+    "note": "Prompt intent recorded; final SVG geometry is independently authored after visual review."
+  }
+]

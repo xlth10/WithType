@@ -15,20 +15,23 @@
     "windows": [
       {
         "label": "main",
-        "title": "Typefree Windows · 非官方",
+        "title": "typefree",
         "width": 1060,
         "height": 720,
-        "minWidth": 860,
-        "minHeight": 620,
+        "minWidth": 640,
+        "minHeight": 480,
         "center": true,
         "decorations": true,
-        "resizable": true
+        "resizable": true,
+        "theme": "Light",
+        "zoomHotkeysEnabled": false,
+        "backgroundColor": "#f8f9f4"
       },
       {
         "label": "overlay",
-        "title": "Typefree Windows · 录音",
-        "width": 88,
-        "height": 46,
+        "title": "typefree · 录音",
+        "width": 196,
+        "height": 74,
         "visible": false,
         "decorations": false,
         "transparent": true,
@@ -37,18 +40,28 @@
         "skipTaskbar": true,
         "resizable": false,
         "focus": false,
-        "focusable": false
+        "focusable": false,
+        "theme": "Light",
+        "zoomHotkeysEnabled": false,
+        "backgroundColor": "#00000000"
       },
       {
         "label": "answer",
-        "title": "Typefree Windows · 随便问",
-        "width": 420,
-        "height": 320,
+        "title": "typefree · 随便问",
+        "width": 460,
+        "height": 520,
         "visible": false,
         "decorations": false,
         "alwaysOnTop": true,
         "skipTaskbar": true,
-        "resizable": false
+        "resizable": true,
+        "minWidth": 360,
+        "minHeight": 320,
+        "transparent": true,
+        "shadow": false,
+        "theme": "Light",
+        "zoomHotkeysEnabled": false,
+        "backgroundColor": "#00000000"
       }
     ],
     "security": {
@@ -64,20 +77,22 @@
     "resources": {
       "WebView2Loader.dll": "WebView2Loader.dll",
       "../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md",
-      "../LICENSES/Typefree-GPL-3.0.txt": "LICENSES/Typefree-GPL-3.0.txt"
+      "../LICENSES/Typefree-GPL-3.0.txt": "LICENSES/Typefree-GPL-3.0.txt",
+      "../public/fonts/OFL-NotoSansSC.txt": "LICENSES/OFL-NotoSansSC.txt",
+      "../public/fonts/COPYRIGHT-NotoSansSC.txt": "LICENSES/COPYRIGHT-NotoSansSC.txt"
     },
     "category": "Productivity",
-    "shortDescription": "Typefree Windows 非官方语音输入版",
+    "shortDescription": "typefree 非官方语音输入版",
     "longDescription": "用语音输入文字、翻译或提问。",
     "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.ico"
+      "icons/ink-v2/32x32.png",
+      "icons/ink-v2/128x128.png",
+      "icons/ink-v2/128x128@2x.png",
+      "icons/ink-v2/icon.ico"
     ],
     "windows": {
       "nsis": {
-        "installerIcon": "icons/icon.ico",
+        "installerIcon": "icons/ink-v2/icon.ico",
         "installMode": "currentUser",
         "displayLanguageSelector": false
       }

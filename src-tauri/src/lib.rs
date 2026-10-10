@@ -1,5 +1,6 @@
 mod audio;
 mod correction_monitor;
+mod floating;
 mod history;
 mod skills;
 mod startup;
@@ -26,7 +27,7 @@ use serde::{Deserialize, Serialize};
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
     tray::TrayIconBuilder,
-    AppHandle, Emitter, Manager, PhysicalPosition,
+    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize,
 };
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 
@@ -43,9 +44,9 @@ static PASTE_SESSIONS: OnceLock<Mutex<PasteSessions>> = OnceLock::new();
 
 /// 托盘和窗口标题栏用的图标。
 ///
-/// 不能用 `app.default_window_icon()`：Windows 上它取自 `icons/icon.ico`，
+/// 不能用 `app.default_window_icon()`：Windows 上它取自 `icons/ink-v2/icon.ico`，
 /// 而 tauri-codegen 解析 ICO 时写死了 `entries()[0]`，也就是目录里的第一帧 ——
-/// 按 scripts/generate_icon.py 的写入顺序恰好是 16×16。这个 16px 位图随后被
+/// 按 scripts/generate_ink_icon.py 的写入顺序恰好是 16×16。这个 16px 位图随后被
 /// tao / tray-icon 原样交给 CreateIcon（不缩放），DPI 放大后就糊了。
 ///
 /// 这里嵌的是整个 icon.ico：`tauri::Image::from_bytes` 走 image crate 的
@@ -55,7 +56,7 @@ static PASTE_SESSIONS: OnceLock<Mutex<PasteSessions>> = OnceLock::new();
 /// 之所以用 .ico 而不是 128×128.png：本机 DLP 会把 .png 就地加密成
 /// %TSD-Header-###%，编译期 include_bytes! 读到的就是密文（.ico 不受影响），
 /// 运行时再读盘则要依赖解密，所以宁可嵌裸的 .ico 字节。
-static APP_ICON: &[u8] = include_bytes!("../icons/icon.ico");
+static APP_ICON: &[u8] = include_bytes!("../icons/ink-v2/icon.ico");
 
 fn app_icon() -> tauri::Result<tauri::image::Image<'static>> {
     tauri::image::Image::from_bytes(APP_ICON)
@@ -91,7 +92,121 @@ struct RegisteredShortcuts {
 }
 
 #[derive(Default)]
-struct AnswerCardState(Mutex<Option<AnswerCardData>>);
+struct AnswerCardState(Mutex<AnswerCardSession>);
+#[derive(Default)]
+struct AnswerCardSession {
+    card: Option<AnswerCardData>,
+    closed_request_id: Option<String>,
+}
+
+#[derive(Default)]
+struct FloatingContext {
+    monitor: Option<tauri::Monitor>,
+    overlay_state: String,
+}
+#[derive(Default)]
+struct FloatingContextState(Mutex<FloatingContext>);
+
+fn cursor_monitor(window: &tauri::WebviewWindow) -> Option<tauri::Monitor> {
+    window
+        .cursor_position()
+        .ok()
+        .and_then(|point| window.monitor_from_point(point.x, point.y).ok().flatten())
+        .or_else(|| window.primary_monitor().ok().flatten())
+        .or_else(|| window.current_monitor().ok().flatten())
+}
+
+fn floating_monitor(
+    app: &AppHandle,
+    window: &tauri::WebviewWindow,
+    new_session: bool,
+) -> Option<tauri::Monitor> {
+    let state = app.state::<FloatingContextState>();
+    let mut context = state.0.lock().ok()?;
+    // Resolve on entry, retain throughout recording and processing. Moving the
+    // pointer during an upload must not move the HUD or the resulting card.
+    let monitors = window.available_monitors().ok().unwrap_or_default();
+    let retained = context.monitor.as_ref().and_then(|old| {
+        monitors
+            .iter()
+            .find(|item| item.position() == old.position() && item.name() == old.name())
+            .cloned()
+    });
+    let monitor = if new_session {
+        cursor_monitor(window)
+    } else {
+        retained.or_else(|| cursor_monitor(window))
+    };
+    context.monitor = monitor.clone();
+    monitor
+}
+
+fn place_floating(
+    window: &tauri::WebviewWindow,
+    monitor: &tauri::Monitor,
+    surface: floating::Surface,
+) -> Result<(), String> {
+    let work = monitor.work_area();
+    let area = floating::WorkArea {
+        x: work.position.x,
+        y: work.position.y,
+        width: work.size.width,
+        height: work.size.height,
+        scale: monitor.scale_factor(),
+    };
+    let mut geometry = floating::geometry(area, surface);
+    // Moving first lets Windows change monitor DPI; the explicit target physical
+    // size then overrides the automatic WM_DPICHANGED suggested rectangle.
+    window
+        .set_position(PhysicalPosition::new(geometry.x, geometry.y))
+        .map_err(|e| e.to_string())?;
+    // Preserve the 1060×720 logical WebView content area when it fits. Native
+    // borders are additional space; only shrink content when the total window
+    // would exceed the target work area (e.g. a high-DPI laptop).
+    let (width, height) = if matches!(surface, floating::Surface::Main) {
+        let outer = window.outer_size().map_err(|e| e.to_string())?;
+        let inner = window.inner_size().map_err(|e| e.to_string())?;
+        let frame_width = outer.width.saturating_sub(inner.width);
+        let frame_height = outer.height.saturating_sub(inner.height);
+        geometry = floating::main_geometry(area, frame_width, frame_height);
+        (
+            geometry.width.saturating_sub(frame_width).max(1),
+            geometry.height.saturating_sub(frame_height).max(1),
+        )
+    } else {
+        (geometry.width, geometry.height)
+    };
+    let minimum = match surface {
+        floating::Surface::Main => Some((640.0, 480.0)),
+        floating::Surface::Card => Some((360.0, 320.0)),
+        floating::Surface::Hud => None,
+    };
+    if let Some((min_width, min_height)) = minimum {
+        let scale = monitor.scale_factor();
+        window
+            .set_min_size(Some(PhysicalSize::new(
+                ((min_width * scale).round() as u32).min(width),
+                ((min_height * scale).round() as u32).min(height),
+            )))
+            .map_err(|e| e.to_string())?;
+    }
+    window
+        .set_size(PhysicalSize::new(width, height))
+        .map_err(|e| e.to_string())?;
+    window
+        .set_position(PhysicalPosition::new(geometry.x, geometry.y))
+        .map_err(|e| e.to_string())?;
+    debug_log(&format!(
+        "floating: work=({},{}) {}x{} scale={} -> {:?}",
+        work.position.x,
+        work.position.y,
+        work.size.width,
+        work.size.height,
+        monitor.scale_factor(),
+        geometry
+    ));
+    Ok(())
+}
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -99,6 +214,10 @@ struct AnswerCardData {
     question: String,
     answer: String,
     request_id: Option<String>,
+    kind: String,
+    title: String,
+    streaming: bool,
+    error: Option<String>,
 }
 
 /// 把配置里的字符串和插件回调拿到的 Shortcut 对比。
@@ -270,7 +389,7 @@ fn paste_focus_force(window: isize) -> bool {
 
 #[tauri::command]
 fn get_answer_card(app: AppHandle) -> Option<AnswerCardData> {
-    app.state::<AnswerCardState>().0.lock().ok()?.clone()
+    app.state::<AnswerCardState>().0.lock().ok()?.card.clone()
 }
 
 #[tauri::command]
@@ -279,46 +398,65 @@ fn show_answer_card(
     question: String,
     answer: String,
     request_id: Option<String>,
+    kind: Option<String>,
+    title: Option<String>,
+    streaming: Option<bool>,
+    error: Option<String>,
 ) -> Result<(), String> {
     let card = AnswerCardData {
         question,
         answer,
         request_id,
+        kind: kind.unwrap_or_else(|| "ask".into()),
+        title: title.unwrap_or_else(|| "随便问".into()),
+        streaming: streaming.unwrap_or(false),
+        error,
     };
-    *app.state::<AnswerCardState>()
-        .0
-        .lock()
-        .map_err(|error| error.to_string())? = Some(card.clone());
-    if let Some(window) = app.get_webview_window("answer") {
-        if let Some(monitor) = window
-            .current_monitor()
-            .map_err(|error| error.to_string())?
-        {
-            let scale = monitor.scale_factor();
-            let size = window.outer_size().map_err(|error| error.to_string())?;
-            let position = monitor.position();
-            let screen = monitor.size();
-            let margin = (28.0 * scale).round() as i32;
-            let x = position.x + screen.width as i32 - size.width as i32 - margin;
-            let y = position.y + margin;
-            window
-                .set_position(PhysicalPosition::new(x, y))
-                .map_err(|error| error.to_string())?;
+    let changed = {
+        let state = app.state::<AnswerCardState>();
+        let mut current = state.0.lock().map_err(|e| e.to_string())?;
+        // A late final response cannot reopen a card the user dismissed.
+        if card.request_id.is_some() && current.closed_request_id == card.request_id {
+            return Ok(());
         }
-        window.show().map_err(|error| error.to_string())?;
-        window
-            .emit("ask-answer", card)
-            .map_err(|error| error.to_string())?;
+        let changed = current
+            .card
+            .as_ref()
+            .map(|old| (&old.request_id, &old.question))
+            != Some((&card.request_id, &card.question));
+        current.card = Some(card.clone());
+        changed
+    };
+    if let Some(window) = app.get_webview_window("answer") {
+        if changed {
+            if let Some(monitor) = floating_monitor(&app, &window, false) {
+                place_floating(&window, &monitor, floating::Surface::Card)?;
+            }
+        }
+        window.emit("ask-answer", card).map_err(|e| e.to_string())?;
+        if !window.is_visible().map_err(|e| e.to_string())? {
+            window.show().map_err(|e| e.to_string())?;
+        }
     }
     Ok(())
 }
 
 #[tauri::command]
-fn hide_answer_card(app: AppHandle) -> Result<(), String> {
-    *app.state::<AnswerCardState>()
-        .0
-        .lock()
-        .map_err(|error| error.to_string())? = None;
+fn hide_answer_card(app: AppHandle, request_id: Option<String>) -> Result<(), String> {
+    {
+        let state = app.state::<AnswerCardState>();
+        let mut current = state.0.lock().map_err(|error| error.to_string())?;
+        if request_id.is_some()
+            && current
+                .card
+                .as_ref()
+                .and_then(|card| card.request_id.as_ref())
+                != request_id.as_ref()
+        {
+            return Ok(());
+        }
+        current.closed_request_id = current.card.take().and_then(|card| card.request_id);
+    }
     if let Some(window) = app.get_webview_window("answer") {
         window.hide().map_err(|error| error.to_string())?;
     }
@@ -368,7 +506,8 @@ const PROBE_TONE_HZ: f32 = 440.0;
 fn probe_wav() -> Result<Vec<u8>, String> {
     let samples: Vec<f32> = (0..PROBE_SAMPLES)
         .map(|index| {
-            let phase = 2.0 * std::f32::consts::PI * PROBE_TONE_HZ * index as f32 / PROBE_RATE as f32;
+            let phase =
+                2.0 * std::f32::consts::PI * PROBE_TONE_HZ * index as f32 / PROBE_RATE as f32;
             PROBE_AMPLITUDE * phase.sin()
         })
         .collect();
@@ -553,7 +692,8 @@ fn save_settings(app: AppHandle, settings: serde_json::Value) -> Result<(), Stri
             .unwrap_or(true),
     );
     let data = serde_json::to_vec_pretty(&settings).map_err(|error| error.to_string())?;
-    skills::write_atomic(&settings_path(&app)?, &data).map_err(|error| format!("保存设置失败：{error}"))
+    skills::write_atomic(&settings_path(&app)?, &data)
+        .map_err(|error| format!("保存设置失败：{error}"))
 }
 
 #[tauri::command]
@@ -725,8 +865,12 @@ fn paste_to_foreground(
                     if !process.is_null() {
                         let mut path_buf = vec![0u16; 1024];
                         let mut path_len = path_buf.len() as u32;
-                        if QueryFullProcessImageNameW(process, 0, path_buf.as_mut_ptr(), &mut path_len)
-                            != 0
+                        if QueryFullProcessImageNameW(
+                            process,
+                            0,
+                            path_buf.as_mut_ptr(),
+                            &mut path_len,
+                        ) != 0
                         {
                             let path = String::from_utf16_lossy(&path_buf[..path_len as usize]);
                             let file = path.rsplit(['\\', '/']).next().unwrap_or("");
@@ -737,7 +881,9 @@ fn paste_to_foreground(
                 }
             }
         }
-        debug_log(&format!("paste_to_foreground: 前台窗口 pid={pid} app={app} hwnd={foreground:p}"));
+        debug_log(&format!(
+            "paste_to_foreground: 前台窗口 pid={pid} app={app} hwnd={foreground:p}"
+        ));
         // 前台被挪走了（比如 overlay 的 show 激活了自己、或用户点了别的窗口）：
         // 把前台还给打字的应用，否则 Ctrl+V 就打进了错误窗口。
         if pid as usize == std::process::id() as usize {
@@ -754,7 +900,11 @@ fn paste_to_foreground(
     #[cfg(windows)]
     debug_log(&format!(
         "paste_to_foreground: send_ctrl_v = {}",
-        if result.is_ok() { "已发送" } else { "失败" }
+        if result.is_ok() {
+            "已发送"
+        } else {
+            "失败"
+        }
     ));
     let restore_delay = if result.is_ok() { 900 } else { 0 };
 
@@ -897,61 +1047,24 @@ fn set_overlay_state(
             )
             .map_err(|error| error.to_string())?;
         if state == "idle" {
+            if let Ok(mut context) = app.state::<FloatingContextState>().0.lock() {
+                context.overlay_state = state.clone();
+            }
             window.hide().map_err(|error| error.to_string())?;
         } else {
-            // 悬浮 HUD 必须出现在光标所在的那块屏幕上。这里不能用 current_monitor()：
-            // 它在 Windows 上是 MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST)，
-            // 按 overlay 自己那块矩形就近吸附，而 overlay 是 visible:false 且没有配置
-            // 坐标的窗口，于是每次都吸到同一块（错误的）屏上并一直沿用下去。
-            // 改以光标为锚点，取其所在显示器。
-            // 顺手看住前台窗口：overlay 的 show 第二次起是 SW_SHOW（会激活自己），
-            // 一旦它成了前台，随后的 Ctrl+V 就打进 overlay 而不是目标应用。
             #[cfg(target_os = "windows")]
             let foreground_before = foreground_window();
-            let cursor = window.cursor_position().ok();
-            let monitor = cursor
-                .as_ref()
-                .and_then(|point| window.monitor_from_point(point.x, point.y).ok().flatten())
-                .or_else(|| window.primary_monitor().ok().flatten())
-                .or_else(|| window.current_monitor().ok().flatten());
-            if let Some(monitor) = monitor {
-                let monitor_size = monitor.size();
-                let monitor_position = monitor.position();
-                let window_size = window.outer_size().map_err(|error| error.to_string())?;
-                // 边距是逻辑设计值，乘目标屏的 DPI 才是物理像素——与 outer_size() 同一坐标系。
-                let bottom_margin = (44.0 * monitor.scale_factor()).round() as i32;
-                let width = window_size.width as i32;
-                let left = monitor_position.x;
-                let right = monitor_position.x + monitor_size.width as i32 - width;
-                // 水平方向随光标，但不许探出所在显示器；光标不可用时退回该屏居中。
-                let x = match cursor.as_ref() {
-                    Some(point) => {
-                        (point.x.round() as i32 - width / 2).clamp(left, right.max(left))
-                    }
-                    None => left + (right - left) / 2,
-                };
-                let y = monitor_position.y + monitor_size.height as i32
-                    - window_size.height as i32
-                    - bottom_margin;
-                window
-                    .set_position(PhysicalPosition::new(x, y))
-                    .map_err(|error| error.to_string())?;
-                debug_log(&format!(
-                    "set_overlay_state({state}): cursor={:?} monitor=({},{})+{}x{} scale={:.2} win={}x{} -> pos=({x},{y})",
-                    cursor.as_ref().map(|p| (p.x as i32, p.y as i32)),
-                    monitor_position.x,
-                    monitor_position.y,
-                    monitor_size.width,
-                    monitor_size.height,
-                    monitor.scale_factor(),
-                    window_size.width,
-                    window_size.height,
-                ));
-            } else {
-                debug_log(&format!(
-                    "set_overlay_state({state}): cursor={:?} 无可用显示器，未定位",
-                    cursor.as_ref().map(|p| (p.x as i32, p.y as i32))
-                ));
+            let new_session = {
+                let context = app.state::<FloatingContextState>();
+                let mut context = context.0.lock().map_err(|e| e.to_string())?;
+                let fresh = context.overlay_state.is_empty()
+                    || context.overlay_state == "idle"
+                    || (state == "recording" && context.overlay_state != "recording");
+                context.overlay_state = state.clone();
+                fresh
+            };
+            if let Some(monitor) = floating_monitor(&app, &window, new_session) {
+                place_floating(&window, &monitor, floating::Surface::Hud)?;
             }
             window.show().map_err(|error| error.to_string())?;
             #[cfg(target_os = "windows")]
@@ -986,6 +1099,7 @@ pub fn run() {
         .manage(ShortcutRegistry::default())
         .manage(ShortcutCaptureState::default())
         .manage(AnswerCardState::default())
+        .manage(FloatingContextState::default())
         .plugin(tauri_plugin_single_instance::init(|app, _, _| {
             show_main(app)
         }))
@@ -1035,10 +1149,19 @@ pub fn run() {
                 .build(),
         )
         .on_window_event(|window, event| {
-            if window.label() == "main" {
-                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                    api.prevent_close();
-                    let _ = window.hide();
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                match window.label() {
+                    "main" => {
+                        api.prevent_close();
+                        let _ = window.hide();
+                    }
+                    "answer" => {
+                        // Alt+F4 must dismiss the reusable card, not destroy its WebView.
+                        api.prevent_close();
+                        let _ = window.emit("answer-window-close", ());
+                        let _ = hide_answer_card(window.app_handle().clone(), None);
+                    }
+                    _ => {}
                 }
             }
         })
@@ -1068,8 +1191,20 @@ pub fn run() {
                 let _ = handle.emit("shortcut-register-failed", notices);
             }
 
+            if let Some(main) = app.get_webview_window("main") {
+                main.set_zoom(1.0)?;
+                if let Some(monitor) = main.current_monitor()?.or(main.primary_monitor()?) {
+                    place_floating(&main, &monitor, floating::Surface::Main)?;
+                }
+            }
+
             if let Some(overlay) = app.get_webview_window("overlay") {
                 overlay.set_focusable(false)?;
+                overlay.set_zoom(1.0)?;
+            }
+
+            if let Some(answer) = app.get_webview_window("answer") {
+                answer.set_zoom(1.0)?;
             }
 
             let record = MenuItemBuilder::with_id("record", "开始 / 结束语音输入").build(app)?;
@@ -1077,7 +1212,7 @@ pub fn run() {
             let action_item = MenuItemBuilder::with_id("action", "第三个快捷操作").build(app)?;
             let settings = MenuItemBuilder::with_id("settings", "打开设置").build(app)?;
             let cancel = MenuItemBuilder::with_id("cancel", "取消当前录音 / 处理").build(app)?;
-            let quit = MenuItemBuilder::with_id("quit", "退出 Typefree Windows").build(app)?;
+            let quit = MenuItemBuilder::with_id("quit", "退出 typefree").build(app)?;
             let menu = MenuBuilder::new(app)
                 .item(&record)
                 .item(&ask_item)
@@ -1090,7 +1225,7 @@ pub fn run() {
                 .build()?;
 
             let mut tray = TrayIconBuilder::new()
-                .tooltip("Typefree Windows · 非官方")
+                .tooltip("typefree")
                 .menu(&menu)
                 .show_menu_on_left_click(true)
                 .on_menu_event(|app, event| match event.id.as_ref() {
@@ -1164,7 +1299,7 @@ pub fn run() {
             skills::save_custom_skills,
         ])
         .run(tauri::generate_context!())
-        .expect("failed to run Typefree Windows");
+        .expect("failed to run typefree");
 }
 
 #[cfg(test)]
@@ -1175,7 +1310,7 @@ mod tests {
     /// 以及本机 DLP 加密 .png 之后，内嵌的 .ico 仍是可解码的真字节。
     #[test]
     fn app_icon_decodes_to_the_largest_frame() {
-        let icon = app_icon().expect("内嵌的 icons/icon.ico 应能解码");
+        let icon = app_icon().expect("内嵌的 icons/ink-v2/icon.ico 应能解码");
         assert_eq!((icon.width(), icon.height()), (256, 256));
         assert_eq!(icon.rgba().len(), 256 * 256 * 4);
     }
@@ -1190,7 +1325,10 @@ mod tests {
         assert_eq!(&bytes[22..24], &1u16.to_le_bytes()); // 单声道
         assert_eq!(&bytes[24..28], &PROBE_RATE.to_le_bytes());
         assert_eq!(&bytes[34..36], &16u16.to_le_bytes()); // 位深
-        assert!(bytes[44..].iter().any(|byte| *byte != 0), "探针不能是数字静音");
+        assert!(
+            bytes[44..].iter().any(|byte| *byte != 0),
+            "探针不能是数字静音"
+        );
 
         let samples: Vec<f32> = bytes[44..]
             .chunks_exact(2)
@@ -1198,6 +1336,9 @@ mod tests {
             .collect();
         assert!(!audio::is_silent(&samples), "探针要能通过本地静音判定");
         let peak = samples.iter().fold(0.0f32, |acc, v| acc.max(v.abs()));
-        assert!(peak > 0.09 && peak < 0.11, "峰值应贴近 PROBE_AMPLITUDE，实测 {peak}");
+        assert!(
+            peak > 0.09 && peak < 0.11,
+            "峰值应贴近 PROBE_AMPLITUDE，实测 {peak}"
+        );
     }
 }

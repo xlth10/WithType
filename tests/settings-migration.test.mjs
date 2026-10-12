@@ -36,7 +36,7 @@ test("旧的 translate 模式落到原文，并给出逐字提示", () => {
   const { settings, notices } = normalizeSettings({ mode: "translate" });
   assert.equal(settings.processingMode, "original");
   assert.deepEqual(notices, [
-    "原「翻译为英文」模式已下线，文字整理已切换为「原文」，可在文字整理页重新选择。",
+    "原「翻译为英文」模式已下线，文字整理已切换为「保留原文」，可在文字整理页重新选择。",
   ]);
 });
 
@@ -178,4 +178,34 @@ test("自动学习旧配置默认开启，显式关闭可持久化", () => {
   assert.equal(normalizeSettings({}).settings.autoLearn, true);
   assert.equal(toPersistedSettings({ autoLearn: false }).autoLearn, false);
   assert.equal(normalizeSettings({ autoLearn: "false" }).settings.autoLearn, true);
+});
+
+test("快捷短语旧配置默认不绑定，也不占用现有快捷键", () => {
+  const { settings, notices } = normalizeSettings({});
+  assert.equal(settings.phraseShortcut, "");
+  assert.equal(settings.phraseText, "");
+  assert.deepEqual(notices, []);
+});
+
+test("快捷短语完整保存前导零、空格、换行和名称", () => {
+  const phraseText = " 0012345\r\n第二行 ";
+  const saved = toPersistedSettings({ phraseShortcut: "Ctrl+Alt+P", phraseName: "手机号", phraseText });
+  assert.equal(normalizeSettings(saved).settings.phraseText, phraseText);
+  assert.equal(saved.phraseName, "手机号");
+  assert.equal(saved.phraseShortcut, "Ctrl+Alt+P");
+});
+
+test("短语快捷键别名冲突时只解除短语绑定并保留内容", () => {
+  const { settings, notices } = normalizeSettings({ shortcut: "Ctrl+Alt+P", phraseShortcut: "Option+Control+P", phraseText: "00123" });
+  assert.equal(settings.shortcut, "Ctrl+Alt+P");
+  assert.equal(settings.phraseShortcut, "");
+  assert.equal(settings.phraseText, "00123");
+  assert.equal(notices.length, 1);
+});
+
+test("短语内容与名称校验类型和长度，使用字符计数保留完整 Unicode", () => {
+  assert.equal(normalizeSettings({ phraseText: 123 }).settings.phraseText, "");
+  const { settings } = normalizeSettings({ phraseText: "墨".repeat(2001), phraseName: "字".repeat(41) });
+  assert.equal(settings.phraseText.length, 2000);
+  assert.equal(settings.phraseName.length, 40);
 });

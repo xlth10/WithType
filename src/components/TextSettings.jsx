@@ -26,8 +26,8 @@ const TIMEOUT_PRESETS = [
 ];
 
 const AUTH_MODES = [
-  { value: "bearer", label: "Bearer Token（Authorization 头）" },
-  { value: "none", label: "无认证（内网服务不需要密钥）" },
+  { value: "bearer", label: "API 密钥（Bearer）" },
+  { value: "none", label: "无需密钥" },
 ];
 
 function Field({ label, hint, children }) {
@@ -54,7 +54,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
 
   const saveKey = async () => {
     if (!key.trim()) {
-      onNotice({ text: "请先填写要保存的 API Key", ok: false });
+      onNotice({ text: "请先填写文字 API 密钥", ok: false });
       return;
     }
     setSavingKey(true);
@@ -62,7 +62,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
       await invoke("save_text_api_key", { key });
       setKey("");
       setResult(null);
-      onNotice({ text: "文字模型 API Key 已保存到系统凭据库", ok: true });
+      onNotice({ text: "文字密钥已保存到 Windows 凭据库", ok: true });
     } catch (error) {
       onNotice({ text: String(error && error.message ? error.message : error), ok: false });
     } finally {
@@ -101,12 +101,12 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
     <section className="model-section" id="text-model" aria-labelledby="text-model-heading">
       <header className="model-section-heading">
         <div>
-          <span className="eyebrow">02 · 从文字到成稿</span>
+          <span className="eyebrow">02 · 整理文字</span>
           <h2 id="text-model-heading">文字处理</h2>
-          <p>智能整理、随便问、翻译和技能使用这里的服务；仅转写录音时可留空。</p>
+          <p>用于自动整理、提问、翻译和写法。仅保留原文或轻度整理时，可留空。</p>
         </div>
         <div className={`connection-badge ${result?.ok ? "success" : ""}`}>
-          {result?.ok ? "文字测试通过" : result?.ok === false ? "文字测试失败" : "文字待测试"}
+          {result?.ok ? "测试通过" : result?.ok === false ? "测试未通过" : "尚未测试"}
         </div>
       </header>
 
@@ -114,25 +114,25 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
         <div className="panel-title">
           <div className="icon-tile"><BookOpenText size={22} weight="bold" /></div>
           <div>
-            <h3>OpenAI 兼容文字接口</h3>
-            <p>使用 /chat/completions；随便问支持流式回答，不支持时回退完整响应。</p>
+            <h3>兼容 OpenAI 的文字服务</h3>
+            <p>提问时可逐步显示回答；服务不支持时等待完整结果。</p>
           </div>
         </div>
         <div className="form-grid">
-          <Field label="文字 API 地址" hint="填写到 /v1 即可，例如 http://10.0.0.9:8000/v1；留空则不启用文字整理">
+          <Field label="服务地址" hint="通常填写到 /v1；留空时不启用文字服务。">
             <input
               value={settings.textEndpoint}
               placeholder={DEFAULT_SETTINGS.textEndpoint || "http://10.0.0.9:8000/v1"}
               onChange={(event) => patch({ textEndpoint: event.target.value })}
             />
           </Field>
-          <Field label="文字模型名称" hint="例如 Qwen3-8B、deepseek-v3；留空则不启用文字整理">
+          <Field label="模型名称" hint="填写服务提供的模型名称；留空时不启用文字服务。">
             <input
               value={settings.textModel}
               onChange={(event) => patch({ textModel: event.target.value })}
             />
           </Field>
-          <Field label="快速模型（可选）" hint="意图判断与翻译优先使用；留空时使用主模型。">
+          <Field label="快速模型（可选）" hint="判断处理方式和翻译时优先使用；留空则使用上方模型。">
             <input value={settings.textFastModel || ""} onChange={(event) => patch({ textFastModel: event.target.value })} />
           </Field>
           <Field label="备用模型（可选）" hint="同一服务下的模型名称，用逗号分隔。仅超时、网络错误或限流时按顺序尝试。">
@@ -148,7 +148,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
               ))}
             </select>
           </Field>
-          <Field label="响应超时">
+          <Field label="等待时限">
             <select
               value={settings.textTimeoutMs}
               onChange={(event) => patch({ textTimeoutMs: Number(event.target.value) })}
@@ -158,13 +158,13 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
               ))}
             </select>
           </Field>
-          <Field label="文字 API Key" hint="保存后写入 Windows 凭据库，不进入配置文件与浏览器存储">
+          <Field label="API 密钥" hint="已有密钥时留空即可；替换密钥后点击保存。">
             <div className="input-with-icon">
               <Key size={18} />
               <input
                 type="password"
                 value={key}
-                placeholder="已保存则留空"
+                placeholder="已有密钥可留空"
                 onChange={(event) => setKey(event.target.value)}
                 disabled={settings.textAuthMode === "none"}
               />
@@ -178,7 +178,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
             disabled={testing || savingKey || !settings.textEndpoint.trim() || !settings.textModel.trim()}
           >
             {testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}
-            {testing ? "正在测试文字" : "测试文字服务"}
+            {testing ? "正在测试…" : "测试文字服务"}
           </button>
           <button
             className="button primary"
@@ -186,7 +186,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
             disabled={savingKey || testing || settings.textAuthMode === "none" || !key.trim() || previewMode}
           >
             <LockKey size={18} weight="fill" />
-            {savingKey ? "保存中…" : "保存文字密钥"}
+            {savingKey ? "正在保存…" : "保存文字密钥"}
           </button>
         </div>
         {result && (
@@ -199,10 +199,10 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
       <div className="note-card">
         <ShieldCheck size={22} weight="fill" />
         <div>
-          <strong>密钥不进配置文件</strong>
+          <strong>密钥保存</strong>
           <p>
-            语音识别与文字模型各自使用独立的凭据项，二者互不覆盖。切换为「无认证」时不会读取已保存的密钥；
-            模型名称同样留空即视为不启用，不会退回默认服务。
+            语音与文字密钥分别存入 Windows 凭据库，不写入配置文件。选择“无需密钥”后不会读取已存密钥；
+            服务地址或模型名称留空时，不启用文字服务。
           </p>
         </div>
       </div>
@@ -210,10 +210,10 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
       <div className="note-card">
         <Waveform size={22} />
         <div>
-          <strong>连接测试会发送一段真实文本</strong>
+          <strong>文字去向</strong>
           <p>
-            测试请求会走完整的整理链路（含认证），只有拿到合法的模型回复才算通过；
-            超时、401/403、空响应会分别报出原因，错误信息不会回显密钥。
+            整理、提问与翻译会把文字发送到你填写的服务。连接测试也会发送一段测试文字，
+            收到有效回复后显示“测试通过”。错误提示不显示密钥。
           </p>
         </div>
       </div>

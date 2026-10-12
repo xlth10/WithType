@@ -13,6 +13,8 @@ import { AUTO_COMMAND_CONFIDENCE, classifyAsrError, createPipeline } from "../sr
 
 test("ASR 错误分类区分认证、限流、格式与临时故障", () => {
   assert.equal(classifyAsrError("ASR 服务返回 HTTP 401 Unauthorized"), "auth");
+  assert.equal(classifyAsrError("尚未保存语音 API 密钥"), "auth");
+  assert.equal(classifyAsrError("尚未保存 ASR API Key"), "auth");
   assert.equal(classifyAsrError("ASR 服务返回 HTTP 429 Too Many Requests"), "rate-limit");
   assert.equal(classifyAsrError("ASR 服务返回 HTTP 415 Unsupported Media Type"), "format");
   assert.equal(classifyAsrError("语音识别请求失败：connection reset"), "transient");
@@ -351,7 +353,7 @@ test("insertRaw 拒绝把语音命令的原始指令上屏", async () => {
   assert.deepEqual(result, {
     ok: false,
     stage: "command",
-    message: "提问或语音命令失败时不会把原文插入当前窗口",
+    message: "提问或语音指令未完成，原文不会自动输入",
   });
   assert.deepEqual(calls, [], "拒绝时不该调用任何后端命令");
   assert.deepEqual(pasted, []);
@@ -456,7 +458,7 @@ test("smart 模式缺少文字服务时保留原文并说明原因", async () =>
   assert.equal(result.ok, true);
   assert.deepEqual(calls, ["transcribe_audio", "paste_text"]);
   assert.deepEqual(pasted, ["嗯那个明天上午我们在会议室开会"]);
-  assert.equal(findEvent(events, "done").warning, "尚未配置文字模型，已按原文处理");
+  assert.equal(findEvent(events, "done").warning, "尚未配置文字服务，已按原文处理");
 });
 
 test("固定版 Typefree 短句不调用文字服务，并去掉末尾句号", async () => {
@@ -549,7 +551,7 @@ test("skill 模式的选中项已丢失时提示重新选择", async () => {
   assert.equal(result.ok, true);
   assert.deepEqual(calls, ["transcribe_audio", "paste_text"], "Skill 失效时退回原文并提示");
   assert.deepEqual(pasted, ["整理一下这段"]);
-  assert.equal(findEvent(events, "done").warning, "所选 Skill 已不可用，请重新选择");
+  assert.equal(findEvent(events, "done").warning, "所选写法已不可用，请重新选择");
 });
 
 test("skill 模式选中内置 Skill 时把它的说明发给文字模型", async () => {
@@ -727,7 +729,7 @@ test("未配文字模型时预览直接给出配置提示", async () => {
     rawText: "文本",
   });
 
-  assert.deepEqual(result, { ok: false, error: "尚未配置文字模型（地址与模型名称都要填）" });
+  assert.deepEqual(result, { ok: false, error: "尚未配置文字服务（地址与模型名称都要填）" });
   assert.deepEqual(calls, []);
 });
 
@@ -736,7 +738,7 @@ test("没选 Skill 时预览提示先选 Skill", async () => {
 
   const result = await pipeline.preview({ settings: TEXT_SETTINGS, skill: null, rawText: "文本" });
 
-  assert.deepEqual(result, { ok: false, error: "请先选择要预览的 Skill" });
+  assert.deepEqual(result, { ok: false, error: "请先选择要试用的写法" });
   assert.deepEqual(calls, []);
 });
 

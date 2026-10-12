@@ -1,0 +1,27 @@
+{
+  "workflow": "icon-designer / ChatGPT Images 2.0",
+  "actualTool": "image_gen",
+  "modelVersion": "not exposed by tool",
+  "outputs": [
+    [
+      "A",
+      "a-ink-stroke",
+      "exec-8fd65ac5-27c2-4c5d-a83b-c24bd1773476.png"
+    ],
+    [
+      "B",
+      "b-voice-to-stroke",
+      "exec-1c7eff7a-28c7-4ae8-8585-94ec197e51a0.png"
+    ],
+    [
+      "C",
+      "c-paper-ink",
+      "exec-7d1c1b4f-f702-4986-878c-ec55275bb0d0.png"
+    ],
+    [
+      "D",
+      "d-negative-stroke",
+      "exec-2dde0694-6a0c-428b-b793-c7109f203229.png"
+    ]
+  ]
+}

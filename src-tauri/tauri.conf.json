@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "typefree",
+  "productName": "WithType",
   "mainBinaryName": "typefree",
   "version": "0.1.0",
   "identifier": "app.typefree.windows.unofficial",
@@ -15,7 +15,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "typefree",
+        "title": "WithType",
         "width": 1060,
         "height": 720,
         "minWidth": 640,
@@ -29,9 +29,9 @@
       },
       {
         "label": "overlay",
-        "title": "typefree · 录音",
-        "width": 196,
-        "height": 74,
+        "title": "WithType · 录音",
+        "width": 140,
+        "height": 64,
         "visible": false,
         "decorations": false,
         "transparent": true,
@@ -47,7 +47,7 @@
       },
       {
         "label": "answer",
-        "title": "typefree · 随便问",
+        "title": "WithType · 提问",
         "width": 460,
         "height": 520,
         "visible": false,
@@ -82,17 +82,17 @@
       "../public/fonts/COPYRIGHT-NotoSansSC.txt": "LICENSES/COPYRIGHT-NotoSansSC.txt"
     },
     "category": "Productivity",
-    "shortDescription": "typefree 非官方语音输入版",
-    "longDescription": "用语音输入文字、翻译或提问。",
+    "shortDescription": "WithType · 语音输入与整理",
+    "longDescription": "WithType 通过语音输入文字，支持整理、翻译与提问。基于 Typefree 的独立版本。",
     "icon": [
-      "icons/ink-v2/32x32.png",
-      "icons/ink-v2/128x128.png",
-      "icons/ink-v2/128x128@2x.png",
-      "icons/ink-v2/icon.ico"
+      "icons/ink-v3/32x32.png",
+      "icons/ink-v3/128x128.png",
+      "icons/ink-v3/256x256.png",
+      "icons/ink-v3/icon.ico"
     ],
     "windows": {
       "nsis": {
-        "installerIcon": "icons/ink-v2/icon.ico",
+        "installerIcon": "icons/ink-v3/icon.ico",
         "installMode": "currentUser",
         "displayLanguageSelector": false
       }

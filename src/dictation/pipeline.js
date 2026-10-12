@@ -19,7 +19,7 @@ export const AUTO_COMMAND_CONFIDENCE = 0.85;
 
 export function classifyAsrError(error) {
   const message = String(error?.message || error || "");
-  if (/HTTP (401|403)\b|API Key|凭据库|认证|权限/i.test(message)) return "auth";
+  if (/HTTP (401|403)\b|API Key|API 密钥|凭据库|认证|权限/i.test(message)) return "auth";
   if (/HTTP 429\b|限流|额度/i.test(message)) return "rate-limit";
   if (/HTTP (400|415|422)\b|格式/i.test(message)) return "format";
   if (/超时|请求失败|无法连接|网络|HTTP 5\d\d\b/i.test(message)) return "transient";
@@ -192,7 +192,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         if (!transient || index === models.length - 1 || !guard(snapshot)) throw error;
       }
     }
-    throw lastError || new Error("尚未配置文字模型");
+    throw lastError || new Error("尚未配置文字服务");
   }
 
   /** 调用文字模型，并把「原文」作为失败时的兜底一起返回，绝不让调用方丢掉原文。 */
@@ -348,7 +348,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
     if (intent === "ask" || intent === "translate" || intent === "command") {
       usedTextService = true;
       if (!textReady(snapshot.settings)) {
-        textFailure = "尚未配置文字模型，请先填写地址和模型名称";
+        textFailure = "尚未配置文字服务，请先填写地址和模型名称";
       } else {
         onEvent({ type: "state", requestId: snapshot.requestId, state: "processing", phase: "text" });
         const stage = await runTextStage(snapshot, {
@@ -382,7 +382,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
         else textFailure = stage.error || "文字模型没有返回内容";
       } else {
         // 没配文字服务或 Skill 已失效：退回原文，并明确告知，不静默改变用户预期。
-        textFailure = modeReady ? "所选 Skill 已不可用，请重新选择" : "尚未配置文字模型，已按原文处理";
+        textFailure = modeReady ? "所选写法已不可用，请重新选择" : "尚未配置文字服务，已按原文处理";
         finalText = corrected;
       }
     } else if (snapshot.processingMode === "smart" && effectiveTextLength(corrected) <= 10) {
@@ -531,7 +531,7 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
    */
   async function insertRaw({ intent, rawText, settings, customSkills = [], audioMs = 0, windowContext = null }) {
     if (intent === "command" || intent === "ask") {
-      return { ok: false, stage: intent, message: "提问或语音命令失败时不会把原文插入当前窗口" };
+      return { ok: false, stage: intent, message: "提问或语音指令未完成，原文不会自动输入" };
     }
     const text = String(rawText || "");
     const snapshot = begin({ intent: "dictation", settings, customSkills, windowContext });
@@ -564,9 +564,9 @@ export function createPipeline({ invoke, onEvent = () => {} }) {
     const corrected = applyVocabulary(rawText.trim(), snapshot.vocabulary);
     const trimmed = corrected.slice(0, MAX_TEXT_CHARS);
     if (!textReady(settings)) {
-      return { ok: false, error: "尚未配置文字模型（地址与模型名称都要填）" };
+      return { ok: false, error: "尚未配置文字服务（地址与模型名称都要填）" };
     }
-    if (!skill) return { ok: false, error: "请先选择要预览的 Skill" };
+    if (!skill) return { ok: false, error: "请先选择要试用的写法" };
     if (sample) {
       // 样例预览不发请求：只确认 Skill 能被装配成合法请求，供编辑时快速自检。
       const messages = buildMessages({ instruction: skill.instruction, outputFormat: skill.outputFormat, rawText: trimmed || "（示例文本）" });

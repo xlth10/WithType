@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { BRAND } from "../src/ui/brand.js";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const config = JSON.parse(await read("src-tauri/tauri.conf.json"));
@@ -19,7 +20,7 @@ test("desktop bundles the same Vite frontend used by browser preview", async () 
 });
 
 test("three native windows keep design sizes, light theme and neutral zoom", async () => {
-  const expected = { main: [1060, 720], overlay: [196, 74], answer: [460, 520] };
+  const expected = { main: [1060, 720], overlay: [140, 64], answer: [460, 520] };
   for (const window of config.app.windows) {
     assert.deepEqual([window.width, window.height], expected[window.label]);
     assert.equal(window.theme, "Light");
@@ -30,21 +31,26 @@ test("three native windows keep design sizes, light theme and neutral zoom", asy
       assert.equal(window.backgroundColor, "#00000000");
     }
   }
+  const overlay = config.app.windows.find((window) => window.label === "overlay");
+  const floating = await read("src-tauri/src/floating.rs");
+  assert.equal(Number(floating.match(/pub const HUD_WIDTH: f64 = ([0-9.]+);/)[1]), overlay.width);
+  assert.equal(Number(floating.match(/pub const HUD_HEIGHT: f64 = ([0-9.]+);/)[1]), overlay.height);
   const rust = await read("src-tauri/src/lib.rs");
   for (const name of ["main", "overlay", "answer"]) assert.ok(rust.includes(`${name}.set_zoom(1.0)?`));
   assert.match(rust, /floating::main_geometry\(area, frame_width, frame_height\)/);
 });
 
-test("display name is typefree while persisted identity remains compatible", async () => {
-  assert.equal(config.productName, "typefree");
+test("visible product identity matches the frontend and native windows while saved identity remains compatible", async () => {
+  assert.equal(config.productName, BRAND.name);
   assert.equal(config.mainBinaryName, "typefree");
   assert.equal(config.identifier, "app.typefree.windows.unofficial");
-  assert.equal(config.app.windows.find((window) => window.label === "main").title, "typefree");
-  assert.match(await read("index.html"), /<title>typefree<\/title>/);
+  assert.equal(config.app.windows.find((window) => window.label === "main").title, BRAND.name);
+  assert.ok(config.app.windows.every((window) => window.title.startsWith(BRAND.name)));
+  assert.ok((await read("index.html")).includes(`<title>${BRAND.name}</title>`));
   const app = await read("src/App.jsx");
-  assert.match(app, /<strong>typefree<\/strong>/);
-  assert.doesNotMatch(app, /<strong>Typefree Windows<\/strong>/);
-  assert.match(await read("src-tauri/src/lib.rs"), /\.tooltip\("typefree"\)/);
+  assert.match(app, /<strong>\{BRAND.name\}<\/strong>/);
+  assert.ok((await read("src-tauri/src/lib.rs")).includes(`.tooltip("${BRAND.name}")`));
+  assert.match(await read("src-tauri/src/lib.rs"), /const SERVICE_NAME: &str = "app\.typefree\.windows\.unofficial"/);
 });
 
 test("offline variable font ships intact with its license and preload", async () => {
@@ -59,12 +65,15 @@ test("offline variable font ships intact with its license and preload", async ()
 });
 
 test("icons, font licenses and portable archive paths stay in sync", async () => {
-  const frontendIcon = "assets/typefree-ink-v2.svg";
-  assert.match(await read("src/components/AppIcon.jsx"), /\/assets\/typefree-ink-v2\.svg/);
+  const frontendIcon = "assets/typefree-ink-v3.svg";
+  assert.match(await read("src/components/AppIcon.jsx"), /\/assets\/typefree-ink-v3\.svg/);
   assert.match(await read(`public/${frontendIcon}`), /<svg /);
   for (const path of config.bundle.icon) assert.ok((await readFile(new URL(`../src-tauri/${path}`, import.meta.url))).length);
-  assert.equal(config.bundle.windows.nsis.installerIcon, "icons/ink-v2/icon.ico");
+  assert.equal(config.bundle.windows.nsis.installerIcon, "icons/ink-v3/icon.ico");
   assert.equal(config.bundle.resources["../public/fonts/OFL-NotoSansSC.txt"], "LICENSES/OFL-NotoSansSC.txt");
+  assert.match(await read("index.html"), /href="\/assets\/typefree-ink-v3\.svg"/);
+  assert.match(await read("src-tauri/src/lib.rs"), /include_bytes!\("\.\.\/icons\/ink-v3\/icon\.ico"\)/);
+  assert.ok(config.bundle.icon.every((path) => path.startsWith("icons/ink-v3/")));
   const portable = await read("scripts/package-windows.ps1");
   assert.match(portable, /typefree-x64-portable\.zip/);
   assert.match(portable, /\$members = @\([^\n]*\$fontLicenseDestination, \$fontCopyrightDestination\)/);

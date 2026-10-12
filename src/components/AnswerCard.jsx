@@ -16,6 +16,7 @@ export function AnswerCard({ card, onClose, onFollowup }) {
   const copyTimerRef = useRef(null);
   const isSkill = card?.kind === "skill";
   const streaming = busy || Boolean(card?.streaming);
+  const progressLabel = isSkill ? "正在整理" : "正在回答";
   const latestAnswer = [...turns].reverse().find((turn) => turn.answer)?.answer || "";
   const close = () => { generationRef.current += 1; onClose(); };
 
@@ -74,17 +75,17 @@ export function AnswerCard({ card, onClose, onFollowup }) {
   };
 
   return <main className="answer-shell">
-    <section className="answer-card" aria-label={isSkill ? "技能整理结果" : "随便问的回答"}>
+    <section className="answer-card" aria-label={isSkill ? "写法整理结果" : "提问回答"}>
       <header data-tauri-drag-region>
-        <div className="answer-heading" data-tauri-drag-region><AppIcon size={34} className="answer-app-icon" /><div data-tauri-drag-region><strong data-tauri-drag-region>{card.title || (isSkill ? "整理结果" : "随便问")}</strong><small data-tauri-drag-region>{streaming ? "正在回答" : isSkill ? "整理完成 · 核对后再使用" : "留一点空间，把问题想清楚"}</small></div></div>
+        <div className="answer-heading" data-tauri-drag-region><AppIcon size={34} className="answer-app-icon" /><div data-tauri-drag-region><strong data-tauri-drag-region>{card.title || (isSkill ? "整理结果" : "提问")}</strong><small data-tauri-drag-region>{streaming ? progressLabel : isSkill ? "整理完成 · 可复制使用" : "可以继续追问"}</small></div></div>
         <button className="icon-button" onClick={close} aria-label="关闭回答" title="关闭 · Esc"><X size={18} /></button>
       </header>
       <div className="answer-content" ref={contentRef} onScroll={() => { const el = contentRef.current; followScrollRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 64; }} aria-live={streaming ? "polite" : "off"} aria-busy={streaming}>
-        {turns.map((turn, index) => <article className="answer-turn" key={index}><div className="answer-question"><span>{isSkill ? "口述内容" : index ? "继续追问" : "你的问题"}</span><p>{turn.question}</p></div><div className="answer-response"><span className="answer-response-label">{isSkill ? "整理结果" : "回答"}</span><p className="answer-text">{turn.answer || (streaming && index === turns.length - 1 ? "正在想…" : "")}</p></div></article>)}
+        {turns.map((turn, index) => <article className="answer-turn" key={index}><div className="answer-question"><span>{isSkill ? "口述内容" : index ? "继续追问" : "你的问题"}</span><p>{turn.question}</p></div><div className="answer-response"><span className="answer-response-label">{isSkill ? "整理结果" : "回答"}</span><p className="answer-text">{turn.answer || (streaming && index === turns.length - 1 ? `${progressLabel}…` : "")}</p></div></article>)}
         {error && <p className="answer-error" role="alert">{error}</p>}
       </div>
-      {!isSkill && <form className="answer-followup" onSubmit={submit}><textarea rows={1} aria-label="继续追问" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); e.currentTarget.form.requestSubmit(); } }} placeholder="输入追问…（Enter 发送）" maxLength={2000} disabled={streaming} /><button type="submit" aria-label="发送追问" disabled={!draft.trim() || streaming}><PaperPlaneTilt size={18} weight="fill" /></button></form>}
-      <footer><span>{isSkill ? "结果已保留在历史中" : "不会输入当前窗口"}</span><button onClick={copy} disabled={!latestAnswer}>{copied ? <Check size={16} /> : <ClipboardText size={16} />}{copied ? "已复制" : isSkill ? "复制结果" : "复制回答"}</button></footer>
+      {!isSkill && <form className="answer-followup" onSubmit={submit}><textarea rows={1} aria-label="继续追问" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); e.currentTarget.form.requestSubmit(); } }} placeholder="继续提问，按 Enter 发送" maxLength={2000} disabled={streaming} /><button type="submit" aria-label="发送追问" disabled={!draft.trim() || streaming}><PaperPlaneTilt size={18} weight="fill" /></button></form>}
+      <footer><span>{isSkill ? "结果已保留在历史中" : "回答仅显示在卡片中"}</span><button onClick={copy} disabled={!latestAnswer}>{copied ? <Check size={16} /> : <ClipboardText size={16} />}{copied ? "已复制" : isSkill ? "复制结果" : "复制回答"}</button></footer>
     </section>
   </main>;
 }

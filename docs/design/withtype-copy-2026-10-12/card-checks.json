@@ -1,0 +1,24 @@
+[
+  {
+    "cardWidth": 440,
+    "horizontalOverflow": false,
+    "kind": "skill",
+    "subtitle": "整理完成 · 可复制使用",
+    "title": "WithType",
+    "viewport": [
+      460,
+      520
+    ]
+  },
+  {
+    "cardWidth": 440,
+    "horizontalOverflow": false,
+    "kind": "ask",
+    "subtitle": "可以继续追问",
+    "title": "WithType",
+    "viewport": [
+      460,
+      520
+    ]
+  }
+]

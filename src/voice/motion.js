@@ -15,6 +15,7 @@ function mixColor(from, to, amount) {
 export function createEngine() {
   return {
     energy: 0, energyVelocity: 0, processing: 0, processingVelocity: 0, done: 0, doneVelocity: 0,
+    error: 0, errorVelocity: 0, reducedMotion: false,
     phase: 0, mode: "idle", sampleClock: 0, sampleTargets: [0, 0, 0],
     sampleValues: [0, 0, 0], sampleVelocities: [0, 0, 0],
   };
@@ -42,11 +43,13 @@ export function advanceEngine(engine, input, elapsed, reducedMotion = false) {
   const step = dt / steps;
   if (engine.mode !== "recording" && input.mode === "recording") engine.sampleClock = 0.055;
   engine.mode = input.mode;
+  engine.reducedMotion = reducedMotion;
   for (let index = 0; index < steps; index += 1) {
     const energyTarget = input.mode === "recording" ? clamp(input.level) : 0;
     spring(engine, "energy", "energyVelocity", energyTarget, energyTarget > engine.energy ? 0.16 : 0.31, step);
     spring(engine, "processing", "processingVelocity", input.mode === "processing" ? 1 : 0, 0.33, step);
     spring(engine, "done", "doneVelocity", input.mode === "done" ? 1 : 0, 0.25, step);
+    spring(engine, "error", "errorVelocity", input.mode === "error" ? 1 : 0, 0.22, step);
     if (input.mode === "recording") {
       // A visual sample is a short-time energy window, never an individual PCM sample.
       engine.sampleClock += step;
@@ -104,3 +107,56 @@ export function inkBeads(engine) {
   return commands;
 }
 
+
+/** HUD feedback stays on the same five mirrored ink beads through every state. */
+export function hudBeads(engine) {
+  const base = inkBeads(engine);
+  const current = engine.sampleValues[0];
+  const visible = clamp(Math.max(...engine.sampleValues) * 3);
+  const p = engine.reducedMotion ? Number(engine.mode === "processing") : engine.processing;
+  const d = engine.reducedMotion ? Number(engine.mode === "done") : engine.done;
+  const e = engine.reducedMotion ? Number(engine.mode === "error") : engine.error;
+  const blend = (a, b, t) => a + (b - a) * t;
+  const phase = engine.phase * 2.6;
+  const hop = (offset) => engine.reducedMotion ? 0 : Math.max(0, Math.sin(phase - offset)) ** 2;
+  const shapes = [];
+
+  for (let index = 0; index < 5; index += 1) {
+    const rank = index === 0 ? 0 : index % 2 === 1 ? 1 : 2;
+    const side = index === 0 ? 0 : index < 3 ? -1 : 1;
+    const source = base[rank];
+    const lift = hop(rank * 0.6);
+    const workingRadius = [4.7, 3.05, 1.8][rank];
+    const workingDistance = [0, 13.5, 24][rank];
+    const landingDistance = [0, 13.5, 21][rank];
+    const restDistance = [0, 14, 25][rank];
+    const recordingStrength = rank === 0 ? 0.86 + current * 0.05 : visible * (rank === 1 ? 0.3 + current * 0.6 : 0.18 + current * 0.46);
+
+    // Carry the presented geometry through state changes; no symbol replacement.
+    let distance = blend(Math.abs(source.cx - 30), workingDistance, p);
+    let cy = blend(10, 10.5 - lift * [2.1, 1.5, 0.8][rank], p);
+    let rx = blend(source.rx, workingRadius + (1 - lift) * [0.3, 0.12, 0.06][rank], p);
+    let ry = blend(source.ry, workingRadius - (1 - lift) * [0.2, 0.08, 0.04][rank], p);
+    let strength = blend(recordingStrength, [0.92, 0.72, 0.42][rank], p);
+
+    // A brief landing compression relaxes into a rounded bead and two traces.
+    distance = blend(distance, landingDistance, d);
+    const impact = engine.reducedMotion ? 0 : Math.sin(Math.PI * d) ** 2;
+    cy = blend(cy, rank === 0 ? 10.7 : 11, d);
+    rx = blend(rx, [6.4, 2, 1.1][rank], d) + (rank === 0 ? impact * 0.8 : 0);
+    ry = blend(ry, [4.9, 1.55, 0.7][rank], d) - (rank === 0 ? impact * 0.6 : 0);
+    strength = blend(strength, [0.94, 0.48, 0][rank], d);
+
+    // On failure the ink withdraws into still, hollow beads, in the same palette.
+    distance = blend(distance, restDistance, e);
+    cy = blend(cy, 10, e);
+    rx = blend(rx, [5.2, 3.2, 1.6][rank], e);
+    ry = blend(ry, [5.2, 3.2, 1.6][rank], e);
+    const fillOpacity = strength * (1 - e);
+    const strokeOpacity = [0.88, 0.68, 0.42][rank] * e;
+    if (fillOpacity < 0.005 && strokeOpacity < 0.005) continue;
+    shapes.push({ type: "ellipse", cx: 30 + side * distance, cy, rx, ry,
+      fill: INK, fillOpacity, stroke: INK, strokeOpacity, lineWidth: [0.85, 0.75, 0.65][rank] });
+  }
+  return shapes;
+}

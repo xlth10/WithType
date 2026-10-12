@@ -1,10 +1,10 @@
-// 自定义 Skill 的校验与归一化。
+// 自定义写法的校验与归一化。
 // Rust 侧 skills.rs 有一份等价实现（保存前必须再校验一次）；
 // 这里的一份用于界面即时反馈和浏览器预览。
 
 import { OUTPUT_FORMATS, SKILL_LIMITS, SKILL_SCHEMA_VERSION } from "./builtinSkills.js";
 
-/** 生成自定义 Skill 的 id。非安全上下文（无 crypto.randomUUID）时退回时间戳+随机串。 */
+/** 生成自定义写法的 id。非安全上下文（无 crypto.randomUUID）时退回时间戳+随机串。 */
 export function createSkillId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return `custom.${crypto.randomUUID()}`;
@@ -13,7 +13,7 @@ export function createSkillId() {
 }
 
 /**
- * 校验并归一化一个自定义 Skill。
+ * 校验并归一化一个自定义写法。
  * 返回 { skill, errors }：errors 非空时 skill 不应被保存。
  */
 export function validateCustomSkill(input, { existing = [], now = new Date().toISOString() } = {}) {
@@ -25,25 +25,25 @@ export function validateCustomSkill(input, { existing = [], now = new Date().toI
   const outputFormat = OUTPUT_FORMATS.includes(source.outputFormat) ? source.outputFormat : "plain";
   const id = typeof source.id === "string" && source.id.trim() ? source.id.trim() : createSkillId();
 
-  if (!name) errors.push("名称不能为空");
+  if (!name) errors.push("请填写写法名称");
   else if (name.length > SKILL_LIMITS.name) errors.push(`名称不能超过 ${SKILL_LIMITS.name} 个字符`);
 
   if (description.length > SKILL_LIMITS.description) {
     errors.push(`说明不能超过 ${SKILL_LIMITS.description} 个字符`);
   }
-  if (!instruction) errors.push("整理要求不能为空");
+  if (!instruction) errors.push("请填写整理要求");
   else if (instruction.length > SKILL_LIMITS.instruction) {
     errors.push(`整理要求不能超过 ${SKILL_LIMITS.instruction} 个字符`);
   }
 
   const duplicated = existing.some((item) => item.id !== id && item.name.trim() === name);
-  if (name && duplicated) errors.push("已有同名的自定义 Skill");
+  if (name && duplicated) errors.push("已有同名写法，请换一个名称");
 
   if (!existing.some((item) => item.id === id) && existing.length >= SKILL_LIMITS.customCount) {
-    errors.push(`自定义 Skill 最多 ${SKILL_LIMITS.customCount} 个`);
+    errors.push(`自定义写法最多 ${SKILL_LIMITS.customCount} 个`);
   }
 
-  if (!id.startsWith("custom.")) errors.push("自定义 Skill 的 id 必须以 custom. 开头");
+  if (!id.startsWith("custom.")) errors.push("写法标识无效，请重新创建");
 
   return {
     skill: {

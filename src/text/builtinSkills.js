@@ -167,7 +167,7 @@ export const BUILTIN_SKILLS = [
     id: "builtin.vibe-coding",
     source: "builtin",
     schemaVersion: SKILL_SCHEMA_VERSION,
-    name: "Vibe Coding",
+    name: "开发需求",
     description: "按目标、功能、交互、数据边界、验收点、待确认整理需求。",
     instruction: VIBE_CODING_INSTRUCTION,
     outputFormat: "plain",

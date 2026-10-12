@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<title>墨珠在宣纸上跳动</title>
+<rect x="1" y="1" width="126" height="126" rx="28" fill="#f5f5ed" stroke="#d9dacf" stroke-width=".65"/>
+<g stroke="#d3d4c6" stroke-width=".15" opacity=".2"><path d="M18,25l12,-2"/>
+<path d="M54,17l13,1"/>
+<path d="M89,26l17,-3"/>
+<path d="M17,62l11,3"/>
+<path d="M105,56l7,5"/>
+<path d="M51,108l13,-2"/>
+<path d="M84,113l12,-2"/></g>
+<g fill="#94978b" opacity=".5"><ellipse cx="36.5" cy="98" rx="12" ry=".8"/><ellipse cx="95" cy="99" rx="7" ry=".65"/></g>
+<circle cx="69.5" cy="51.5" r="21.5" fill="#282c27"/>
+<circle cx="36.5" cy="83.5" r="14.0" fill="#282c27"/>
+<circle cx="95.0" cy="88.5" r="8.5" fill="#282c27"/>
+</svg>

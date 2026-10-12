@@ -2,8 +2,8 @@
 //! physical pixels only, including negative origins and taskbar work areas.
 pub const MAIN_WIDTH: f64 = 1060.0;
 pub const MAIN_HEIGHT: f64 = 720.0;
-pub const HUD_WIDTH: f64 = 196.0;
-pub const HUD_HEIGHT: f64 = 74.0;
+pub const HUD_WIDTH: f64 = 140.0;
+pub const HUD_HEIGHT: f64 = 64.0;
 pub const CARD_WIDTH: f64 = 460.0;
 pub const CARD_HEIGHT: f64 = 520.0;
 

@@ -10,6 +10,8 @@ export const DEFAULT_PROCESSING_MODE = "smart";
 export const DEFAULT_SHORTCUT = "Ctrl+Alt+Space";
 export const DEFAULT_ASK_SHORTCUT = "Ctrl+Alt+Shift+Space";
 export const DEFAULT_ACTION_SHORTCUT = "Ctrl+Alt+Shift+T";
+export const QUICK_PHRASE_LIMITS = Object.freeze({ name: 40, text: 2000 });
+export const SHORTCUT_FIELDS = Object.freeze({ dictation: "shortcut", ask: "askShortcut", action: "actionShortcut", phrase: "phraseShortcut" });
 
 // 与后端 replace_shortcut 一致的按键语义比较：修饰键顺序、大小写、Ctrl/Control、
 // Super/Win/Command 这类别名都不应算成两个不同的组合键。裸字符串比对会漏掉这些，
@@ -26,6 +28,12 @@ export function shortcutKey(value) {
     .sort()
     .join("+");
 }
+/** Return the occupied entry, including equivalent modifier aliases. */
+export function shortcutConflict(settings, kind, value) {
+  const key = shortcutKey(value);
+  if (!key) return null;
+  return Object.entries(SHORTCUT_FIELDS).find(([entry, field]) => entry !== kind && shortcutKey(settings[field]) === key)?.[0] || null;
+}
 export const ACTION_TYPES = ["translate", "skill", "command"];
 
 export const DEFAULT_SETTINGS = {
@@ -35,6 +43,9 @@ export const DEFAULT_SETTINGS = {
   shortcut: DEFAULT_SHORTCUT,
   askShortcut: DEFAULT_ASK_SHORTCUT,
   actionShortcut: DEFAULT_ACTION_SHORTCUT,
+  phraseShortcut: "",
+  phraseName: "",
+  phraseText: "",
   actionType: "translate",
   defaultTranslationLanguage: "英文",
   actionSkillId: "",
@@ -102,7 +113,7 @@ export function normalizeSettings(raw) {
     if (mapped) {
       processingMode = mapped;
       if (source.mode === "translate") {
-        notices.push("原「翻译为英文」模式已下线，文字整理已切换为「原文」，可在文字整理页重新选择。");
+        notices.push("原「翻译为英文」模式已下线，文字整理已切换为「保留原文」，可在文字整理页重新选择。");
       }
     }
   }
@@ -116,7 +127,7 @@ export function normalizeSettings(raw) {
   const taken = [shortcutKey(shortcut)];
   if (shortcutKey(askShortcut) === taken[0]) {
     askShortcut = [DEFAULT_ASK_SHORTCUT, DEFAULT_ACTION_SHORTCUT, "Ctrl+Alt+Shift+A"].find((key) => !taken.includes(shortcutKey(key)));
-    notices.push("语音输入与随便问不能共用快捷键，已调整随便问的快捷键。");
+    notices.push("语音输入与提问不能共用快捷键，已调整提问的快捷键。");
   }
   taken.push(shortcutKey(askShortcut));
   if (taken.includes(shortcutKey(actionShortcut))) {
@@ -125,8 +136,14 @@ export function normalizeSettings(raw) {
     );
     notices.push("三个入口不能共用快捷键，已调整第三个快捷键。");
   }
+  taken.push(shortcutKey(actionShortcut));
+  let phraseShortcut = asString(source.phraseShortcut, "").trim();
+  if (phraseShortcut && taken.includes(shortcutKey(phraseShortcut))) {
+    phraseShortcut = "";
+    notices.push("快捷短语与其他入口的快捷键冲突，已解除短语绑定，内容仍然保留。");
+  }
   if (legacyCommand) {
-    notices.push("旧版语音命令已迁移为第三个快捷键的动作；可在快捷键页改为翻译或技能。");
+    notices.push("旧版语音指令已迁移为第三个快捷键的动作；可在快捷键页改为翻译或写法。");
   }
 
   const textAuthMode = source.textAuthMode === "none" ? "none" : "bearer";
@@ -139,6 +156,10 @@ export function normalizeSettings(raw) {
       shortcut,
       askShortcut,
       actionShortcut,
+      phraseShortcut,
+      phraseName: Array.from(asString(source.phraseName, "")).slice(0, QUICK_PHRASE_LIMITS.name).join(""),
+      // Keep leading zeroes, whitespace and line breaks exactly as entered.
+      phraseText: Array.from(asString(source.phraseText, "")).slice(0, QUICK_PHRASE_LIMITS.text).join(""),
       actionType: ACTION_TYPES.includes(source.actionType) ? source.actionType : legacyCommand ? "command" : DEFAULT_SETTINGS.actionType,
       defaultTranslationLanguage: ["英文", "日文", "韩文", "中文", "法文", "德文", "西班牙文"].includes(source.defaultTranslationLanguage) ? source.defaultTranslationLanguage : DEFAULT_SETTINGS.defaultTranslationLanguage,
       actionSkillId: asString(source.actionSkillId, DEFAULT_SETTINGS.actionSkillId),

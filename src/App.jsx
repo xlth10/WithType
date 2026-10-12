@@ -46,6 +46,7 @@ import { scenarioFor } from "./text/skillScenarios.js";
 import { SkillEditor } from "./components/SkillEditor.jsx";
 import { AnswerCard } from "./components/AnswerCard.jsx";
 import { AppIcon } from "./components/AppIcon.jsx";
+import { BRAND } from "./ui/brand.js";
 import { TextSettings } from "./components/TextSettings.jsx";
 import { createPipeline } from "./dictation/pipeline.js";
 import { useWavRecorder } from "./dictation/useWavRecorder.js";
@@ -55,6 +56,9 @@ import { ASK_INSTRUCTION, BUILTIN_SKILLS, buildMessages, findBuiltinSkill } from
 import { createSkillStore } from "./text/skillStore.js";
 import {
   DEFAULT_SETTINGS,
+  QUICK_PHRASE_LIMITS,
+  SHORTCUT_FIELDS,
+  shortcutConflict,
   PROCESSING_MODES,
   hasStoredSettings,
   normalizeSettings,
@@ -62,19 +66,19 @@ import {
 } from "./text/settingsMigration.js";
 
 const MODE_META = {
-  original: { label: "原文", detail: "保留原句，使用个人词库", icon: Waveform },
-  corrected: { label: "术语纠错", detail: "本地词典替换", icon: BookOpenText },
-  clean: { label: "轻度整理", detail: "去口头禅与断句", icon: Sparkle },
-  smart: { label: "智能整理", detail: "短句直接输出，长句调用文字模型", icon: MagicWand },
-  skill: { label: "按技能整理", detail: "持续使用所选技能", icon: PuzzlePiece },
+  original: { label: "保留原文", detail: "保留句子与用词，仍按词库纠正", icon: Waveform },
+  corrected: { label: "保留原文", detail: "保留句子与用词，仍按词库纠正", icon: BookOpenText },
+  clean: { label: "轻度整理", detail: "去掉明显赘词，规范标点", icon: Sparkle },
+  smart: { label: "自动整理", detail: "短句直接输出，长句整理成文", icon: MagicWand },
+  skill: { label: "按写法整理", detail: "按所选场景组织内容", icon: PuzzlePiece },
 };
 
 const INTENT_META = {
-  dictation: { label: "口述", icon: Microphone },
-  command: { label: "语音命令", icon: Command },
-  ask: { label: "随便问", icon: Command },
+  dictation: { label: "语音输入", icon: Microphone },
+  command: { label: "语音指令", icon: Command },
+  ask: { label: "提问", icon: Command },
   translate: { label: "翻译", icon: TextT },
-  skill: { label: "技能", icon: PuzzlePiece },
+  skill: { label: "写法", icon: PuzzlePiece },
 };
 
 /** 只在浏览器预览里作为初始历史；安装版首次运行必须是空历史。 */
@@ -108,10 +112,10 @@ function describeError(error) {
 
 /** 失败面板里那一句补充说明。没有对应类别就返回空串，不硬凑。 */
 const FAILURE_HINTS = {
-  auth: " · 请检查 ASR 密钥或权限",
-  "rate-limit": " · 可稍后重新转写",
+  auth: " · 请检查语音服务的密钥与权限",
+  "rate-limit": " · 可稍后重新识别",
   format: " · 当前服务可能不接受 WAV 文件",
-  transient: " · 多为服务端或网络临时问题，可直接重新转写",
+  transient: " · 多为服务端或网络临时问题，可直接重新识别",
   silence: " · 录音里几乎没有声音，重试前请确认麦克风未被静音",
   device: " · 请确认麦克风仍然可用",
 };
@@ -122,15 +126,15 @@ function breakdownOf(timings = {}) {
   if (timings.encodeMs) parts.push(`编码 ${timings.encodeMs} ms`);
   parts.push(`识别 ${timings.asrMs || 0} ms`);
   if (timings.textMs) parts.push(`整理 ${timings.textMs} ms`);
-  if (timings.pasteMs) parts.push(`上屏 ${timings.pasteMs} ms`);
+  if (timings.pasteMs) parts.push(`输入 ${timings.pasteMs} ms`);
   return parts.join(" · ");
 }
 
 /** 悬浮窗与概览共用的状态文案：录音、识别、整理文字、生成内容必须是四件能说清的事。 */
 function statusLabel(state, intent, phase) {
-  if (state === "recording") return intent === "ask" ? "正在听你提问" : "正在录音";
+  if (state === "recording") return "正在录音";
   if (state === "processing") {
-    if (phase === "classify") return "正在判断口述类型";
+    if (phase === "classify") return "正在判断处理方式";
     if (phase === "text") return intent === "ask" ? "正在回答" : intent === "translate" ? "正在翻译" : "正在处理文字";
     return "正在识别";
   }
@@ -149,8 +153,8 @@ function findSkill(id, customSkills) {
 }
 
 function actionName(settings, customSkills) {
-  if (settings.actionType === "skill") return findSkill(settings.actionSkillId, customSkills)?.name || "选择技能";
-  return settings.actionType === "command" ? "语音命令" : "翻译";
+  if (settings.actionType === "skill") return findSkill(settings.actionSkillId, customSkills)?.name || "选择写法";
+  return settings.actionType === "command" ? "语音指令" : "翻译";
 }
 
 function windowName(context) {
@@ -170,16 +174,15 @@ function StatusDot({ online }) {
 
 function Overlay({ state, level, intent, phase, onStop, onCancel }) {
   const label = statusLabel(state, intent, phase);
+  const cancelLabel = state === "recording" ? "取消录音" : state === "processing" ? "取消处理" : "关闭提示";
   return (
     <main className="overlay-shell">
-      <section className={`voice-hud ${state} ${intent || "dictation"}`} aria-label={label} title={label}>
-        <VoiceMotion state={state} level={level} width={76} height={26} />
-        {state === "done" && <Check className="hud-symbol success" size={18} weight="bold" />}
-        {state === "error" && <WarningCircle className="hud-symbol error" size={19} weight="fill" />}
-        <span className="hud-status">{state === "recording" ? `${INTENT_META[intent]?.label || "口述"}中` : state === "processing" ? phase === "asr" ? "识别中" : "整理中" : state === "done" ? "已完成" : state === "error" ? "请重试" : "就绪"}</span>
-        <div className="hud-controls">
-          {state === "recording" && <button onClick={onStop} aria-label="结束录音"><Stop size={15} weight="fill" /></button>}
-          <button onClick={onCancel} aria-label="取消或关闭"><X size={16} /></button>
+      <section className={`voice-hud ${state} ${intent || "dictation"}`} aria-label="语音输入">
+        <VoiceMotion state={state} level={level} width={76} height={26} feedback />
+        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{label}</span>
+        <div className="hud-controls" role="group" aria-label="录音控制">
+          {state === "recording" && <button type="button" onClick={onStop} aria-label="结束录音" title="结束录音"><Stop size={15} weight="fill" /></button>}
+          <button type="button" onClick={onCancel} aria-label={cancelLabel} title={cancelLabel}><X size={16} /></button>
         </div>
       </section>
     </main>
@@ -188,27 +191,27 @@ function Overlay({ state, level, intent, phase, onStop, onCancel }) {
 
 function Sidebar({ page, setPage, online }) {
   const items = [
-    ["home", House, "概览"],
-    ["model", GearSix, "模型配置"],
+    ["home", House, "开始"],
+    ["model", GearSix, "服务设置"],
     ["writing", Sparkle, "文字整理"],
     ["vocabulary", BookOpenText, "个人词库"],
-    ["skills", PuzzlePiece, "技能"],
+    ["skills", PuzzlePiece, "写法"],
     ["shortcut", Keyboard, "快捷键"],
     ["history", ClockCounterClockwise, "历史记录"],
   ];
   return (
     <aside className="sidebar">
-      <div className="brand-row"><Logo /><div><strong>typefree</strong><span>非官方 · 声音写作</span></div></div>
-      <nav>
+      <div className="brand-row"><Logo /><div><strong>{BRAND.name}</strong><span>{BRAND.description}</span></div></div>
+      <nav aria-label="主导航">
         {items.map(([id, Icon, label]) => (
-          <button className={page === id ? "active" : ""} key={id} onClick={() => setPage(id)}>
+          <button className={page === id ? "active" : ""} key={id} onClick={() => setPage(id)} aria-current={page === id ? "page" : undefined} aria-label={label} title={label}>
             <Icon size={19} weight={page === id ? "fill" : "regular"} />{label}
           </button>
         ))}
       </nav>
       <div className="sidebar-bottom">
-        <div className="privacy-line"><ShieldCheck size={17} weight="fill" /><span>音频发送到已配置的语音服务</span></div>
-        <div className="server-line"><StatusDot online={online} /><span>{online ? "ASR 服务正常" : "尚未测试连接"}</span></div>
+        <div className="privacy-line"><ShieldCheck size={17} weight="fill" /><span>录音发往所选语音服务</span></div>
+        <div className="server-line"><StatusDot online={online} /><span>{online ? "语音服务已通过测试" : "语音服务尚未测试"}</span></div>
       </div>
     </aside>
   );
@@ -218,8 +221,8 @@ function Field({ label, hint, children }) {
   return <label className="field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>;
 }
 
-function Toggle({ checked, onChange, disabled = false }) {
-  return <button type="button" className={`toggle ${checked ? "on" : ""}`} onClick={() => onChange(!checked)} aria-pressed={checked} disabled={disabled}><i /></button>;
+function Toggle({ label, checked, onChange, disabled = false }) {
+  return <button type="button" className={`toggle ${checked ? "on" : ""}`} onClick={() => onChange(!checked)} role="switch" aria-label={label} aria-checked={checked} disabled={disabled}><i /></button>;
 }
 
 function SpeechSettings({ settings, setSettings, online, testing, testConnection, onNotice, onKeySaved }) {
@@ -236,7 +239,7 @@ function SpeechSettings({ settings, setSettings, online, testing, testConnection
   }, []);
   const saveKey = async () => {
     if (!key.trim()) {
-      onNotice({ text: "请先填写要保存的 ASR API Key", ok: false });
+      onNotice({ text: "请先填写语音 API 密钥", ok: false });
       return;
     }
     setSaving(true);
@@ -244,7 +247,7 @@ function SpeechSettings({ settings, setSettings, online, testing, testConnection
       await desktopInvoke("save_api_key", { key });
       setKey("");
       onKeySaved();
-      onNotice({ text: "ASR API Key 已保存到系统凭据库", ok: true });
+      onNotice({ text: "语音密钥已保存到 Windows 凭据库", ok: true });
     } catch (error) {
       onNotice({ text: describeError(error), ok: false });
     } finally {
@@ -253,31 +256,31 @@ function SpeechSettings({ settings, setSettings, online, testing, testConnection
   };
   return (
     <section className="model-section" id="speech-model" aria-labelledby="speech-model-heading">
-      <header className="model-section-heading"><div><span className="eyebrow">01 · 从声音到文字</span><h2 id="speech-model-heading">语音识别</h2><p>语音输入、随便问和技能都先在这里转写录音。</p></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{online ? "语音测试通过" : "语音待测试"}</div></header>
+      <header className="model-section-heading"><div><span className="eyebrow">01 · 识别录音</span><h2 id="speech-model-heading">语音识别</h2><p>将你的录音转换为文字，所有语音入口都会使用。</p></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{online ? "测试通过" : "尚未测试"}</div></header>
       <div className="panel form-panel">
-        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h3>OpenAI 兼容 WAV 接口</h3><p>上传 16 kHz 单声道 PCM16 WAV</p></div></div>
+        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h3>兼容 OpenAI 的语音服务</h3><p>需要支持 WAV 录音识别。</p></div></div>
         <div className="form-grid">
-          <Field label="语音 API 地址" hint="填写到 /v1 即可，例如 http://10.0.0.8:8000/v1"><input value={settings.asrEndpoint} onChange={(e) => setSettings((current) => ({ ...current, asrEndpoint: e.target.value }))} /></Field>
-          <Field label="语音模型名称"><input value={settings.asrModel} onChange={(e) => setSettings((current) => ({ ...current, asrModel: e.target.value }))} /></Field>
-          <Field label="麦克风" hint="默认设备会跟随 Windows 系统设置；设备断开时会提示并保留已录内容。"><select value={settings.audioDeviceId || ""} disabled={!isTauri()} onChange={(e) => setSettings((current) => ({ ...current, audioDeviceId: e.target.value }))}><option value="">Windows 默认麦克风</option>{devices.map((device) => <option key={device.id} value={device.id}>{device.name}{device.isDefault ? "（当前默认）" : ""}</option>)}</select></Field>
-          <Field label="语音 API Key" hint="填写后点击保存；已保存的密钥可留空，Windows 凭据库独立保存"><div className="input-with-icon"><Key size={18} /><input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="已保存则留空" /></div></Field>
+          <Field label="服务地址" hint="通常填写到 /v1，具体以服务说明为准。"><input value={settings.asrEndpoint} onChange={(e) => setSettings((current) => ({ ...current, asrEndpoint: e.target.value }))} /></Field>
+          <Field label="模型名称"><input value={settings.asrModel} onChange={(e) => setSettings((current) => ({ ...current, asrModel: e.target.value }))} /></Field>
+          <Field label="麦克风" hint="默认设备跟随 Windows 设置。设备断开时保留已录内容。"><select value={settings.audioDeviceId || ""} disabled={!isTauri()} onChange={(e) => setSettings((current) => ({ ...current, audioDeviceId: e.target.value }))}><option value="">Windows 默认麦克风</option>{devices.map((device) => <option key={device.id} value={device.id}>{device.name}{device.isDefault ? "（当前默认）" : ""}</option>)}</select></Field>
+          <Field label="API 密钥" hint="已有密钥时留空即可；替换密钥后点击保存。"><div className="input-with-icon"><Key size={18} /><input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="已有密钥可留空" /></div></Field>
         </div>
-        <div className="form-actions"><button className="button secondary" onClick={testConnection} disabled={testing || saving || !settings.asrEndpoint.trim() || !settings.asrModel.trim()}>{testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}{testing ? "正在测试语音" : "测试语音服务"}</button><button className="button primary" onClick={saveKey} disabled={saving || testing || !key.trim() || !isTauri()}><LockKey size={18} weight="fill" />{saving ? "保存中…" : "保存语音密钥"}</button></div>
-        <p className="test-result">测试连接会向所填模型发送一段 1 秒测试音频；服务能正常接收并返回 text 字段即视为连接成功。</p>
+        <div className="form-actions"><button className="button secondary" onClick={testConnection} disabled={testing || saving || !settings.asrEndpoint.trim() || !settings.asrModel.trim()}>{testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}{testing ? "正在测试…" : "测试语音服务"}</button><button className="button primary" onClick={saveKey} disabled={saving || testing || !key.trim() || !isTauri()}><LockKey size={18} weight="fill" />{saving ? "正在保存…" : "保存语音密钥"}</button></div>
+        <p className="test-result">测试会发送 1 秒测试音频，确认服务能接收并返回识别结果。</p>
       </div>
-      <div className="note-card"><ShieldCheck size={22} weight="fill" /><div><strong>音频发送范围</strong><p>音频会发送到上方填写的地址。建议使用 HTTPS，或确保设备位于可信 VPN/局域网。</p></div></div>
+      <div className="note-card"><ShieldCheck size={22} weight="fill" /><div><strong>音频去向</strong><p>录音会发送到你填写的语音服务。请使用 HTTPS 或可信的内网连接。</p></div></div>
     </section>
   );
 }
 
 function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice, onSpeechKeySaved }) {
   return <section className="page-content models-page">
-    <header className="page-heading"><div><span className="eyebrow">让声音与文字接上服务</span><h1>模型配置</h1><p>在一页配置语音识别和文字处理。两类服务可以使用相同或不同地址，密钥分别保存。</p></div></header>
+    <header className="page-heading"><div><span className="eyebrow">连接服务</span><h1>服务设置</h1><p>语音服务负责识别，文字服务负责整理、提问和翻译。地址与密钥分别设置。</p></div></header>
     <nav className="model-jump-links" aria-label="模型分工">
-      <a href="#speech-model"><Waveform size={22} /><span><strong>语音识别</strong><small>{settings.asrModel || "填写转写模型"}</small></span><ArrowRight size={17} /></a>
-      <a href="#text-model"><TextT size={22} /><span><strong>文字处理</strong><small>{settings.textModel || "智能整理 · 随便问 · 翻译 · 技能"}</small></span><ArrowRight size={17} /></a>
+      <a href="#speech-model"><Waveform size={22} /><span><strong>语音识别</strong><small>{settings.asrModel || "尚未设置模型"}</small></span><ArrowRight size={17} /></a>
+      <a href="#text-model"><TextT size={22} /><span><strong>文字处理</strong><small>{settings.textModel || "自动整理 · 提问 · 翻译 · 写法"}</small></span><ArrowRight size={17} /></a>
     </nav>
-    {!isTauri() && <p className="model-preview-note">浏览器用于界面预览。服务连接和 Windows 凭据保存需在桌面应用中确认。</p>}
+    {!isTauri() && <p className="model-preview-note">当前为浏览器预览。连接测试和密钥保存请在桌面应用中完成。</p>}
     <SpeechSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={onNotice} onKeySaved={onSpeechKeySaved} />
     <TextSettings settings={settings} setSettings={setSettings} invoke={desktopInvoke} onNotice={onNotice} previewMode={!isTauri()} />
   </section>;
@@ -286,29 +289,30 @@ function ModelSettings({ settings, setSettings, online, testing, testConnection,
 function WritingSettings({ settings, setSettings, customSkills, onSelectSkill, textReady }) {
   const needsText = settings.processingMode === "smart" || settings.processingMode === "skill";
   const skills = skillOptions(customSkills);
+  const selectedMode = settings.processingMode === "corrected" ? "original" : settings.processingMode;
   return (
     <section className="page-content">
-      <header className="page-heading"><div><span className="eyebrow">日常写法</span><h1>整理到刚刚好。</h1><p>从保留原文到重新组织，选一种你常用的处理程度。第三个快捷键另设。</p></div></header>
-      <div className="mode-grid">
-        {PROCESSING_MODES.map((id) => {
+      <header className="page-heading"><div><span className="eyebrow">日常语音输入</span><h1>文字整理</h1><p>选择适合你的处理方式。提问和动作快捷键在“快捷键”页单独设置。</p></div></header>
+      <div className="mode-grid" role="group" aria-label="文字整理模式">
+        {PROCESSING_MODES.filter((id) => id !== "corrected").map((id) => {
           const item = MODE_META[id];
           const Icon = item.icon;
-          return <button key={id} className={`mode-card ${settings.processingMode === id ? "selected" : ""}`} onClick={() => setSettings({ ...settings, processingMode: id })}><span className="mode-icon"><Icon size={21} /></span><strong>{item.label}</strong><small>{item.detail}</small>{settings.processingMode === id && <span className="check-mark"><Check size={13} weight="bold" /></span>}</button>;
+          return <button key={id} className={`mode-card ${selectedMode === id ? "selected" : ""}`} aria-pressed={selectedMode === id} onClick={() => setSettings({ ...settings, processingMode: id })}><span className="mode-icon"><Icon size={21} /></span><span className="mode-copy"><strong>{item.label}</strong><small>{item.detail}</small></span>{selectedMode === id && <span className="check-mark"><Check size={13} weight="bold" /></span>}</button>;
         })}
       </div>
 
       {(settings.processingMode === "skill" || settings.processingMode === "smart") && (
         <div className="panel form-panel compact">
-          <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={22} /></div><div><h2>持续使用技能</h2><p>智能整理和技能都需要文字模型；缺少配置时会保留原文并提示。</p></div></div>
+          <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={22} /></div><div><h2>默认写法</h2><p>自动整理长句、按写法整理需要文字服务；尚未设置时保留原文。</p></div></div>
           <div className="form-grid">
-            <Field label="普通口述的技能" hint="仅当上方选择「按技能整理」时持续生效">
+            <Field label="所用写法" hint="选择“按写法整理”后，后续语音输入持续使用。">
               <select value={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onChange={(event) => onSelectSkill(event.target.value)} disabled={settings.processingMode !== "skill"}>
-                <option value="">未选择（智能整理）</option>
+                <option value="">未选择（自动整理）</option>
                 {skills.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}{skill.source === "builtin" ? "（内置）" : ""}</option>)}
               </select>
             </Field>
           </div>
-          {needsText && !textReady && <p className="test-result">尚未配置文字模型地址或模型名称，这两种模式暂时会按原文处理。可前往「模型配置 → 文字处理」填写。</p>}
+          {needsText && !textReady && <p className="test-result">在“服务设置 → 文字处理”填写地址与模型名称后，即可使用。</p>}
         </div>
       )}
 
@@ -323,7 +327,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
   const [captureBusy, setCaptureBusy] = useState(false);
   const [captureMessage, setCaptureMessage] = useState("");
   const captureBusyRef = useRef(false);
-  const fields = { dictation: "shortcut", ask: "askShortcut", action: "actionShortcut" };
+  const fields = SHORTCUT_FIELDS;
 
   useEffect(() => {
     if (!captureKind) return undefined;
@@ -348,7 +352,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
     // 底下那个 listener 负责提示。Esc 是唯一没被注册为全局键的按键，能正常到达。
     const onBlur = () => {
       if (captureBusyRef.current) return;
-      setCaptureMessage("已暂停录制：焦点离开了设置窗口。点回来继续，或按 Esc 取消。");
+      setCaptureMessage("设置窗口失去焦点，已暂停。返回窗口继续，或按 Esc 取消。");
     };
     window.addEventListener("blur", onBlur);
     const unlisten = isTauri()
@@ -376,16 +380,17 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
       }
       if (result.kind === "waiting") return;
       if (!captureReady) {
-        setCaptureMessage("还在准备全局键盘钩子，请稍候再按一次。");
+        setCaptureMessage("快捷键正在准备，请稍后再按一次。");
         return;
       }
       if (result.kind === "invalid") {
         setCaptureMessage(result.message);
         return;
       }
-      // 这里不再自己拒绝「与其它入口相同」的组合键：后端 replace_shortcut 是先注册
-      // 新键、成功后再注销旧键，本来就支持两个入口对调。前端硬拒会让「对调」永远
-      // 做不到，而且被拒时连一句提示都没有。
+      if (shortcutConflict(settings, captureKind, result.value)) {
+        setCaptureMessage("这个组合键已经被其他入口使用，请换一个组合键。");
+        return;
+      }
       captureBusyRef.current = true;
       setCaptureBusy(true);
       setCaptureMessage("正在设置快捷键…");
@@ -394,7 +399,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
         setSettings((before) => ({ ...before, [fields[captureKind]]: result.value }));
         setCaptureKind(null);
         setCaptureMessage("");
-        onNotice({ text: isTauri() ? "快捷键已更新" : "预览已更新；全局快捷键需在安装版验证", ok: true });
+        onNotice({ text: isTauri() ? "快捷键已更新" : "预览已更新，桌面应用中的全局快捷键需另行验证", ok: true });
       } catch (error) {
         setCaptureMessage(`未能设置：${describeError(error)}。请换一个组合键。`);
       } finally {
@@ -404,7 +409,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
     };
     window.addEventListener("keydown", onKeyDown, true);
     return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [captureKind, captureReady, captureBusy, settings.shortcut, settings.askShortcut, settings.actionShortcut]);
+  }, [captureKind, captureReady, captureBusy, settings.shortcut, settings.askShortcut, settings.actionShortcut, settings.phraseShortcut]);
 
   const beginCapture = (kind) => {
     if (busy || captureKind) return;
@@ -413,63 +418,87 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
     setCaptureKind(kind);
   };
 
+  const clearPhraseShortcut = async () => {
+    captureBusyRef.current = true;
+    setCaptureBusy(true);
+    try {
+      await desktopInvoke("set_shortcut", { key: "phrase", value: "" }, true);
+      setSettings((current) => ({ ...current, phraseShortcut: "" }));
+      onNotice({ text: "短语快捷键已解除，内容仍然保留", ok: true });
+    } catch (error) { setCaptureMessage(describeError(error)); }
+    finally { captureBusyRef.current = false; setCaptureBusy(false); }
+  };
+
+  const shortcutButton = (kind, title) => (
+    <button
+      className={`shortcut-record ${captureKind === kind ? "capturing" : ""}`}
+      type="button"
+      aria-label={`${title}快捷键，当前 ${settings[fields[kind]] ? displayShortcut(settings[fields[kind]]) : "未设置"}，点击后按新组合键`}
+      onClick={() => captureKind === kind ? setCaptureKind(null) : beginCapture(kind)}
+      disabled={busy || captureBusy || (captureKind !== null && captureKind !== kind)}
+    >
+      <span>{captureKind === kind ? captureReady ? captureBusy ? "正在设置…" : "请按组合键…" : "准备中…" : settings[fields[kind]] ? displayShortcut(settings[fields[kind]]) : "设置快捷键"}</span>
+      <small>{captureKind === kind ? "Esc 取消" : settings[fields[kind]] ? "点击更改" : "点击后按组合键"}</small>
+    </button>
+  );
+
   const actionLabel = settings.actionType === "skill"
-    ? findSkill(settings.actionSkillId, customSkills)?.name || "技能未选择"
-    : settings.actionType === "command" ? "语音命令" : `翻译成${settings.defaultTranslationLanguage}`;
+    ? findSkill(settings.actionSkillId, customSkills)?.name || "写法未选择"
+    : settings.actionType === "command" ? "语音指令" : `翻译成${settings.defaultTranslationLanguage}`;
   const rows = [
-    ["dictation", "语音输入", "说完后输入到当前窗口。"],
-    ["ask", "随便问", "口述问题，回答只显示在卡片中。"],
-    ["action", actionLabel, "使用绑定的动作，不改变普通口述。"],
+    ["dictation", "语音输入", "说完后按设置输入或复制文字。"],
+    ["ask", "提问", "说出你的问题，回答只显示在卡片中。"],
+    ["action", actionLabel, "按这里选择的动作处理录音，语音输入的设置保持原样。"],
   ];
 
   return (
     <section className="page-content">
-      <header className="page-heading"><div><span className="eyebrow">按键与动作</span><h1>按一次开始，再按一次完成。</h1><p>按下全局快捷键开始录音，再按同一个键处理文字。点选按键位可以修改组合键；按 Esc 取消录制新键。</p></div></header>
+      <header className="page-heading"><div><span className="eyebrow">录音与输入</span><h1>快捷键</h1><p>录音快捷键按一次开始，再按一次结束。快捷短语按一次即可填入。点击组合键可更改，按 Esc 取消设置。</p></div></header>
       <div className="panel settings-list">
         {rows.map(([kind, title, detail]) => (
           <div key={kind} className={captureKind === kind ? "shortcut-row capturing" : "shortcut-row"}>
             <div><strong>{title}</strong><span>{detail}</span></div>
             <div className="shortcut-edit">
-              <button
-                className={`shortcut-record ${captureKind === kind ? "capturing" : ""}`}
-                type="button"
-                aria-label={`${title}快捷键，当前 ${displayShortcut(settings[fields[kind]])}，点击后按新组合键`}
-                onClick={() => captureKind === kind ? setCaptureKind(null) : beginCapture(kind)}
-                disabled={busy || captureBusy || (captureKind !== null && captureKind !== kind)}
-              >
-                <span>{captureKind === kind ? captureReady ? captureBusy ? "正在设置…" : "请按组合键…" : "准备中…" : displayShortcut(settings[fields[kind]])}</span>
-                <small>{captureKind === kind ? "Esc 取消" : "点击更改"}</small>
-              </button>
+              {shortcutButton(kind, title)}
             </div>
           </div>
         ))}
       </div>
       <p className={`shortcut-capture-message ${captureMessage ? "error" : ""}`} role="status" aria-live="polite">
-        {captureMessage || (captureKind ? "同时按住 Ctrl、Alt 或 Win，再按字母、数字、空格、方向键、标点或 F1–F24。" : "原有快捷键会保留到新组合键设置成功；也可以和另一个入口对调。")}
+        {captureMessage || (captureKind ? "同时按住 Ctrl、Alt 或 Win，再按字母、数字、空格、方向键、标点或 F1–F24。" : "新组合键设置成功后才会替换原有快捷键，各入口需使用不同的组合键。")}
       </p>
+      <div className="panel form-panel quick-phrase-panel">
+        <div className="panel-title"><div className="icon-tile"><ClipboardText size={20} /></div><div><h2>快捷短语</h2><p>把常用内容保存下来，在输入框按快捷键直接填入。</p></div></div>
+        <div className="form-grid">
+          <Field label="短语名称" hint="例如：手机号、邮箱或固定回复"><input value={settings.phraseName} maxLength={QUICK_PHRASE_LIMITS.name} placeholder="例如：手机号" onChange={(event) => setSettings((current) => ({ ...current, phraseName: event.target.value }))} /></Field>
+          <Field label="快捷键"><div className="phrase-shortcut-controls">{shortcutButton("phrase", "快捷短语")}{settings.phraseShortcut && <button className="button quiet" type="button" onClick={clearPhraseShortcut} disabled={busy || captureBusy || Boolean(captureKind)}>解除绑定</button>}</div></Field>
+          <Field label="短语内容" hint="按原样填入，支持换行。内容自动保存在本机。"><textarea rows={3} value={settings.phraseText} maxLength={QUICK_PHRASE_LIMITS.text} placeholder="填写你要输入的号码或文字" spellCheck={false} onChange={(event) => setSettings((current) => ({ ...current, phraseText: event.target.value }))} /></Field>
+        </div>
+        <p className="phrase-status">{settings.phraseShortcut ? settings.phraseText.trim() ? `在输入框按 ${displayShortcut(settings.phraseShortcut)}，即可填入${settings.phraseName.trim() || "这段内容"}。` : "填写短语内容后，即可使用已绑定的快捷键。" : "填写内容并设置快捷键后即可使用。"}</p>
+      </div>
       <div className="panel form-panel compact">
-        <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={20} /></div><div><h2>把常用动作放在第三个键上</h2><p>默认翻译；也可以换成一个技能或语音命令。</p></div></div>
+        <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={20} /></div><div><h2>动作快捷键</h2><p>可用于翻译、按写法整理，或按口述要求生成文字。</p></div></div>
         <div className="form-grid">
           <Field label="动作">
             <select value={settings.actionType} onChange={(event) => setSettings({ ...settings, actionType: event.target.value })}>
               <option value="translate">翻译</option>
-              <option value="skill">运行技能</option>
-              <option value="command">语音命令</option>
+              <option value="skill">按写法整理</option>
+              <option value="command">语音指令</option>
             </select>
           </Field>
           {settings.actionType === "translate" && <Field label="默认输出语言"><select value={settings.defaultTranslationLanguage} onChange={(event) => setSettings({ ...settings, defaultTranslationLanguage: event.target.value })}>{["英文", "日文", "韩文", "中文", "法文", "德文", "西班牙文"].map((language) => <option key={language} value={language}>{language}</option>)}</select></Field>}
-          {settings.actionType === "skill" && <Field label="技能" hint="只处理这次录音，不改变普通口述的设置">
+          {settings.actionType === "skill" && <Field label="写法" hint="只处理这次录音，不改变普通口述的设置">
             <select value={settings.actionSkillId} onChange={(event) => setSettings({ ...settings, actionSkillId: event.target.value })}>
-              <option value="">请选择技能</option>
+              <option value="">请选择写法</option>
               {skillOptions(customSkills).map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
             </select>
           </Field>}
         </div>
       </div>
       <div className="panel settings-list">
-        <div><div><strong>结果自动输入</strong><span>关闭后复制到剪贴板；随便问始终只显示卡片。</span></div><Toggle checked={settings.autoPaste} onChange={(value) => setSettings({ ...settings, autoPaste: value })} /></div>
-        <div><div><strong>自动判断语音命令</strong><span>实验功能：会增加一次文字模型请求。关掉后仍可在第三个入口选择语音命令。</span></div><Toggle checked={settings.autoIntent} onChange={(value) => setSettings({ ...settings, autoIntent: value })} disabled={!settings.textEndpoint || !settings.textModel} /></div>
-        <div><div><strong>登录 Windows 后启动</strong><span>随当前 Windows 用户登录启动本程序。</span></div><Toggle checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
+        <div><div><strong>自动输入结果</strong><span>语音结果开启后输入到光标处，关闭后复制到剪贴板。提问显示为卡片，快捷短语始终直接填入。</span></div><Toggle label="自动输入结果" checked={settings.autoPaste} onChange={(value) => setSettings({ ...settings, autoPaste: value })} /></div>
+        <div><div><strong>自动判断语音指令</strong><span>实验功能：自动区分直接输入与生成要求，会额外调用文字服务。</span></div><Toggle label="自动判断语音指令" checked={settings.autoIntent} onChange={(value) => setSettings({ ...settings, autoIntent: value })} disabled={!settings.textEndpoint || !settings.textModel} /></div>
+        <div><div><strong>登录后启动</strong><span>登录 Windows 后自动启动 {BRAND.name}。</span></div><Toggle label="登录后启动" checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
           try {
             await desktopInvoke("set_launch_at_login", { enabled: value });
             setSettings((current) => ({ ...current, launchAtLogin: value }));
@@ -483,20 +512,20 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
 function History({ history, onClear, onTeach, onExport, onRetranscribe, retentionDays, onRetentionChange, keepAudio, onKeepAudioChange, busy }) {
   return (
     <section className="page-content">
-      <header className="page-heading"><div><span className="eyebrow">回看</span><h1>最近说过的话</h1><p>保留最近 50 条。Windows 历史使用系统数据保护加密，应用与窗口名称不发送给模型。</p></div><div className="form-actions"><button className="button secondary" onClick={onExport}>导出历史</button>{history.length > 0 && <button className="button secondary" onClick={onClear}>清空历史</button>}</div></header>
-      <div className="panel form-panel compact"><Field label="保留期限"><select value={retentionDays} onChange={(event) => onRetentionChange(Number(event.target.value))}><option value={7}>7 天</option><option value={30}>30 天</option><option value={90}>90 天</option><option value={365}>1 年</option><option value={0}>一直保留</option></select></Field><div><strong>保留后续录音</strong><span>默认关闭；开启后可从历史重新转写，录音与历史一同到期。</span><Toggle checked={keepAudio} onChange={onKeepAudioChange} disabled={!isTauri()} /></div></div>
+      <header className="page-heading"><div><span className="eyebrow">本机记录</span><h1>历史记录</h1><p>最多保留最近 50 条记录。Windows 版在本机加密保存，应用与窗口名称不发送给模型。</p></div><div className="form-actions"><button className="button secondary" onClick={onExport}>导出历史</button>{history.length > 0 && <button className="button secondary" onClick={onClear}>清空历史</button>}</div></header>
+      <div className="panel form-panel compact"><Field label="保留期限"><select value={retentionDays} onChange={(event) => onRetentionChange(Number(event.target.value))}><option value={7}>7 天</option><option value={30}>30 天</option><option value={90}>90 天</option><option value={365}>1 年</option><option value={0}>一直保留</option></select></Field><div className="history-recording-setting"><div><strong>保存录音</strong><span>开启后保存新的录音，可从历史重新识别。录音与记录一同到期。</span></div><Toggle label="保存录音" checked={keepAudio} onChange={onKeepAudioChange} disabled={!isTauri()} /></div></div>
       <div className="history-list">
-        {history.length === 0 && <div className="panel form-panel"><p className="empty-text">这里还没有记录。按快捷键开始录音。</p></div>}
+        {history.length === 0 && <div className="panel form-panel"><p className="empty-text">完成语音输入后，你的记录会保存在这里。</p></div>}
         {history.map((item) => (
           <article key={item.id}>
             <div className="history-main">
               <p>{item.text}</p>
               {item.intent === "dictation" && <HistoryCorrection item={item} onTeach={onTeach} />}
               {item.intent === "ask" && item.rawText && <span>问题：{item.rawText}</span>}
-              <span>{item.time} · {(INTENT_META[item.intent] || INTENT_META.dictation).label}{windowName(item.windowContext) ? ` · ${windowName(item.windowContext)}` : ""} · {item.ms} ms{item.breakdown ? ` · ${item.breakdown}` : ""}</span>
+              <span className="history-meta">{item.time} · {(INTENT_META[item.intent] || INTENT_META.dictation).label}{windowName(item.windowContext) ? ` · ${windowName(item.windowContext)}` : ""} · {item.ms} ms{item.breakdown ? ` · ${item.breakdown}` : ""}</span>
             </div>
-            {item.audioSessionId && <button title="用当前模型重新转写" onClick={() => onRetranscribe(item)} disabled={busy}><Repeat size={18} /></button>}
-            <button title="复制" onClick={() => navigator.clipboard.writeText(item.text)}><Copy size={18} /></button>
+            {item.audioSessionId && <button aria-label="用当前模型重新识别" title="用当前模型重新识别" onClick={() => onRetranscribe(item)} disabled={busy}><Repeat size={18} /></button>}
+            <button aria-label="复制记录" title="复制" onClick={() => navigator.clipboard.writeText(item.text)}><Copy size={18} /></button>
           </article>
         ))}
       </div>
@@ -507,43 +536,53 @@ function History({ history, onClear, onTeach, onExport, onRetranscribe, retentio
 function Overview({ settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level }) {
   const recording = state === "recording";
   const busy = state === "processing";
-  const mode = MODE_META[settings.processingMode] || MODE_META.original;
+  const mode = MODE_META[settings.processingMode === "corrected" ? "original" : settings.processingMode] || MODE_META.original;
   const locked = (trigger) => recording && activeTrigger !== trigger;
+  const speechReady = Boolean(settings.asrEndpoint.trim() && settings.asrModel.trim());
+  const needsText = settings.processingMode === "smart" || settings.processingMode === "skill";
+  const startOrConfigure = (trigger) => {
+    if (!recording && (!speechReady || (trigger !== "dictation" && !textReady))) {
+      setPage("model");
+      return;
+    }
+    toggleTask(trigger);
+  };
+  const readyLabel = !speechReady ? "待设置语音服务" : online ? "准备就绪" : "语音服务尚未测试";
   return (
     <section className="page-content overview">
-      <header className="page-heading"><div><span className="eyebrow">从开口开始</span><h1>说出来，写下去。</h1><p>一段话，可以直接落字，也可以先问、先整理。选好入口，再开口。</p></div></header>
+      <header className="page-heading"><div><span className="eyebrow">{BRAND.description}</span><h1>{BRAND.name}</h1><p>{BRAND.introduction}</p></div></header>
       <div className="hero-card">
         <div className="hero-copy">
-          <span className={`hero-status ${state}`}>{statusLabel(state, intent, phase)}</span>
-          <h2>{recording ? `${INTENT_META[intent]?.label || "口述"}录音中` : "让思绪，自然落在纸上。"}</h2>
-          <p>{recording ? "再按同一个快捷键结束；也可点击按钮结束。" : "在任意应用按一次快捷键说话，再按一次，文字进入光标处。"}</p>
+          <span className={`hero-status ${state}`}>{state === "idle" ? readyLabel : statusLabel(state, intent, phase)}</span>
+          <h2>{recording ? "正在录音" : busy ? statusLabel(state, intent, phase) : !speechReady ? "连接语音服务" : "语音输入"}</h2>
+          <p>{recording ? "说完后，再按同一个快捷键或点击“结束录音”。" : !speechReady ? "填写服务地址、模型名称和 API 密钥后，即可开始语音输入。" : textReady ? "按一次快捷键录音，再按一次结束。文字会按你的设置输入到光标处，或复制到剪贴板。" : "按一次快捷键录音，再按一次结束。文字会按设置输入或复制；提问、翻译和按写法整理还需设置文字服务。"}</p>
           <div className="hero-actions">
-            <button className="button dark" onClick={() => toggleTask("dictation")} disabled={busy || locked("dictation")}>
+            <button className="button dark" onClick={() => startOrConfigure("dictation")} disabled={busy || locked("dictation")}>
               {recording && intent === "dictation" ? <Stop size={17} weight="fill" /> : <Microphone size={17} weight="fill" />}
-              {recording && activeTrigger === "dictation" ? "结束录音" : "语音输入"}
+              {recording && activeTrigger === "dictation" ? "结束录音" : !speechReady ? "设置语音服务" : "语音输入"}
             </button>
-            <button className="button secondary" onClick={() => toggleTask("ask")} disabled={busy || locked("ask")}>
+            <button className="button secondary" onClick={() => startOrConfigure("ask")} title={!speechReady ? "先设置语音服务" : !textReady ? "设置文字服务后可提问" : undefined} disabled={busy || locked("ask")}>
               <Command size={17} />
-              {recording && activeTrigger === "ask" ? "结束提问" : "随便问"}
+              {recording && activeTrigger === "ask" ? "结束提问" : "提问"}
             </button>
-            <button className="button secondary" onClick={() => toggleTask("action")} disabled={busy || locked("action")}>
+            <button className="button secondary" onClick={() => startOrConfigure("action")} title={!speechReady ? "先设置语音服务" : !textReady ? "设置文字服务后可使用这个动作" : undefined} disabled={busy || locked("action")}>
               <PuzzlePiece size={17} />
               {recording && activeTrigger === "action" ? "结束录音" : actionName(settings, customSkills)}
             </button>
           </div>
         </div>
-        <div className="hero-visual"><VoiceMotion state={state} level={level} width={164} height={56} /><span>{recording ? "声音，正在成为文字" : "从一小段话开始"}</span><small>{recording ? "同一个键结束" : displayShortcut(settings.shortcut)}</small></div>
+        <div className="hero-visual"><VoiceMotion state={state} level={level} width={164} height={56} /><span>{recording ? "说完后结束录音" : "按快捷键录音"}</span><small>{recording ? "使用同一个快捷键" : displayShortcut(settings.shortcut)}</small></div>
       </div>
       <div className="summary-grid">
-        <button className="summary-card" onClick={() => setPage("model")}><span><Waveform size={21} /></span><div><small>语音模型</small><strong>{settings.asrModel || "未配置"}</strong><p>{online ? "连接正常" : "需要测试连接"}</p></div><CheckCircle size={20} weight={online ? "fill" : "regular"} /></button>
-        <button className="summary-card" onClick={() => setPage("writing")}><span><mode.icon size={21} /></span><div><small>当前模式</small><strong>{mode.label}</strong><p>{textReady || mode.label === "原文" ? mode.detail : `${mode.detail}（文字模型未配置）`}</p></div><GearSix size={20} /></button>
+        <button className="summary-card" onClick={() => setPage("model")}><span><Waveform size={21} /></span><div><small>语音模型</small><strong>{settings.asrModel || "尚未设置"}</strong><p>{!speechReady ? "填写地址与模型名称" : online ? "测试通过" : "待测试连接"}</p></div><CheckCircle size={20} weight={online ? "fill" : "regular"} /></button>
+        <button className="summary-card" onClick={() => setPage("writing")}><span><mode.icon size={21} /></span><div><small>处理方式</small><strong>{mode.label}</strong><p>{textReady || !needsText ? mode.detail : `${mode.detail}（文字服务尚未设置）`}</p></div><GearSix size={20} /></button>
       </div>
       <div className="last-result panel">
         <div className="panel-title slim">
-          <div><h2>最近一次</h2><p>{lastResult ? lastResult.breakdown : "还没有输入记录"}</p></div>
-          {lastResult && <button className="icon-button" onClick={() => navigator.clipboard.writeText(lastResult.text)}><Copy size={18} /></button>}
+          <div><h2>最近结果</h2><p>{lastResult ? lastResult.breakdown : "还没有结果"}</p></div>
+          {lastResult && <button className="icon-button" aria-label="复制最近结果" title="复制最近结果" onClick={() => navigator.clipboard.writeText(lastResult.text)}><Copy size={18} /></button>}
         </div>
-        <p className={lastResult ? "result-text" : "empty-text"}>{lastResult?.text || "按一次快捷键开始录音。"}</p>
+        <p className={lastResult ? "result-text" : "empty-text"}>{lastResult?.text || (speechReady ? "你的下一段输入会显示在这里。" : "连接语音服务后，你的第一段输入会显示在这里。")}</p>
       </div>
     </section>
   );
@@ -560,6 +599,8 @@ export function App() {
     if (previewPage === "text") return "model";
     return ["shortcut", "vocabulary", "history", "skills", "writing", "model"].includes(previewPage) ? previewPage : "home";
   });
+  const workspaceRef = useRef(null);
+  useEffect(() => { workspaceRef.current?.scrollTo({ top: 0, left: 0 }); }, [page]);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [hydrated, setHydrated] = useState(false);
   const [customSkills, setCustomSkills] = useState([]);
@@ -589,14 +630,14 @@ export function App() {
   const [online, setOnline] = useState(false);
   const [testing, setTesting] = useState(false);
   const [state, setState] = useState(overlayPreview || "idle");
-  const [intent, setIntent] = useState("");
-  const [phase, setPhase] = useState("idle");
+  const [intent, setIntent] = useState(() => !isTauri() && overlayPreview && INTENT_META[previewParams.get("intent")] ? previewParams.get("intent") : "");
+  const [phase, setPhase] = useState(() => !isTauri() && overlayPreview ? ["asr", "classify", "text"].includes(previewParams.get("phase")) ? previewParams.get("phase") : overlayPreview === "processing" ? "asr" : "idle" : "idle");
   const [audioLevel, setAudioLevel] = useState(overlayPreview === "recording" ? Math.max(0, Math.min(1, Number(previewParams.get("level") ?? 0.55) || 0)) : 0);
   const [notice, setNotice] = useState(null);
   const [lastResult, setLastResult] = useState(null);
   const [answerCard, setAnswerCard] = useState(cardPreview ? previewParams.get("card") === "skill"
     ? { kind: "skill", title: "会议纪要", question: scenarioFor(BUILTIN_SKILLS[2]).input, answer: scenarioFor(BUILTIN_SKILLS[2]).output }
-    : { kind: "ask", title: "随便问", question: "下周有三个项目并行，应该怎样安排工作？", answer: "先把必须按时交付的事项排在前面，再为每个项目留出一段完整的工作时间。\n\n1. 周一先确认三项交付的截止时间和依赖，选出最需要推进的一项。\n2. 每天保留一段不被会议打断的时间，完成当天最重要的工作。\n3. 把需要他人协作的事项提前发出，避免等到最后一天。\n\n如果时间不够，先与相关方确认范围与优先级，再调整承诺。" } : null);
+    : { kind: "ask", title: "提问", question: "下周有三个项目并行，应该怎样安排工作？", answer: "先把必须按时交付的事项排在前面，再为每个项目留出一段完整的工作时间。\n\n1. 周一先确认三项交付的截止时间和依赖，选出最需要推进的一项。\n2. 每天保留一段不被会议打断的时间，完成当天最重要的工作。\n3. 把需要他人协作的事项提前发出，避免等到最后一天。\n\n如果时间不够，先与相关方确认范围与优先级，再调整承诺。" } : null);
   const answerCardRef = useRef(answerCard);
   const closeAnswerRef = useRef(() => {});
   answerCardRef.current = answerCard;
@@ -683,16 +724,16 @@ export function App() {
     const currentSettings = { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries,
       skillDelivery: trigger === "skill" ? "card" : settingsRef.current.skillDelivery };
     if (!currentSettings.asrEndpoint || !currentSettings.asrModel) {
-      notify("请先在“模型配置”填写语音服务地址和模型名称", false);
+      notify("请先在“服务设置”填写语音服务地址和模型名称", false);
       return;
     }
     const nextIntent = trigger === "action" ? currentSettings.actionType : trigger;
     if (nextIntent === "skill" && !findSkill(skillId || currentSettings.actionSkillId, customSkillsRef.current)) {
-      notify("请先为第三个快捷键选择一个技能", false);
+      notify("请先为第三个快捷键选择一个写法", false);
       return;
     }
     if (nextIntent !== "dictation" && (!currentSettings.textEndpoint || !currentSettings.textModel)) {
-      notify("请先在“模型配置”填写文字服务地址和模型名称", false);
+      notify("请先在“服务设置”填写文字服务地址和模型名称", false);
       return;
     }
     startingRef.current = true;
@@ -704,7 +745,7 @@ export function App() {
     // 在目标应用仍是前台窗口时取一次身份；只写本地历史，不发给模型。
     const windowContext = await desktopInvoke("get_active_window_context", {}, () => null).catch(() => null);
     if (generation !== startGenerationRef.current) return;
-    // 本次任务的技能与设置在录音开始前固定；不会改变后续口述的默认路径。
+    // 本次任务的写法与设置在录音开始前固定；不会改变后续口述的默认路径。
     const snapshot = pipeline.begin({
       intent: nextIntent,
       skillId,
@@ -839,7 +880,7 @@ export function App() {
       return;
     }
     if (event.type === "answer") {
-      const card = { question: event.question, answer: event.text, requestId: event.requestId, kind: event.intent || "ask", title: event.title || "随便问", streaming: false };
+      const card = { question: event.question, answer: event.text, requestId: event.requestId, kind: event.intent || "ask", title: event.title || "提问", streaming: false };
       setAnswerCard(card);
       if (isTauri()) desktopInvoke("show_answer_card", card, true).catch((error) => notify(describeError(error), false));
       const timings = event.timings || {};
@@ -934,18 +975,25 @@ export function App() {
       try {
         const loaded = await skillStoreRef.current.load();
         skills = loaded.skills;
-        if (loaded.rejected) notices.push(`有 ${loaded.rejected} 个自定义 Skill 未通过校验，已跳过。`);
+        if (loaded.rejected) notices.push(`有 ${loaded.rejected} 个自定义写法未通过校验，已跳过。`);
       } catch (error) {
         notices.push(describeError(error));
       }
 
       let next = normalized;
       if (normalized.processingMode === "skill" && !findSkill(normalized.selectedSkillId, skills)) {
-        // 选中的 Skill 不在了就回退智能整理，而不是把用户送进一条注定走不通的路径。
+        // 选中的 Skill 不在了就回退自动整理，而不是把用户送进一条注定走不通的路径。
         next = { ...normalized, processingMode: "smart", selectedSkillId: "" };
-        notices.push("之前选择的 Skill 已不存在，文字整理已回退为「智能整理」。");
+        notices.push("之前选择的写法已不存在，已恢复自动整理。");
       }
 
+      if (isTauri()) {
+        try {
+          const status = await desktopInvoke("get_phrase_shortcut_status", {});
+          if (status.error) notices.push(status.error);
+          if (status.shortcut !== next.phraseShortcut) next = { ...next, phraseShortcut: status.shortcut };
+        } catch (error) { notices.push(`读取短语快捷键失败：${describeError(error)}`); }
+      }
       if (disposed) return;
       setCustomSkills(skills);
       setSettings(next);
@@ -975,7 +1023,7 @@ export function App() {
       }
       return;
     }
-    desktopInvoke("save_settings", { settings: persisted }, true).catch(() => {});
+    desktopInvoke("save_settings", { settings: persisted }, true).catch((error) => notify(`保存设置失败：${describeError(error)}`, false));
   }, [settings, hydrated, windowLabel]);
 
   useEffect(() => {
@@ -1057,7 +1105,7 @@ export function App() {
   const dismissWord = async (pair) => {
     try {
       await vocabularyStoreRef.current.update((current) => dismissCorrection(current, pair));
-      notify("已删除，不再自动学习这条纠正", true);
+      notify("词条已删除，不再自动学习这项纠正", true);
     } catch (error) { notify(describeError(error), false); }
   };
 
@@ -1112,7 +1160,7 @@ export function App() {
         actionType: removedAction ? "translate" : current.actionType,
         actionSkillId: removedAction ? "" : current.actionSkillId,
       });
-      notify("所选技能已删除，相关入口已恢复默认设置。", false);
+      notify("所选写法已删除，相关入口已恢复默认设置。", false);
     }
     return normalized;
   };
@@ -1194,7 +1242,7 @@ export function App() {
       audioMs: pendingFailure.audioMs,
       windowContext: pendingFailure.windowContext,
     });
-    if (result && result.ok === false) notify(result.message || "无法插入原文", false);
+    if (result && result.ok === false) notify(result.message || "未能输入原文", false);
     else setPendingFailure(null);
   };
 
@@ -1215,7 +1263,7 @@ export function App() {
     const unlistenStream = listen("answer-stream", (event) => {
       const payload = event.payload || {};
       if (!payload.text || !pipeline.isCurrent(payload.requestId)) return;
-      const card = { question: payload.question, answer: payload.text, requestId: payload.requestId, kind: "ask", title: "随便问", streaming: true };
+      const card = { question: payload.question, answer: payload.text, requestId: payload.requestId, kind: "ask", title: "提问", streaming: true };
       setAnswerCard(card);
       if (streamingAnswerIdRef.current !== payload.requestId) {
         streamingAnswerIdRef.current = payload.requestId;
@@ -1229,6 +1277,7 @@ export function App() {
     const unlistenDictation = listen("toggle-dictation", () => toggleRef.current("dictation"));
     const unlistenAsk = listen("toggle-ask", () => toggleRef.current("ask"));
     const unlistenAction = listen("toggle-action", () => toggleRef.current("action"));
+    const unlistenPhrase = listen("quick-phrase-result", (event) => notify(event.payload.message, event.payload.ok));
     const unlistenStop = listen("stop-recording", () => stopRef.current());
     const unlistenCancel = listen("cancel-recording", () => cancelRef.current());
     const unlistenShortcut = listen("shortcut-register-failed", (event) => {
@@ -1241,6 +1290,7 @@ export function App() {
       unlistenDictation.then((fn) => fn());
       unlistenAsk.then((fn) => fn());
       unlistenAction.then((fn) => fn());
+      unlistenPhrase.then((fn) => fn());
       unlistenStop.then((fn) => fn());
       unlistenCancel.then((fn) => fn());
       unlistenShortcut.then((fn) => fn());
@@ -1313,7 +1363,7 @@ export function App() {
 
   const followupAnswer = async ({ turns, question, onDelta }) => {
     const current = settingsRef.current;
-    if (!current.textEndpoint || !current.textModel) throw new Error("请先配置文字模型");
+    if (!current.textEndpoint || !current.textModel) throw new Error("请先设置文字服务");
     const requestId = `followup-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     followupRequestIdRef.current = requestId;
     const system = buildMessages({ task: "ask", instruction: ASK_INSTRUCTION, rawText: turns[0]?.question || question })[0];
@@ -1364,7 +1414,7 @@ export function App() {
         const url = URL.createObjectURL(new Blob([JSON.stringify(history, null, 2)], { type: "application/json" }));
         const link = document.createElement("a");
         link.href = url;
-        link.download = "typefree-history.json";
+        link.download = `${BRAND.name}-历史记录.json`;
         link.click();
         URL.revokeObjectURL(url);
       }
@@ -1408,8 +1458,14 @@ export function App() {
         level={audioLevel}
         intent={intent}
         phase={phase}
-        onStop={() => emit("stop-recording")}
-        onCancel={() => emit("cancel-recording")}
+        onStop={() => {
+          if (isTauri()) return emit("stop-recording");
+          setPhase("asr"); setState("processing");
+        }}
+        onCancel={() => {
+          if (isTauri()) return emit("cancel-recording");
+          setState("idle"); setPhase("idle");
+        }}
       />
     );
   }
@@ -1417,11 +1473,11 @@ export function App() {
   return (
     <main className="app-shell">
       <Sidebar page={page} setPage={setPage} online={online} />
-      <section className="workspace">
+      <section className="workspace" ref={workspaceRef}>
         <div className="topbar">
-          <span><StatusDot online={online} />{online ? "语音服务在线" : "语音服务待连接"}</span>
+          <span><StatusDot online={online} />{online ? "语音服务已通过测试" : "语音服务尚未测试"}</span>
           <button className="mini-shortcut" title="语音输入" onClick={() => toggleTask("dictation")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "dictation")}><Microphone size={16} weight="fill" />{displayShortcut(settings.shortcut)}</button>
-          <button className="mini-shortcut" title="随便问" onClick={() => toggleTask("ask")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "ask")}><Command size={16} />{displayShortcut(settings.askShortcut)}</button>
+          <button className="mini-shortcut" title="提问" onClick={() => toggleTask("ask")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "ask")}><Command size={16} />{displayShortcut(settings.askShortcut)}</button>
           <button className="mini-shortcut" title={actionName(settings, customSkills)} onClick={() => toggleTask("action")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "action")}><PuzzlePiece size={16} />{displayShortcut(settings.actionShortcut)}</button>
         </div>
 
@@ -1429,7 +1485,7 @@ export function App() {
           <div className="panel failure-panel">
             <div className="panel-title slim">
               <div>
-                <h2>{pendingFailure.kind === "asr" ? "语音识别没有完成" : "文字整理没有完成"}</h2>
+                <h2>{pendingFailure.kind === "asr" ? "语音识别未完成" : "文字处理未完成"}</h2>
                 <p>{pendingFailure.message}{FAILURE_HINTS[pendingFailure.errorKind] || ""}{["command", "ask"].includes(pendingFailure.intent) ? " · 原始问题或命令不会输入到当前窗口" : ""}</p>
               </div>
               <button className="icon-button" onClick={closeFailure} title="关闭"><X size={16} /></button>
@@ -1440,12 +1496,12 @@ export function App() {
             </div>}
             <div className="form-actions">
               {pendingFailure.kind !== "asr" && !["command", "ask"].includes(pendingFailure.intent) && (
-                <button className="button secondary" onClick={insertRawText} disabled={busy}><TextT size={17} />插入原文</button>
+                <button className="button secondary" onClick={insertRawText} disabled={busy}><TextT size={17} />输入原文</button>
               )}
               {pendingFailure.kind !== "asr" && <button className="button secondary" onClick={() => navigator.clipboard.writeText(pendingFailure.rawText)}><ClipboardText size={17} />复制原文</button>}
               <button className="button primary" onClick={retryTask} disabled={busy || retrying}>
                 {retrying ? <ArrowClockwise className="spin" size={17} /> : <Repeat size={17} />}
-                {retrying ? "正在重试" : pendingFailure.kind === "asr" ? "重新转写" : "重试"}
+                {retrying ? "正在重试" : pendingFailure.kind === "asr" ? "重新识别" : "重试"}
               </button>
             </div>
           </div>
@@ -1453,10 +1509,10 @@ export function App() {
 
         {recoverableAudio.filter((item) => item.sessionId !== pendingFailure?.audioSessionId).map((item) => (
           <div className="panel failure-panel" key={item.sessionId}>
-            <div className="panel-title slim"><div><h2>可恢复的录音</h2><p>{item.error || `约 ${Math.ceil(item.audioMs / 1000)} 秒，已由 Windows 加密保存在本机。`}</p></div></div>
+            <div className="panel-title slim"><div><h2>待处理录音</h2><p>{item.error || `约 ${Math.ceil(item.audioMs / 1000)} 秒，已由 Windows 加密保存在本机。`}</p></div></div>
             <div className="form-actions">
               <button className="button secondary" onClick={() => discardAudio(item)} disabled={busy || retrying}>丢弃录音</button>
-              <button className="button primary" onClick={() => recoverAudio(item)} disabled={busy || retrying || Boolean(item.error)}>{retrying ? "正在转写" : "重新转写"}</button>
+              <button className="button primary" onClick={() => recoverAudio(item)} disabled={busy || retrying || Boolean(item.error)}>{retrying ? "正在识别" : "重新识别"}</button>
             </div>
           </div>
         ))}

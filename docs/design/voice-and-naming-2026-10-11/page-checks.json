@@ -1,0 +1,40 @@
+[
+  {
+    "modes": [
+      "保留原文",
+      "轻度整理",
+      "自动整理",
+      "按写法整理"
+    ],
+    "overflow": false,
+    "page": "文字整理",
+    "selected": [
+      "保留原文"
+    ]
+  },
+  {
+    "oldTerms": [],
+    "overflow": false,
+    "page": "个人词库"
+  },
+  {
+    "oldTerms": [],
+    "overflow": false,
+    "page": "写法"
+  },
+  {
+    "oldTerms": [],
+    "overflow": false,
+    "page": "快捷键"
+  },
+  {
+    "oldTerms": [],
+    "overflow": false,
+    "page": "历史记录"
+  },
+  {
+    "oldTerms": [],
+    "overflow": false,
+    "page": "服务设置"
+  }
+]

@@ -34,7 +34,7 @@ function draft(overrides = {}) {
   };
 }
 
-test("合法草稿归一化为完整的自定义 Skill", () => {
+test("合法草稿归一化为完整的自定义写法", () => {
   const { skill, errors } = validateCustomSkill(draft(), { now: NOW });
   assert.deepEqual(errors, []);
   assert.deepEqual(skill, {
@@ -53,7 +53,7 @@ test("合法草稿归一化为完整的自定义 Skill", () => {
 test("名称、说明、整理要求的长度上限各报一条错", () => {
   assert.deepEqual(
     validateCustomSkill(draft({ name: " " }), { now: NOW }).errors,
-    ["名称不能为空"],
+    ["请填写写法名称"],
   );
   assert.deepEqual(
     validateCustomSkill(draft({ name: "a".repeat(SKILL_LIMITS.name + 1) }), { now: NOW }).errors,
@@ -65,7 +65,7 @@ test("名称、说明、整理要求的长度上限各报一条错", () => {
   );
   assert.deepEqual(
     validateCustomSkill(draft({ instruction: "" }), { now: NOW }).errors,
-    ["整理要求不能为空"],
+    ["请填写整理要求"],
   );
   assert.deepEqual(
     validateCustomSkill(draft({ instruction: "a".repeat(SKILL_LIMITS.instruction + 1) }), { now: NOW }).errors,
@@ -88,7 +88,7 @@ test("长度上限处的边界值通过", () => {
 test("id 必须以 custom. 开头", () => {
   assert.deepEqual(
     validateCustomSkill(draft({ id: "builtin.1" }), { now: NOW }).errors,
-    ["自定义 Skill 的 id 必须以 custom. 开头"],
+    ["写法标识无效，请重新创建"],
   );
 });
 
@@ -112,19 +112,19 @@ test("同名不同 id 报错，同 id 同名视为自身豁免", () => {
   const existing = [{ id: "custom.1", name: "周报" }];
   assert.deepEqual(
     validateCustomSkill(draft({ id: "custom.2", name: "周报" }), { existing, now: NOW }).errors,
-    ["已有同名的自定义 Skill"],
+    ["已有同名写法，请换一个名称"],
   );
   assert.deepEqual(validateCustomSkill(draft({ id: "custom.1", name: "周报" }), { existing, now: NOW }).errors, []);
 });
 
-test("自定义 Skill 数量到上限后只能编辑已有条目", () => {
+test("自定义写法数量到上限后只能编辑已有条目", () => {
   const existing = Array.from({ length: SKILL_LIMITS.customCount }, (_, index) => ({
     id: `custom.${index}`,
     name: `Skill ${index}`,
   }));
   assert.deepEqual(
     validateCustomSkill(draft({ id: "custom.new" }), { existing, now: NOW }).errors,
-    [`自定义 Skill 最多 ${SKILL_LIMITS.customCount} 个`],
+    [`自定义写法最多 ${SKILL_LIMITS.customCount} 个`],
   );
   assert.deepEqual(validateCustomSkill(draft({ id: "custom.0" }), { existing, now: NOW }).errors, []);
 });
@@ -175,7 +175,7 @@ test("四个内置 Skill 的 id 与名称固定", () => {
       ["builtin.email", "邮件"],
       ["builtin.report", "工作汇报"],
       ["builtin.meeting", "会议纪要"],
-      ["builtin.vibe-coding", "Vibe Coding"],
+      ["builtin.vibe-coding", "开发需求"],
     ],
   );
   for (const skill of BUILTIN_SKILLS) {

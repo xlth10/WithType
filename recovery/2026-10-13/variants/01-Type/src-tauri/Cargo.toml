@@ -1,0 +1,40 @@
+[package]
+name = "typefree_windows"
+version = "0.1.0"
+description = "Unofficial Windows voice typing client inspired by Typefree"
+authors = ["Emergence Lab"]
+edition = "2021"
+
+[lib]
+name = "typefree_windows_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "typefree"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+arboard = "3.4"
+base64 = "0.22"
+# 必须显式开 windows-native：keyring 3.6 默认不含任何平台后端，
+# 漏掉它会静默退化成 mock（纯内存、零持久化），
+# 表现为 save_api_key 返回成功但 get_password 永远 NoEntry。
+keyring = { version = "3.6", features = ["windows-native"] }
+reqwest = { version = "0.12", features = ["json", "multipart", "rustls-tls", "stream"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# image-ico 不是默认特性，但托盘和标题栏图标要用 tauri::Image::from_bytes
+# 解出 RGBA，而 from_bytes 被 image-png / image-ico 门住。这里只能走 ico：
+# 本机 DLP 会把 .png 就地加密，include_bytes! 读到的就是密文（见 lib.rs 的 app_icon）。
+tauri = { version = "2", features = ["tray-icon", "image-ico"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+tokio = { version = "1", features = ["time", "macros", "sync"] }
+
+[target.'cfg(windows)'.dependencies]
+cpal = "0.18.2"
+windows = { version = "0.61.3", features = ["Win32_System_Com", "Win32_UI_Accessibility"] }
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }

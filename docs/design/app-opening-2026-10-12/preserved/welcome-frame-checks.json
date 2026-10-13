@@ -1,0 +1,390 @@
+{
+  "durationMs": 1400,
+  "viewport": {
+    "width": 1060,
+    "height": 720
+  },
+  "frames": [
+    {
+      "ms": 0,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 35,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 70,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 105,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 140,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 175,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 210,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 245,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 280,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 315,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 350,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 385,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 420,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 455,
+      "interfaceOpacity": 0,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 490,
+      "interfaceOpacity": 0,
+      "opacity": 0.564378,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 525,
+      "interfaceOpacity": 0,
+      "opacity": 0.878168,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 560,
+      "interfaceOpacity": 0,
+      "opacity": 0.971861,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 595,
+      "interfaceOpacity": 0,
+      "opacity": 0.996004,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 630,
+      "interfaceOpacity": 0,
+      "opacity": 0.999929,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 665,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 700,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 735,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 770,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 805,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 840,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 875,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 910,
+      "interfaceOpacity": 0,
+      "opacity": 1,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 945,
+      "interfaceOpacity": 0.0955882,
+      "opacity": 0.852941,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 980,
+      "interfaceOpacity": 0.191176,
+      "opacity": 0.705882,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1015,
+      "interfaceOpacity": 0.286765,
+      "opacity": 0.558824,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1050,
+      "interfaceOpacity": 0.382353,
+      "opacity": 0.411765,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1085,
+      "interfaceOpacity": 0.477941,
+      "opacity": 0.264706,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1120,
+      "interfaceOpacity": 0.573529,
+      "opacity": 0.117647,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1155,
+      "interfaceOpacity": 0.659722,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1190,
+      "interfaceOpacity": 0.708333,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1225,
+      "interfaceOpacity": 0.756944,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1260,
+      "interfaceOpacity": 0.805556,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1295,
+      "interfaceOpacity": 0.854167,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1330,
+      "interfaceOpacity": 0.902778,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1365,
+      "interfaceOpacity": 0.951389,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    },
+    {
+      "ms": 1400,
+      "interfaceOpacity": 1,
+      "opacity": 0,
+      "overflow": false,
+      "text": "Welcome, Ellen",
+      "textCenterX": 529.99609375,
+      "viewportWidth": 1060
+    }
+  ],
+  "summary": {
+    "greeting": "Welcome, Ellen",
+    "centeredInEveryFrame": true,
+    "noHorizontalOverflow": true,
+    "minimumViewport": {
+      "width": 640,
+      "height": 480,
+      "greetingFitsWithinPaper": true
+    },
+    "normalFinishRemovesGreeting": true,
+    "reducedMotionHasNoDecoration": true
+  }
+}

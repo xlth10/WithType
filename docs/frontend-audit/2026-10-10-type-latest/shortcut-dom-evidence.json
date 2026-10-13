@@ -1,0 +1,31 @@
+{
+  "currentPage": [
+    {
+      "ariaCurrent": null,
+      "name": "快捷键"
+    }
+  ],
+  "toggles": [
+    {
+      "height": 21,
+      "labelledby": null,
+      "name": null,
+      "pressed": "true",
+      "text": ""
+    },
+    {
+      "height": 21,
+      "labelledby": null,
+      "name": null,
+      "pressed": "false",
+      "text": ""
+    },
+    {
+      "height": 21,
+      "labelledby": null,
+      "name": null,
+      "pressed": "false",
+      "text": ""
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WithType · 保留的纸面展开</title><link rel="preload" href="/fonts/noto-sans-sc-variable.woff2" as="font" type="font/woff2" crossorigin></head>
+<body><div id="root"></div><script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from '/src/App.jsx';
+import { AppEntrance } from './source/src/ui/AppEntrance.jsx';
+import './source/src/styles.css';
+document.documentElement.dataset.surface='main';
+createRoot(document.getElementById('root')).render(React.createElement(AppEntrance,{},React.createElement(App)));
+</script></body></html>

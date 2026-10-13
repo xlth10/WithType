@@ -23,6 +23,7 @@ import {
   MagicWand,
   Microphone,
   PaperPlaneTilt,
+  PaintBrush,
   PuzzlePiece,
   Repeat,
   ShieldCheck,
@@ -47,11 +48,15 @@ import { SkillEditor } from "./components/SkillEditor.jsx";
 import { AnswerCard } from "./components/AnswerCard.jsx";
 import { AppIcon } from "./components/AppIcon.jsx";
 import { BRAND } from "./ui/brand.js";
+import { AppearanceSettings } from "./components/AppearanceSettings.jsx";
+import { normalizeWelcomeText } from "./ui/welcome.js";
 import { TextSettings } from "./components/TextSettings.jsx";
 import { createPipeline } from "./dictation/pipeline.js";
 import { useWavRecorder } from "./dictation/useWavRecorder.js";
 import { useNativeRecorder } from "./dictation/useNativeRecorder.js";
+import { createVoiceController } from "./dictation/controller.js";
 import { displayShortcut, shortcutFromKeydown } from "./shortcuts/capture.js";
+import { copyResult, normalizeDelivery, recentResult, needsResultCard } from "./dictation/delivery.js";
 import { ASK_INSTRUCTION, BUILTIN_SKILLS, buildMessages, findBuiltinSkill } from "./text/builtinSkills.js";
 import { createSkillStore } from "./text/skillStore.js";
 import {
@@ -123,22 +128,29 @@ const FAILURE_HINTS = {
 /** 把耗时拆成一句可读的说明，方便对着「慢在哪一步」排查。 */
 function breakdownOf(timings = {}) {
   const parts = [];
+  if (timings.stopToDeliveredMs != null || timings.stopToReadyMs != null) parts.push(`停止后 ${timings.stopToDeliveredMs ?? timings.stopToReadyMs} ms`);
   if (timings.encodeMs) parts.push(`编码 ${timings.encodeMs} ms`);
-  parts.push(`识别 ${timings.asrMs || 0} ms`);
+  if (timings.stopToAsrMs != null) parts.push(`识别就绪 ${timings.stopToAsrMs} ms`);
+  else parts.push(`识别 ${timings.asrMs || 0} ms`);
+  if (timings.classifyMs) parts.push(`意图 ${timings.classifyMs} ms`);
   if (timings.textMs) parts.push(`整理 ${timings.textMs} ms`);
-  if (timings.pasteMs) parts.push(`输入 ${timings.pasteMs} ms`);
+  if (timings.textFirstTokenMs != null) parts.push(`首字 ${timings.textFirstTokenMs} ms`);
+  if (timings.textRequests > 1) parts.push(`文字 ${timings.textRequests} 次请求`);
+  if (timings.pasteMs) parts.push(`上屏 ${timings.pasteMs} ms`);
   return parts.join(" · ");
 }
 
 /** 悬浮窗与概览共用的状态文案：录音、识别、整理文字、生成内容必须是四件能说清的事。 */
 function statusLabel(state, intent, phase) {
-  if (state === "recording") return "正在录音";
+  if (phase === "background-unavailable") return "语音输入尚未就绪，可从托盘恢复";
+  if (state === "recording") return intent === "ask" ? "正在听你提问" : "正在录音";
   if (state === "processing") {
-    if (phase === "classify") return "正在判断处理方式";
+    if (phase === "choose-target") return "请选择输入位置";
+    if (phase === "classify") return "正在判断口述类型";
     if (phase === "text") return intent === "ask" ? "正在回答" : intent === "translate" ? "正在翻译" : "正在处理文字";
     return "正在识别";
   }
-  if (state === "done") return "已完成";
+  if (state === "done") return ({ inserted: "已输入", copied: "已复制", sent: "请确认输入结果", answer: "回答已生成" })[phase] || "已完成";
   if (state === "error") return "处理失败";
   return "准备就绪";
 }
@@ -172,17 +184,19 @@ function StatusDot({ online }) {
   return <span className={`status-dot ${online ? "online" : "offline"}`} aria-hidden="true" />;
 }
 
-function Overlay({ state, level, intent, phase, onStop, onCancel }) {
+function Overlay({ state, level, intent, phase, countdown, onStop, onCancel }) {
   const label = statusLabel(state, intent, phase);
   const cancelLabel = state === "recording" ? "取消录音" : state === "processing" ? "取消处理" : "关闭提示";
   return (
     <main className="overlay-shell">
-      <section className={`voice-hud ${state} ${intent || "dictation"}`} aria-label="语音输入">
+      <section className={`voice-hud ${state} ${intent || "dictation"}`} aria-label={label} title={label}>
         <VoiceMotion state={state} level={level} width={76} height={26} feedback />
         <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{label}</span>
-        <div className="hud-controls" role="group" aria-label="录音控制">
-          {state === "recording" && <button type="button" onClick={onStop} aria-label="结束录音" title="结束录音"><Stop size={15} weight="fill" /></button>}
-          <button type="button" onClick={onCancel} aria-label={cancelLabel} title={cancelLabel}><X size={16} /></button>
+        {phase === "background-unavailable" && <span className="hud-badge">输入未就绪</span>}
+        {countdown !== null ? <span className="hud-badge">{phase === "choose-target" ? `${countdown}秒后输入` : `还剩${countdown}秒`}</span> : intent && intent !== "dictation" && state !== "idle" && <span className="hud-badge">{INTENT_META[intent]?.label || "口述"}</span>}
+        <div className="hud-controls">
+          {state === "recording" && <button onClick={onStop} aria-label="结束录音"><Stop size={15} weight="fill" /></button>}
+          <button onClick={onCancel} aria-label="取消或关闭"><X size={16} /></button>
         </div>
       </section>
     </main>
@@ -198,6 +212,7 @@ function Sidebar({ page, setPage, online }) {
     ["skills", PuzzlePiece, "写法"],
     ["shortcut", Keyboard, "快捷键"],
     ["history", ClockCounterClockwise, "历史记录"],
+    ["appearance", PaintBrush, "外观"],
   ];
   return (
     <aside className="sidebar">
@@ -409,7 +424,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
     };
     window.addEventListener("keydown", onKeyDown, true);
     return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [captureKind, captureReady, captureBusy, settings.shortcut, settings.askShortcut, settings.actionShortcut, settings.phraseShortcut]);
+  }, [captureKind, captureReady, captureBusy, settings.shortcut, settings.askShortcut, settings.actionShortcut, settings.copyShortcut, settings.phraseShortcut]);
 
   const beginCapture = (kind) => {
     if (busy || captureKind) return;
@@ -449,6 +464,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
     ["dictation", "语音输入", "说完后按设置输入或复制文字。"],
     ["ask", "提问", "说出你的问题，回答只显示在卡片中。"],
     ["action", actionLabel, "按这里选择的动作处理录音，语音输入的设置保持原样。"],
+    ["copy", "复制上次结果", "无需打开设置，复制最近一次完成的正文。"],
   ];
 
   return (
@@ -496,9 +512,9 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
         </div>
       </div>
       <div className="panel settings-list">
-        <div><div><strong>自动输入结果</strong><span>语音结果开启后输入到光标处，关闭后复制到剪贴板。提问显示为卡片，快捷短语始终直接填入。</span></div><Toggle label="自动输入结果" checked={settings.autoPaste} onChange={(value) => setSettings({ ...settings, autoPaste: value })} /></div>
-        <div><div><strong>自动判断语音指令</strong><span>实验功能：自动区分直接输入与生成要求，会额外调用文字服务。</span></div><Toggle label="自动判断语音指令" checked={settings.autoIntent} onChange={(value) => setSettings({ ...settings, autoIntent: value })} disabled={!settings.textEndpoint || !settings.textModel} /></div>
-        <div><div><strong>登录后启动</strong><span>登录 Windows 后自动启动 {BRAND.name}。</span></div><Toggle label="登录后启动" checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
+        <div><div><strong>结果自动输入</strong><span>完成正文默认保留在剪贴板；关闭后只复制。随便问显示卡片，不改剪贴板。</span></div><Toggle label="自动输入结果" checked={settings.autoPaste} onChange={(value) => setSettings({ ...settings, autoPaste: value })} /></div>
+        <div><div><strong>自动判断语音命令</strong><span>实验功能：会增加一次文字模型请求。关掉后仍可在第三个入口选择语音命令。</span></div><Toggle label="自动判断语音指令" checked={settings.autoIntent} onChange={(value) => setSettings({ ...settings, autoIntent: value })} disabled={!settings.textEndpoint || !settings.textModel} /></div>
+        <div><div><strong>登录 Windows 后启动</strong><span>已配置语音模型时进入托盘；需要配置时打开主界面。</span></div><Toggle label="登录后启动" checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
           try {
             await desktopInvoke("set_launch_at_login", { enabled: value });
             setSettings((current) => ({ ...current, launchAtLogin: value }));
@@ -509,7 +525,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
   );
 }
 
-function History({ history, onClear, onTeach, onExport, onRetranscribe, retentionDays, onRetentionChange, keepAudio, onKeepAudioChange, busy }) {
+function History({ onCopy, history, onClear, onTeach, onExport, onRetranscribe, retentionDays, onRetentionChange, keepAudio, onKeepAudioChange, busy }) {
   return (
     <section className="page-content">
       <header className="page-heading"><div><span className="eyebrow">本机记录</span><h1>历史记录</h1><p>最多保留最近 50 条记录。Windows 版在本机加密保存，应用与窗口名称不发送给模型。</p></div><div className="form-actions"><button className="button secondary" onClick={onExport}>导出历史</button>{history.length > 0 && <button className="button secondary" onClick={onClear}>清空历史</button>}</div></header>
@@ -524,8 +540,8 @@ function History({ history, onClear, onTeach, onExport, onRetranscribe, retentio
               {item.intent === "ask" && item.rawText && <span>问题：{item.rawText}</span>}
               <span className="history-meta">{item.time} · {(INTENT_META[item.intent] || INTENT_META.dictation).label}{windowName(item.windowContext) ? ` · ${windowName(item.windowContext)}` : ""} · {item.ms} ms{item.breakdown ? ` · ${item.breakdown}` : ""}</span>
             </div>
-            {item.audioSessionId && <button aria-label="用当前模型重新识别" title="用当前模型重新识别" onClick={() => onRetranscribe(item)} disabled={busy}><Repeat size={18} /></button>}
-            <button aria-label="复制记录" title="复制" onClick={() => navigator.clipboard.writeText(item.text)}><Copy size={18} /></button>
+            {item.audioSessionId && <button title="用当前模型重新转写" onClick={() => onRetranscribe(item)} disabled={busy}><Repeat size={18} /></button>}
+            <button title="复制" onClick={() => onCopy(item.text)}><Copy size={18} /></button>
           </article>
         ))}
       </div>
@@ -533,11 +549,11 @@ function History({ history, onClear, onTeach, onExport, onRetranscribe, retentio
   );
 }
 
-function Overview({ settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level }) {
+function Overview({ onCopy, settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level }) {
   const recording = state === "recording";
   const busy = state === "processing";
   const mode = MODE_META[settings.processingMode === "corrected" ? "original" : settings.processingMode] || MODE_META.original;
-  const locked = (trigger) => recording && activeTrigger !== trigger;
+  const locked = (trigger) => recording && trigger !== "dictation" && activeTrigger !== trigger;
   const speechReady = Boolean(settings.asrEndpoint.trim() && settings.asrModel.trim());
   const needsText = settings.processingMode === "smart" || settings.processingMode === "skill";
   const startOrConfigure = (trigger) => {
@@ -579,8 +595,8 @@ function Overview({ settings, customSkills, online, setPage, state, intent, phas
       </div>
       <div className="last-result panel">
         <div className="panel-title slim">
-          <div><h2>最近结果</h2><p>{lastResult ? lastResult.breakdown : "还没有结果"}</p></div>
-          {lastResult && <button className="icon-button" aria-label="复制最近结果" title="复制最近结果" onClick={() => navigator.clipboard.writeText(lastResult.text)}><Copy size={18} /></button>}
+          <div><h2>最近一次</h2><p>{lastResult ? lastResult.breakdown : "还没有输入记录"}</p></div>
+          {lastResult && <button className="icon-button" onClick={() => onCopy(lastResult.text)}><Copy size={18} /></button>}
         </div>
         <p className={lastResult ? "result-text" : "empty-text"}>{lastResult?.text || (speechReady ? "你的下一段输入会显示在这里。" : "连接语音服务后，你的第一段输入会显示在这里。")}</p>
       </div>
@@ -588,7 +604,7 @@ function Overview({ settings, customSkills, online, setPage, state, intent, phas
   );
 }
 
-export function App() {
+export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable } = {}) {
   const previewParams = new URLSearchParams(window.location.search);
   const overlayPreview = previewParams.get("overlay");
   const cardPreview = Boolean(previewParams.get("card"));
@@ -597,12 +613,16 @@ export function App() {
   const [page, setPage] = useState(() => {
     if (isTauri()) return "home";
     if (previewPage === "text") return "model";
-    return ["shortcut", "vocabulary", "history", "skills", "writing", "model"].includes(previewPage) ? previewPage : "home";
+    return ["shortcut", "vocabulary", "history", "skills", "writing", "model", "appearance"].includes(previewPage) ? previewPage : "home";
   });
   const workspaceRef = useRef(null);
   useEffect(() => { workspaceRef.current?.scrollTo({ top: 0, left: 0 }); }, [page]);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [hydrated, setHydrated] = useState(false);
+  const welcomeText = normalizeWelcomeText(settings.welcomeText);
+  useEffect(() => {
+    if (hydrated && windowLabel === "main") onWelcomeChange?.(welcomeText);
+  }, [hydrated, windowLabel, welcomeText, onWelcomeChange]);
   const [customSkills, setCustomSkills] = useState([]);
   const [vocabulary, setVocabulary] = useState(emptyVocabulary);
   const [vocabularyReady, setVocabularyReady] = useState(false);
@@ -630,23 +650,33 @@ export function App() {
   const [online, setOnline] = useState(false);
   const [testing, setTesting] = useState(false);
   const [state, setState] = useState(overlayPreview || "idle");
-  const [intent, setIntent] = useState(() => !isTauri() && overlayPreview && INTENT_META[previewParams.get("intent")] ? previewParams.get("intent") : "");
-  const [phase, setPhase] = useState(() => !isTauri() && overlayPreview ? ["asr", "classify", "text"].includes(previewParams.get("phase")) ? previewParams.get("phase") : overlayPreview === "processing" ? "asr" : "idle" : "idle");
+  const [intent, setIntent] = useState("");
+  const [phase, setPhase] = useState("idle");
+  const [textPreview, setTextPreview] = useState("");
   const [audioLevel, setAudioLevel] = useState(overlayPreview === "recording" ? Math.max(0, Math.min(1, Number(previewParams.get("level") ?? 0.55) || 0)) : 0);
   const [notice, setNotice] = useState(null);
   const [lastResult, setLastResult] = useState(null);
-  const [answerCard, setAnswerCard] = useState(cardPreview ? previewParams.get("card") === "skill"
-    ? { kind: "skill", title: "会议纪要", question: scenarioFor(BUILTIN_SKILLS[2]).input, answer: scenarioFor(BUILTIN_SKILLS[2]).output }
-    : { kind: "ask", title: "提问", question: "下周有三个项目并行，应该怎样安排工作？", answer: "先把必须按时交付的事项排在前面，再为每个项目留出一段完整的工作时间。\n\n1. 周一先确认三项交付的截止时间和依赖，选出最需要推进的一项。\n2. 每天保留一段不被会议打断的时间，完成当天最重要的工作。\n3. 把需要他人协作的事项提前发出，避免等到最后一天。\n\n如果时间不够，先与相关方确认范围与优先级，再调整承诺。" } : null);
+  const lastResultRef = useRef(null);
+  lastResultRef.current = lastResult;
+  const copyLastRef = useRef(() => {});
+  const dismissedCardIdRef = useRef("");
+  const [countdown, setCountdown] = useState(null);
+  const [answerCard, setAnswerCard] = useState(cardPreview ? previewParams.get("kind") === "delivery" ? {
+    kind: "delivery", requestId: "preview-delivery", question: "", status: "copied",
+    message: "没有可用输入位置，已复制，可以粘贴",
+    answer: "先完成本周的功能验证，再整理实际使用中发现的问题。周五前确定下周的安排，并同步给团队。",
+  } : { question: "下周的工作怎么安排？", answer: "先列出必须完成的事项，再按截止时间排优先级。", streaming: previewParams.get("streaming") === "1" } : null);
   const answerCardRef = useRef(answerCard);
-  const closeAnswerRef = useRef(() => {});
   answerCardRef.current = answerCard;
+  const closeAnswerRef = useRef(() => {});
   const streamingAnswerIdRef = useRef(null);
   const followupRequestIdRef = useRef(null);
   /** 文字阶段失败后留给用户选择的现场：原文、意图与耗时。 */
   const [pendingFailure, setPendingFailure] = useState(null);
   const [retrying, setRetrying] = useState(false);
   const [recoverableAudio, setRecoverableAudio] = useState([]);
+  const [controllerStatus, setControllerStatus] = useState({ phase: "starting", message: "" });
+  const controllerRef = useRef(null);
 
   const stateRef = useRef(state);
   const settingsRef = useRef(settings);
@@ -680,13 +710,48 @@ export function App() {
 
   const pipelineRef = useRef(null);
   if (!pipelineRef.current) {
-    pipelineRef.current = createPipeline({ invoke: desktopInvoke, onEvent: (event) => eventRef.current(event) });
+    pipelineRef.current = createPipeline({ invoke: desktopInvoke, onEvent: (event) => eventRef.current(event),
+      onTaskStart: (taskId) => isTauri() && windowLabel === "main"
+        ? controllerRef.current?.trackTask(taskId) ?? Promise.reject(new Error("语音输入尚未就绪")) : undefined,
+      onTaskEnd: (taskId) => controllerRef.current?.finishTask(taskId),
+    });
   }
   const skillStoreRef = useRef(null);
   if (!skillStoreRef.current) {
     skillStoreRef.current = createSkillStore(desktopInvoke);
   }
   const pipeline = pipelineRef.current;
+  const copyOutput = async (text) => {
+    const result = await copyResult(desktopInvoke, text);
+    notify(result.message, result.copied);
+    return result;
+  };
+  copyLastRef.current = () => {
+    if (lastResultRef.current?.text) void copyOutput(lastResultRef.current.text);
+    else notify("还没有可复制的完成结果", false);
+  };
+  const requestInsert = async (text) => {
+    if (isTauri()) await desktopInvoke("request_voice_action", { action: "insert-result", text });
+    else await insertSavedText(text);
+  };
+  const insertSavedText = async (text) => {
+    if (!text || stateRef.current === "recording" || stateRef.current === "processing" || startingRef.current) return;
+    const generation = ++startGenerationRef.current;
+    setPhase("choose-target");
+    stateRef.current = "processing";
+    setState("processing");
+    await desktopInvoke("hide_answer_card", {}, true).catch(() => {});
+    setAnswerCard(null);
+    for (let remaining = 3; remaining > 0; remaining -= 1) {
+      if (generation !== startGenerationRef.current) return;
+      setCountdown(remaining);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    if (generation !== startGenerationRef.current) return;
+    setCountdown(null);
+    try { await pipeline.insertResult({ text, settings: settingsRef.current }); }
+    catch (error) { setState("error"); notify(describeError(error), false); }
+  };
   const refreshRecoverableAudio = () => {
     if (isTauri()) desktopInvoke("list_recoverable_audio", {}).then(setRecoverableAudio).catch((error) => notify(`读取可恢复录音失败：${describeError(error)}`, false));
   };
@@ -757,14 +822,18 @@ export function App() {
     currentIntentRef.current = snapshot.intent;
     currentTriggerRef.current = trigger;
     setPendingFailure(null);
+    setTextPreview("");
     setIntent(snapshot.intent);
     setPhase("record");
     stateRef.current = "recording";
     setState("recording");
     try {
-      // intent 随 start 落盘（spool/intent.txt）：应用重启后恢复面板靠它路由回原路径。
-      // 追加在末尾——webRecorder.start 是位置参数，插在中间会错位。
-      await recorder.start(snapshot.requestId, currentSettings.audioDeviceId, currentSettings.asrEndpoint, currentSettings.asrModel, snapshot.intent);
+      if (!await pipeline.prepare(snapshot) || generation !== startGenerationRef.current) return;
+      // UIA 提供方可能较慢，目标检查不阻塞麦克风开始采集。
+      const targetReady = desktopInvoke("capture_input_target", { sessionId: snapshot.requestId }, () => Promise.resolve()).catch(() => {});
+      const recordingReady = recorder.start(snapshot.requestId, currentSettings.audioDeviceId, currentSettings.asrEndpoint, currentSettings.asrModel,
+        snapshot.intent === "dictation" && snapshot.processingMode === "smart" && currentSettings.textIncremental && !currentSettings.autoIntent, snapshot.intent);
+      await Promise.all([targetReady, recordingReady]);
       if (generation !== startGenerationRef.current) return;
       startingRef.current = false;
       if (pendingStopRef.current) {
@@ -788,6 +857,7 @@ export function App() {
     const snapshot = activeSnapshotRef.current;
     if (!snapshot) return;
     activeSnapshotRef.current = null;
+    pipeline.markStopped(snapshot);
     stateRef.current = "processing";
     setState("processing");
     setPhase("asr");
@@ -796,9 +866,8 @@ export function App() {
     try {
       const encodeStarted = nowMs();
       audio = await recorder.stop();
-      // encodeMs 由这里补上：runtime 把「拼接 + 重采样 + 打包 + base64」算作编码耗时，
-      // pipeline 只认返回值里的这个字段，否则耗时面板上的编码一项永远是 0。
-      if (audio) audio.encodeMs = Math.max(0, Math.round(nowMs() - encodeStarted));
+      // Native stop includes ASR drain; only the browser recorder performs encoding here.
+      if (audio) audio.encodeMs = audio.nativeSessionId ? 0 : Math.max(0, Math.round(nowMs() - encodeStarted));
     } catch (error) {
       audioError = describeError(error);
       refreshRecoverableAudio();
@@ -806,45 +875,54 @@ export function App() {
     await pipeline.complete({ snapshot, audio, audioError });
   };
 
-  const cancelTask = () => {
+  const cancelTask = ({ preserveAudio = false } = {}) => {
+    setCountdown(null);
     pendingStopRef.current = false;
     stateRef.current = "idle";
     startGenerationRef.current += 1;
     startingRef.current = false;
-    // 先作废 requestId：即使 ASR 或文字请求稍后返回，也不会再上屏、写历史或改状态。
-    pipeline.cancel();
+    // 先作废 requestId，拦截迟到的生成结果；已经提交给系统的正文只归档，不再更新当前任务状态。
+    pipeline.cancel({ preserveAudio });
+    setTextPreview("");
     desktopInvoke("stop_learning_monitor", {}, true).catch(() => {});
     activeSnapshotRef.current = null;
     currentTriggerRef.current = "";
-    recorder.abandon();
+    recorder.abandon({ preserveAudio });
     setIntent("");
     setPhase("idle");
     setState("idle");
     setPendingFailure(null);
   };
 
-  const toggleTask = (kind, skillId = "") => {
+  const toggleTaskLocal = (kind, skillId = "") => {
     if (startingRef.current) {
-      if (currentTriggerRef.current === kind) pendingStopRef.current = true;
+      if (kind === "dictation" || currentTriggerRef.current === kind) pendingStopRef.current = true;
       return;
     }
     const current = stateRef.current;
     if (current === "recording") {
-      // 只有「按下的那个入口」能结束这段录音，避免命令键误停普通口述。
-      if (currentTriggerRef.current === kind) stopTask();
+      // 主输入键可以结束所有录音；其他键只结束各自启动的录音。
+      if (kind === "dictation" || currentTriggerRef.current === kind) return stopTask();
       return;
     }
     if (current === "processing") return;
-    startTask(kind, skillId);
+    return startTask(kind, skillId);
   };
 
-  toggleRef.current = toggleTask;
+  const toggleTask = (kind, skillId = "") => {
+    if (kind === "skill") return toggleTaskLocal(kind, skillId);
+    if (isTauri()) desktopInvoke("request_voice_action", { action: `toggle-${kind}` }).catch((error) => notify(describeError(error), false));
+    else void toggleTaskLocal(kind);
+  };
+
+  toggleRef.current = toggleTaskLocal;
   cancelRef.current = cancelTask;
   stopRef.current = stopTask;
 
   // pipeline 的事件都带 requestId；过期任务的结果 pipeline 已经拦下，这里只负责呈现。
   eventRef.current = (event) => {
     if (!event) return;
+    if (event.type === "text-preview") { setTextPreview(event.text || ""); return; }
     if (event.type === "state") {
       setState("processing");
       setPhase(event.phase || "asr");
@@ -882,7 +960,7 @@ export function App() {
     if (event.type === "answer") {
       const card = { question: event.question, answer: event.text, requestId: event.requestId, kind: event.intent || "ask", title: event.title || "提问", streaming: false };
       setAnswerCard(card);
-      if (isTauri()) desktopInvoke("show_answer_card", card, true).catch((error) => notify(describeError(error), false));
+      if (isTauri() && dismissedCardIdRef.current !== card.requestId) desktopInvoke("show_answer_card", card, true).catch((error) => notify(describeError(error), false));
       const timings = event.timings || {};
       setHistory((current) => [{
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -893,20 +971,21 @@ export function App() {
         intent: event.intent || "ask",
         skillId: event.skillId,
         skillDelivery: event.intent === "skill" ? "card" : undefined,
-        ms: (timings.encodeMs || 0) + (timings.asrMs || 0) + (timings.textMs || 0),
+        ms: timings.stopToReadyMs ?? ((timings.encodeMs || 0) + (timings.asrMs || 0) + (timings.textMs || 0)),
         breakdown: breakdownOf(timings),
+        timings,
         audioSessionId: event.audioSessionId || null,
         windowContext: event.windowContext,
       }, ...current].slice(0, 50));
       setPendingFailure(null);
       setState("done");
-      setPhase("done");
+      setPhase("answer");
       setTimeout(() => setState((current) => current === "done" ? "idle" : current), 680);
       return;
     }
-    if (event.type === "done" || event.type === "paste-failed") {
+    if (["done", "paste-failed", "archived-result"].includes(event.type)) {
       const timings = event.timings || {};
-      const total = (timings.encodeMs || 0) + (timings.asrMs || 0) + (timings.textMs || 0) + (timings.pasteMs || 0);
+      const total = timings.stopToDeliveredMs ?? ((timings.encodeMs || 0) + (timings.asrMs || 0) + (timings.textMs || 0) + (timings.pasteMs || 0));
       const breakdown = breakdownOf(timings);
       const entry = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -916,27 +995,33 @@ export function App() {
         intent: event.intent,
         ms: total,
         breakdown,
+        timings,
         rawText: event.rawText,
         warning: event.warning || null,
+        delivery: event.delivery,
+        archived: event.type === "archived-result",
         audioSessionId: event.audioSessionId || null,
         windowContext: event.windowContext,
       };
-      setLastResult({ text: event.text, ms: total, intent: event.intent, breakdown });
       setHistory((current) => [entry, ...current].slice(0, 50));
+      if (event.type === "archived-result") return;
+      setLastResult({ text: event.text, ms: total, intent: event.intent, breakdown });
       setPendingFailure(null);
-      if (event.type === "paste-failed") {
+      const delivery = normalizeDelivery(event.delivery);
+      const resultCard = { kind: "delivery", answer: event.text, question: "", status: delivery.status, message: event.message || delivery.message, requestId: event.requestId };
+      if (needsResultCard(delivery)) {
+        setAnswerCard(resultCard);
+        if (isTauri()) desktopInvoke("show_delivery_card", { text: event.text, status: delivery.status, message: resultCard.message, requestId: event.requestId }, true).catch((error) => notify(describeError(error), false));
+      }
+      if (delivery.status === "retained") {
         stateRef.current = "error";
         setState("error");
-        notify(event.message, false);
-        // 处理状态要退出来，不能停在 error 上；回 idle 后用户可以直接再按快捷键开新一轮。
-        setTimeout(() => setState((current) => (current === "error" ? "idle" : current)), 1200);
+        notify(resultCard.message, false);
         return;
       }
-      notify(event.warning ? `已按识别原文完成：${event.warning}` : event.insertedRaw ? "已插入识别原文" : "已完成", !event.warning);
+      notify(event.warning ? `${delivery.message} · 已使用识别原文：${event.warning}` : delivery.message, !event.warning && delivery.status !== "sent");
       setState("done");
-      setPhase("done");
-      // 关掉「自动粘贴」时仍然要复制：否则用户既看不到文字，也拿不到文字。
-      if (!event.pasted && event.text) navigator.clipboard.writeText(event.text).catch(() => {});
+      setPhase(delivery.status);
       setTimeout(() => setState((current) => (current === "done" ? "idle" : current)), 680);
     }
   };
@@ -944,6 +1029,52 @@ export function App() {
   useEffect(() => {
     if (isTauri()) setWindowLabel(getCurrentWindow().label);
   }, []);
+
+  useEffect(() => {
+    if (!isTauri() || windowLabel !== "main") return undefined;
+    const controller = createVoiceController({ invoke: desktopInvoke, listen,
+      onStatus: (status) => {
+        setControllerStatus(status);
+        if (status.message) notify(status.message, false);
+      },
+      onInterrupt: () => { cancelRef.current({ preserveAudio: true }); refreshRecoverableAudio(); },
+      onAction: ({ action, text }) => {
+        if (action.startsWith("toggle-")) return toggleRef.current(action.slice(7));
+        if (action === "stop-recording") return stopRef.current();
+        if (action === "cancel-recording") return cancelRef.current();
+        if (action === "copy-last-result") return copyLastRef.current();
+        if (action === "insert-result") return insertSavedText(text);
+      },
+      onError: (error) => notify(describeError(error), false),
+    });
+    controllerRef.current = controller;
+    void controller.start();
+    return () => { controller.dispose(); if (controllerRef.current === controller) controllerRef.current = null; };
+  }, [windowLabel]);
+
+  useEffect(() => {
+    controllerRef.current?.setResourcesReady(hydrated && historyReady && vocabularyReady);
+  }, [hydrated, historyReady, vocabularyReady, windowLabel]);
+
+  useEffect(() => {
+    if (windowLabel === "main" && historyReady) setLastResult(recentResult(history));
+  }, [history, historyReady, windowLabel]);
+
+  useEffect(() => {
+    if (!isTauri() || windowLabel !== "main") return;
+    desktopInvoke("set_interaction_active", { active: state === "recording" || state === "processing" }, true)
+      .catch(() => notify("Esc 快捷键不可用，可以用悬浮条取消", false));
+  }, [state, windowLabel]);
+
+  useEffect(() => {
+    if (windowLabel !== "main" || state !== "recording") return;
+    const start = Date.now();
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, 900 - Math.floor((Date.now() - start) / 1000));
+      setCountdown(remaining <= 60 ? remaining : null);
+    }, 1000);
+    return () => { clearInterval(timer); setCountdown(null); };
+  }, [state, windowLabel]);
 
   // 启动配置：桌面版以 settings.json 为准；只有它为空时才把旧 localStorage 迁移一次。
   useEffect(() => {
@@ -955,8 +1086,13 @@ export function App() {
         try {
           raw = await desktopInvoke("load_settings", {}, () => ({}));
         } catch (error) {
-          raw = null;
-          notices.push(`读取配置失败，已使用默认值：${describeError(error)}`);
+          if (!disposed) {
+            const message = `配置载入失败，已暂停输入以保护已有配置：${describeError(error)}`;
+            if (windowLabel === "main") onEntranceUnavailable?.();
+            notify(message, false);
+            if (windowLabel === "main") controllerRef.current?.fail(message).catch(() => {});
+          }
+          return;
         }
       }
       if (!hasStoredSettings(raw)) {
@@ -970,6 +1106,8 @@ export function App() {
       }
       const { settings: normalized, notices: migrationNotices } = normalizeSettings(raw);
       notices.push(...migrationNotices);
+      // The greeting is ready independently of skills; resource failures must remain visible.
+      if (!disposed && windowLabel === "main") onWelcomeChange?.(normalized.welcomeText);
 
       let skills = [];
       try {
@@ -977,7 +1115,13 @@ export function App() {
         skills = loaded.skills;
         if (loaded.rejected) notices.push(`有 ${loaded.rejected} 个自定义写法未通过校验，已跳过。`);
       } catch (error) {
-        notices.push(describeError(error));
+        if (!disposed) {
+          const message = `技能载入失败，已暂停输入以保护已有设置：${describeError(error)}`;
+            if (windowLabel === "main") onEntranceUnavailable?.();
+          notify(message, false);
+          if (windowLabel === "main") controllerRef.current?.fail(message).catch(() => {});
+        }
+        return;
       }
 
       let next = normalized;
@@ -1006,10 +1150,14 @@ export function App() {
 
   // 读完才允许落盘：否则初始默认值会抢先覆盖已有的 settings.json。
   useEffect(() => {
-    if (!isTauri() || windowLabel !== "main" || !hydrated) return;
-    desktopInvoke("get_launch_at_login", {}).then((enabled) => {
-      setSettings((current) => current.launchAtLogin === enabled ? current : { ...current, launchAtLogin: enabled });
-    }).catch((error) => notify(`读取登录启动状态失败：${describeError(error)}`, false));
+    if (!isTauri() || windowLabel !== "main" || !hydrated) return undefined;
+    let disposed = false;
+    const refresh = () => desktopInvoke("get_launch_at_login", {}).then((enabled) => {
+      if (!disposed) setSettings((current) => current.launchAtLogin === enabled ? current : { ...current, launchAtLogin: enabled });
+    }).catch((error) => { if (!disposed) notify(`读取登录启动状态失败：${describeError(error)}`, false); });
+    void refresh();
+    const listener = getCurrentWindow().onFocusChanged(({ payload }) => { if (payload) void refresh(); });
+    return () => { disposed = true; listener.then((off) => off()).catch(() => {}); };
   }, [hydrated, windowLabel]);
 
   useEffect(() => {
@@ -1032,7 +1180,7 @@ export function App() {
   }, [windowLabel]);
 
   useEffect(() => {
-    if (!isTauri() || windowLabel !== "main") return undefined;
+    if (!isTauri() || windowLabel !== "main" || !hydrated) return undefined;
     let disposed = false;
     const load = async () => {
       try {
@@ -1048,17 +1196,20 @@ export function App() {
         const days = settingsRef.current.historyRetentionDays;
         const cutoff = Date.now() - days * 86_400_000;
         entries = days === 0 ? entries : entries.filter((item) => Number(item.savedAt || String(item.id).split("-")[0]) >= cutoff);
-        if (!disposed) { setHistory(entries); setHistoryReady(true); }
+        if (!disposed) { setHistory(entries); setLastResult(recentResult(entries)); setHistoryReady(true); }
       } catch (error) {
-        if (!disposed) notify(`历史载入失败，已暂停录音以保护旧记录：${describeError(error)}`, false);
+        if (!disposed) {
+          const message = `历史载入失败，已暂停录音以保护旧记录：${describeError(error)}`;
+          notify(message, false); controllerRef.current?.fail(message).catch(() => {});
+        }
       }
     };
     load();
     return () => { disposed = true; };
-  }, [windowLabel]);
+  }, [windowLabel, hydrated]);
 
   useEffect(() => {
-    if (!historyReady || windowLabel !== "main") return;
+    if (!historyReady || !hydrated || windowLabel !== "main") return;
     if (!isTauri()) {
       try { localStorage.setItem("typefree-windows.history", JSON.stringify(history)); } catch { /* 浏览器预览可无持久存储。 */ }
       return;
@@ -1082,7 +1233,12 @@ export function App() {
     let disposed = false;
     vocabularyStoreRef.current.load().then(() => {
       if (!disposed) { vocabularyReadyRef.current = true; setVocabularyReady(true); }
-    }).catch((error) => notify(`词库未能载入：${describeError(error)}`, false));
+    }).catch((error) => {
+      if (!disposed) {
+        const message = `词库未能载入：${describeError(error)}`;
+        notify(message, false); controllerRef.current?.fail(message).catch(() => {});
+      }
+    });
     const listener = isTauri() ? listen("vocabulary-correction", (event) => {
       if (!settingsRef.current.autoLearn || !vocabularyReadyRef.current) return;
       let learned = [];
@@ -1192,7 +1348,8 @@ export function App() {
       const result = await retry;
       if (result?.ok) setPendingFailure(null);
       refreshRecoverableAudio();
-    } finally {
+    } catch (error) { notify(describeError(error), false); }
+    finally {
       setRetrying(false);
     }
   };
@@ -1215,14 +1372,15 @@ export function App() {
         audioMs: item.audioMs,
       });
       if (result?.ok) setPendingFailure(null);
-    } finally {
+    } catch (error) { notify(describeError(error), false); }
+    finally {
       setRetrying(false);
       refreshRecoverableAudio();
     }
   };
 
   const discardAudio = async (item) => {
-    if (!window.confirm("丢弃这段可恢复录音？此操作无法撤销。")) return;
+    if (!await confirmDestructive("丢弃这段可恢复录音？此操作无法撤销。")) return;
     try {
       await desktopInvoke("release_native_audio", { sessionId: item.sessionId });
       setRecoverableAudio((current) => current.filter((entry) => entry.sessionId !== item.sessionId));
@@ -1232,18 +1390,20 @@ export function App() {
 
   const insertRawText = async () => {
     if (!pendingFailure) return;
-    const result = await pipeline.insertRaw({
-      intent: pendingFailure.intent,
+    try {
+      const result = await pipeline.insertRaw({
+        intent: pendingFailure.intent,
         skillId: pendingFailure.skillId,
         skillDelivery: pendingFailure.skillDelivery,
-      rawText: pendingFailure.rawText,
-      settings: { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries },
-      customSkills: customSkillsRef.current,
-      audioMs: pendingFailure.audioMs,
-      windowContext: pendingFailure.windowContext,
-    });
-    if (result && result.ok === false) notify(result.message || "未能输入原文", false);
-    else setPendingFailure(null);
+        rawText: pendingFailure.rawText,
+        settings: { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries },
+        customSkills: customSkillsRef.current,
+        audioMs: pendingFailure.audioMs,
+        windowContext: pendingFailure.windowContext,
+      });
+      if (result && result.ok === false) notify(result.message || "无法保留原文", false);
+      else setPendingFailure(null);
+    } catch (error) { notify(describeError(error), false); }
   };
 
   useEffect(() => {
@@ -1253,6 +1413,7 @@ export function App() {
       setState(payload.state || "idle");
       setIntent(payload.intent || "");
       setPhase(payload.phase || "idle");
+      setCountdown(payload.countdown ?? null);
     });
     const unlistenLevel = listen("dictation-level", (event) => setAudioLevel(event.payload));
     return () => { unlisten.then((fn) => fn()); unlistenLevel.then((fn) => fn()); };
@@ -1263,36 +1424,35 @@ export function App() {
     const unlistenStream = listen("answer-stream", (event) => {
       const payload = event.payload || {};
       if (!payload.text || !pipeline.isCurrent(payload.requestId)) return;
+      pipeline.acceptTextStream(payload);
       const card = { question: payload.question, answer: payload.text, requestId: payload.requestId, kind: "ask", title: "提问", streaming: true };
       setAnswerCard(card);
       if (streamingAnswerIdRef.current !== payload.requestId) {
         streamingAnswerIdRef.current = payload.requestId;
-        desktopInvoke("show_answer_card", card, true).catch((error) => notify(describeError(error), false));
+        dismissedCardIdRef.current !== card.requestId && desktopInvoke("show_answer_card", card, true).catch((error) => notify(describeError(error), false));
       }
     });
-    const unlistenDismiss = listen("dismiss-result-card", (event) => {
+    const unlistenText = listen("text-stream", (event) => pipeline.acceptTextStream(event.payload || {}));
+    const unlistenTranscript = listen("audio-transcript", (event) => pipeline.acceptTranscript(event.payload || {}));
+    const unlistenRecovery = listen("recoverable-audio-changed", () => refreshRecoverableAudio());
+    const unlistenDismiss = listen("answer-dismissed", (event) => { dismissedCardIdRef.current = event.payload?.requestId || ""; });
+    const unlistenClose = listen("dismiss-result-card", (event) => {
       if (pipeline.isCurrent(event.payload?.requestId)) cancelRef.current();
       if (answerCardRef.current?.requestId === event.payload?.requestId) setAnswerCard(null);
     });
-    const unlistenDictation = listen("toggle-dictation", () => toggleRef.current("dictation"));
-    const unlistenAsk = listen("toggle-ask", () => toggleRef.current("ask"));
-    const unlistenAction = listen("toggle-action", () => toggleRef.current("action"));
     const unlistenPhrase = listen("quick-phrase-result", (event) => notify(event.payload.message, event.payload.ok));
-    const unlistenStop = listen("stop-recording", () => stopRef.current());
-    const unlistenCancel = listen("cancel-recording", () => cancelRef.current());
     const unlistenShortcut = listen("shortcut-register-failed", (event) => {
       const list = Array.isArray(event.payload) ? event.payload : [];
       notify(list.length ? `快捷键注册失败：${list.join("；")}` : "快捷键注册失败", false);
     });
     return () => {
       unlistenStream.then((fn) => fn());
+      unlistenText.then((fn) => fn());
+      unlistenTranscript.then((fn) => fn());
+      unlistenRecovery.then((fn) => fn());
       unlistenDismiss.then((fn) => fn());
-      unlistenDictation.then((fn) => fn());
-      unlistenAsk.then((fn) => fn());
-      unlistenAction.then((fn) => fn());
+      unlistenClose.then((fn) => fn());
       unlistenPhrase.then((fn) => fn());
-      unlistenStop.then((fn) => fn());
-      unlistenCancel.then((fn) => fn());
       unlistenShortcut.then((fn) => fn());
     };
   }, [windowLabel]);
@@ -1313,8 +1473,8 @@ export function App() {
     if (!isTauri() || windowLabel !== "main") return;
     // intent 与 phase 一起发给悬浮窗：只发状态串的话，用户分不清这次是口述还是命令、
     // 也分不清「正在识别」和「正在整理文字」。
-    desktopInvoke("set_overlay_state", { state, intent, phase }, true).catch(() => {});
-  }, [state, intent, phase, windowLabel]);
+    desktopInvoke("set_overlay_state", { state, intent, phase, countdown }, true).catch(() => {});
+  }, [state, intent, phase, countdown, windowLabel]);
 
   useEffect(() => {
     if (!isTauri() || windowLabel !== "main" || state !== "recording") return;
@@ -1348,6 +1508,8 @@ export function App() {
   const busy = state === "recording" || state === "processing";
 
   const closeAnswer = () => {
+    dismissedCardIdRef.current = answerCard?.requestId || "";
+    if (isTauri()) emit("answer-dismissed", { requestId: answerCard?.requestId }).catch(() => {});
     if (answerCard?.streaming && answerCard.requestId) {
       desktopInvoke("cancel_text_request", { requestId: answerCard.requestId }, true).catch(() => {});
       if (windowLabel === "main" && pipeline.isCurrent(answerCard.requestId)) cancelTask();
@@ -1379,11 +1541,15 @@ export function App() {
     try {
       const fallback = String(current.textFallbackModels || "").split(/[\n,，]/).map((name) => name.trim()).filter(Boolean).slice(0, 5);
       const models = [...new Set([current.textModel, ...fallback])];
+      const deadline = nowMs() + Math.max(3000, Math.min(300000, Number(current.textTimeoutMs) || 60000));
       for (const [index, model] of models.entries()) {
+        if (followupRequestIdRef.current !== requestId) throw new Error("文字请求已取消");
+        const remainingMs = Math.floor(deadline - nowMs());
+        if (remainingMs <= 0) throw new Error("文字处理总预算已耗尽");
         try {
           const result = await desktopInvoke("stream_answer", { request: {
             requestId, task: "ask", rawText: question, endpoint: current.textEndpoint,
-            model, timeoutMs: current.textTimeoutMs,
+            model, timeoutMs: Math.max(1, Math.floor(remainingMs / (models.length - index))),
             authMode: current.textAuthMode, messages,
           } }, () => ({ text: "这是浏览器预览中的追问回答。" }));
           return result.text;
@@ -1397,8 +1563,14 @@ export function App() {
     } finally { off(); if (followupRequestIdRef.current === requestId) followupRequestIdRef.current = null; }
   };
 
-  const clearHistory = () => {
-    if (window.confirm("清空本机保存的全部历史记录？此操作无法撤销。")) {
+  const confirmDestructive = async (message) => {
+    try {
+      if (!isTauri()) return window.confirm(message);
+      return await controllerRef.current.withDialog(() => window.confirm(message));
+    } catch (error) { notify(describeError(error), false); return false; }
+  };
+  const clearHistory = async () => {
+    if (await confirmDestructive("清空本机保存的全部历史记录？此操作无法撤销。")) {
       setHistory([]);
       setLastResult(null);
     }
@@ -1444,11 +1616,12 @@ export function App() {
         windowContext: item.windowContext,
         preserveAudio: true,
       });
-    } finally { setRetrying(false); }
+    } catch (error) { notify(describeError(error), false); }
+    finally { setRetrying(false); }
   };
 
   if (windowLabel === "answer") {
-    return <AnswerCard card={answerCard} onClose={closeAnswer} onFollowup={followupAnswer} />;
+    return <AnswerCard card={answerCard} onClose={closeAnswer} onFollowup={followupAnswer} onCopy={copyOutput} onInsert={requestInsert} />;
   }
 
   if (windowLabel === "overlay") {
@@ -1458,14 +1631,9 @@ export function App() {
         level={audioLevel}
         intent={intent}
         phase={phase}
-        onStop={() => {
-          if (isTauri()) return emit("stop-recording");
-          setPhase("asr"); setState("processing");
-        }}
-        onCancel={() => {
-          if (isTauri()) return emit("cancel-recording");
-          setState("idle"); setPhase("idle");
-        }}
+        countdown={countdown}
+        onStop={() => desktopInvoke("request_voice_action", { action: "stop-recording" }).catch((error) => notify(describeError(error), false))}
+        onCancel={() => desktopInvoke("request_voice_action", { action: "cancel-recording" }).catch((error) => notify(describeError(error), false))}
       />
     );
   }
@@ -1475,12 +1643,22 @@ export function App() {
       <Sidebar page={page} setPage={setPage} online={online} />
       <section className="workspace" ref={workspaceRef}>
         <div className="topbar">
-          <span><StatusDot online={online} />{online ? "语音服务已通过测试" : "语音服务尚未测试"}</span>
-          <button className="mini-shortcut" title="语音输入" onClick={() => toggleTask("dictation")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "dictation")}><Microphone size={16} weight="fill" />{displayShortcut(settings.shortcut)}</button>
-          <button className="mini-shortcut" title="提问" onClick={() => toggleTask("ask")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "ask")}><Command size={16} />{displayShortcut(settings.askShortcut)}</button>
+          <span><StatusDot online={online} />{online ? "语音服务在线" : "语音服务待连接"}</span>
+          {isTauri() && <span className="background-status" role="status">
+            {controllerStatus.phase === "ready" ? "后台输入可用" : controllerStatus.phase === "suspended" ? "输入已暂停" : controllerStatus.phase === "failed" ? "输入暂不可用" : "输入正在准备"}
+            {controllerStatus.phase === "failed" && <button className="button secondary" onClick={() => desktopInvoke("recover_voice_controller", {}).catch((error) => notify(describeError(error), false))}>恢复</button>}
+          </span>}
+          <button className="mini-shortcut" title="语音输入" onClick={() => toggleTask("dictation")} disabled={state === "processing"}><Microphone size={16} weight="fill" />{displayShortcut(settings.shortcut)}</button>
+          <button className="mini-shortcut" title="随便问" onClick={() => toggleTask("ask")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "ask")}><Command size={16} />{displayShortcut(settings.askShortcut)}</button>
           <button className="mini-shortcut" title={actionName(settings, customSkills)} onClick={() => toggleTask("action")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "action")}><PuzzlePiece size={16} />{displayShortcut(settings.actionShortcut)}</button>
         </div>
 
+        {textPreview && (state === "recording" || state === "processing") && (
+          <section className="panel text-preview-panel" aria-label="文字整理预览">
+            <div className="panel-title slim"><div><h2>整理预览</h2><p>已生成 {textPreview.length} 字 · 完成后统一输入</p></div></div>
+            <p className="result-text text-preview-text">{textPreview.slice(-6000)}</p>
+          </section>
+        )}
         {pendingFailure && (
           <div className="panel failure-panel">
             <div className="panel-title slim">
@@ -1496,9 +1674,9 @@ export function App() {
             </div>}
             <div className="form-actions">
               {pendingFailure.kind !== "asr" && !["command", "ask"].includes(pendingFailure.intent) && (
-                <button className="button secondary" onClick={insertRawText} disabled={busy}><TextT size={17} />输入原文</button>
+                <button className="button secondary" onClick={insertRawText} disabled={busy}><TextT size={17} />保留原文</button>
               )}
-              {pendingFailure.kind !== "asr" && <button className="button secondary" onClick={() => navigator.clipboard.writeText(pendingFailure.rawText)}><ClipboardText size={17} />复制原文</button>}
+              {pendingFailure.kind !== "asr" && <button className="button secondary" onClick={() => copyOutput(pendingFailure.rawText)}><ClipboardText size={17} />复制原文</button>}
               <button className="button primary" onClick={retryTask} disabled={busy || retrying}>
                 {retrying ? <ArrowClockwise className="spin" size={17} /> : <Repeat size={17} />}
                 {retrying ? "正在重试" : pendingFailure.kind === "asr" ? "重新识别" : "重试"}
@@ -1517,13 +1695,14 @@ export function App() {
           </div>
         ))}
 
-        {page === "home" && <Overview settings={settings} customSkills={customSkills} online={online} setPage={setPage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} level={recorder.level} />}
+        {page === "appearance" && <AppearanceSettings settings={settings} setSettings={setSettings} ready={hydrated} onReplayEntrance={onReplayEntrance} />}
+        {page === "home" && <Overview onCopy={copyOutput} settings={settings} customSkills={customSkills} online={online} setPage={setPage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} level={recorder.level} />}
         {page === "model" && <ModelSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={notify} onSpeechKeySaved={() => setOnline(false)} />}
         {page === "writing" && <WritingSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onSelectSkill={onSelectSkill} textReady={textReady} />}
         {page === "skills" && <SkillEditor customSkills={customSkills} selectedSkillId={settings.actionType === "skill" ? settings.actionSkillId : ""} dailySkillId={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onSelect={onSelectActionSkill} onSelectDaily={onSelectSkill} onRun={(id) => toggleTask("skill", id)} running={state === "recording" && currentTriggerRef.current === "skill"} onDeliveryChange={(value) => setSettings({ ...settingsRef.current, skillDelivery: value })} onSaveCustomSkills={saveCustomSkills} pipeline={pipeline} settings={settings} onNotice={notify} busy={busy} />}
         {page === "shortcut" && <ShortcutSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onNotice={notify} busy={busy} />}
         {page === "vocabulary" && <VocabularySettings settings={settings} setSettings={setSettings} vocabulary={vocabulary} onDismiss={dismissWord} ready={vocabularyReady} />}
-        {page === "history" && <History history={history} onClear={clearHistory} onTeach={teachCorrection} onExport={exportHistory} onRetranscribe={retranscribeHistory} retentionDays={settings.historyRetentionDays} onRetentionChange={changeHistoryRetention} keepAudio={settings.keepHistoryAudio} onKeepAudioChange={(value) => setSettings({ ...settingsRef.current, keepHistoryAudio: value })} busy={busy || retrying} />}
+        {page === "history" && <History onCopy={copyOutput} history={history} onClear={clearHistory} onTeach={teachCorrection} onExport={exportHistory} onRetranscribe={retranscribeHistory} retentionDays={settings.historyRetentionDays} onRetentionChange={changeHistoryRetention} keepAudio={settings.keepHistoryAudio} onKeepAudioChange={(value) => setSettings({ ...settingsRef.current, keepHistoryAudio: value })} busy={busy || retrying} />}
       </section>
       {notice && (
         <div className={`toast ${notice.ok ? "success" : ""}`}>
@@ -1532,7 +1711,7 @@ export function App() {
           <button onClick={() => setNotice(null)}><X size={15} /></button>
         </div>
       )}
-      {!isTauri() && answerCard && <div className="answer-preview"><AnswerCard card={answerCard} onClose={closeAnswer} onFollowup={followupAnswer} /></div>}
+      {!isTauri() && answerCard && <div className="answer-preview"><AnswerCard card={answerCard} onClose={closeAnswer} onFollowup={followupAnswer} onCopy={copyOutput} onInsert={requestInsert} /></div>}
     </main>
   );
 }

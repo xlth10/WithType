@@ -1,0 +1,5486 @@
+{
+  "method": "execution-free printable ASCII scan; supplementary leads, not REA authenticated Evidence",
+  "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a",
+  "matches": [
+    {
+      "file_offset": "0x2d775",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xd1977",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe7883",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe78ed",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe7961",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe7a3b",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe7a8b",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe8177",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe8275",
+      "value": "context"
+    },
+    {
+      "file_offset": "0xe8325",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x16ab33",
+      "value": "contextWH"
+    },
+    {
+      "file_offset": "0x176141",
+      "value": "contextT]"
+    },
+    {
+      "file_offset": "0x59f086",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x960c4d",
+      "value": " contextH"
+    },
+    {
+      "file_offset": "0x1023f9f",
+      "value": "context_H"
+    },
+    {
+      "file_offset": "0x1036612",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x103696a",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x105eef1",
+      "value": "contexts"
+    },
+    {
+      "file_offset": "0x10f5ec1",
+      "value": "CursorContext"
+    },
+    {
+      "file_offset": "0x10f8400",
+      "value": "RecordingContext"
+    },
+    {
+      "file_offset": "0x10fdb00",
+      "value": "ClipboardManager"
+    },
+    {
+      "file_offset": "0x1105b90",
+      "value": "PendingClipboardRestore"
+    },
+    {
+      "file_offset": "0x1106740",
+      "value": "PasteContextStore"
+    },
+    {
+      "file_offset": "0x1106760",
+      "value": "PrefetchedPasteContext"
+    },
+    {
+      "file_offset": "0x1113170",
+      "value": "DynamicRecorderContextMenu"
+    },
+    {
+      "file_offset": "0x111b310",
+      "value": "ClipboardTextIndicatorView"
+    },
+    {
+      "file_offset": "0x1127768",
+      "value": "PromptContext"
+    },
+    {
+      "file_offset": "0x1127890",
+      "value": "ApplicationContext"
+    },
+    {
+      "file_offset": "0x11278a3",
+      "value": "UserContext"
+    },
+    {
+      "file_offset": "0x11278af",
+      "value": "SystemContext"
+    },
+    {
+      "file_offset": "0x11278bd",
+      "value": "ModeContext"
+    },
+    {
+      "file_offset": "0x11288cd",
+      "value": "WhisperContext"
+    },
+    {
+      "file_offset": "0x1128920",
+      "value": "WhisperContextError"
+    },
+    {
+      "file_offset": "0x113a750",
+      "value": "TextDecoderContextPrefill"
+    },
+    {
+      "file_offset": "0x113bfb0",
+      "value": "SpeakerEmbedderContext"
+    },
+    {
+      "file_offset": "0x11412c0",
+      "value": "URLEncodedFormContext"
+    },
+    {
+      "file_offset": "0x1141a50",
+      "value": "SSLContext"
+    },
+    {
+      "file_offset": "0x1141a5b",
+      "value": "NSSLContextRef"
+    },
+    {
+      "file_offset": "0x1143520",
+      "value": "TransformContext"
+    },
+    {
+      "file_offset": "0x114c800",
+      "value": "JournalModeConfiguration"
+    },
+    {
+      "file_offset": "0x114e890",
+      "value": "AggregateContext"
+    },
+    {
+      "file_offset": "0x11503c1",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x11503d0",
+      "value": "RowDecodingContext"
+    },
+    {
+      "file_offset": "0x1152a38",
+      "value": "TokenizeContext"
+    },
+    {
+      "file_offset": "0x11547b0",
+      "value": "SQLGenerationContext"
+    },
+    {
+      "file_offset": "0x115d980",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x115e4c8",
+      "value": "BlockContext"
+    },
+    {
+      "file_offset": "0x1160654",
+      "value": "NSt3__110__function6__funcIZL24whisper_vad_init_contextP19whisper_vad_contextE3$_0NS_9allocatorIS4_EEFP11ggml_cgraphvEEE"
+    },
+    {
+      "file_offset": "0x11606fc",
+      "value": "ZL24whisper_vad_init_contextP19whisper_vad_contextE3$_0"
+    },
+    {
+      "file_offset": "0x116c68d",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_0NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x116c6fd",
+      "value": "NSt3__110__function6__baseIFvRN5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x116c72f",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_0"
+    },
+    {
+      "file_offset": "0x116c768",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_1NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x116c7d8",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_1"
+    },
+    {
+      "file_offset": "0x116c811",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_2NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x116c881",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_2"
+    },
+    {
+      "file_offset": "0x116c8ba",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_3NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x116c92a",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_3"
+    },
+    {
+      "file_offset": "0x116c963",
+      "value": "NSt3__110__function6__funcIZN5jinja15macro_statement12execute_implERNS2_7contextEE3$_0NS_9allocatorIS6_EEFNS_10shared_ptrINS2_7value_tEEERKNS2_9func_argsEEEE"
+    },
+    {
+      "file_offset": "0x116ca54",
+      "value": "ZN5jinja15macro_statement12execute_implERNS_7contextEE3$_0"
+    },
+    {
+      "file_offset": "0x117e3d0",
+      "value": "SentryExtraContextProvider"
+    },
+    {
+      "file_offset": "0x117fab0",
+      "value": "SentryDefaultEventContextEnricher"
+    },
+    {
+      "file_offset": "0x11831d0",
+      "value": "ExtraContextProviderProvider"
+    },
+    {
+      "file_offset": "0x1183cd0",
+      "value": "MechanismContextDecodable"
+    },
+    {
+      "file_offset": "0x11841f0",
+      "value": "SentryPropagationContext"
+    },
+    {
+      "file_offset": "0x1185c00",
+      "value": "AXSelectedTextRange"
+    },
+    {
+      "file_offset": "0x11863f0",
+      "value": "AXSelectedTextMarkerRange"
+    },
+    {
+      "file_offset": "0x1186410",
+      "value": "Failed to get AXSelectedTextMarkerRange"
+    },
+    {
+      "file_offset": "0x11864c0",
+      "value": "AXSelectedTextMarkerRange returned null"
+    },
+    {
+      "file_offset": "0x118a402",
+      "value": "        COALESCE(json_extract(new.promptContext, '$.applicationContext.name'), ''),"
+    },
+    {
+      "file_offset": "0x118a694",
+      "value": "    COALESCE(json_extract(promptContext, '$.applicationContext.name'), ''),"
+    },
+    {
+      "file_offset": "0x118b92a",
+      "value": "    COALESCE(json_extract(promptContext, '$.applicationContext.name'), 'unknown') as appName,"
+    },
+    {
+      "file_offset": "0x118bade",
+      "value": "GROUP BY hourTimestamp, fromFile, modelName, languageModelName, json_extract(promptContext, '$.applicationContext.name')"
+    },
+    {
+      "file_offset": "0x118bf40",
+      "value": "SELECT COUNT(DISTINCT json_extract(promptContext, '$.applicationContext.name')) as app_count"
+    },
+    {
+      "file_offset": "0x118bfd2",
+      "value": "AND json_extract(promptContext, '$.applicationContext.name') != ''"
+    },
+    {
+      "file_offset": "0x118c3f0",
+      "value": "SELECT json_extract(promptContext, '$.applicationContext.name') as appName, COUNT(*) as cnt"
+    },
+    {
+      "file_offset": "0x118db90",
+      "value": ") - falling back to clipboard"
+    },
+    {
+      "file_offset": "0x118e752",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x118edd0",
+      "value": "/Users/ultra/.herdr/worktrees/superwhisper/2-19-1-fix-crash/superwhisper/superwhisper/Managers/ClipboardManager.swift"
+    },
+    {
+      "file_offset": "0x118ee50",
+      "value": "Automatic clipboard read may request pasteboard permission"
+    },
+    {
+      "file_offset": "0x118ee90",
+      "value": "Skipping automatic clipboard read because pasteboard access is denied"
+    },
+    {
+      "file_offset": "0x118ef40",
+      "value": "Clipboard content changed"
+    },
+    {
+      "file_offset": "0x118f400",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict alert title."
+    },
+    {
+      "file_offset": "0x118f4f0",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict details; filename is verbatim."
+    },
+    {
+      "file_offset": "0x118f550",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict first action."
+    },
+    {
+      "file_offset": "0x118f5c0",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict alternate action."
+    },
+    {
+      "file_offset": "0x118fe10",
+      "value": "applicationContextEnabled"
+    },
+    {
+      "file_offset": "0x11929b0",
+      "value": "Use the copied text as context to complete this task."
+    },
+    {
+      "file_offset": "0x1192dda",
+      "value": "Use the context in the rest of the message to accomplish whatever the instruction says. "
+    },
+    {
+      "file_offset": "0x1193068",
+      "value": "contextTemplate"
+    },
+    {
+      "file_offset": "0x11930b0",
+      "value": "contextFromSelection"
+    },
+    {
+      "file_offset": "0x11930d0",
+      "value": "contextFromClipboard"
+    },
+    {
+      "file_offset": "0x11930f0",
+      "value": "contextFromActiveApplication"
+    },
+    {
+      "file_offset": "0x1193f10",
+      "value": "Copy landed after the clipboard was restored, restoring again"
+    },
+    {
+      "file_offset": "0x1194620",
+      "value": "Context: menu.application.commands; Checks for a newer app version."
+    },
+    {
+      "file_offset": "0x11946d0",
+      "value": "Context: status.menu.global; Accessibility description for the input-device menu."
+    },
+    {
+      "file_offset": "0x1194730",
+      "value": "Context: status.menu.global; Accessibility description for the active mode menu."
+    },
+    {
+      "file_offset": "0x11947b0",
+      "value": "Context: status.menu.recordingToggle; State-independent action that starts or stops the current recording."
+    },
+    {
+      "file_offset": "0x1194840",
+      "value": "Context: status.menu.fileTranscription; Opens a file picker for audio or video transcription."
+    },
+    {
+      "file_offset": "0x11948a0",
+      "value": "Context: status.menu.fileTranscription; Accessibility description for the lock on a Pro-only action."
+    },
+    {
+      "file_offset": "0x1194910",
+      "value": "Context: status.menu.global; Opens the recording history window."
+    },
+    {
+      "file_offset": "0x1194960",
+      "value": "Context: status.menu.global; Opens app settings; uses the standard Command-comma shortcut."
+    },
+    {
+      "file_offset": "0x11949c0",
+      "value": "Context: status.menu.global; Version label in the status menu; version number is verbatim."
+    },
+    {
+      "file_offset": "0x1194a20",
+      "value": "Context: status.menu.global; Terminates the application."
+    },
+    {
+      "file_offset": "0x1194b40",
+      "value": "Context: menu.application.commands; Documentation destination in the Help menu."
+    },
+    {
+      "file_offset": "0x1194b90",
+      "value": "Context: menu.application.commands; Support destination in the Help menu."
+    },
+    {
+      "file_offset": "0x1194f50",
+      "value": "Specialized model for medical terminology and healthcare contexts"
+    },
+    {
+      "file_offset": "0x1195610",
+      "value": "Language model ran out of context after "
+    },
+    {
+      "file_offset": "0x1196e90",
+      "value": "s1-mini: output hit the context limit after "
+    },
+    {
+      "file_offset": "0x11972b9",
+      "value": "Wrong: Adding explanations, context, or content not in original"
+    },
+    {
+      "file_offset": "0x1198d29",
+      "value": "Your goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provided."
+    },
+    {
+      "file_offset": "0x1198db4",
+      "value": "Context taken from the active application will be provided."
+    },
+    {
+      "file_offset": "0x1198df0",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x1198ea0",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x1198f10",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x1198fb0",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x11990cc",
+      "value": "USER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually"
+    },
+    {
+      "file_offset": "0x119961e",
+      "value": "   - **Direct messaging contexts**: Prefer actual names over usernames to maintain natural flow, do not use @username for the person you are directly messaging"
+    },
+    {
+      "file_offset": "0x119999b",
+      "value": "     * The context clearly indicates it should be corrected"
+    },
+    {
+      "file_offset": "0x119b660",
+      "value": "clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x119b680",
+      "value": "clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x119b6a0",
+      "value": "restoreClipboardTimeDelay"
+    },
+    {
+      "file_offset": "0x119b8c0",
+      "value": "Skipping clipboard restore because the original contents were unavailable"
+    },
+    {
+      "file_offset": "0x119b990",
+      "value": "Skipping clipboard restore because the clipboard changed since the paste"
+    },
+    {
+      "file_offset": "0x119c980",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move conflict alert title."
+    },
+    {
+      "file_offset": "0x119ca50",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move conflict recovery details."
+    },
+    {
+      "file_offset": "0x119cad0",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move failure alert title."
+    },
+    {
+      "file_offset": "0x119cb50",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move failure details."
+    },
+    {
+      "file_offset": "0x119cd90",
+      "value": "Context: shared.warning.modal; Generic alert confirmation button."
+    },
+    {
+      "file_offset": "0x119ce70",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery alert title."
+    },
+    {
+      "file_offset": "0x119cf60",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery instructions."
+    },
+    {
+      "file_offset": "0x119cfe0",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery action."
+    },
+    {
+      "file_offset": "0x119d040",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery secondary action."
+    },
+    {
+      "file_offset": "0x119dad0",
+      "value": "Context: activation.searchAndSelection; Search installed apps or enter a website; the query remains verbatim."
+    },
+    {
+      "file_offset": "0x119dec0",
+      "value": "Context: settings.advanced.storageAndSync; Native folder chooser title for choosing the app data folder."
+    },
+    {
+      "file_offset": "0x11a3171",
+      "value": "                // navigator.clipboard is unavailable in this non-secure"
+    },
+    {
+      "file_offset": "0x11a46a0",
+      "value": "Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance."
+    },
+    {
+      "file_offset": "0x11a50f1",
+      "value": "If enabled, instead of pasting the clipboard, the application will simulate key presses from your keyboard and text will stream from your cursor."
+    },
+    {
+      "file_offset": "0x11a5240",
+      "value": "Clipboard history"
+    },
+    {
+      "file_offset": "0x11a5260",
+      "value": "If enabled, clipboard history apps like Maccy, Paste or Alfred keep a copy of each dictation."
+    },
+    {
+      "file_offset": "0x11a5310",
+      "value": "Clipboard content"
+    },
+    {
+      "file_offset": "0x11a5330",
+      "value": "To paste a dictation, Superwhisper has to put the text on your clipboard. This sets what your clipboard holds afterwards."
+    },
+    {
+      "file_offset": "0x11a53b0",
+      "value": "SuperPickerPanel-clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x11a5800",
+      "value": "What you had copied goes back on your clipboard once the dictation is pasted."
+    },
+    {
+      "file_offset": "0x11a5850",
+      "value": "The dictation stays on your clipboard. What you had copied is gone."
+    },
+    {
+      "file_offset": "0x11a7ad0",
+      "value": "Context: recording.bottom.controls; Close the completed recording result view."
+    },
+    {
+      "file_offset": "0x11a7b20",
+      "value": "Context: recording.bottom.controls; Discard the current recording while it is being captured."
+    },
+    {
+      "file_offset": "0x11a7b80",
+      "value": "Context: recording.bottom.controls; Returns from the current recording subflow without committing its pending action."
+    },
+    {
+      "file_offset": "0x11a7c00",
+      "value": "Context: recording.bottom.controls; Resume the current recording after opening its cancel guard."
+    },
+    {
+      "file_offset": "0x11a7ce0",
+      "value": "Selected text included in context"
+    },
+    {
+      "file_offset": "0x11a7d10",
+      "value": "Clipboard text found"
+    },
+    {
+      "file_offset": "0x11a8210",
+      "value": "_NSTextInputContextDictationDidEndNotification"
+    },
+    {
+      "file_offset": "0x11a82b0",
+      "value": "_NSTextInputContextDictationDidStartNotification"
+    },
+    {
+      "file_offset": "0x11a9380",
+      "value": "Context: vocabulary.importCsv; Native file chooser title for selecting a CSV vocabulary file."
+    },
+    {
+      "file_offset": "0x11a93e0",
+      "value": "Context: vocabulary.importCsv; File chooser action that imports the selected vocabulary CSV."
+    },
+    {
+      "file_offset": "0x11a9490",
+      "value": "Context: vocabulary.importCsv; Native save-panel title for downloading the example vocabulary CSV."
+    },
+    {
+      "file_offset": "0x11a9500",
+      "value": "Context: vocabulary.importCsv; File chooser action that saves the example vocabulary CSV."
+    },
+    {
+      "file_offset": "0x11aa400",
+      "value": "Transcripts now automatically capitalize the first word based on context."
+    },
+    {
+      "file_offset": "0x11aaf20",
+      "value": "Paste from clipboard"
+    },
+    {
+      "file_offset": "0x11ab0c0",
+      "value": "Copied to clipboard"
+    },
+    {
+      "file_offset": "0x11ab590",
+      "value": "If enabled, the first word of inserted transcript text is adjusted to match cursor context (start of sentence or mid-sentence). Turn this off for always-lowercase dictation."
+    },
+    {
+      "file_offset": "0x11abd86",
+      "value": "Application context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Context'."
+    },
+    {
+      "file_offset": "0x11abe38",
+      "value": "Clipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'"
+    },
+    {
+      "file_offset": "0x11adfe0",
+      "value": "No cursor context before paste"
+    },
+    {
+      "file_offset": "0x11ae3f0",
+      "value": "Context: recovery.modelOrRecordingError; Recording-start failure alert title."
+    },
+    {
+      "file_offset": "0x11ae480",
+      "value": "Context: recovery.modelOrRecordingError; Language-model load failure title."
+    },
+    {
+      "file_offset": "0x11ae4f0",
+      "value": "Context: recovery.modelOrRecordingError; Selected voice-model load failure title."
+    },
+    {
+      "file_offset": "0x11ae5b0",
+      "value": "Context: recovery.modelOrRecordingError; Selected voice-model recovery guidance."
+    },
+    {
+      "file_offset": "0x11ae6d0",
+      "value": "Context: filePicker.transcribe; Native picker title for selecting media to transcribe."
+    },
+    {
+      "file_offset": "0x11ae730",
+      "value": "Context: filePicker.transcribe; Native picker confirmation action."
+    },
+    {
+      "file_offset": "0x11ae910",
+      "value": "restoreClipboardEnabled"
+    },
+    {
+      "file_offset": "0x11ae930",
+      "value": "Normalising unrecognised clipboardBehaviour "
+    },
+    {
+      "file_offset": "0x11aeb70",
+      "value": "Context: license.pro.email.pending; Email-verification failure alert title."
+    },
+    {
+      "file_offset": "0x11aec10",
+      "value": "Context: license.pro.email.pending; Email-verification failure details."
+    },
+    {
+      "file_offset": "0x11aee70",
+      "value": "Context: recovery.licenseDeeplink; Failed license activation alert title."
+    },
+    {
+      "file_offset": "0x11aeef0",
+      "value": "Context: recovery.licenseDeeplink; Failed license activation details."
+    },
+    {
+      "file_offset": "0x11aef90",
+      "value": "Context: recovery.licenseDeeplink; Successful license activation alert title."
+    },
+    {
+      "file_offset": "0x11af030",
+      "value": "Context: recovery.licenseDeeplink; Successful license activation details; license suffix is verbatim."
+    },
+    {
+      "file_offset": "0x11af6b0",
+      "value": "Context: recovery.cloudLLM; Alert title when a custom model has no valid server address."
+    },
+    {
+      "file_offset": "0x11af770",
+      "value": "Context: recovery.cloudLLM; Alert body. Interpolation is the model name."
+    },
+    {
+      "file_offset": "0x11afc80",
+      "value": "Focused Content (LLM Context)"
+    },
+    {
+      "file_offset": "0x11b0d90",
+      "value": "Long context text for pending send state validation."
+    },
+    {
+      "file_offset": "0x11b13a2",
+      "value": "- Item A with additional context that spans multiple words and lines."
+    },
+    {
+      "file_offset": "0x11b3b40",
+      "value": "APPLICATION CONTEXT"
+    },
+    {
+      "file_offset": "0x11b3bc0",
+      "value": "USER CLIPBOARD CONTENT"
+    },
+    {
+      "file_offset": "0x11b3d30",
+      "value": "applicationContext"
+    },
+    {
+      "file_offset": "0x11b3e66",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x11b41c0",
+      "value": "Audio Context Length (override): "
+    },
+    {
+      "file_offset": "0x11b97d0",
+      "value": "TextDecoderContextPrefill"
+    },
+    {
+      "file_offset": "0x11bd290",
+      "value": "client_no_context_takeover"
+    },
+    {
+      "file_offset": "0x11bd2b0",
+      "value": "server_no_context_takeover"
+    },
+    {
+      "file_offset": "0x11bda39",
+      "value": "Failed to initialize model or context"
+    },
+    {
+      "file_offset": "0x11bdba8",
+      "value": "Model was trained on only %d context tokens (%d specified)"
+    },
+    {
+      "file_offset": "0x11bdf14",
+      "value": "Reached context limit (n_past=%d, n_ctx=%d), stopping generation"
+    },
+    {
+      "file_offset": "0x11be056",
+      "value": "Truncating %d tokens to fit context"
+    },
+    {
+      "file_offset": "0x11be07d",
+      "value": "Context full and context shift is disabled => stopping"
+    },
+    {
+      "file_offset": "0x11be0b7",
+      "value": "Context full and n_predict == -2 => stopping"
+    },
+    {
+      "file_offset": "0x11be0e5",
+      "value": "No tokens can be discarded, context shifting failed"
+    },
+    {
+      "file_offset": "0x11be11a",
+      "value": "Context full, swapping: n_past=%d, n_left=%d, n_ctx=%d, n_keep=%d, n_discard=%d"
+    },
+    {
+      "file_offset": "0x11be417",
+      "value": "Invalid context size: "
+    },
+    {
+      "file_offset": "0x11c6c20",
+      "value": "<|startofcontext|>"
+    },
+    {
+      "file_offset": "0x11cb690",
+      "value": "GRDB/SQLGenerationContext.swift"
+    },
+    {
+      "file_offset": "0x11d2180",
+      "value": "'include' tag requires one argument, the template file to be included. A second optional argument can be used to specify the context that will be passed to the included file"
+    },
+    {
+      "file_offset": "0x11d26e0",
+      "value": "AXSelectedTextChanged"
+    },
+    {
+      "file_offset": "0x11d30b0",
+      "value": "AXSelectedTextRanges"
+    },
+    {
+      "file_offset": "0x11d38af",
+      "value": "AXSelectedText"
+    },
+    {
+      "file_offset": "0x11d5537",
+      "value": "%s: failed to allocate memory for the kv cache context"
+    },
+    {
+      "file_offset": "0x11d576d",
+      "value": "%s: failed to allocate memory for the aheads_masks context"
+    },
+    {
+      "file_offset": "0x11d5b13",
+      "value": "failed to create ggml context"
+    },
+    {
+      "file_offset": "0x11d5c8d",
+      "value": "whisper_vad_init_context"
+    },
+    {
+      "file_offset": "0x11d5ca6",
+      "value": "%s: failed to init LSTM state ggml context"
+    },
+    {
+      "file_offset": "0x11d5df0",
+      "value": "%s: failed to initialize VAD context"
+    },
+    {
+      "file_offset": "0x11dabe3",
+      "value": "%s: failed to create context with model '%s'"
+    },
+    {
+      "file_offset": "0x11dac48",
+      "value": "%s: KV cache shifting is not supported for this context, disabling KV cache shifting"
+    },
+    {
+      "file_offset": "0x11df8e3",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Sentry/SentryTransactionContext.m"
+    },
+    {
+      "file_offset": "0x11df93a",
+      "value": "Created transaction context with name %@"
+    },
+    {
+      "file_offset": "0x11e118b",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Sentry/SentrySpanContext.m"
+    },
+    {
+      "file_offset": "0x11e11db",
+      "value": "Created root span context with trace ID %@; span ID %@; operation %@"
+    },
+    {
+      "file_offset": "0x11e1220",
+      "value": "Created span context with trace ID %@; span ID %@; parent span ID %@; operation %@"
+    },
+    {
+      "file_offset": "0x11e129d",
+      "value": "pre_context"
+    },
+    {
+      "file_offset": "0x11e12c3",
+      "value": "post_context"
+    },
+    {
+      "file_offset": "0x11e2f9b",
+      "value": "contexts"
+    },
+    {
+      "file_offset": "0x11e34ed",
+      "value": "Filling out context."
+    },
+    {
+      "file_offset": "0x11e5cfa",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/SentryCrash/Recording/Tools/SentryCrashMachineContext.c"
+    },
+    {
+      "file_offset": "0x11e62b6",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Sentry/SentryTraceContext.m"
+    },
+    {
+      "file_offset": "0x11e95e1",
+      "value": "managedObjectContext:save:originalImp: saveSpan is nil"
+    },
+    {
+      "file_offset": "0x11e98ee",
+      "value": "context_line"
+    },
+    {
+      "file_offset": "0x11ea600",
+      "value": "T@\"SentryTraceContext\",N,R"
+    },
+    {
+      "file_offset": "0x11ea700",
+      "value": "@\"SentryTraceContext\"16@0:8"
+    },
+    {
+      "file_offset": "0x11eade0",
+      "value": "_TtP6Sentry26SentryEventContextEnricher_"
+    },
+    {
+      "file_offset": "0x11ec310",
+      "value": "@\"NSNumber\"16@?0@\"SentrySamplingContext\"8"
+    },
+    {
+      "file_offset": "0x11ecee0",
+      "value": "Sentry.SentryExtraContextProvider"
+    },
+    {
+      "file_offset": "0x11ecf10",
+      "value": "_TtC6Sentry26SentryExtraContextProvider"
+    },
+    {
+      "file_offset": "0x11ecf80",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Swift/Helper/SentryExtraContextProvider.swift"
+    },
+    {
+      "file_offset": "0x11ef860",
+      "value": "_TtC6Sentry33SentryDefaultEventContextEnricher"
+    },
+    {
+      "file_offset": "0x11efabc",
+      "value": "traceContext"
+    },
+    {
+      "file_offset": "0x11efaf0",
+      "value": "T@\"SentryTraceContext\",N,R,VtraceContext"
+    },
+    {
+      "file_offset": "0x11f04a0",
+      "value": "Deleting context file at path: "
+    },
+    {
+      "file_offset": "0x11f31b0",
+      "value": "_extraContextProvider"
+    },
+    {
+      "file_offset": "0x11f31d0",
+      "value": "$__lazy_storage_$_extraContextProvider"
+    },
+    {
+      "file_offset": "0x11f3200",
+      "value": "_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x11f3840",
+      "value": "extraContextProvider"
+    },
+    {
+      "file_offset": "0x11f3860",
+      "value": "T@\"_TtC6Sentry26SentryExtraContextProvider\",N,&"
+    },
+    {
+      "file_offset": "0x11f3890",
+      "value": "eventContextEnricher"
+    },
+    {
+      "file_offset": "0x11f38b0",
+      "value": "T@\"<_TtP6Sentry26SentryEventContextEnricher_>\",N,R"
+    },
+    {
+      "file_offset": "0x11f3dd0",
+      "value": "_TtC6Sentry25MechanismContextDecodable"
+    },
+    {
+      "file_offset": "0x11f4540",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Swift/State/SentryPropagationContext.swift"
+    },
+    {
+      "file_offset": "0x11f4600",
+      "value": "_TtC6Sentry24SentryPropagationContext"
+    },
+    {
+      "file_offset": "0x11f67ae",
+      "value": "/Users/janek/Documents/Projects/sentencepiece/third_party/protobuf-lite/google/protobuf/parse_context.h"
+    },
+    {
+      "file_offset": "0x11f69e6",
+      "value": "swift_task_enterThreadLocalContext"
+    },
+    {
+      "file_offset": "0x11f6a09",
+      "value": "swift_task_exitThreadLocalContext"
+    },
+    {
+      "file_offset": "0x11f6a5a",
+      "value": "swift_getTypeContextDescriptor"
+    },
+    {
+      "file_offset": "0x11fba7e",
+      "value": "So18NSAnimationContextCIgg_"
+    },
+    {
+      "file_offset": "0x12e31fa",
+      "value": "So21SentrySamplingContextCSo8NSNumberCSgIeggo_"
+    },
+    {
+      "file_offset": "0x12e3306",
+      "value": "So8NSNumberCSgSo21SentrySamplingContextCcSg"
+    },
+    {
+      "file_offset": "0x12e344a",
+      "value": "So21SentrySamplingContextCSo8NSNumberCSgIeyBya_"
+    },
+    {
+      "file_offset": "0x12e3574",
+      "value": "So21SentrySamplingContextCSo8NSNumberCSgIegnr_"
+    },
+    {
+      "file_offset": "0x12e4096",
+      "value": "$s6Sentry0A20EventContextEnricherP"
+    },
+    {
+      "file_offset": "0x12e410e",
+      "value": "So18SentryTraceContextCSg"
+    },
+    {
+      "file_offset": "0x12e527e",
+      "value": "6Sentry0A20EventContextEnricher_pSg"
+    },
+    {
+      "file_offset": "0x12e5398",
+      "value": "$s6Sentry020ExtraContextProviderD0P"
+    },
+    {
+      "file_offset": "0x12e5a64",
+      "value": "So22SentryMechanismContextC"
+    },
+    {
+      "file_offset": "0x12e65b2",
+      "value": "T@\"NSArray\",C,N,V_preContext"
+    },
+    {
+      "file_offset": "0x12e6773",
+      "value": "T@\"NSDictionary\",&,N,V_systemContext"
+    },
+    {
+      "file_offset": "0x12e67a0",
+      "value": "T@\"NSDictionary\",&,N,V_userContext"
+    },
+    {
+      "file_offset": "0x12e6e5a",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x12e6fe4",
+      "value": "T@\"NSString\",C,N,V_contextLine"
+    },
+    {
+      "file_offset": "0x12e7b00",
+      "value": "T@\"SentryTraceContext\",R,N"
+    },
+    {
+      "file_offset": "0x12e7b5b",
+      "value": "T@\"SentryTransactionContext\",R,N,V_transactionContext"
+    },
+    {
+      "file_offset": "0x12e8315",
+      "value": "setContextLine:"
+    },
+    {
+      "file_offset": "0x12e90b2",
+      "value": "CGImageForProposedRect:context:hints:"
+    },
+    {
+      "file_offset": "0x12e9223",
+      "value": "T@\"<SentryCrashMachineContextWrapper>\",&,N,V_machineContextWrapper"
+    },
+    {
+      "file_offset": "0x12e93b3",
+      "value": "T@\"<_TtP6Sentry26SentryEventContextEnricher_>\",&,N,V_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x12e9558",
+      "value": "T@\"NSArray\",C,N,V_postContext"
+    },
+    {
+      "file_offset": "0x12e964d",
+      "value": "T@\"NSDictionary\",&,N,V_context"
+    },
+    {
+      "file_offset": "0x12e967c",
+      "value": "T@\"NSDictionary\",&,N,V_exceptionContext"
+    },
+    {
+      "file_offset": "0x12e9832",
+      "value": "T@\"NSDictionary\",R,N,V_customSamplingContext"
+    },
+    {
+      "file_offset": "0x12e9897",
+      "value": "addExtraInfoToSpan:withContext:"
+    },
+    {
+      "file_offset": "0x12e9a41",
+      "value": "applyExtraDeviceContextToEvent:"
+    },
+    {
+      "file_offset": "0x12e9a61",
+      "value": "T@\"NSMutableDictionary\",&,V_contextDictionary"
+    },
+    {
+      "file_offset": "0x12ea405",
+      "value": "getExtraContext"
+    },
+    {
+      "file_offset": "0x12ea6d9",
+      "value": "initWithTransactionContext:hub:"
+    },
+    {
+      "file_offset": "0x12ea918",
+      "value": "T@\"SentryMechanismContext\",&,N,V_meta"
+    },
+    {
+      "file_offset": "0x12ea9e5",
+      "value": "T@\"SentrySpanContext\",R,N,V_context"
+    },
+    {
+      "file_offset": "0x12eab63",
+      "value": "T@\"SentryTransactionContext\",&,N,V_transactionContext"
+    },
+    {
+      "file_offset": "0x12ead36",
+      "value": "T@\"_TtC6Sentry24SentryPropagationContext\",&,N,V_propagationContext"
+    },
+    {
+      "file_offset": "0x12eb56e",
+      "value": "setPostContext:"
+    },
+    {
+      "file_offset": "0x12eb78f",
+      "value": "setUserContext:"
+    },
+    {
+      "file_offset": "0x12ebc18",
+      "value": "updateFeatureFlagsContextLocked"
+    },
+    {
+      "file_offset": "0x12ebf00",
+      "value": "_clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x12ebf20",
+      "value": "_clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x12ebf40",
+      "value": "_clipboardManager"
+    },
+    {
+      "file_offset": "0x12ec00a",
+      "value": "_context"
+    },
+    {
+      "file_offset": "0x12ec013",
+      "value": "_contextDictionary"
+    },
+    {
+      "file_offset": "0x12ec026",
+      "value": "_contextLine"
+    },
+    {
+      "file_offset": "0x12ec283",
+      "value": "_customSamplingContext"
+    },
+    {
+      "file_offset": "0x12ec6aa",
+      "value": "_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x12ec6d5",
+      "value": "_exceptionContext"
+    },
+    {
+      "file_offset": "0x12ecf9f",
+      "value": "_machineContextWrapper"
+    },
+    {
+      "file_offset": "0x12ed533",
+      "value": "_postContext"
+    },
+    {
+      "file_offset": "0x12ed540",
+      "value": "_preContext"
+    },
+    {
+      "file_offset": "0x12ed6a6",
+      "value": "_promptContext"
+    },
+    {
+      "file_offset": "0x12ed6b5",
+      "value": "_propagationContext"
+    },
+    {
+      "file_offset": "0x12ed6c9",
+      "value": "_propagationContextLock"
+    },
+    {
+      "file_offset": "0x12ed8d0",
+      "value": "_restoreClipboardTimeDelay"
+    },
+    {
+      "file_offset": "0x12edec3",
+      "value": "_systemContext"
+    },
+    {
+      "file_offset": "0x12ee01c",
+      "value": "_traceContext"
+    },
+    {
+      "file_offset": "0x12ee040",
+      "value": "_transactionContext"
+    },
+    {
+      "file_offset": "0x12ee10d",
+      "value": "_userContext"
+    },
+    {
+      "file_offset": "0x12ee450",
+      "value": "activeClipboardContent"
+    },
+    {
+      "file_offset": "0x12ee8ee",
+      "value": "addNSExceptionUserInfoToContext:"
+    },
+    {
+      "file_offset": "0x12ef4b0",
+      "value": "applicationContextEnabled"
+    },
+    {
+      "file_offset": "0x12ef91a",
+      "value": "applyCultureContextToEvent:"
+    },
+    {
+      "file_offset": "0x12f06be",
+      "value": "buildStacktraceForThread:context:"
+    },
+    {
+      "file_offset": "0x12f06fb",
+      "value": "buildTraceContext:"
+    },
+    {
+      "file_offset": "0x12f14e0",
+      "value": "clipboardManager"
+    },
+    {
+      "file_offset": "0x12f14f6",
+      "value": "clipboardTimer"
+    },
+    {
+      "file_offset": "0x12f1510",
+      "value": "clipboardUpdateCallback"
+    },
+    {
+      "file_offset": "0x12f1eeb",
+      "value": "contextDictionary"
+    },
+    {
+      "file_offset": "0x12f1f04",
+      "value": "contextHandle"
+    },
+    {
+      "file_offset": "0x12f1f12",
+      "value": "contextLine"
+    },
+    {
+      "file_offset": "0x12f1f1e",
+      "value": "contextUserInfoFromNSExceptionUserInfo:"
+    },
+    {
+      "file_offset": "0x12f2a41",
+      "value": "customSamplingContext"
+    },
+    {
+      "file_offset": "0x12f355b",
+      "value": "descriptionForOperations:inContext:"
+    },
+    {
+      "file_offset": "0x12f49c9",
+      "value": "eventContextEnricher"
+    },
+    {
+      "file_offset": "0x12f4a59",
+      "value": "exceptionContext"
+    },
+    {
+      "file_offset": "0x12f4bd3",
+      "value": "extraContextProvider"
+    },
+    {
+      "file_offset": "0x12f5043",
+      "value": "fillContextForCurrentThread:"
+    },
+    {
+      "file_offset": "0x12f579b",
+      "value": "getContextForKey:"
+    },
+    {
+      "file_offset": "0x12f636e",
+      "value": "includeContext"
+    },
+    {
+      "file_offset": "0x12f6982",
+      "value": "initWithContext:"
+    },
+    {
+      "file_offset": "0x12f7018",
+      "value": "initWithId:traceContext:"
+    },
+    {
+      "file_offset": "0x12f767b",
+      "value": "initWithOptions:dateProvider:transportAdapter:fileManager:threadInspector:debugImageProvider:random:locale:timezone:eventContextEnricher:crashWrapper:binaryImageCache:dispatchQueueWrapper:"
+    },
+    {
+      "file_offset": "0x12f7c2b",
+      "value": "initWithStacktraceBuilder:andMachineContextWrapper:"
+    },
+    {
+      "file_offset": "0x12f81e7",
+      "value": "initWithTracer:context:"
+    },
+    {
+      "file_offset": "0x12f823b",
+      "value": "initWithTransactionContext:"
+    },
+    {
+      "file_offset": "0x12f8257",
+      "value": "initWithTransactionContext:customSamplingContext:"
+    },
+    {
+      "file_offset": "0x12f8289",
+      "value": "initWithTransactionContext:hub:configuration:"
+    },
+    {
+      "file_offset": "0x12fa17b",
+      "value": "machineContextWrapper"
+    },
+    {
+      "file_offset": "0x12fa314",
+      "value": "managedObjectContext:executeFetchRequest:error:originalImp:"
+    },
+    {
+      "file_offset": "0x12fa350",
+      "value": "managedObjectContext:save:originalImp:"
+    },
+    {
+      "file_offset": "0x12fad76",
+      "value": "modifyContext:key:block:"
+    },
+    {
+      "file_offset": "0x12faecd",
+      "value": "mouseEventWithType:location:modifierFlags:timestamp:windowNumber:context:eventNumber:clickCount:pressure:"
+    },
+    {
+      "file_offset": "0x12fbe25",
+      "value": "pasteContext"
+    },
+    {
+      "file_offset": "0x12fbe40",
+      "value": "pasteContextPrefetchTask"
+    },
+    {
+      "file_offset": "0x12fbff0",
+      "value": "pendingClipboardRestore"
+    },
+    {
+      "file_offset": "0x12fc49d",
+      "value": "postContext"
+    },
+    {
+      "file_offset": "0x12fc55c",
+      "value": "preContext"
+    },
+    {
+      "file_offset": "0x12fcdc1",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x12fcde7",
+      "value": "propagationContext"
+    },
+    {
+      "file_offset": "0x12fcdfa",
+      "value": "propagationContextTraceId"
+    },
+    {
+      "file_offset": "0x12fd159",
+      "value": "readPreviousContextFromDisk"
+    },
+    {
+      "file_offset": "0x12fd937",
+      "value": "removeContextForKey:"
+    },
+    {
+      "file_offset": "0x12fd95e",
+      "value": "removeExtraDeviceContextFromEvent:"
+    },
+    {
+      "file_offset": "0x12febaa",
+      "value": "sendEvent:traceContext:attachments:"
+    },
+    {
+      "file_offset": "0x12febce",
+      "value": "sendEvent:traceContext:attachments:additionalEnvelopeItems:"
+    },
+    {
+      "file_offset": "0x12fecc0",
+      "value": "sendEvent:withSession:traceContext:attachments:"
+    },
+    {
+      "file_offset": "0x12feefd",
+      "value": "serializeForContext"
+    },
+    {
+      "file_offset": "0x12ffac4",
+      "value": "setContext:"
+    },
+    {
+      "file_offset": "0x12ffad0",
+      "value": "setContextDictionary:"
+    },
+    {
+      "file_offset": "0x12ffaed",
+      "value": "setContextValue:forKey:"
+    },
+    {
+      "file_offset": "0x130031f",
+      "value": "setEventContextEnricher:"
+    },
+    {
+      "file_offset": "0x130036b",
+      "value": "setExceptionContext:"
+    },
+    {
+      "file_offset": "0x13003d5",
+      "value": "setExtraContextProvider:"
+    },
+    {
+      "file_offset": "0x1300c1e",
+      "value": "setMachineContextWrapper:"
+    },
+    {
+      "file_offset": "0x13011ba",
+      "value": "setPreContext:"
+    },
+    {
+      "file_offset": "0x130138a",
+      "value": "setPropagationContext:"
+    },
+    {
+      "file_offset": "0x13013a1",
+      "value": "setPropagationContextWithTraceId:spanId:"
+    },
+    {
+      "file_offset": "0x1301b21",
+      "value": "setSystemContext:"
+    },
+    {
+      "file_offset": "0x1301e5a",
+      "value": "setTraceContext:"
+    },
+    {
+      "file_offset": "0x1301eba",
+      "value": "setTransactionContext:"
+    },
+    {
+      "file_offset": "0x1302c7a",
+      "value": "startTransactionWithContext:"
+    },
+    {
+      "file_offset": "0x1302c97",
+      "value": "startTransactionWithContext:bindToScope:"
+    },
+    {
+      "file_offset": "0x1302cc0",
+      "value": "startTransactionWithContext:bindToScope:customSamplingContext:"
+    },
+    {
+      "file_offset": "0x1302cff",
+      "value": "startTransactionWithContext:bindToScope:customSamplingContext:configuration:"
+    },
+    {
+      "file_offset": "0x1302d4c",
+      "value": "startTransactionWithContext:customSamplingContext:"
+    },
+    {
+      "file_offset": "0x130313b",
+      "value": "storeEvent:traceContext:"
+    },
+    {
+      "file_offset": "0x1303a25",
+      "value": "systemContext"
+    },
+    {
+      "file_offset": "0x1304892",
+      "value": "traceContext"
+    },
+    {
+      "file_offset": "0x130489f",
+      "value": "traceContextForEvent"
+    },
+    {
+      "file_offset": "0x13049d6",
+      "value": "transactionContext"
+    },
+    {
+      "file_offset": "0x13049e9",
+      "value": "transactionContext:withSampled:sampleRate:sampleRand:"
+    },
+    {
+      "file_offset": "0x130558b",
+      "value": "userContext"
+    },
+    {
+      "file_offset": "0x1305efb",
+      "value": "whisperContext"
+    },
+    {
+      "file_offset": "0x1334d10",
+      "value": "_TtC12superwhisper16ClipboardManager"
+    },
+    {
+      "file_offset": "0x1335450",
+      "value": "_TtC12superwhisper17PasteContextStore"
+    },
+    {
+      "file_offset": "0x1336690",
+      "value": "_TtC12superwhisper14WhisperContext"
+    },
+    {
+      "file_offset": "0x1337710",
+      "value": "_TtC10WhisperKit25TextDecoderContextPrefill"
+    },
+    {
+      "file_offset": "0x1338480",
+      "value": "_TtC9Alamofire21URLEncodedFormContext"
+    },
+    {
+      "file_offset": "0x13388e0",
+      "value": "_TtC14Supertransform16TransformContext"
+    },
+    {
+      "file_offset": "0x1339d50",
+      "value": "_TtCC4GRDB16DatabaseFunctionP33_1F1016B0E130FBD1433DD56AD149CDA816AggregateContext"
+    },
+    {
+      "file_offset": "0x133a2f0",
+      "value": "_TtC4GRDBP33_911CCF25E612216379C6DA679161806D15TokenizeContext"
+    },
+    {
+      "file_offset": "0x133a390",
+      "value": "_TtC4GRDB20SQLGenerationContext"
+    },
+    {
+      "file_offset": "0x133a710",
+      "value": "_TtC7Stencil7Context"
+    },
+    {
+      "file_offset": "0x133aab0",
+      "value": "_TtC7Stencil12BlockContext"
+    },
+    {
+      "file_offset": "0x133ae46",
+      "value": "SentryCrashDefaultMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x133ae6e",
+      "value": "SentryCrashMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x133af09",
+      "value": "SentryTransactionContext"
+    },
+    {
+      "file_offset": "0x133b06d",
+      "value": "SentrySamplingContext"
+    },
+    {
+      "file_offset": "0x133b215",
+      "value": "SentrySpanContext"
+    },
+    {
+      "file_offset": "0x133b3b2",
+      "value": "SentryMechanismContext"
+    },
+    {
+      "file_offset": "0x133b6b1",
+      "value": "SentryTraceContext"
+    },
+    {
+      "file_offset": "0x133c460",
+      "value": "v16@?0@\"NSAnimationContext\"8"
+    },
+    {
+      "file_offset": "0x133ebf4",
+      "value": "@\"<_TtP6Sentry26SentryEventContextEnricher_>\""
+    },
+    {
+      "file_offset": "0x133fa10",
+      "value": "@\"<SentryCrashMachineContextWrapper>\""
+    },
+    {
+      "file_offset": "0x133fb1f",
+      "value": "@\"SentryTransactionContext\""
+    },
+    {
+      "file_offset": "0x133fda8",
+      "value": "@\"SentrySpanContext\""
+    },
+    {
+      "file_offset": "0x133fdeb",
+      "value": "@\"SentryTraceContext\""
+    },
+    {
+      "file_offset": "0x133fff8",
+      "value": "@\"SentryTraceContext\"16@0:8"
+    },
+    {
+      "file_offset": "0x134024a",
+      "value": "@\"SentryMechanismContext\""
+    },
+    {
+      "file_offset": "0x134049b",
+      "value": "@\"_TtC6Sentry24SentryPropagationContext\""
+    },
+    {
+      "file_offset": "0x1342cd5",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x1343c8f",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x1343f86",
+      "value": "clipboardTimer"
+    },
+    {
+      "file_offset": "0x1343fc0",
+      "value": "clipboardUpdateCallback"
+    },
+    {
+      "file_offset": "0x1344320",
+      "value": "applicationContextEnabled"
+    },
+    {
+      "file_offset": "0x1344341",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x13451f0",
+      "value": "clipboardManager"
+    },
+    {
+      "file_offset": "0x13452dd",
+      "value": "contextTemplate"
+    },
+    {
+      "file_offset": "0x1345330",
+      "value": "contextFromSelection"
+    },
+    {
+      "file_offset": "0x1345350",
+      "value": "contextFromClipboard"
+    },
+    {
+      "file_offset": "0x1345370",
+      "value": "contextFromActiveApplication"
+    },
+    {
+      "file_offset": "0x13460bd",
+      "value": "contextWindow"
+    },
+    {
+      "file_offset": "0x13467c6",
+      "value": "_promptContext"
+    },
+    {
+      "file_offset": "0x1346940",
+      "value": "pendingClipboardRestore"
+    },
+    {
+      "file_offset": "0x1346980",
+      "value": "_clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x13469a0",
+      "value": "_clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x13469c0",
+      "value": "_restoreClipboardTimeDelay"
+    },
+    {
+      "file_offset": "0x1346b3b",
+      "value": "whisperContext"
+    },
+    {
+      "file_offset": "0x1346e2e",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x1349750",
+      "value": "_clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x1349770",
+      "value": "_clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x134c320",
+      "value": "clipboardEnabled"
+    },
+    {
+      "file_offset": "0x134c350",
+      "value": "_isSelectedTextIndicatorHovered"
+    },
+    {
+      "file_offset": "0x134e9c0",
+      "value": "_clipboardManager"
+    },
+    {
+      "file_offset": "0x134ecd5",
+      "value": "pasteContext"
+    },
+    {
+      "file_offset": "0x134ecf0",
+      "value": "pasteContextPrefetchTask"
+    },
+    {
+      "file_offset": "0x134ef90",
+      "value": "activeClipboardContent"
+    },
+    {
+      "file_offset": "0x134f253",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x134f450",
+      "value": "clipboardContent"
+    },
+    {
+      "file_offset": "0x134f470",
+      "value": "clipboardChangeCount"
+    },
+    {
+      "file_offset": "0x134f490",
+      "value": "clipboardLastUpdated"
+    },
+    {
+      "file_offset": "0x134fa19",
+      "value": "modeContext"
+    },
+    {
+      "file_offset": "0x134fa25",
+      "value": "systemContext"
+    },
+    {
+      "file_offset": "0x134fa33",
+      "value": "userContext"
+    },
+    {
+      "file_offset": "0x134fa40",
+      "value": "applicationContext"
+    },
+    {
+      "file_offset": "0x134fa8c",
+      "value": "clipboard"
+    },
+    {
+      "file_offset": "0x134faf6",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x134fbe0",
+      "value": "contextCreationFailed"
+    },
+    {
+      "file_offset": "0x134fdf1",
+      "value": "contextHandle"
+    },
+    {
+      "file_offset": "0x134fece",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x134fee0",
+      "value": "couldNotInitializeContext"
+    },
+    {
+      "file_offset": "0x13552ed",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x1355b20",
+      "value": "contextCreationFailed"
+    },
+    {
+      "file_offset": "0x1355bc0",
+      "value": "contextOverflow"
+    },
+    {
+      "file_offset": "0x1355c8e",
+      "value": "contextFull"
+    },
+    {
+      "file_offset": "0x1355d05",
+      "value": "contextSize"
+    },
+    {
+      "file_offset": "0x135677a",
+      "value": "contextTotals"
+    },
+    {
+      "file_offset": "0x135a81d",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x135b684",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x135d383",
+      "value": "includeContext"
+    },
+    {
+      "file_offset": "0x135d40a",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x135d41a",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x135d9b0",
+      "value": "selectedTextChanged"
+    },
+    {
+      "file_offset": "0x135e161",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x135e170",
+      "value": "selectedTextRange"
+    },
+    {
+      "file_offset": "0x135e230",
+      "value": "selectedTextRanges"
+    },
+    {
+      "file_offset": "0x135f9cb",
+      "value": "contextLine"
+    },
+    {
+      "file_offset": "0x135f9d7",
+      "value": "preContext"
+    },
+    {
+      "file_offset": "0x135f9e2",
+      "value": "postContext"
+    },
+    {
+      "file_offset": "0x135fbbf",
+      "value": "traceContext"
+    },
+    {
+      "file_offset": "0x1360725",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x1360c30",
+      "value": "_extraContextProvider"
+    },
+    {
+      "file_offset": "0x1360c50",
+      "value": "$__lazy_storage_$_extraContextProvider"
+    },
+    {
+      "file_offset": "0x1360c80",
+      "value": "_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x15048f8",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x1551348",
+      "value": "clipboard"
+    },
+    {
+      "file_offset": "0x15f48e5",
+      "value": "__ZTSNSt3__110__function6__baseIFvRN5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x15f491c",
+      "value": "__ZTINSt3__110__function6__baseIFvRN5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x15f78f7",
+      "value": "_kCFStreamPropertySSLContext"
+    },
+    {
+      "file_offset": "0x15f7a13",
+      "value": "_llama_context_default_params"
+    },
+    {
+      "file_offset": "0x15f7da4",
+      "value": "_llama_perf_context"
+    },
+    {
+      "file_offset": "0x15f7db8",
+      "value": "_llama_perf_context_reset"
+    },
+    {
+      "file_offset": "0x1605b4f",
+      "value": "_NSAccessibilitySelectedTextAttribute"
+    },
+    {
+      "file_offset": "0x1608792",
+      "value": "_CGBitmapContextCreate"
+    },
+    {
+      "file_offset": "0x16087a9",
+      "value": "_CGBitmapContextCreateImage"
+    },
+    {
+      "file_offset": "0x160881a",
+      "value": "_CGContextAddPath"
+    },
+    {
+      "file_offset": "0x160882c",
+      "value": "_CGContextBeginTransparencyLayer"
+    },
+    {
+      "file_offset": "0x160884d",
+      "value": "_CGContextEndTransparencyLayer"
+    },
+    {
+      "file_offset": "0x160886c",
+      "value": "_CGContextFillRect"
+    },
+    {
+      "file_offset": "0x160887f",
+      "value": "_CGContextFlush"
+    },
+    {
+      "file_offset": "0x160888f",
+      "value": "_CGContextSetFillColorWithColor"
+    },
+    {
+      "file_offset": "0x160a260",
+      "value": "_$s7Network12NWConnectionC14ContentContextC14defaultMessageAEvgZ"
+    },
+    {
+      "file_offset": "0x160a2a1",
+      "value": "_$s7Network12NWConnectionC14ContentContextC7isFinalSbvg"
+    },
+    {
+      "file_offset": "0x160a2d9",
+      "value": "_$s7Network12NWConnectionC14ContentContextCMa"
+    },
+    {
+      "file_offset": "0x160a4a0",
+      "value": "_$s7Network12NWConnectionC4send7content0D7Context10isComplete10completiony10Foundation4DataVSg_AC07ContentE0CSbAC14SendCompletionOtF"
+    },
+    {
+      "file_offset": "0x160a6f0",
+      "value": "_$s7Network12NWConnectionC7receive23minimumIncompleteLength07maximumF010completionySi_Siy10Foundation4DataVSg_AC14ContentContextCSgSbAA7NWErrorOSgtctF"
+    },
+    {
+      "file_offset": "0x160e3dc",
+      "value": "_$s7SwiftUI15GraphicsContextV4fill_4with5styleyAA4PathV_AC7ShadingVAA9FillStyleVtF"
+    },
+    {
+      "file_offset": "0x160e42f",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingV5coloryAeA5ColorVFZ"
+    },
+    {
+      "file_offset": "0x160e469",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingVMa"
+    },
+    {
+      "file_offset": "0x16108c3",
+      "value": "_$s7SwiftUI19NSViewRepresentableP04makeC07context0C4TypeQzAA0cD7ContextVyxG_tFTq"
+    },
+    {
+      "file_offset": "0x1610914",
+      "value": "_$s7SwiftUI19NSViewRepresentableP06updateC0_7contexty0C4TypeQz_AA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x16109c5",
+      "value": "_$s7SwiftUI19NSViewRepresentableP12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x1610d1f",
+      "value": "_$s7SwiftUI19NSViewRepresentablePAAE12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtF"
+    },
+    {
+      "file_offset": "0x161268a",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextV11coordinator11CoordinatorQzvg"
+    },
+    {
+      "file_offset": "0x16126d1",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextVMn"
+    },
+    {
+      "file_offset": "0x1613c98",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lF"
+    },
+    {
+      "file_offset": "0x1613cd8",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lFQOMQ"
+    },
+    {
+      "file_offset": "0x1616b5e",
+      "value": "_$s7SwiftUI6CanvasVA2A9EmptyViewVRszrlE6opaque9colorMode21rendersAsynchronously8rendererACyAEGSb_AA014ColorRenderingH0OSbyAA15GraphicsContextVz_So6CGSizeVtctcfC"
+    },
+    {
+      "file_offset": "0x1618e4d",
+      "value": "_$sSo18NSAnimationContextC7SwiftUIE7animate_7changes10completionyAC9AnimationV_yyXEyycSgtFZ"
+    },
+    {
+      "file_offset": "0x1618f98",
+      "value": "_sqlite3_aggregate_context"
+    },
+    {
+      "file_offset": "0x161f019",
+      "value": "_$ss13DecodingErrorO11keyNotFoundyABs9CodingKey_p_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x161f05f",
+      "value": "_$ss13DecodingErrorO12typeMismatchyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x161f09d",
+      "value": "_$ss13DecodingErrorO13dataCorruptedyA2B7ContextVcABmFWC"
+    },
+    {
+      "file_offset": "0x161f0d5",
+      "value": "_$ss13DecodingErrorO13valueNotFoundyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x161f114",
+      "value": "_$ss13DecodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x161f181",
+      "value": "_$ss13DecodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x161f1a1",
+      "value": "_$ss13DecodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x161f1f4",
+      "value": "_$ss13EncodingErrorO12invalidValueyAByp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x161f230",
+      "value": "_$ss13EncodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x161f29d",
+      "value": "_$ss13EncodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x161f2bd",
+      "value": "_$ss13EncodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x162a768",
+      "value": "_swift_getTypeByMangledNameInContext"
+    },
+    {
+      "file_offset": "0x162a78d",
+      "value": "_swift_getTypeByMangledNameInContext2"
+    },
+    {
+      "file_offset": "0x162a7b3",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState"
+    },
+    {
+      "file_offset": "0x162a7e7",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState2"
+    },
+    {
+      "file_offset": "0x162d5d7",
+      "value": "_$sScf25isIsolatingCurrentContextSbSgyFTq"
+    },
+    {
+      "file_offset": "0x162d601",
+      "value": "_$sScf31isSameExclusiveExecutionContext5otherSbx_tFTq"
+    },
+    {
+      "file_offset": "0x162d6a2",
+      "value": "_$sScfsE25isIsolatingCurrentContextSbSgyF"
+    },
+    {
+      "file_offset": "0x162d6cc",
+      "value": "_$sScfsE31isSameExclusiveExecutionContext5otherSbx_tF"
+    },
+    {
+      "file_offset": "0x162efec",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE4draw_2in8byTilingySo07CGImageB0a_So6CGRectVSbtF"
+    },
+    {
+      "file_offset": "0x162f040",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE8fillPath5usingyAC14CGPathFillRuleO_tF"
+    },
+    {
+      "file_offset": "0x1630c08",
+      "value": "_OBJC_CLASS_$_NSAnimationContext"
+    },
+    {
+      "file_offset": "0x1631100",
+      "value": "_OBJC_CLASS_$_CIContext"
+    },
+    {
+      "file_offset": "0x1631575",
+      "value": "_OBJC_CLASS_$_NSManagedObjectContext"
+    },
+    {
+      "file_offset": "0x1638bba",
+      "value": "5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x163b33f",
+      "value": "5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x1640493",
+      "value": "17additionalContextSaySiGSaySDySSs8Sendable_pGG_AA0fG8ArgumentOSgS2bSiSgAOSgANSgtKF"
+    },
+    {
+      "file_offset": "0x16405f5",
+      "value": "17additionalContextSaySiGSaySDySSs8Sendable_pGG_AKSgAJSgtKF"
+    },
+    {
+      "file_offset": "0x164639d",
+      "value": "5reset18prefilledCacheSize15maxTokenContextySi_SitF"
+    },
+    {
+      "file_offset": "0x164db4f",
+      "value": "extDecoderContextPrefillC"
+    },
+    {
+      "file_offset": "0x164eb2f",
+      "value": "5maxTokenContextSiv"
+    },
+    {
+      "file_offset": "0x1653719",
+      "value": "3contextHandles13OpaquePointerVSgvpfi"
+    },
+    {
+      "file_offset": "0x165488b",
+      "value": "15getSelectedText12afterPerformSSSgyyKc_tYaF"
+    },
+    {
+      "file_offset": "0x1663c6e",
+      "value": "callAsFunction_13contextStates13attentionMask5cache0C08MLXArrayC_AJ_AJttAJ_AJSgAkJ_AJtSgtF"
+    },
+    {
+      "file_offset": "0x168f2b6",
+      "value": "3valueMismatch_15sqliteStatement5index7contextACypXp_s13OpaquePointerVs5Int32VAA0bC7ContextVtFZ"
+    },
+    {
+      "file_offset": "0x168f319",
+      "value": "4columnNotFound_7contextACSS_AA0bC7ContextVtFZ"
+    },
+    {
+      "file_offset": "0x168f43e",
+      "value": "7ContextV"
+    },
+    {
+      "file_offset": "0x16933de",
+      "value": "RowDecodingContextV"
+    },
+    {
+      "file_offset": "0x169589e",
+      "value": "E8tokenize7context12tokenization5pText01nH013tokenCallbacks5Int32VSvSg_AA0B12TokenizationVSPys4Int8VGSgA2kL_Akr3KtXCtF"
+    },
+    {
+      "file_offset": "0x1699b34",
+      "value": "04fromE016atUncheckedIndex7contextxs13OpaquePointerV_s5Int32VAA18RowDecodingContextVyXKtKFZ"
+    },
+    {
+      "file_offset": "0x1699cf1",
+      "value": "4_valueMismatch04fromE016atUncheckedIndex7contexts5NeverOs13OpaquePointerV_s5Int32VAA18RowDecodingContextVyXKtKFZ"
+    },
+    {
+      "file_offset": "0x16b91ac",
+      "value": "12traceContextACSo0A2IdCSg_So0a5TraceF0CSgtcf"
+    },
+    {
+      "file_offset": "0x16b92c3",
+      "value": "12traceContextSo0a5TraceE0CSgv"
+    },
+    {
+      "file_offset": "0x16bbac0",
+      "value": "\"PropagationContextC"
+    },
+    {
+      "file_offset": "0x16bc223",
+      "value": "ventContextEnricherAA0a5EventeF0_pv"
+    },
+    {
+      "file_offset": "0x16bc249",
+      "value": "\"xtraContextProviderAA0a5ExtraeF0Cv"
+    },
+    {
+      "file_offset": "0x16bd859",
+      "value": "\"7readPreviousContextFromDiskSDySSSDySSypGGSgyFT"
+    },
+    {
+      "file_offset": "0x16bd9d8",
+      "value": "\"ExtraContextProviderC"
+    },
+    {
+      "file_offset": "0x16be0ca",
+      "value": "\"19serializeForContextSDySSypGSgyF"
+    },
+    {
+      "file_offset": "0x16bec50",
+      "value": "18transactionContext"
+    },
+    {
+      "file_offset": "0x16bf833",
+      "value": "18transactionContext"
+    },
+    {
+      "file_offset": "0x16c4171",
+      "value": "$tracesSamplerSo8NSNumberCSgSo0A15SamplingContextCcSgv"
+    },
+    {
+      "file_offset": "0x16c62f2",
+      "value": "$selectedTextSSSgyKF"
+    },
+    {
+      "file_offset": "0x16c63c1",
+      "value": "$selectedTextRangeSo7CFRangeaSgyKF"
+    },
+    {
+      "file_offset": "0x16c9a10",
+      "value": "7handlerAcA5TokenC_SSAA7ContextCKctcf"
+    },
+    {
+      "file_offset": "0x16c9afa",
+      "value": "%6renderySSAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x16c9b15",
+      "value": "%7handlerySSAA7ContextCKcv"
+    },
+    {
+      "file_offset": "0x16c9cfe",
+      "value": "4name7contextS2S_SDySSypGtKF"
+    },
+    {
+      "file_offset": "0x16c9d1d",
+      "value": "%6string7contextS2S_SDySSypGtKF"
+    },
+    {
+      "file_offset": "0x16ca26c",
+      "value": "%renderNodesySSSayAA8NodeType_pG_AA7ContextCtKF"
+    },
+    {
+      "file_offset": "0x16ca483",
+      "value": "%6renderySSAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x16ca5fb",
+      "value": "%7resolveyypSgAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x16cad23",
+      "value": "losureACypAA7ContextCKc_tcf"
+    },
+    {
+      "file_offset": "0x16cad41",
+      "value": "&opying7closureAcA7ContextC_ypAGKctcf"
+    },
+    {
+      "file_offset": "0x16cad77",
+      "value": "&resolveyypSgAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x16cbe34",
+      "value": "AA7ContextCKF"
+    },
+    {
+      "file_offset": "0x16cc1a1",
+      "value": "&6renderySSAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x16cc291",
+      "value": "&7resolveyypSgAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x16cc37b",
+      "value": "AA7ContextCtKctF"
+    },
+    {
+      "file_offset": "0x16cc464",
+      "value": "&7registerSimpleTag_7handlerySS_SSAA7ContextCKctF"
+    },
+    {
+      "file_offset": "0x16cc6b7",
+      "value": "&7ContextC"
+    },
+    {
+      "file_offset": "0x16d524a",
+      "value": "contextSizeSiv"
+    },
+    {
+      "file_offset": "0x16f730c",
+      "value": "efaultMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x16f777b",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f7a04",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f7ab6",
+      "value": "1amplingContext"
+    },
+    {
+      "file_offset": "0x16f7b5e",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f7b8d",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f83f5",
+      "value": "1PropagationContext"
+    },
+    {
+      "file_offset": "0x16f8552",
+      "value": "1ExtraContextProvider"
+    },
+    {
+      "file_offset": "0x16f8a91",
+      "value": "efaultMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x16f8f00",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f9189",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f923b",
+      "value": "1amplingContext"
+    },
+    {
+      "file_offset": "0x16f92e3",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f9312",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x16f9b7a",
+      "value": "1PropagationContext"
+    },
+    {
+      "file_offset": "0x16f9cd7",
+      "value": "1ExtraContextProvider"
+    },
+    {
+      "file_offset": "0x16fa263",
+      "value": "fromPK13llama_contextRKNSt3__16vectorIiNS2_9allocatorIiEEEE"
+    },
+    {
+      "file_offset": "0x16fa523",
+      "value": "13llama_contextRKNSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEEbb"
+    },
+    {
+      "file_offset": "0x16fa64e",
+      "value": "common_perf_printPK13llama_contextPK14common_sampler"
+    },
+    {
+      "file_offset": "0x16faad3",
+      "value": "2sampleP14common_samplerP13llama_contextib"
+    },
+    {
+      "file_offset": "0x16fab22",
+      "value": "23llama_contextib"
+    },
+    {
+      "file_offset": "0x16fabf7",
+      "value": "2prev_strP14common_samplerP13llama_contexti"
+    },
+    {
+      "file_offset": "0x16fac39",
+      "value": "2et_adapter_loraP13llama_contextRNSt3__16vectorI24common_adapter_lora_infoNS1_9allocatorIS3_EEEE"
+    },
+    {
+      "file_offset": "0x16fc4c9",
+      "value": "27contextEv"
+    },
+    {
+      "file_offset": "0x16fcd73",
+      "value": "for_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fcd9f",
+      "value": "2set_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fcdfc",
+      "value": "call_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fce3f",
+      "value": "2macro_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fce6e",
+      "value": "2test_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fceb5",
+      "value": "filter_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fcfc4",
+      "value": "2unary_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd013",
+      "value": "binary_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd043",
+      "value": "2filter_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd074",
+      "value": "2member_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd0d2",
+      "value": "0identifier12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd0fc",
+      "value": "22if_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd12e",
+      "value": "24object_literal12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd1ba",
+      "value": "27keyword_argument_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x16fd435",
+      "value": "2statement7executeERNS_7contextE"
+    },
+    {
+      "file_offset": "0x170388d",
+      "value": "5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x1706298",
+      "value": "5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x17098d9",
+      "value": "stroy_context"
+    },
+    {
+      "file_offset": "0x1709992",
+      "value": "5lease_context_for_sleep"
+    },
+    {
+      "file_offset": "0x1709a39",
+      "value": "5create_context"
+    },
+    {
+      "file_offset": "0x170afa2",
+      "value": "6raceContext"
+    },
+    {
+      "file_offset": "0x170afbb",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x170bcd7",
+      "value": "6FromContext"
+    },
+    {
+      "file_offset": "0x170bce9",
+      "value": "ContextFor"
+    },
+    {
+      "file_offset": "0x170bd27",
+      "value": "6sCrashedContext"
+    },
+    {
+      "file_offset": "0x170c0d6",
+      "value": "6MachineContext"
+    },
+    {
+      "file_offset": "0x170d7fc",
+      "value": "context_default_params"
+    },
+    {
+      "file_offset": "0x175682a",
+      "value": "__ZTINSt3__110__function6__baseIFvRN5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x1759ac1",
+      "value": "__ZTSNSt3__110__function6__baseIFvRN5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x1764e71",
+      "value": "_$s7Network12NWConnectionC14ContentContextC14defaultMessageAEvgZ"
+    },
+    {
+      "file_offset": "0x1764eb2",
+      "value": "_$s7Network12NWConnectionC14ContentContextC7isFinalSbvg"
+    },
+    {
+      "file_offset": "0x1764eea",
+      "value": "_$s7Network12NWConnectionC14ContentContextCMa"
+    },
+    {
+      "file_offset": "0x17650b1",
+      "value": "_$s7Network12NWConnectionC4send7content0D7Context10isComplete10completiony10Foundation4DataVSg_AC07ContentE0CSbAC14SendCompletionOtF"
+    },
+    {
+      "file_offset": "0x1765301",
+      "value": "_$s7Network12NWConnectionC7receive23minimumIncompleteLength07maximumF010completionySi_Siy10Foundation4DataVSg_AC14ContentContextCSgSbAA7NWErrorOSgtctF"
+    },
+    {
+      "file_offset": "0x17688e6",
+      "value": "_$s7SwiftUI15GraphicsContextV4fill_4with5styleyAA4PathV_AC7ShadingVAA9FillStyleVtF"
+    },
+    {
+      "file_offset": "0x1768939",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingV5coloryAeA5ColorVFZ"
+    },
+    {
+      "file_offset": "0x1768973",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingVMa"
+    },
+    {
+      "file_offset": "0x176adcd",
+      "value": "_$s7SwiftUI19NSViewRepresentableP04makeC07context0C4TypeQzAA0cD7ContextVyxG_tFTq"
+    },
+    {
+      "file_offset": "0x176ae1e",
+      "value": "_$s7SwiftUI19NSViewRepresentableP06updateC0_7contexty0C4TypeQz_AA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x176aecf",
+      "value": "_$s7SwiftUI19NSViewRepresentableP12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x176b229",
+      "value": "_$s7SwiftUI19NSViewRepresentablePAAE12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtF"
+    },
+    {
+      "file_offset": "0x176cb94",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextV11coordinator11CoordinatorQzvg"
+    },
+    {
+      "file_offset": "0x176cbdb",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextVMn"
+    },
+    {
+      "file_offset": "0x176e1a2",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lF"
+    },
+    {
+      "file_offset": "0x176e1e2",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lFQOMQ"
+    },
+    {
+      "file_offset": "0x1771068",
+      "value": "_$s7SwiftUI6CanvasVA2A9EmptyViewVRszrlE6opaque9colorMode21rendersAsynchronously8rendererACyAEGSb_AA014ColorRenderingH0OSbyAA15GraphicsContextVz_So6CGSizeVtctcfC"
+    },
+    {
+      "file_offset": "0x1777f59",
+      "value": "_$sScf25isIsolatingCurrentContextSbSgyFTq"
+    },
+    {
+      "file_offset": "0x1777f83",
+      "value": "_$sScf31isSameExclusiveExecutionContext5otherSbx_tFTq"
+    },
+    {
+      "file_offset": "0x1778024",
+      "value": "_$sScfsE25isIsolatingCurrentContextSbSgyF"
+    },
+    {
+      "file_offset": "0x177804e",
+      "value": "_$sScfsE31isSameExclusiveExecutionContext5otherSbx_tF"
+    },
+    {
+      "file_offset": "0x1779d8e",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE4draw_2in8byTilingySo07CGImageB0a_So6CGRectVSbtF"
+    },
+    {
+      "file_offset": "0x1779de2",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE8fillPath5usingyAC14CGPathFillRuleO_tF"
+    },
+    {
+      "file_offset": "0x177b334",
+      "value": "_$sSo18NSAnimationContextC7SwiftUIE7animate_7changes10completionyAC9AnimationV_yyXEyycSgtFZ"
+    },
+    {
+      "file_offset": "0x177eb8f",
+      "value": "_$ss13DecodingErrorO11keyNotFoundyABs9CodingKey_p_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x177ebd5",
+      "value": "_$ss13DecodingErrorO12typeMismatchyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x177ec13",
+      "value": "_$ss13DecodingErrorO13dataCorruptedyA2B7ContextVcABmFWC"
+    },
+    {
+      "file_offset": "0x177ec4b",
+      "value": "_$ss13DecodingErrorO13valueNotFoundyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x177ec8a",
+      "value": "_$ss13DecodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x177ecf7",
+      "value": "_$ss13DecodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x177ed17",
+      "value": "_$ss13DecodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x177ed6a",
+      "value": "_$ss13EncodingErrorO12invalidValueyAByp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x177eda6",
+      "value": "_$ss13EncodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x177ee13",
+      "value": "_$ss13EncodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x177ee33",
+      "value": "_$ss13EncodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x178b110",
+      "value": "_CGBitmapContextCreate"
+    },
+    {
+      "file_offset": "0x178b127",
+      "value": "_CGBitmapContextCreateImage"
+    },
+    {
+      "file_offset": "0x178b198",
+      "value": "_CGContextAddPath"
+    },
+    {
+      "file_offset": "0x178b1aa",
+      "value": "_CGContextBeginTransparencyLayer"
+    },
+    {
+      "file_offset": "0x178b1cb",
+      "value": "_CGContextEndTransparencyLayer"
+    },
+    {
+      "file_offset": "0x178b1ea",
+      "value": "_CGContextFillRect"
+    },
+    {
+      "file_offset": "0x178b1fd",
+      "value": "_CGContextFlush"
+    },
+    {
+      "file_offset": "0x178b20d",
+      "value": "_CGContextSetFillColorWithColor"
+    },
+    {
+      "file_offset": "0x178be84",
+      "value": "_NSAccessibilitySelectedTextAttribute"
+    },
+    {
+      "file_offset": "0x178cbfc",
+      "value": "_OBJC_CLASS_$_CIContext"
+    },
+    {
+      "file_offset": "0x178ce6c",
+      "value": "_OBJC_CLASS_$_NSAnimationContext"
+    },
+    {
+      "file_offset": "0x178d3cd",
+      "value": "_OBJC_CLASS_$_NSManagedObjectContext"
+    },
+    {
+      "file_offset": "0x1793210",
+      "value": "_kCFStreamPropertySSLContext"
+    },
+    {
+      "file_offset": "0x179362f",
+      "value": "_llama_context_default_params"
+    },
+    {
+      "file_offset": "0x17939c0",
+      "value": "_llama_perf_context"
+    },
+    {
+      "file_offset": "0x17939d4",
+      "value": "_llama_perf_context_reset"
+    },
+    {
+      "file_offset": "0x1796494",
+      "value": "_sqlite3_aggregate_context"
+    },
+    {
+      "file_offset": "0x1797436",
+      "value": "_swift_getTypeByMangledNameInContext"
+    },
+    {
+      "file_offset": "0x179745b",
+      "value": "_swift_getTypeByMangledNameInContext2"
+    },
+    {
+      "file_offset": "0x1797481",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState"
+    },
+    {
+      "file_offset": "0x17974b5",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState2"
+    },
+    {
+      "file_offset": "0x27f81b9",
+      "value": "CursorContext"
+    },
+    {
+      "file_offset": "0x27fa610",
+      "value": "RecordingContext"
+    },
+    {
+      "file_offset": "0x2800030",
+      "value": "ClipboardManager"
+    },
+    {
+      "file_offset": "0x28087e0",
+      "value": "PendingClipboardRestore"
+    },
+    {
+      "file_offset": "0x2809410",
+      "value": "PasteContextStore"
+    },
+    {
+      "file_offset": "0x2809430",
+      "value": "PrefetchedPasteContext"
+    },
+    {
+      "file_offset": "0x2815be0",
+      "value": "DynamicRecorderContextMenu"
+    },
+    {
+      "file_offset": "0x281dbc0",
+      "value": "ClipboardTextIndicatorView"
+    },
+    {
+      "file_offset": "0x282a138",
+      "value": "PromptContext"
+    },
+    {
+      "file_offset": "0x282a260",
+      "value": "ApplicationContext"
+    },
+    {
+      "file_offset": "0x282a273",
+      "value": "UserContext"
+    },
+    {
+      "file_offset": "0x282a27f",
+      "value": "SystemContext"
+    },
+    {
+      "file_offset": "0x282a28d",
+      "value": "ModeContext"
+    },
+    {
+      "file_offset": "0x282b2bd",
+      "value": "WhisperContext"
+    },
+    {
+      "file_offset": "0x282b310",
+      "value": "WhisperContextError"
+    },
+    {
+      "file_offset": "0x282c327",
+      "value": "StreamContext"
+    },
+    {
+      "file_offset": "0x283ec90",
+      "value": "TextDecoderContextPrefill"
+    },
+    {
+      "file_offset": "0x2840520",
+      "value": "SpeakerEmbedderContext"
+    },
+    {
+      "file_offset": "0x28464a0",
+      "value": "URLEncodedFormContext"
+    },
+    {
+      "file_offset": "0x2846c60",
+      "value": "SSLContext"
+    },
+    {
+      "file_offset": "0x2846c6b",
+      "value": "NSSLContextRef"
+    },
+    {
+      "file_offset": "0x2848780",
+      "value": "TransformContext"
+    },
+    {
+      "file_offset": "0x2851f20",
+      "value": "JournalModeConfiguration"
+    },
+    {
+      "file_offset": "0x2853fd0",
+      "value": "AggregateContext"
+    },
+    {
+      "file_offset": "0x2855b11",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2855b20",
+      "value": "RowDecodingContext"
+    },
+    {
+      "file_offset": "0x28581c8",
+      "value": "TokenizeContext"
+    },
+    {
+      "file_offset": "0x285a040",
+      "value": "SQLGenerationContext"
+    },
+    {
+      "file_offset": "0x2864ea0",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x28659e8",
+      "value": "BlockContext"
+    },
+    {
+      "file_offset": "0x2867b8c",
+      "value": "NSt3__110__function6__funcIZL24whisper_vad_init_contextP19whisper_vad_contextE3$_0NS_9allocatorIS4_EEFP11ggml_cgraphvEEE"
+    },
+    {
+      "file_offset": "0x2867c34",
+      "value": "ZL24whisper_vad_init_contextP19whisper_vad_contextE3$_0"
+    },
+    {
+      "file_offset": "0x2873f4b",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_0NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x2873fbb",
+      "value": "NSt3__110__function6__baseIFvRN5jinja7contextEEEE"
+    },
+    {
+      "file_offset": "0x2873fed",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_0"
+    },
+    {
+      "file_offset": "0x2874026",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_1NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x2874096",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_1"
+    },
+    {
+      "file_offset": "0x28740cf",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_2NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x287413f",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_2"
+    },
+    {
+      "file_offset": "0x2874178",
+      "value": "NSt3__110__function6__funcIZN5jinja13for_statement12execute_implERNS2_7contextEE3$_3NS_9allocatorIS6_EEFvS5_EEE"
+    },
+    {
+      "file_offset": "0x28741e8",
+      "value": "ZN5jinja13for_statement12execute_implERNS_7contextEE3$_3"
+    },
+    {
+      "file_offset": "0x2874221",
+      "value": "NSt3__110__function6__funcIZN5jinja15macro_statement12execute_implERNS2_7contextEE3$_0NS_9allocatorIS6_EEFNS_10shared_ptrINS2_7value_tEEERKNS2_9func_argsEEEE"
+    },
+    {
+      "file_offset": "0x2874312",
+      "value": "ZN5jinja15macro_statement12execute_implERNS_7contextEE3$_0"
+    },
+    {
+      "file_offset": "0x2885320",
+      "value": "SentryExtraContextProvider"
+    },
+    {
+      "file_offset": "0x2886aa0",
+      "value": "SentryDefaultEventContextEnricher"
+    },
+    {
+      "file_offset": "0x288a450",
+      "value": "ExtraContextProviderProvider"
+    },
+    {
+      "file_offset": "0x288af80",
+      "value": "MechanismContextDecodable"
+    },
+    {
+      "file_offset": "0x288b4b0",
+      "value": "SentryPropagationContext"
+    },
+    {
+      "file_offset": "0x288d090",
+      "value": "AXSelectedTextRange"
+    },
+    {
+      "file_offset": "0x288d880",
+      "value": "AXSelectedTextMarkerRange"
+    },
+    {
+      "file_offset": "0x288d8a0",
+      "value": "Failed to get AXSelectedTextMarkerRange"
+    },
+    {
+      "file_offset": "0x288d950",
+      "value": "AXSelectedTextMarkerRange returned null"
+    },
+    {
+      "file_offset": "0x2891892",
+      "value": "        COALESCE(json_extract(new.promptContext, '$.applicationContext.name'), ''),"
+    },
+    {
+      "file_offset": "0x2891b24",
+      "value": "    COALESCE(json_extract(promptContext, '$.applicationContext.name'), ''),"
+    },
+    {
+      "file_offset": "0x2892dba",
+      "value": "    COALESCE(json_extract(promptContext, '$.applicationContext.name'), 'unknown') as appName,"
+    },
+    {
+      "file_offset": "0x2892f6e",
+      "value": "GROUP BY hourTimestamp, fromFile, modelName, languageModelName, json_extract(promptContext, '$.applicationContext.name')"
+    },
+    {
+      "file_offset": "0x28933d0",
+      "value": "SELECT COUNT(DISTINCT json_extract(promptContext, '$.applicationContext.name')) as app_count"
+    },
+    {
+      "file_offset": "0x2893462",
+      "value": "AND json_extract(promptContext, '$.applicationContext.name') != ''"
+    },
+    {
+      "file_offset": "0x2893880",
+      "value": "SELECT json_extract(promptContext, '$.applicationContext.name') as appName, COUNT(*) as cnt"
+    },
+    {
+      "file_offset": "0x2895020",
+      "value": ") - falling back to clipboard"
+    },
+    {
+      "file_offset": "0x2895be2",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2896260",
+      "value": "/Users/ultra/.herdr/worktrees/superwhisper/2-19-1-fix-crash/superwhisper/superwhisper/Managers/ClipboardManager.swift"
+    },
+    {
+      "file_offset": "0x28962e0",
+      "value": "Automatic clipboard read may request pasteboard permission"
+    },
+    {
+      "file_offset": "0x2896320",
+      "value": "Skipping automatic clipboard read because pasteboard access is denied"
+    },
+    {
+      "file_offset": "0x28963d0",
+      "value": "Clipboard content changed"
+    },
+    {
+      "file_offset": "0x2896890",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict alert title."
+    },
+    {
+      "file_offset": "0x2896980",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict details; filename is verbatim."
+    },
+    {
+      "file_offset": "0x28969e0",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict first action."
+    },
+    {
+      "file_offset": "0x2896a50",
+      "value": "Context: settings.advanced.storageAndSync; Filesync conflict alternate action."
+    },
+    {
+      "file_offset": "0x28972a0",
+      "value": "applicationContextEnabled"
+    },
+    {
+      "file_offset": "0x2899e40",
+      "value": "Use the copied text as context to complete this task."
+    },
+    {
+      "file_offset": "0x289a26a",
+      "value": "Use the context in the rest of the message to accomplish whatever the instruction says. "
+    },
+    {
+      "file_offset": "0x289a4f8",
+      "value": "contextTemplate"
+    },
+    {
+      "file_offset": "0x289a540",
+      "value": "contextFromSelection"
+    },
+    {
+      "file_offset": "0x289a560",
+      "value": "contextFromClipboard"
+    },
+    {
+      "file_offset": "0x289a580",
+      "value": "contextFromActiveApplication"
+    },
+    {
+      "file_offset": "0x289b3a0",
+      "value": "Copy landed after the clipboard was restored, restoring again"
+    },
+    {
+      "file_offset": "0x289bab0",
+      "value": "Context: menu.application.commands; Checks for a newer app version."
+    },
+    {
+      "file_offset": "0x289bb60",
+      "value": "Context: status.menu.global; Accessibility description for the input-device menu."
+    },
+    {
+      "file_offset": "0x289bbc0",
+      "value": "Context: status.menu.global; Accessibility description for the active mode menu."
+    },
+    {
+      "file_offset": "0x289bc40",
+      "value": "Context: status.menu.recordingToggle; State-independent action that starts or stops the current recording."
+    },
+    {
+      "file_offset": "0x289bcd0",
+      "value": "Context: status.menu.fileTranscription; Opens a file picker for audio or video transcription."
+    },
+    {
+      "file_offset": "0x289bd30",
+      "value": "Context: status.menu.fileTranscription; Accessibility description for the lock on a Pro-only action."
+    },
+    {
+      "file_offset": "0x289bda0",
+      "value": "Context: status.menu.global; Opens the recording history window."
+    },
+    {
+      "file_offset": "0x289bdf0",
+      "value": "Context: status.menu.global; Opens app settings; uses the standard Command-comma shortcut."
+    },
+    {
+      "file_offset": "0x289be50",
+      "value": "Context: status.menu.global; Version label in the status menu; version number is verbatim."
+    },
+    {
+      "file_offset": "0x289beb0",
+      "value": "Context: status.menu.global; Terminates the application."
+    },
+    {
+      "file_offset": "0x289bfd0",
+      "value": "Context: menu.application.commands; Documentation destination in the Help menu."
+    },
+    {
+      "file_offset": "0x289c020",
+      "value": "Context: menu.application.commands; Support destination in the Help menu."
+    },
+    {
+      "file_offset": "0x289c3e0",
+      "value": "Specialized model for medical terminology and healthcare contexts"
+    },
+    {
+      "file_offset": "0x289caa0",
+      "value": "Language model ran out of context after "
+    },
+    {
+      "file_offset": "0x289e320",
+      "value": "s1-mini: output hit the context limit after "
+    },
+    {
+      "file_offset": "0x289e749",
+      "value": "Wrong: Adding explanations, context, or content not in original"
+    },
+    {
+      "file_offset": "0x28a01b9",
+      "value": "Your goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provided."
+    },
+    {
+      "file_offset": "0x28a0244",
+      "value": "Context taken from the active application will be provided."
+    },
+    {
+      "file_offset": "0x28a0280",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x28a0330",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x28a03a0",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x28a0440",
+      "value": "USER CLIPBOARD CONTENT:"
+    },
+    {
+      "file_offset": "0x28a055c",
+      "value": "USER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually"
+    },
+    {
+      "file_offset": "0x28a0aae",
+      "value": "   - **Direct messaging contexts**: Prefer actual names over usernames to maintain natural flow, do not use @username for the person you are directly messaging"
+    },
+    {
+      "file_offset": "0x28a0e2b",
+      "value": "     * The context clearly indicates it should be corrected"
+    },
+    {
+      "file_offset": "0x28a33d0",
+      "value": "clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x28a33f0",
+      "value": "clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x28a3410",
+      "value": "restoreClipboardTimeDelay"
+    },
+    {
+      "file_offset": "0x28a3630",
+      "value": "Skipping clipboard restore because the original contents were unavailable"
+    },
+    {
+      "file_offset": "0x28a3700",
+      "value": "Skipping clipboard restore because the clipboard changed since the paste"
+    },
+    {
+      "file_offset": "0x28a4920",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move failure alert title."
+    },
+    {
+      "file_offset": "0x28a49a0",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move failure details."
+    },
+    {
+      "file_offset": "0x28a4a10",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move conflict alert title."
+    },
+    {
+      "file_offset": "0x28a4ae0",
+      "value": "Context: settings.advanced.storageAndSync; App-folder move conflict recovery details."
+    },
+    {
+      "file_offset": "0x28a4d30",
+      "value": "Context: shared.warning.modal; Generic alert confirmation button."
+    },
+    {
+      "file_offset": "0x28a4e10",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery alert title."
+    },
+    {
+      "file_offset": "0x28a4f00",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery instructions."
+    },
+    {
+      "file_offset": "0x28a4f80",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery action."
+    },
+    {
+      "file_offset": "0x28a4fe0",
+      "value": "Context: settings.advanced.storageAndSync; App-folder permission recovery secondary action."
+    },
+    {
+      "file_offset": "0x28a5a70",
+      "value": "Context: activation.searchAndSelection; Search installed apps or enter a website; the query remains verbatim."
+    },
+    {
+      "file_offset": "0x28a5e60",
+      "value": "Context: settings.advanced.storageAndSync; Native folder chooser title for choosing the app data folder."
+    },
+    {
+      "file_offset": "0x28ab111",
+      "value": "                // navigator.clipboard is unavailable in this non-secure"
+    },
+    {
+      "file_offset": "0x28ac640",
+      "value": "Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance."
+    },
+    {
+      "file_offset": "0x28ad091",
+      "value": "If enabled, instead of pasting the clipboard, the application will simulate key presses from your keyboard and text will stream from your cursor."
+    },
+    {
+      "file_offset": "0x28ad1e0",
+      "value": "Clipboard history"
+    },
+    {
+      "file_offset": "0x28ad200",
+      "value": "If enabled, clipboard history apps like Maccy, Paste or Alfred keep a copy of each dictation."
+    },
+    {
+      "file_offset": "0x28ad2b0",
+      "value": "Clipboard content"
+    },
+    {
+      "file_offset": "0x28ad2d0",
+      "value": "To paste a dictation, Superwhisper has to put the text on your clipboard. This sets what your clipboard holds afterwards."
+    },
+    {
+      "file_offset": "0x28ad350",
+      "value": "SuperPickerPanel-clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x28ad7a0",
+      "value": "What you had copied goes back on your clipboard once the dictation is pasted."
+    },
+    {
+      "file_offset": "0x28ad7f0",
+      "value": "The dictation stays on your clipboard. What you had copied is gone."
+    },
+    {
+      "file_offset": "0x28afa20",
+      "value": "Context: recording.bottom.controls; Close the completed recording result view."
+    },
+    {
+      "file_offset": "0x28afa70",
+      "value": "Context: recording.bottom.controls; Discard the current recording while it is being captured."
+    },
+    {
+      "file_offset": "0x28afad0",
+      "value": "Context: recording.bottom.controls; Returns from the current recording subflow without committing its pending action."
+    },
+    {
+      "file_offset": "0x28afb50",
+      "value": "Context: recording.bottom.controls; Resume the current recording after opening its cancel guard."
+    },
+    {
+      "file_offset": "0x28afc30",
+      "value": "Selected text included in context"
+    },
+    {
+      "file_offset": "0x28afc60",
+      "value": "Clipboard text found"
+    },
+    {
+      "file_offset": "0x28b0160",
+      "value": "_NSTextInputContextDictationDidEndNotification"
+    },
+    {
+      "file_offset": "0x28b0200",
+      "value": "_NSTextInputContextDictationDidStartNotification"
+    },
+    {
+      "file_offset": "0x28b12d0",
+      "value": "Context: vocabulary.importCsv; Native file chooser title for selecting a CSV vocabulary file."
+    },
+    {
+      "file_offset": "0x28b1330",
+      "value": "Context: vocabulary.importCsv; File chooser action that imports the selected vocabulary CSV."
+    },
+    {
+      "file_offset": "0x28b13e0",
+      "value": "Context: vocabulary.importCsv; Native save-panel title for downloading the example vocabulary CSV."
+    },
+    {
+      "file_offset": "0x28b1450",
+      "value": "Context: vocabulary.importCsv; File chooser action that saves the example vocabulary CSV."
+    },
+    {
+      "file_offset": "0x28b2350",
+      "value": "Transcripts now automatically capitalize the first word based on context."
+    },
+    {
+      "file_offset": "0x28b2e70",
+      "value": "Paste from clipboard"
+    },
+    {
+      "file_offset": "0x28b3010",
+      "value": "Copied to clipboard"
+    },
+    {
+      "file_offset": "0x28b34e0",
+      "value": "If enabled, the first word of inserted transcript text is adjusted to match cursor context (start of sentence or mid-sentence). Turn this off for always-lowercase dictation."
+    },
+    {
+      "file_offset": "0x28b3cd6",
+      "value": "Application context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Context'."
+    },
+    {
+      "file_offset": "0x28b3d88",
+      "value": "Clipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'"
+    },
+    {
+      "file_offset": "0x28b5f30",
+      "value": "No cursor context before paste"
+    },
+    {
+      "file_offset": "0x28b6340",
+      "value": "Context: recovery.modelOrRecordingError; Recording-start failure alert title."
+    },
+    {
+      "file_offset": "0x28b63d0",
+      "value": "Context: recovery.modelOrRecordingError; Language-model load failure title."
+    },
+    {
+      "file_offset": "0x28b6440",
+      "value": "Context: recovery.modelOrRecordingError; Selected voice-model load failure title."
+    },
+    {
+      "file_offset": "0x28b6500",
+      "value": "Context: recovery.modelOrRecordingError; Selected voice-model recovery guidance."
+    },
+    {
+      "file_offset": "0x28b6620",
+      "value": "Context: filePicker.transcribe; Native picker title for selecting media to transcribe."
+    },
+    {
+      "file_offset": "0x28b6680",
+      "value": "Context: filePicker.transcribe; Native picker confirmation action."
+    },
+    {
+      "file_offset": "0x28b6860",
+      "value": "restoreClipboardEnabled"
+    },
+    {
+      "file_offset": "0x28b6880",
+      "value": "Normalising unrecognised clipboardBehaviour "
+    },
+    {
+      "file_offset": "0x28b6ac0",
+      "value": "Context: license.pro.email.pending; Email-verification failure alert title."
+    },
+    {
+      "file_offset": "0x28b6b60",
+      "value": "Context: license.pro.email.pending; Email-verification failure details."
+    },
+    {
+      "file_offset": "0x28b6dc0",
+      "value": "Context: recovery.licenseDeeplink; Failed license activation alert title."
+    },
+    {
+      "file_offset": "0x28b6e40",
+      "value": "Context: recovery.licenseDeeplink; Failed license activation details."
+    },
+    {
+      "file_offset": "0x28b6ee0",
+      "value": "Context: recovery.licenseDeeplink; Successful license activation alert title."
+    },
+    {
+      "file_offset": "0x28b6f80",
+      "value": "Context: recovery.licenseDeeplink; Successful license activation details; license suffix is verbatim."
+    },
+    {
+      "file_offset": "0x28b7600",
+      "value": "Context: recovery.cloudLLM; Alert title when a custom model has no valid server address."
+    },
+    {
+      "file_offset": "0x28b76c0",
+      "value": "Context: recovery.cloudLLM; Alert body. Interpolation is the model name."
+    },
+    {
+      "file_offset": "0x28b7bd0",
+      "value": "Focused Content (LLM Context)"
+    },
+    {
+      "file_offset": "0x28b8ce0",
+      "value": "Long context text for pending send state validation."
+    },
+    {
+      "file_offset": "0x28b92f2",
+      "value": "- Item A with additional context that spans multiple words and lines."
+    },
+    {
+      "file_offset": "0x28bba90",
+      "value": "APPLICATION CONTEXT"
+    },
+    {
+      "file_offset": "0x28bbb10",
+      "value": "USER CLIPBOARD CONTENT"
+    },
+    {
+      "file_offset": "0x28bbc80",
+      "value": "applicationContext"
+    },
+    {
+      "file_offset": "0x28bbdb6",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x28bc110",
+      "value": "Audio Context Length (override): "
+    },
+    {
+      "file_offset": "0x28bcf70",
+      "value": "(StreamContext in _80D233CA31083115605D1D28DAAF84D0)"
+    },
+    {
+      "file_offset": "0x28c2bb0",
+      "value": "TextDecoderContextPrefill"
+    },
+    {
+      "file_offset": "0x28c6630",
+      "value": "client_no_context_takeover"
+    },
+    {
+      "file_offset": "0x28c6650",
+      "value": "server_no_context_takeover"
+    },
+    {
+      "file_offset": "0x28c6dd9",
+      "value": "Failed to initialize model or context"
+    },
+    {
+      "file_offset": "0x28c6f48",
+      "value": "Model was trained on only %d context tokens (%d specified)"
+    },
+    {
+      "file_offset": "0x28c72cd",
+      "value": "Reached context limit (n_past=%d, n_ctx=%d), stopping generation"
+    },
+    {
+      "file_offset": "0x28c740f",
+      "value": "Truncating %d tokens to fit context"
+    },
+    {
+      "file_offset": "0x28c7436",
+      "value": "Context full and context shift is disabled => stopping"
+    },
+    {
+      "file_offset": "0x28c7470",
+      "value": "Context full and n_predict == -2 => stopping"
+    },
+    {
+      "file_offset": "0x28c749e",
+      "value": "No tokens can be discarded, context shifting failed"
+    },
+    {
+      "file_offset": "0x28c74d3",
+      "value": "Context full, swapping: n_past=%d, n_left=%d, n_ctx=%d, n_keep=%d, n_discard=%d"
+    },
+    {
+      "file_offset": "0x28c77d0",
+      "value": "Invalid context size: "
+    },
+    {
+      "file_offset": "0x28cffd0",
+      "value": "<|startofcontext|>"
+    },
+    {
+      "file_offset": "0x28d4a80",
+      "value": "GRDB/SQLGenerationContext.swift"
+    },
+    {
+      "file_offset": "0x28db410",
+      "value": "'include' tag requires one argument, the template file to be included. A second optional argument can be used to specify the context that will be passed to the included file"
+    },
+    {
+      "file_offset": "0x28db970",
+      "value": "AXSelectedTextChanged"
+    },
+    {
+      "file_offset": "0x28dc340",
+      "value": "AXSelectedTextRanges"
+    },
+    {
+      "file_offset": "0x28dcb3f",
+      "value": "AXSelectedText"
+    },
+    {
+      "file_offset": "0x28de7d1",
+      "value": "%s: failed to allocate memory for the kv cache context"
+    },
+    {
+      "file_offset": "0x28dea07",
+      "value": "%s: failed to allocate memory for the aheads_masks context"
+    },
+    {
+      "file_offset": "0x28dedad",
+      "value": "failed to create ggml context"
+    },
+    {
+      "file_offset": "0x28def27",
+      "value": "whisper_vad_init_context"
+    },
+    {
+      "file_offset": "0x28def40",
+      "value": "%s: failed to init LSTM state ggml context"
+    },
+    {
+      "file_offset": "0x28df08a",
+      "value": "%s: failed to initialize VAD context"
+    },
+    {
+      "file_offset": "0x28e4161",
+      "value": "%s: failed to create context with model '%s'"
+    },
+    {
+      "file_offset": "0x28e41c6",
+      "value": "%s: KV cache shifting is not supported for this context, disabling KV cache shifting"
+    },
+    {
+      "file_offset": "0x28e9199",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Sentry/SentryTransactionContext.m"
+    },
+    {
+      "file_offset": "0x28e91f0",
+      "value": "Created transaction context with name %@"
+    },
+    {
+      "file_offset": "0x28ea959",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Sentry/SentrySpanContext.m"
+    },
+    {
+      "file_offset": "0x28ea9a9",
+      "value": "Created root span context with trace ID %@; span ID %@; operation %@"
+    },
+    {
+      "file_offset": "0x28ea9ee",
+      "value": "Created span context with trace ID %@; span ID %@; parent span ID %@; operation %@"
+    },
+    {
+      "file_offset": "0x28eaa6b",
+      "value": "pre_context"
+    },
+    {
+      "file_offset": "0x28eaa91",
+      "value": "post_context"
+    },
+    {
+      "file_offset": "0x28ec871",
+      "value": "contexts"
+    },
+    {
+      "file_offset": "0x28ecdc3",
+      "value": "Filling out context."
+    },
+    {
+      "file_offset": "0x28ef5f3",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/SentryCrash/Recording/Tools/SentryCrashMachineContext.c"
+    },
+    {
+      "file_offset": "0x28efbaf",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Sentry/SentryTraceContext.m"
+    },
+    {
+      "file_offset": "0x28f2f2b",
+      "value": "managedObjectContext:save:originalImp: saveSpan is nil"
+    },
+    {
+      "file_offset": "0x28f323e",
+      "value": "context_line"
+    },
+    {
+      "file_offset": "0x28f3f50",
+      "value": "T@\"SentryTraceContext\",N,R"
+    },
+    {
+      "file_offset": "0x28f4050",
+      "value": "@\"SentryTraceContext\"16@0:8"
+    },
+    {
+      "file_offset": "0x28f4730",
+      "value": "_TtP6Sentry26SentryEventContextEnricher_"
+    },
+    {
+      "file_offset": "0x28f5c60",
+      "value": "@\"NSNumber\"16@?0@\"SentrySamplingContext\"8"
+    },
+    {
+      "file_offset": "0x28f6830",
+      "value": "Sentry.SentryExtraContextProvider"
+    },
+    {
+      "file_offset": "0x28f6860",
+      "value": "_TtC6Sentry26SentryExtraContextProvider"
+    },
+    {
+      "file_offset": "0x28f68d0",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Swift/Helper/SentryExtraContextProvider.swift"
+    },
+    {
+      "file_offset": "0x28f91b0",
+      "value": "_TtC6Sentry33SentryDefaultEventContextEnricher"
+    },
+    {
+      "file_offset": "0x28f940c",
+      "value": "traceContext"
+    },
+    {
+      "file_offset": "0x28f9440",
+      "value": "T@\"SentryTraceContext\",N,R,VtraceContext"
+    },
+    {
+      "file_offset": "0x28f9df0",
+      "value": "Deleting context file at path: "
+    },
+    {
+      "file_offset": "0x28fcb00",
+      "value": "_extraContextProvider"
+    },
+    {
+      "file_offset": "0x28fcb20",
+      "value": "$__lazy_storage_$_extraContextProvider"
+    },
+    {
+      "file_offset": "0x28fcb50",
+      "value": "_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x28fd190",
+      "value": "extraContextProvider"
+    },
+    {
+      "file_offset": "0x28fd1b0",
+      "value": "T@\"_TtC6Sentry26SentryExtraContextProvider\",N,&"
+    },
+    {
+      "file_offset": "0x28fd1e0",
+      "value": "eventContextEnricher"
+    },
+    {
+      "file_offset": "0x28fd200",
+      "value": "T@\"<_TtP6Sentry26SentryEventContextEnricher_>\",N,R"
+    },
+    {
+      "file_offset": "0x28fd720",
+      "value": "_TtC6Sentry25MechanismContextDecodable"
+    },
+    {
+      "file_offset": "0x28fde90",
+      "value": "/Users/runner/work/sentry-cocoa/sentry-cocoa/Sources/Swift/State/SentryPropagationContext.swift"
+    },
+    {
+      "file_offset": "0x28fdf50",
+      "value": "_TtC6Sentry24SentryPropagationContext"
+    },
+    {
+      "file_offset": "0x2900100",
+      "value": "/Users/janek/Documents/Projects/sentencepiece/third_party/protobuf-lite/google/protobuf/parse_context.h"
+    },
+    {
+      "file_offset": "0x2900314",
+      "value": "swift_task_enterThreadLocalContext"
+    },
+    {
+      "file_offset": "0x2900337",
+      "value": "swift_task_exitThreadLocalContext"
+    },
+    {
+      "file_offset": "0x2905584",
+      "value": "So18NSAnimationContextCIgg_"
+    },
+    {
+      "file_offset": "0x29ed7ba",
+      "value": "So21SentrySamplingContextCSo8NSNumberCSgIeggo_"
+    },
+    {
+      "file_offset": "0x29ed8c6",
+      "value": "So8NSNumberCSgSo21SentrySamplingContextCcSg"
+    },
+    {
+      "file_offset": "0x29eda0a",
+      "value": "So21SentrySamplingContextCSo8NSNumberCSgIeyBya_"
+    },
+    {
+      "file_offset": "0x29edb34",
+      "value": "So21SentrySamplingContextCSo8NSNumberCSgIegnr_"
+    },
+    {
+      "file_offset": "0x29ee63e",
+      "value": "$s6Sentry0A20EventContextEnricherP"
+    },
+    {
+      "file_offset": "0x29ee6b6",
+      "value": "So18SentryTraceContextCSg"
+    },
+    {
+      "file_offset": "0x29ef85c",
+      "value": "6Sentry0A20EventContextEnricher_pSg"
+    },
+    {
+      "file_offset": "0x29ef976",
+      "value": "$s6Sentry020ExtraContextProviderD0P"
+    },
+    {
+      "file_offset": "0x29f0042",
+      "value": "So22SentryMechanismContextC"
+    },
+    {
+      "file_offset": "0x2a1edf0",
+      "value": "_TtC12superwhisper16ClipboardManager"
+    },
+    {
+      "file_offset": "0x2a1f530",
+      "value": "_TtC12superwhisper17PasteContextStore"
+    },
+    {
+      "file_offset": "0x2a20770",
+      "value": "_TtC12superwhisper14WhisperContext"
+    },
+    {
+      "file_offset": "0x2a208a0",
+      "value": "_TtCC6Argmax15LiveTranscriberP33_80D233CA31083115605D1D28DAAF84D013StreamContext"
+    },
+    {
+      "file_offset": "0x2a218c0",
+      "value": "_TtC10WhisperKit25TextDecoderContextPrefill"
+    },
+    {
+      "file_offset": "0x2a22630",
+      "value": "_TtC9Alamofire21URLEncodedFormContext"
+    },
+    {
+      "file_offset": "0x2a22a90",
+      "value": "_TtC14Supertransform16TransformContext"
+    },
+    {
+      "file_offset": "0x2a23f00",
+      "value": "_TtCC4GRDB16DatabaseFunctionP33_1F1016B0E130FBD1433DD56AD149CDA816AggregateContext"
+    },
+    {
+      "file_offset": "0x2a244a0",
+      "value": "_TtC4GRDBP33_911CCF25E612216379C6DA679161806D15TokenizeContext"
+    },
+    {
+      "file_offset": "0x2a24540",
+      "value": "_TtC4GRDB20SQLGenerationContext"
+    },
+    {
+      "file_offset": "0x2a248c0",
+      "value": "_TtC7Stencil7Context"
+    },
+    {
+      "file_offset": "0x2a24c60",
+      "value": "_TtC7Stencil12BlockContext"
+    },
+    {
+      "file_offset": "0x2a24ff6",
+      "value": "SentryCrashDefaultMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x2a2501e",
+      "value": "SentryCrashMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x2a250b9",
+      "value": "SentryTransactionContext"
+    },
+    {
+      "file_offset": "0x2a2521d",
+      "value": "SentrySamplingContext"
+    },
+    {
+      "file_offset": "0x2a253c5",
+      "value": "SentrySpanContext"
+    },
+    {
+      "file_offset": "0x2a25562",
+      "value": "SentryMechanismContext"
+    },
+    {
+      "file_offset": "0x2a25861",
+      "value": "SentryTraceContext"
+    },
+    {
+      "file_offset": "0x2a261cf",
+      "value": "T@\"NSArray\",C,N,V_preContext"
+    },
+    {
+      "file_offset": "0x2a26370",
+      "value": "T@\"NSDictionary\",&,N,V_systemContext"
+    },
+    {
+      "file_offset": "0x2a263b3",
+      "value": "T@\"NSDictionary\",&,N,V_userContext"
+    },
+    {
+      "file_offset": "0x2a26a1a",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a26bce",
+      "value": "T@\"NSString\",C,N,V_contextLine"
+    },
+    {
+      "file_offset": "0x2a26ffa",
+      "value": "getExtraContext"
+    },
+    {
+      "file_offset": "0x2a272b7",
+      "value": "initWithTransactionContext:hub:"
+    },
+    {
+      "file_offset": "0x2a27702",
+      "value": "T@\"SentryTraceContext\",R,N"
+    },
+    {
+      "file_offset": "0x2a2775d",
+      "value": "T@\"SentryTransactionContext\",R,N,V_transactionContext"
+    },
+    {
+      "file_offset": "0x2a280bd",
+      "value": "setPostContext:"
+    },
+    {
+      "file_offset": "0x2a282b7",
+      "value": "setUserContext:"
+    },
+    {
+      "file_offset": "0x2a286d8",
+      "value": "updateFeatureFlagsContextLocked"
+    },
+    {
+      "file_offset": "0x2a28c2e",
+      "value": "CGImageForProposedRect:context:hints:"
+    },
+    {
+      "file_offset": "0x2a28d87",
+      "value": "T@\"<SentryCrashMachineContextWrapper>\",&,N,V_machineContextWrapper"
+    },
+    {
+      "file_offset": "0x2a28f0e",
+      "value": "T@\"<_TtP6Sentry26SentryEventContextEnricher_>\",&,N,V_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x2a290ac",
+      "value": "T@\"NSArray\",C,N,V_postContext"
+    },
+    {
+      "file_offset": "0x2a2919c",
+      "value": "T@\"NSDictionary\",&,N,V_context"
+    },
+    {
+      "file_offset": "0x2a291d1",
+      "value": "T@\"NSDictionary\",&,N,V_exceptionContext"
+    },
+    {
+      "file_offset": "0x2a29389",
+      "value": "T@\"NSDictionary\",R,N,V_customSamplingContext"
+    },
+    {
+      "file_offset": "0x2a293b6",
+      "value": "addExtraInfoToSpan:withContext:"
+    },
+    {
+      "file_offset": "0x2a29547",
+      "value": "applyExtraDeviceContextToEvent:"
+    },
+    {
+      "file_offset": "0x2a2959c",
+      "value": "T@\"NSMutableDictionary\",&,V_contextDictionary"
+    },
+    {
+      "file_offset": "0x2a2a3cc",
+      "value": "T@\"SentryMechanismContext\",&,N,V_meta"
+    },
+    {
+      "file_offset": "0x2a2a497",
+      "value": "T@\"SentrySpanContext\",R,N,V_context"
+    },
+    {
+      "file_offset": "0x2a2a61c",
+      "value": "T@\"SentryTransactionContext\",&,N,V_transactionContext"
+    },
+    {
+      "file_offset": "0x2a2a7f6",
+      "value": "T@\"_TtC6Sentry24SentryPropagationContext\",&,N,V_propagationContext"
+    },
+    {
+      "file_offset": "0x2a2ad8f",
+      "value": "setContextLine:"
+    },
+    {
+      "file_offset": "0x2a2b930",
+      "value": "_clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x2a2b950",
+      "value": "_clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x2a2b970",
+      "value": "_clipboardManager"
+    },
+    {
+      "file_offset": "0x2a2ba3a",
+      "value": "_context"
+    },
+    {
+      "file_offset": "0x2a2ba43",
+      "value": "_contextDictionary"
+    },
+    {
+      "file_offset": "0x2a2ba56",
+      "value": "_contextLine"
+    },
+    {
+      "file_offset": "0x2a2bcb3",
+      "value": "_customSamplingContext"
+    },
+    {
+      "file_offset": "0x2a2c0da",
+      "value": "_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x2a2c105",
+      "value": "_exceptionContext"
+    },
+    {
+      "file_offset": "0x2a2c9ef",
+      "value": "_machineContextWrapper"
+    },
+    {
+      "file_offset": "0x2a2cf83",
+      "value": "_postContext"
+    },
+    {
+      "file_offset": "0x2a2cf90",
+      "value": "_preContext"
+    },
+    {
+      "file_offset": "0x2a2d116",
+      "value": "_promptContext"
+    },
+    {
+      "file_offset": "0x2a2d125",
+      "value": "_propagationContext"
+    },
+    {
+      "file_offset": "0x2a2d139",
+      "value": "_propagationContextLock"
+    },
+    {
+      "file_offset": "0x2a2d340",
+      "value": "_restoreClipboardTimeDelay"
+    },
+    {
+      "file_offset": "0x2a2d933",
+      "value": "_systemContext"
+    },
+    {
+      "file_offset": "0x2a2da8c",
+      "value": "_traceContext"
+    },
+    {
+      "file_offset": "0x2a2dab0",
+      "value": "_transactionContext"
+    },
+    {
+      "file_offset": "0x2a2db7d",
+      "value": "_userContext"
+    },
+    {
+      "file_offset": "0x2a2de90",
+      "value": "activeClipboardContent"
+    },
+    {
+      "file_offset": "0x2a2e311",
+      "value": "addNSExceptionUserInfoToContext:"
+    },
+    {
+      "file_offset": "0x2a2ee70",
+      "value": "applicationContextEnabled"
+    },
+    {
+      "file_offset": "0x2a2f323",
+      "value": "applyCultureContextToEvent:"
+    },
+    {
+      "file_offset": "0x2a3008e",
+      "value": "buildStacktraceForThread:context:"
+    },
+    {
+      "file_offset": "0x2a300cb",
+      "value": "buildTraceContext:"
+    },
+    {
+      "file_offset": "0x2a30e30",
+      "value": "clipboardManager"
+    },
+    {
+      "file_offset": "0x2a30e46",
+      "value": "clipboardTimer"
+    },
+    {
+      "file_offset": "0x2a30e60",
+      "value": "clipboardUpdateCallback"
+    },
+    {
+      "file_offset": "0x2a317ad",
+      "value": "contextDictionary"
+    },
+    {
+      "file_offset": "0x2a317c0",
+      "value": "contextHandle"
+    },
+    {
+      "file_offset": "0x2a317ce",
+      "value": "contextLine"
+    },
+    {
+      "file_offset": "0x2a317da",
+      "value": "contextUserInfoFromNSExceptionUserInfo:"
+    },
+    {
+      "file_offset": "0x2a322d1",
+      "value": "customSamplingContext"
+    },
+    {
+      "file_offset": "0x2a32dc3",
+      "value": "descriptionForOperations:inContext:"
+    },
+    {
+      "file_offset": "0x2a341e9",
+      "value": "eventContextEnricher"
+    },
+    {
+      "file_offset": "0x2a34269",
+      "value": "exceptionContext"
+    },
+    {
+      "file_offset": "0x2a343e3",
+      "value": "extraContextProvider"
+    },
+    {
+      "file_offset": "0x2a3480d",
+      "value": "fillContextForCurrentThread:"
+    },
+    {
+      "file_offset": "0x2a34f11",
+      "value": "getContextForKey:"
+    },
+    {
+      "file_offset": "0x2a35a9e",
+      "value": "includeContext"
+    },
+    {
+      "file_offset": "0x2a36054",
+      "value": "initWithContext:"
+    },
+    {
+      "file_offset": "0x2a366b6",
+      "value": "initWithId:traceContext:"
+    },
+    {
+      "file_offset": "0x2a36d04",
+      "value": "initWithOptions:dateProvider:transportAdapter:fileManager:threadInspector:debugImageProvider:random:locale:timezone:eventContextEnricher:crashWrapper:binaryImageCache:dispatchQueueWrapper:"
+    },
+    {
+      "file_offset": "0x2a37285",
+      "value": "initWithStacktraceBuilder:andMachineContextWrapper:"
+    },
+    {
+      "file_offset": "0x2a37827",
+      "value": "initWithTracer:context:"
+    },
+    {
+      "file_offset": "0x2a3787b",
+      "value": "initWithTransactionContext:"
+    },
+    {
+      "file_offset": "0x2a37897",
+      "value": "initWithTransactionContext:customSamplingContext:"
+    },
+    {
+      "file_offset": "0x2a378c9",
+      "value": "initWithTransactionContext:hub:configuration:"
+    },
+    {
+      "file_offset": "0x2a3960b",
+      "value": "machineContextWrapper"
+    },
+    {
+      "file_offset": "0x2a39764",
+      "value": "managedObjectContext:executeFetchRequest:error:originalImp:"
+    },
+    {
+      "file_offset": "0x2a397a0",
+      "value": "managedObjectContext:save:originalImp:"
+    },
+    {
+      "file_offset": "0x2a3a1d8",
+      "value": "modifyContext:key:block:"
+    },
+    {
+      "file_offset": "0x2a3a321",
+      "value": "mouseEventWithType:location:modifierFlags:timestamp:windowNumber:context:eventNumber:clickCount:pressure:"
+    },
+    {
+      "file_offset": "0x2a3b225",
+      "value": "pasteContext"
+    },
+    {
+      "file_offset": "0x2a3b240",
+      "value": "pasteContextPrefetchTask"
+    },
+    {
+      "file_offset": "0x2a3b3e0",
+      "value": "pendingClipboardRestore"
+    },
+    {
+      "file_offset": "0x2a3b87d",
+      "value": "postContext"
+    },
+    {
+      "file_offset": "0x2a3b92c",
+      "value": "preContext"
+    },
+    {
+      "file_offset": "0x2a3c101",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x2a3c127",
+      "value": "propagationContext"
+    },
+    {
+      "file_offset": "0x2a3c13a",
+      "value": "propagationContextTraceId"
+    },
+    {
+      "file_offset": "0x2a3c479",
+      "value": "readPreviousContextFromDisk"
+    },
+    {
+      "file_offset": "0x2a3cc26",
+      "value": "removeContextForKey:"
+    },
+    {
+      "file_offset": "0x2a3cc4d",
+      "value": "removeExtraDeviceContextFromEvent:"
+    },
+    {
+      "file_offset": "0x2a3dd9a",
+      "value": "sendEvent:traceContext:attachments:"
+    },
+    {
+      "file_offset": "0x2a3ddbe",
+      "value": "sendEvent:traceContext:attachments:additionalEnvelopeItems:"
+    },
+    {
+      "file_offset": "0x2a3deb0",
+      "value": "sendEvent:withSession:traceContext:attachments:"
+    },
+    {
+      "file_offset": "0x2a3e0dd",
+      "value": "serializeForContext"
+    },
+    {
+      "file_offset": "0x2a3ec03",
+      "value": "setContext:"
+    },
+    {
+      "file_offset": "0x2a3ec0f",
+      "value": "setContextDictionary:"
+    },
+    {
+      "file_offset": "0x2a3ec25",
+      "value": "setContextValue:forKey:"
+    },
+    {
+      "file_offset": "0x2a3f44e",
+      "value": "setEventContextEnricher:"
+    },
+    {
+      "file_offset": "0x2a3f49a",
+      "value": "setExceptionContext:"
+    },
+    {
+      "file_offset": "0x2a3f4f9",
+      "value": "setExtraContextProvider:"
+    },
+    {
+      "file_offset": "0x2a3fca1",
+      "value": "setMachineContextWrapper:"
+    },
+    {
+      "file_offset": "0x2a40186",
+      "value": "setPreContext:"
+    },
+    {
+      "file_offset": "0x2a40332",
+      "value": "setPropagationContext:"
+    },
+    {
+      "file_offset": "0x2a40349",
+      "value": "setPropagationContextWithTraceId:spanId:"
+    },
+    {
+      "file_offset": "0x2a40a32",
+      "value": "setSystemContext:"
+    },
+    {
+      "file_offset": "0x2a40ce7",
+      "value": "setTraceContext:"
+    },
+    {
+      "file_offset": "0x2a40d47",
+      "value": "setTransactionContext:"
+    },
+    {
+      "file_offset": "0x2a41a7a",
+      "value": "startTransactionWithContext:"
+    },
+    {
+      "file_offset": "0x2a41a97",
+      "value": "startTransactionWithContext:bindToScope:"
+    },
+    {
+      "file_offset": "0x2a41ac0",
+      "value": "startTransactionWithContext:bindToScope:customSamplingContext:"
+    },
+    {
+      "file_offset": "0x2a41aff",
+      "value": "startTransactionWithContext:bindToScope:customSamplingContext:configuration:"
+    },
+    {
+      "file_offset": "0x2a41b4c",
+      "value": "startTransactionWithContext:customSamplingContext:"
+    },
+    {
+      "file_offset": "0x2a41f4b",
+      "value": "storeEvent:traceContext:"
+    },
+    {
+      "file_offset": "0x2a42040",
+      "value": "streamContexts"
+    },
+    {
+      "file_offset": "0x2a42050",
+      "value": "streamContextsLock"
+    },
+    {
+      "file_offset": "0x2a428c5",
+      "value": "systemContext"
+    },
+    {
+      "file_offset": "0x2a436c3",
+      "value": "traceContext"
+    },
+    {
+      "file_offset": "0x2a436d0",
+      "value": "traceContextForEvent"
+    },
+    {
+      "file_offset": "0x2a437f6",
+      "value": "transactionContext"
+    },
+    {
+      "file_offset": "0x2a43809",
+      "value": "transactionContext:withSampled:sampleRate:sampleRand:"
+    },
+    {
+      "file_offset": "0x2a44395",
+      "value": "userContext"
+    },
+    {
+      "file_offset": "0x2a44cbb",
+      "value": "whisperContext"
+    },
+    {
+      "file_offset": "0x2a46350",
+      "value": "v16@?0@\"NSAnimationContext\"8"
+    },
+    {
+      "file_offset": "0x2a48b14",
+      "value": "@\"<_TtP6Sentry26SentryEventContextEnricher_>\""
+    },
+    {
+      "file_offset": "0x2a48bdc",
+      "value": "v24@0:8^{SentryCrashMachineContext=I[100I]iBBBB{__darwin_mcontext64={__darwin_arm_exception_state64=QII}{__darwin_arm_thread_state64=[29Q]QQQQII}{__darwin_arm_neon_state64=[32T]II}}}16"
+    },
+    {
+      "file_offset": "0x2a48c95",
+      "value": "i24@0:8^{SentryCrashMachineContext=I[100I]iBBBB{__darwin_mcontext64={__darwin_arm_exception_state64=QII}{__darwin_arm_thread_state64=[29Q]QQQQII}{__darwin_arm_neon_state64=[32T]II}}}16"
+    },
+    {
+      "file_offset": "0x2a48d4e",
+      "value": "Q28@0:8^{SentryCrashMachineContext=I[100I]iBBBB{__darwin_mcontext64={__darwin_arm_exception_state64=QII}{__darwin_arm_thread_state64=[29Q]QQQQII}{__darwin_arm_neon_state64=[32T]II}}}16i24"
+    },
+    {
+      "file_offset": "0x2a49093",
+      "value": "@\"<SentryCrashMachineContextWrapper>\""
+    },
+    {
+      "file_offset": "0x2a491a2",
+      "value": "@\"SentryTransactionContext\""
+    },
+    {
+      "file_offset": "0x2a4942c",
+      "value": "@\"SentrySpanContext\""
+    },
+    {
+      "file_offset": "0x2a4946f",
+      "value": "@\"SentryTraceContext\""
+    },
+    {
+      "file_offset": "0x2a4967c",
+      "value": "@\"SentryTraceContext\"16@0:8"
+    },
+    {
+      "file_offset": "0x2a498ce",
+      "value": "@\"SentryMechanismContext\""
+    },
+    {
+      "file_offset": "0x2a49b1f",
+      "value": "@\"_TtC6Sentry24SentryPropagationContext\""
+    },
+    {
+      "file_offset": "0x2a49e15",
+      "value": "@32@0:8Q16^{SentryCrashMachineContext=I[100I]iBBBB{__darwin_mcontext64={__darwin_arm_exception_state64=QII}{__darwin_arm_thread_state64=[29Q]QQQQII}{__darwin_arm_neon_state64=[32T]II}}}24"
+    },
+    {
+      "file_offset": "0x2a4c065",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x2a4d01f",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a4d316",
+      "value": "clipboardTimer"
+    },
+    {
+      "file_offset": "0x2a4d350",
+      "value": "clipboardUpdateCallback"
+    },
+    {
+      "file_offset": "0x2a4d6b0",
+      "value": "applicationContextEnabled"
+    },
+    {
+      "file_offset": "0x2a4d6d1",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x2a4e580",
+      "value": "clipboardManager"
+    },
+    {
+      "file_offset": "0x2a4e66d",
+      "value": "contextTemplate"
+    },
+    {
+      "file_offset": "0x2a4e6c0",
+      "value": "contextFromSelection"
+    },
+    {
+      "file_offset": "0x2a4e6e0",
+      "value": "contextFromClipboard"
+    },
+    {
+      "file_offset": "0x2a4e700",
+      "value": "contextFromActiveApplication"
+    },
+    {
+      "file_offset": "0x2a4f44d",
+      "value": "contextWindow"
+    },
+    {
+      "file_offset": "0x2a4fd06",
+      "value": "_promptContext"
+    },
+    {
+      "file_offset": "0x2a4fe80",
+      "value": "pendingClipboardRestore"
+    },
+    {
+      "file_offset": "0x2a4fec0",
+      "value": "_clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x2a4fee0",
+      "value": "_clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x2a4ff00",
+      "value": "_restoreClipboardTimeDelay"
+    },
+    {
+      "file_offset": "0x2a5007b",
+      "value": "whisperContext"
+    },
+    {
+      "file_offset": "0x2a5036e",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a52c90",
+      "value": "_clipboardBehaviour"
+    },
+    {
+      "file_offset": "0x2a52cb0",
+      "value": "_clipboardHistoryEnabled"
+    },
+    {
+      "file_offset": "0x2a55860",
+      "value": "clipboardEnabled"
+    },
+    {
+      "file_offset": "0x2a55890",
+      "value": "_isSelectedTextIndicatorHovered"
+    },
+    {
+      "file_offset": "0x2a57f00",
+      "value": "_clipboardManager"
+    },
+    {
+      "file_offset": "0x2a58215",
+      "value": "pasteContext"
+    },
+    {
+      "file_offset": "0x2a58230",
+      "value": "pasteContextPrefetchTask"
+    },
+    {
+      "file_offset": "0x2a584d0",
+      "value": "activeClipboardContent"
+    },
+    {
+      "file_offset": "0x2a58793",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x2a58990",
+      "value": "clipboardContent"
+    },
+    {
+      "file_offset": "0x2a589b0",
+      "value": "clipboardChangeCount"
+    },
+    {
+      "file_offset": "0x2a589d0",
+      "value": "clipboardLastUpdated"
+    },
+    {
+      "file_offset": "0x2a58f59",
+      "value": "modeContext"
+    },
+    {
+      "file_offset": "0x2a58f65",
+      "value": "systemContext"
+    },
+    {
+      "file_offset": "0x2a58f73",
+      "value": "userContext"
+    },
+    {
+      "file_offset": "0x2a58f80",
+      "value": "applicationContext"
+    },
+    {
+      "file_offset": "0x2a58fcc",
+      "value": "clipboard"
+    },
+    {
+      "file_offset": "0x2a59036",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x2a59120",
+      "value": "contextCreationFailed"
+    },
+    {
+      "file_offset": "0x2a59331",
+      "value": "contextHandle"
+    },
+    {
+      "file_offset": "0x2a5940e",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a59420",
+      "value": "couldNotInitializeContext"
+    },
+    {
+      "file_offset": "0x2a59713",
+      "value": "streamContexts"
+    },
+    {
+      "file_offset": "0x2a59730",
+      "value": "streamContextsLock"
+    },
+    {
+      "file_offset": "0x2a5ed2d",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a5f560",
+      "value": "contextCreationFailed"
+    },
+    {
+      "file_offset": "0x2a5f600",
+      "value": "contextOverflow"
+    },
+    {
+      "file_offset": "0x2a5f6ce",
+      "value": "contextFull"
+    },
+    {
+      "file_offset": "0x2a5f745",
+      "value": "contextSize"
+    },
+    {
+      "file_offset": "0x2a601ba",
+      "value": "contextTotals"
+    },
+    {
+      "file_offset": "0x2a6425d",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a650c4",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a66dc3",
+      "value": "includeContext"
+    },
+    {
+      "file_offset": "0x2a66e4a",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a66e5a",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a673f0",
+      "value": "selectedTextChanged"
+    },
+    {
+      "file_offset": "0x2a67ba1",
+      "value": "selectedText"
+    },
+    {
+      "file_offset": "0x2a67bb0",
+      "value": "selectedTextRange"
+    },
+    {
+      "file_offset": "0x2a67c70",
+      "value": "selectedTextRanges"
+    },
+    {
+      "file_offset": "0x2a6940b",
+      "value": "contextLine"
+    },
+    {
+      "file_offset": "0x2a69417",
+      "value": "preContext"
+    },
+    {
+      "file_offset": "0x2a69422",
+      "value": "postContext"
+    },
+    {
+      "file_offset": "0x2a695ff",
+      "value": "traceContext"
+    },
+    {
+      "file_offset": "0x2a6a165",
+      "value": "context"
+    },
+    {
+      "file_offset": "0x2a6a670",
+      "value": "_extraContextProvider"
+    },
+    {
+      "file_offset": "0x2a6a690",
+      "value": "$__lazy_storage_$_extraContextProvider"
+    },
+    {
+      "file_offset": "0x2a6a6c0",
+      "value": "_eventContextEnricher"
+    },
+    {
+      "file_offset": "0x2c3d0c8",
+      "value": "promptContext"
+    },
+    {
+      "file_offset": "0x2c8acc8",
+      "value": "clipboard"
+    },
+    {
+      "file_offset": "0x2d23338",
+      "value": "_$s7SwiftUI19NSViewRepresentableP04makeC07context0C4TypeQzAA0cD7ContextVyxG_tFTq"
+    },
+    {
+      "file_offset": "0x2d23389",
+      "value": "_$s7SwiftUI19NSViewRepresentableP06updateC0_7contexty0C4TypeQz_AA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x2d234d2",
+      "value": "_$s7SwiftUI19NSViewRepresentableP12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x2d2809c",
+      "value": "_$sScf31isSameExclusiveExecutionContext5otherSbx_tFTq"
+    },
+    {
+      "file_offset": "0x2d280ed",
+      "value": "_$sScf25isIsolatingCurrentContextSbSgyFTq"
+    },
+    {
+      "file_offset": "0x2d34432",
+      "value": "_kCFStreamPropertySSLContext"
+    },
+    {
+      "file_offset": "0x2d3532f",
+      "value": "_llama_context_default_params"
+    },
+    {
+      "file_offset": "0x2d356c0",
+      "value": "_llama_perf_context"
+    },
+    {
+      "file_offset": "0x2d356d4",
+      "value": "_llama_perf_context_reset"
+    },
+    {
+      "file_offset": "0x2d4302e",
+      "value": "_NSAccessibilitySelectedTextAttribute"
+    },
+    {
+      "file_offset": "0x2d45725",
+      "value": "_CGBitmapContextCreate"
+    },
+    {
+      "file_offset": "0x2d4573c",
+      "value": "_CGBitmapContextCreateImage"
+    },
+    {
+      "file_offset": "0x2d457ad",
+      "value": "_CGContextAddPath"
+    },
+    {
+      "file_offset": "0x2d457bf",
+      "value": "_CGContextBeginTransparencyLayer"
+    },
+    {
+      "file_offset": "0x2d457e0",
+      "value": "_CGContextEndTransparencyLayer"
+    },
+    {
+      "file_offset": "0x2d457ff",
+      "value": "_CGContextFillRect"
+    },
+    {
+      "file_offset": "0x2d45812",
+      "value": "_CGContextFlush"
+    },
+    {
+      "file_offset": "0x2d45822",
+      "value": "_CGContextSetFillColorWithColor"
+    },
+    {
+      "file_offset": "0x2d4721c",
+      "value": "_$s7Network12NWConnectionC14ContentContextC14defaultMessageAEvgZ"
+    },
+    {
+      "file_offset": "0x2d4725d",
+      "value": "_$s7Network12NWConnectionC14ContentContextC7isFinalSbvg"
+    },
+    {
+      "file_offset": "0x2d47295",
+      "value": "_$s7Network12NWConnectionC14ContentContextCMa"
+    },
+    {
+      "file_offset": "0x2d4745c",
+      "value": "_$s7Network12NWConnectionC4send7content0D7Context10isComplete10completiony10Foundation4DataVSg_AC07ContentE0CSbAC14SendCompletionOtF"
+    },
+    {
+      "file_offset": "0x2d476ac",
+      "value": "_$s7Network12NWConnectionC7receive23minimumIncompleteLength07maximumF010completionySi_Siy10Foundation4DataVSg_AC14ContentContextCSgSbAA7NWErrorOSgtctF"
+    },
+    {
+      "file_offset": "0x2d4a9ea",
+      "value": "_$s7SwiftUI15GraphicsContextV4fill_4with5styleyAA4PathV_AC7ShadingVAA9FillStyleVtF"
+    },
+    {
+      "file_offset": "0x2d4aa3d",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingV5coloryAeA5ColorVFZ"
+    },
+    {
+      "file_offset": "0x2d4aa77",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingVMa"
+    },
+    {
+      "file_offset": "0x2d4caae",
+      "value": "_$s7SwiftUI19NSViewRepresentablePAAE12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtF"
+    },
+    {
+      "file_offset": "0x2d4e419",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextV11coordinator11CoordinatorQzvg"
+    },
+    {
+      "file_offset": "0x2d4e460",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextVMn"
+    },
+    {
+      "file_offset": "0x2d4f8d0",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lF"
+    },
+    {
+      "file_offset": "0x2d4f910",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lFQOMQ"
+    },
+    {
+      "file_offset": "0x2d52668",
+      "value": "_$s7SwiftUI6CanvasVA2A9EmptyViewVRszrlE6opaque9colorMode21rendersAsynchronously8rendererACyAEGSb_AA014ColorRenderingH0OSbyAA15GraphicsContextVz_So6CGSizeVtctcfC"
+    },
+    {
+      "file_offset": "0x2d5451c",
+      "value": "_$sSo18NSAnimationContextC7SwiftUIE7animate_7changes10completionyAC9AnimationV_yyXEyycSgtFZ"
+    },
+    {
+      "file_offset": "0x2d54667",
+      "value": "_sqlite3_aggregate_context"
+    },
+    {
+      "file_offset": "0x2d59473",
+      "value": "_$ss13DecodingErrorO11keyNotFoundyABs9CodingKey_p_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2d594b9",
+      "value": "_$ss13DecodingErrorO12typeMismatchyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2d594f7",
+      "value": "_$ss13DecodingErrorO13dataCorruptedyA2B7ContextVcABmFWC"
+    },
+    {
+      "file_offset": "0x2d5952f",
+      "value": "_$ss13DecodingErrorO13valueNotFoundyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2d5956e",
+      "value": "_$ss13DecodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x2d595db",
+      "value": "_$ss13DecodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x2d595fb",
+      "value": "_$ss13DecodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x2d5964e",
+      "value": "_$ss13EncodingErrorO12invalidValueyAByp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2d5968a",
+      "value": "_$ss13EncodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x2d596f7",
+      "value": "_$ss13EncodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x2d59717",
+      "value": "_$ss13EncodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x2d602f0",
+      "value": "_swift_getTypeByMangledNameInContext"
+    },
+    {
+      "file_offset": "0x2d60315",
+      "value": "_swift_getTypeByMangledNameInContext2"
+    },
+    {
+      "file_offset": "0x2d6033b",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState"
+    },
+    {
+      "file_offset": "0x2d6036f",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState2"
+    },
+    {
+      "file_offset": "0x2d62f75",
+      "value": "_$sScfsE25isIsolatingCurrentContextSbSgyF"
+    },
+    {
+      "file_offset": "0x2d62f9f",
+      "value": "_$sScfsE31isSameExclusiveExecutionContext5otherSbx_tF"
+    },
+    {
+      "file_offset": "0x2d64885",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE4draw_2in8byTilingySo07CGImageB0a_So6CGRectVSbtF"
+    },
+    {
+      "file_offset": "0x2d648d9",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE8fillPath5usingyAC14CGPathFillRuleO_tF"
+    },
+    {
+      "file_offset": "0x2d65c5a",
+      "value": "_OBJC_CLASS_$_NSAnimationContext"
+    },
+    {
+      "file_offset": "0x2d66152",
+      "value": "_OBJC_CLASS_$_CIContext"
+    },
+    {
+      "file_offset": "0x2d6660f",
+      "value": "_OBJC_CLASS_$_NSManagedObjectContext"
+    },
+    {
+      "file_offset": "0x2d754e3",
+      "value": "17additionalContextSaySiGSaySDySSs8Sendable_pGG_AA0fG8ArgumentOSgS2bSiSgAOSgANSgtKF"
+    },
+    {
+      "file_offset": "0x2d75645",
+      "value": "17additionalContextSaySiGSaySDySSs8Sendable_pGG_AKSgAJSgtKF"
+    },
+    {
+      "file_offset": "0x2d7b406",
+      "value": "5reset18prefilledCacheSize15maxTokenContextySi_SitF"
+    },
+    {
+      "file_offset": "0x2d82bc6",
+      "value": "extDecoderContextPrefillC"
+    },
+    {
+      "file_offset": "0x2d83ba5",
+      "value": "5maxTokenContextSiv"
+    },
+    {
+      "file_offset": "0x2d8878e",
+      "value": "3contextHandles13OpaquePointerVSgvpfi"
+    },
+    {
+      "file_offset": "0x2d89900",
+      "value": "15getSelectedText12afterPerformSSSgyyKc_tYaF"
+    },
+    {
+      "file_offset": "0x2d98cd0",
+      "value": "callAsFunction_13contextStates13attentionMask5cache0C08MLXArrayC_AJ_AJttAJ_AJSgAkJ_AJtSgtF"
+    },
+    {
+      "file_offset": "0x2dc42f7",
+      "value": "3valueMismatch_15sqliteStatement5index7contextACypXp_s13OpaquePointerVs5Int32VAA0bC7ContextVtFZ"
+    },
+    {
+      "file_offset": "0x2dc435a",
+      "value": "4columnNotFound_7contextACSS_AA0bC7ContextVtFZ"
+    },
+    {
+      "file_offset": "0x2dc447f",
+      "value": "7ContextV"
+    },
+    {
+      "file_offset": "0x2dc841f",
+      "value": "RowDecodingContextV"
+    },
+    {
+      "file_offset": "0x2dca8dd",
+      "value": "E8tokenize7context12tokenization5pText01nH013tokenCallbacks5Int32VSvSg_AA0B12TokenizationVSPys4Int8VGSgA2kL_Akr3KtXCtF"
+    },
+    {
+      "file_offset": "0x2dceb71",
+      "value": "04fromE016atUncheckedIndex7contextxs13OpaquePointerV_s5Int32VAA18RowDecodingContextVyXKtKFZ"
+    },
+    {
+      "file_offset": "0x2dced2e",
+      "value": "4_valueMismatch04fromE016atUncheckedIndex7contexts5NeverOs13OpaquePointerV_s5Int32VAA18RowDecodingContextVyXKtKFZ"
+    },
+    {
+      "file_offset": "0x2deb5bf",
+      "value": " streamContexts33_80D233CA31083115605D1D28DAAF84D0LLSDyAA15AnyStreamSourceAELLVAC0M7ContextAELLCGvpfi"
+    },
+    {
+      "file_offset": "0x2deb6a7",
+      "value": " reamContextsLock33_80D233CA31083115605D1D28DAAF84D0LLSo6NSLockCvpfi"
+    },
+    {
+      "file_offset": "0x2df0cb8",
+      "value": "12traceContextACSo0A2IdCSg_So0a5TraceF0CSgtcf"
+    },
+    {
+      "file_offset": "0x2df0dce",
+      "value": "12traceContextSo0a5TraceE0CSgv"
+    },
+    {
+      "file_offset": "0x2df35bd",
+      "value": "\"PropagationContextC"
+    },
+    {
+      "file_offset": "0x2df3d20",
+      "value": "ventContextEnricherAA0a5EventeF0_pv"
+    },
+    {
+      "file_offset": "0x2df3d46",
+      "value": "#xtraContextProviderAA0a5ExtraeF0Cv"
+    },
+    {
+      "file_offset": "0x2df534d",
+      "value": "#7readPreviousContextFromDiskSDySSSDySSypGGSgyFT"
+    },
+    {
+      "file_offset": "0x2df54cc",
+      "value": "#ExtraContextProviderC"
+    },
+    {
+      "file_offset": "0x2df5bba",
+      "value": "#19serializeForContextSDySSypGSgyF"
+    },
+    {
+      "file_offset": "0x2df6736",
+      "value": "18transactionContext"
+    },
+    {
+      "file_offset": "0x2df7316",
+      "value": "18transactionContext"
+    },
+    {
+      "file_offset": "0x2dfbc32",
+      "value": "%tracesSamplerSo8NSNumberCSgSo0A15SamplingContextCcSgv"
+    },
+    {
+      "file_offset": "0x2dfddb2",
+      "value": "%selectedTextSSSgyKF"
+    },
+    {
+      "file_offset": "0x2dfde81",
+      "value": "%selectedTextRangeSo7CFRangeaSgyKF"
+    },
+    {
+      "file_offset": "0x2e014c6",
+      "value": "7handlerAcA5TokenC_SSAA7ContextCKctcf"
+    },
+    {
+      "file_offset": "0x2e015b1",
+      "value": "&6renderySSAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x2e015cc",
+      "value": "&7handlerySSAA7ContextCKcv"
+    },
+    {
+      "file_offset": "0x2e017b5",
+      "value": "4name7contextS2S_SDySSypGtKF"
+    },
+    {
+      "file_offset": "0x2e017d4",
+      "value": "&6string7contextS2S_SDySSypGtKF"
+    },
+    {
+      "file_offset": "0x2e01d23",
+      "value": "&renderNodesySSSayAA8NodeType_pG_AA7ContextCtKF"
+    },
+    {
+      "file_offset": "0x2e01f3a",
+      "value": "&6renderySSAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x2e020b2",
+      "value": "&7resolveyypSgAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x2e027da",
+      "value": "losureACypAA7ContextCKc_tcf"
+    },
+    {
+      "file_offset": "0x2e027f8",
+      "value": "&opying7closureAcA7ContextC_ypAGKctcf"
+    },
+    {
+      "file_offset": "0x2e0282e",
+      "value": "&resolveyypSgAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x2e038ea",
+      "value": "AA7ContextCKF"
+    },
+    {
+      "file_offset": "0x2e03c57",
+      "value": "'6renderySSAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x2e03d46",
+      "value": "'7resolveyypSgAA7ContextCKF"
+    },
+    {
+      "file_offset": "0x2e03e30",
+      "value": "AA7ContextCtKctF"
+    },
+    {
+      "file_offset": "0x2e03f19",
+      "value": "'7registerSimpleTag_7handlerySS_SSAA7ContextCKctF"
+    },
+    {
+      "file_offset": "0x2e0416c",
+      "value": "&7ContextC"
+    },
+    {
+      "file_offset": "0x2e0ccfa",
+      "value": "contextSizeSiv"
+    },
+    {
+      "file_offset": "0x2e2eec1",
+      "value": "efaultMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x2e2f330",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e2f5b9",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e2f66b",
+      "value": "1amplingContext"
+    },
+    {
+      "file_offset": "0x2e2f713",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e2f742",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e2ffb1",
+      "value": "2PropagationContext"
+    },
+    {
+      "file_offset": "0x2e3010e",
+      "value": "2ExtraContextProvider"
+    },
+    {
+      "file_offset": "0x2e30673",
+      "value": "efaultMachineContextWrapper"
+    },
+    {
+      "file_offset": "0x2e30ae2",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e30d6b",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e30e1d",
+      "value": "2amplingContext"
+    },
+    {
+      "file_offset": "0x2e30ec5",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e30ef4",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e31763",
+      "value": "2PropagationContext"
+    },
+    {
+      "file_offset": "0x2e318c0",
+      "value": "2ExtraContextProvider"
+    },
+    {
+      "file_offset": "0x2e31e72",
+      "value": "fromPK13llama_contextRKNSt3__16vectorIiNS2_9allocatorIiEEEE"
+    },
+    {
+      "file_offset": "0x2e32132",
+      "value": "23llama_contextRKNSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEEbb"
+    },
+    {
+      "file_offset": "0x2e3225d",
+      "value": "common_perf_printPK13llama_contextPK14common_sampler"
+    },
+    {
+      "file_offset": "0x2e326e2",
+      "value": "2sampleP14common_samplerP13llama_contextib"
+    },
+    {
+      "file_offset": "0x2e32731",
+      "value": "23llama_contextib"
+    },
+    {
+      "file_offset": "0x2e32806",
+      "value": "2prev_strP14common_samplerP13llama_contexti"
+    },
+    {
+      "file_offset": "0x2e32848",
+      "value": "2et_adapter_loraP13llama_contextRNSt3__16vectorI24common_adapter_lora_infoNS1_9allocatorIS3_EEEE"
+    },
+    {
+      "file_offset": "0x2e340d8",
+      "value": "37contextEv"
+    },
+    {
+      "file_offset": "0x2e34982",
+      "value": "for_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e349ae",
+      "value": "3set_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34a0b",
+      "value": "call_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34a4e",
+      "value": "3macro_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34a7d",
+      "value": "3test_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34ac4",
+      "value": "filter_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34bd3",
+      "value": "3unary_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34c22",
+      "value": "binary_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34c52",
+      "value": "3filter_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34c83",
+      "value": "3member_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34ce1",
+      "value": "0identifier12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34d0b",
+      "value": "32if_statement12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34d3d",
+      "value": "34object_literal12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e34dc9",
+      "value": "37keyword_argument_expression12execute_implERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e35044",
+      "value": "3statement7executeERNS_7contextE"
+    },
+    {
+      "file_offset": "0x2e3c4c2",
+      "value": "stroy_context"
+    },
+    {
+      "file_offset": "0x2e3c57b",
+      "value": "5lease_context_for_sleep"
+    },
+    {
+      "file_offset": "0x2e3c622",
+      "value": "5create_context"
+    },
+    {
+      "file_offset": "0x2e3db8b",
+      "value": "5raceContext"
+    },
+    {
+      "file_offset": "0x2e3dba4",
+      "value": "Context"
+    },
+    {
+      "file_offset": "0x2e3e8c0",
+      "value": "5FromContext"
+    },
+    {
+      "file_offset": "0x2e3e8d2",
+      "value": "ContextFor"
+    },
+    {
+      "file_offset": "0x2e3e910",
+      "value": "5sCrashedContext"
+    },
+    {
+      "file_offset": "0x2e3ecbf",
+      "value": "5MachineContext"
+    },
+    {
+      "file_offset": "0x2e403f7",
+      "value": "context_default_params"
+    },
+    {
+      "file_offset": "0x2e8d0e6",
+      "value": "_$s7Network12NWConnectionC14ContentContextC14defaultMessageAEvgZ"
+    },
+    {
+      "file_offset": "0x2e8d127",
+      "value": "_$s7Network12NWConnectionC14ContentContextC7isFinalSbvg"
+    },
+    {
+      "file_offset": "0x2e8d15f",
+      "value": "_$s7Network12NWConnectionC14ContentContextCMa"
+    },
+    {
+      "file_offset": "0x2e8d326",
+      "value": "_$s7Network12NWConnectionC4send7content0D7Context10isComplete10completiony10Foundation4DataVSg_AC07ContentE0CSbAC14SendCompletionOtF"
+    },
+    {
+      "file_offset": "0x2e8d576",
+      "value": "_$s7Network12NWConnectionC7receive23minimumIncompleteLength07maximumF010completionySi_Siy10Foundation4DataVSg_AC14ContentContextCSgSbAA7NWErrorOSgtctF"
+    },
+    {
+      "file_offset": "0x2e90b5b",
+      "value": "_$s7SwiftUI15GraphicsContextV4fill_4with5styleyAA4PathV_AC7ShadingVAA9FillStyleVtF"
+    },
+    {
+      "file_offset": "0x2e90bae",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingV5coloryAeA5ColorVFZ"
+    },
+    {
+      "file_offset": "0x2e90be8",
+      "value": "_$s7SwiftUI15GraphicsContextV7ShadingVMa"
+    },
+    {
+      "file_offset": "0x2e93042",
+      "value": "_$s7SwiftUI19NSViewRepresentableP04makeC07context0C4TypeQzAA0cD7ContextVyxG_tFTq"
+    },
+    {
+      "file_offset": "0x2e93093",
+      "value": "_$s7SwiftUI19NSViewRepresentableP06updateC0_7contexty0C4TypeQz_AA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x2e93144",
+      "value": "_$s7SwiftUI19NSViewRepresentableP12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtFTq"
+    },
+    {
+      "file_offset": "0x2e9349e",
+      "value": "_$s7SwiftUI19NSViewRepresentablePAAE12sizeThatFits_6nsView7contextSo6CGSizeVSgAA08ProposedI4SizeV_0C4TypeQzAA0cD7ContextVyxGtF"
+    },
+    {
+      "file_offset": "0x2e94e09",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextV11coordinator11CoordinatorQzvg"
+    },
+    {
+      "file_offset": "0x2e94e50",
+      "value": "_$s7SwiftUI26NSViewRepresentableContextVMn"
+    },
+    {
+      "file_offset": "0x2e96417",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lF"
+    },
+    {
+      "file_offset": "0x2e96457",
+      "value": "_$s7SwiftUI4ViewPAAE11contextMenu9menuItemsQrqd__yXE_tAaBRd__lFQOMQ"
+    },
+    {
+      "file_offset": "0x2e992dd",
+      "value": "_$s7SwiftUI6CanvasVA2A9EmptyViewVRszrlE6opaque9colorMode21rendersAsynchronously8rendererACyAEGSb_AA014ColorRenderingH0OSbyAA15GraphicsContextVz_So6CGSizeVtctcfC"
+    },
+    {
+      "file_offset": "0x2ea1000",
+      "value": "_$sScf25isIsolatingCurrentContextSbSgyFTq"
+    },
+    {
+      "file_offset": "0x2ea102a",
+      "value": "_$sScf31isSameExclusiveExecutionContext5otherSbx_tFTq"
+    },
+    {
+      "file_offset": "0x2ea10cb",
+      "value": "_$sScfsE25isIsolatingCurrentContextSbSgyF"
+    },
+    {
+      "file_offset": "0x2ea10f5",
+      "value": "_$sScfsE31isSameExclusiveExecutionContext5otherSbx_tF"
+    },
+    {
+      "file_offset": "0x2ea2e47",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE4draw_2in8byTilingySo07CGImageB0a_So6CGRectVSbtF"
+    },
+    {
+      "file_offset": "0x2ea2e9b",
+      "value": "_$sSo12CGContextRefa12CoreGraphicsE8fillPath5usingyAC14CGPathFillRuleO_tF"
+    },
+    {
+      "file_offset": "0x2ea43ed",
+      "value": "_$sSo18NSAnimationContextC7SwiftUIE7animate_7changes10completionyAC9AnimationV_yyXEyycSgtFZ"
+    },
+    {
+      "file_offset": "0x2ea7c48",
+      "value": "_$ss13DecodingErrorO11keyNotFoundyABs9CodingKey_p_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2ea7c8e",
+      "value": "_$ss13DecodingErrorO12typeMismatchyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2ea7ccc",
+      "value": "_$ss13DecodingErrorO13dataCorruptedyA2B7ContextVcABmFWC"
+    },
+    {
+      "file_offset": "0x2ea7d04",
+      "value": "_$ss13DecodingErrorO13valueNotFoundyABypXp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2ea7d43",
+      "value": "_$ss13DecodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x2ea7db0",
+      "value": "_$ss13DecodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x2ea7dd0",
+      "value": "_$ss13DecodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x2ea7e23",
+      "value": "_$ss13EncodingErrorO12invalidValueyAByp_AB7ContextVtcABmFWC"
+    },
+    {
+      "file_offset": "0x2ea7e5f",
+      "value": "_$ss13EncodingErrorO7ContextV10codingPath16debugDescription010underlyingB0ADSays9CodingKey_pG_SSs0B0_pSgtcfC"
+    },
+    {
+      "file_offset": "0x2ea7ecc",
+      "value": "_$ss13EncodingErrorO7ContextVMa"
+    },
+    {
+      "file_offset": "0x2ea7eec",
+      "value": "_$ss13EncodingErrorO7ContextVMn"
+    },
+    {
+      "file_offset": "0x2eb42d2",
+      "value": "_CGBitmapContextCreate"
+    },
+    {
+      "file_offset": "0x2eb42e9",
+      "value": "_CGBitmapContextCreateImage"
+    },
+    {
+      "file_offset": "0x2eb435a",
+      "value": "_CGContextAddPath"
+    },
+    {
+      "file_offset": "0x2eb436c",
+      "value": "_CGContextBeginTransparencyLayer"
+    },
+    {
+      "file_offset": "0x2eb438d",
+      "value": "_CGContextEndTransparencyLayer"
+    },
+    {
+      "file_offset": "0x2eb43ac",
+      "value": "_CGContextFillRect"
+    },
+    {
+      "file_offset": "0x2eb43bf",
+      "value": "_CGContextFlush"
+    },
+    {
+      "file_offset": "0x2eb43cf",
+      "value": "_CGContextSetFillColorWithColor"
+    },
+    {
+      "file_offset": "0x2eb5046",
+      "value": "_NSAccessibilitySelectedTextAttribute"
+    },
+    {
+      "file_offset": "0x2eb5dbe",
+      "value": "_OBJC_CLASS_$_CIContext"
+    },
+    {
+      "file_offset": "0x2eb602e",
+      "value": "_OBJC_CLASS_$_NSAnimationContext"
+    },
+    {
+      "file_offset": "0x2eb658f",
+      "value": "_OBJC_CLASS_$_NSManagedObjectContext"
+    },
+    {
+      "file_offset": "0x2ebc3b2",
+      "value": "_kCFStreamPropertySSLContext"
+    },
+    {
+      "file_offset": "0x2ebc7c6",
+      "value": "_llama_context_default_params"
+    },
+    {
+      "file_offset": "0x2ebcb57",
+      "value": "_llama_perf_context"
+    },
+    {
+      "file_offset": "0x2ebcb6b",
+      "value": "_llama_perf_context_reset"
+    },
+    {
+      "file_offset": "0x2ebf5a7",
+      "value": "_sqlite3_aggregate_context"
+    },
+    {
+      "file_offset": "0x2ec0522",
+      "value": "_swift_getTypeByMangledNameInContext"
+    },
+    {
+      "file_offset": "0x2ec0547",
+      "value": "_swift_getTypeByMangledNameInContext2"
+    },
+    {
+      "file_offset": "0x2ec056d",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState"
+    },
+    {
+      "file_offset": "0x2ec05a1",
+      "value": "_swift_getTypeByMangledNameInContextInMetadataState2"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WithType · 落墨成字</title>
+<link rel="preload" href="/fonts/noto-sans-sc-variable.woff2" as="font" type="font/woff2" crossorigin>
+<style>html,body { margin:0;width:100%;height:100%;overflow:hidden;background:#f8f7ef; }</style>
+</head>
+<body>
+<div id="stage" class="ink-entry-shell" tabindex="-1" aria-label="动画预览">
+  <div id="world" class="ink-entry-world" data-finished="false">
+    <div id="app-root" class="ink-entry-ui"></div>
+    <div id="paper" class="ink-entry-paper" aria-hidden="true"><canvas id="fibers"></canvas></div>
+    <canvas id="ink" class="ink-entry-ink" aria-hidden="true"></canvas>
+  </div>
+</div>
+<script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from '/src/App.jsx';
+import { createInkWelcome, DURATION } from '/src/ui/inkWelcome.js';
+import { createInkWelcomePlayer } from '/src/ui/inkWelcomePlayer.js';
+import * as motion from '/src/ui/inkWelcomeMotion.js';
+import { normalizeWelcomeText } from '/src/ui/welcome.js';
+import '/src/styles.css';
+import '/src/ui/ink-welcome.css';
+
+document.documentElement.dataset.surface='main';
+const query=new URLSearchParams(location.search);
+const world=document.getElementById('world'),ui=document.getElementById('app-root');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const renderer=createInkWelcome({world,ui,paper:document.getElementById('paper'),ink:document.getElementById('ink'),fibers:document.getElementById('fibers')});
+const player=createInkWelcomePlayer({renderer,reducedMotion:()=>reduced.matches||query.has('reduced'),onFinish:ms=>{world.dataset.playbackMs=ms.toFixed(1);}});
+let fontsReady=false,welcomeText=null,ready=false,skipped=false,resolveReady;
+window.__ready=new Promise(resolve=>{resolveReady=resolve;});
+const finish=()=>{skipped=true;player.finish();};
+const replay=()=>{if(ready){renderer.prepare(welcomeText);player.play();}};
+function start(){
+  if(ready||!fontsReady||welcomeText===null)return;
+  renderer.prepare(welcomeText);ready=true;world.dataset.ready='true';
+  if(skipped||reduced.matches||query.has('reduced'))finish();
+  else if(query.has('t')&&Number.isFinite(Number(query.get('t'))))player.seek(Number(query.get('t')));
+  else player.play();
+  resolveReady(true);
+}
+function receiveWelcome(value){welcomeText=normalizeWelcomeText(value);if(!ready)start();}
+const root=createRoot(ui);
+root.render(React.createElement(App,{onWelcomeChange:receiveWelcome,onReplayEntrance:replay,onEntranceUnavailable:finish}));
+document.fonts.load('420 30px "WithType UI"').then(()=>document.fonts.ready).then(()=>{fontsReady=true;start();}).catch(()=>{fontsReady=true;start();});
+addEventListener('pointerdown',()=>{if(world.dataset.finished!=='true')finish();},{capture:true});
+addEventListener('keydown',event=>{
+  if(query.has('frames')&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){
+    event.preventDefault();const t=renderer.snapshot().time,step=event.shiftKey?1/480:1/30;
+    player.seek(event.key==='Home'?0:event.key==='End'?DURATION:t+(event.key==='ArrowRight'?step:-step));return;
+  }
+  if(['Shift','Control','Alt','Meta'].includes(event.key)||world.dataset.finished==='true')return;
+  finish();if(event.key==='Tab'){event.preventDefault();ui.querySelector('button')?.focus();}
+},{capture:true});
+addEventListener('resize',()=>{if(!ready)return;const before=renderer.snapshot();if(before.width===world.clientWidth&&before.height===world.clientHeight)return;renderer.prepare(welcomeText);player.isPlaying()?finish():player.seek(before.time);});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&player.isPlaying())finish();});
+reduced.addEventListener('change',()=>{if(reduced.matches)finish();});
+addEventListener('pagehide',()=>{player.dispose();renderer.destroy();root.unmount();},{once:true});
+window.__seek=t=>player.seek(t);
+window.__track=t=>renderer.track(t);
+window.__snapshot=()=>renderer.snapshot();
+window.__meta={dur:DURATION,fps:30,cuts:[],beats:[0,.14,.70,1.16,2,2.7,DURATION],inFrame:{drop:[0,.88,'whole'],ink:[.70,3.1,'whole']}};
+window.__motion=(a,b)=>{
+  const {width:W,height:H,dropHeight,textWidth,fontSize}=renderer.snapshot();
+  const project=(t,p)=>{const m=motion.view(motion.cameraAt(t,W,H),{W,H});return[m[0]*(W/2+p.x)+m[4],m[3]*(H/2+p.y)+m[5]];};
+  const A=project(a,motion.dropAt(a,dropHeight)),B=project(b,motion.dropAt(b,dropHeight));
+  return Math.max(Math.hypot(B[0]-A[0],B[1]-A[1]),Math.abs(motion.liquidAt(a,textWidth,fontSize).rx-motion.liquidAt(b,textWidth,fontSize).rx)*Math.max(motion.cameraAt(a,W,H).zoom,motion.cameraAt(b,W,H).zoom));
+};
+</script>
+</body>
+</html>

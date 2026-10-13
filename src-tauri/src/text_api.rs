@@ -18,8 +18,7 @@ use crate::SERVICE_NAME;
 
 const TEXT_ACCOUNT_NAME: &str = "text-model-api-key";
 
-/// 送去文字模型的原始文本上限（字符数）。超长直接截断而不是报错：
-/// 用户按下快捷键说话时，宁可少整理一段，也不要让他丢掉整条输入。
+/// Reject oversize input; segmentation belongs to the task pipeline.
 const MAX_INPUT_CHARS: usize = 12000;
 /// 服务端返回内容的字符上限，防止异常服务返回超大响应拖垮前端。
 const MAX_OUTPUT_CHARS: usize = 60000;
@@ -27,7 +26,8 @@ const MAX_OUTPUT_CHARS: usize = 60000;
 const ERROR_EXCERPT_CHARS: usize = 200;
 
 const DEFAULT_TIMEOUT_MS: u64 = 60_000;
-const MIN_TIMEOUT_MS: u64 = 3_000;
+// A later attempt may only have a few milliseconds left in its shared budget.
+const MIN_TIMEOUT_MS: u64 = 1;
 const MAX_TIMEOUT_MS: u64 = 300_000;
 
 /// 复用同一个 Client：每次请求新建 Client 会重复建连接池和 TLS 上下文，
@@ -57,6 +57,18 @@ pub fn cancel_text_request(request_id: String) {
     }
 }
 
+pub fn cancel_task_requests(task_id: &str) {
+    cancel_text_request(task_id.to_owned());
+    if let Ok(state) = sessions().lock() {
+        let prefix = format!("{task_id}:");
+        for (id, notify) in &state.active {
+            if id.starts_with(&prefix) {
+                notify.notify_one();
+            }
+        }
+    }
+}
+
 async fn cancellable<F, T>(request_id: &str, future: F) -> Result<T, String>
 where
     F: std::future::Future<Output = Result<T, String>>,
@@ -64,7 +76,11 @@ where
     let notify = Arc::new(tokio::sync::Notify::new());
     {
         let mut state = sessions().lock().map_err(|e| e.to_string())?;
-        if state.cancelled.contains(request_id) {
+        if state.cancelled.contains(request_id)
+            || state
+                .cancelled
+                .contains(request_id.split(':').next().unwrap_or(request_id))
+        {
             return Err("文字请求已取消".into());
         }
         state.active.insert(request_id.to_string(), notify.clone());
@@ -88,6 +104,58 @@ pub(crate) fn client() -> &'static reqwest::Client {
     })
 }
 
+fn validate_input(request: &ProcessTextRequest) -> Result<(), String> {
+    if request.raw_text.chars().count() > MAX_INPUT_CHARS {
+        return Err("文本超过单次处理上限，原文已保留，请分段运行".into());
+    }
+    if request
+        .messages
+        .iter()
+        .map(|m| m.content.chars().count())
+        .sum::<usize>()
+        > 100000
+    {
+        return Err("文字请求上下文过长，请缩短单次输入".into());
+    }
+    Ok(())
+}
+
+async fn bounded_request<F>(request: &ProcessTextRequest, future: F) -> Result<String, String>
+where
+    F: std::future::Future<Output = Result<String, String>>,
+{
+    cancellable(&request.request_id, async {
+        tokio::time::timeout(clamp_timeout(request.timeout_ms), future)
+            .await
+            .map_err(|_| "文字模型响应超时".to_string())?
+    })
+    .await
+}
+
+fn emit_stream(app: &AppHandle, request: &ProcessTextRequest, text: &str) {
+    let event = if request.task == "ask" {
+        "answer-stream"
+    } else {
+        "text-stream"
+    };
+    let _ = app.emit(
+        event,
+        AnswerStreamEvent {
+            request_id: request
+                .session_id
+                .clone()
+                .unwrap_or_else(|| request.request_id.clone()),
+            call_id: request.request_id.clone(),
+            question: if request.task == "ask" {
+                request.raw_text.clone()
+            } else {
+                String::new()
+            },
+            text: text.to_string(),
+        },
+    );
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
@@ -104,6 +172,8 @@ pub struct ChatMessage {
 pub struct ProcessTextRequest {
     #[serde(default)]
     pub request_id: String,
+    #[serde(default)]
+    pub session_id: Option<String>,
     pub task: String,
     pub raw_text: String,
     #[serde(default)]
@@ -142,6 +212,7 @@ struct ChatRequest {
 #[serde(rename_all = "camelCase")]
 struct AnswerStreamEvent {
     request_id: String,
+    call_id: String,
     question: String,
     text: String,
 }
@@ -201,8 +272,9 @@ fn mask_key_shaped_tokens(body: &str) -> String {
             || !(chars[index - 1].is_ascii_alphanumeric()
                 || chars[index - 1] == '-'
                 || chars[index - 1] == '_');
-        let is_prefix =
-            chars[index] == 's' && chars.get(index + 1) == Some(&'k') && chars.get(index + 2) == Some(&'-');
+        let is_prefix = chars[index] == 's'
+            && chars.get(index + 1) == Some(&'k')
+            && chars.get(index + 2) == Some(&'-');
         if boundary && is_prefix {
             let mut end = index + 3;
             while end < chars.len()
@@ -251,6 +323,13 @@ fn build_chat_request(request: &ProcessTextRequest) -> ChatRequest {
 fn parse_content(body: &str) -> Result<String, String> {
     let json: serde_json::Value =
         serde_json::from_str(body).map_err(|error| format!("无法解析文字模型响应：{error}"))?;
+    if json
+        .pointer("/choices/0/finish_reason")
+        .and_then(|r| r.as_str())
+        .is_some_and(|r| r != "stop")
+    {
+        return Err("文字模型未完整生成成稿，请重试或缩短单次输入".into());
+    }
     let content = json
         .pointer("/choices/0/message/content")
         .and_then(|value| value.as_str())
@@ -260,7 +339,10 @@ fn parse_content(body: &str) -> Result<String, String> {
     if content.is_empty() {
         return Err("文字模型没有返回内容".to_string());
     }
-    Ok(content.chars().take(MAX_OUTPUT_CHARS).collect())
+    if content.chars().count() > MAX_OUTPUT_CHARS {
+        return Err("文字模型输出超限，原文已保留".into());
+    }
+    Ok(content)
 }
 
 fn is_quota_error(body: &str) -> bool {
@@ -392,72 +474,50 @@ async fn post_chat_stream(app: &AppHandle, request: &ProcessTextRequest) -> Resu
             .await
             .map_err(|e| format!("读取文字模型响应失败：{e}"))?;
         let text = parse_content(&body)?;
-        let _ = app.emit(
-            "answer-stream",
-            AnswerStreamEvent {
-                request_id: request.request_id.clone(),
-                question: request.raw_text.clone(),
-                text: text.clone(),
-            },
-        );
+        emit_stream(app, request, &text);
         return Ok(text);
     }
     let mut pending = Vec::new();
-    let mut text = String::new();
+    let mut stream = crate::text_stream::TextStream::default();
+    let mut last_emit = std::time::Instant::now() - Duration::from_secs(1);
     while let Some(chunk) = response
         .chunk()
         .await
-        .map_err(|e| format!("读取流式回答失败：{e}"))?
+        .map_err(|_| "读取流式文字失败".to_string())?
     {
         pending.extend_from_slice(&chunk);
         while let Some(index) = pending.iter().position(|byte| *byte == b'\n') {
-            let line = String::from_utf8_lossy(&pending[..index])
+            let line = std::str::from_utf8(&pending[..index])
+                .map_err(|_| "文字模型流式编码错误".to_string())?
                 .trim_end_matches('\r')
                 .to_string();
             pending.drain(..=index);
             let Some(data) = line.strip_prefix("data:") else {
                 continue;
             };
-            let data = data.trim();
-            if data == "[DONE]" {
-                if text.trim().is_empty() {
-                    return post_chat(request).await;
-                }
-                return Ok(text.trim().to_string());
-            }
-            let Ok(value) = serde_json::from_str::<serde_json::Value>(data) else {
-                continue;
-            };
-            if let Some(piece) = value
-                .pointer("/choices/0/delta/content")
-                .and_then(|item| item.as_str())
+            let done = stream.push(data.trim())?;
+            if !stream.text.is_empty() && (done || last_emit.elapsed() >= Duration::from_millis(50))
             {
-                let remaining = MAX_OUTPUT_CHARS.saturating_sub(text.chars().count());
-                if remaining == 0 {
-                    break;
-                }
-                text.extend(piece.chars().take(remaining));
-                let _ = app.emit(
-                    "answer-stream",
-                    AnswerStreamEvent {
-                        request_id: request.request_id.clone(),
-                        question: request.raw_text.clone(),
-                        text: text.clone(),
-                    },
-                );
+                emit_stream(app, request, &stream.text);
+                last_emit = std::time::Instant::now();
             }
-        }
-        if text.chars().count() >= MAX_OUTPUT_CHARS {
-            break;
+            if done {
+                return Ok(stream.text.trim().to_string());
+            }
         }
         if pending.len() > 1_000_000 {
             return Err("文字模型流式响应过长".into());
         }
     }
-    if text.trim().is_empty() {
-        return post_chat(request).await;
+    if !pending.is_empty() {
+        let line = std::str::from_utf8(&pending).map_err(|_| "文字模型流式编码错误".to_string())?;
+        if let Some(data) = line.trim().strip_prefix("data:") {
+            stream.push(data.trim())?;
+        }
     }
-    Ok(text.trim().to_string())
+    stream.validate()?;
+    emit_stream(app, request, &stream.text);
+    Ok(stream.text.trim().to_string())
 }
 
 #[tauri::command]
@@ -485,6 +545,7 @@ pub async fn test_text_connection(
 ) -> Result<String, String> {
     let request = ProcessTextRequest {
         request_id: "test".into(),
+        session_id: None,
         task: "preview".into(),
         raw_text: "连接测试".into(),
         skill_id: None,
@@ -510,10 +571,9 @@ pub async fn test_text_connection(
 #[tauri::command]
 pub async fn process_text(request: ProcessTextRequest) -> Result<ProcessTextResponse, String> {
     let started = std::time::Instant::now();
-    // 输入上限在 Rust 侧再兜一次：前端可能被绕过，而且截断点必须和消息组装一致。
-    let mut request = request;
-    request.raw_text = request.raw_text.chars().take(MAX_INPUT_CHARS).collect();
-    let text = cancellable(&request.request_id, post_chat(&request)).await?;
+    // Reject oversize requests rather than silently discarding the end.
+    validate_input(&request)?;
+    let text = bounded_request(&request, post_chat(&request)).await?;
     Ok(ProcessTextResponse {
         text,
         duration_ms: started.elapsed().as_millis(),
@@ -529,7 +589,28 @@ pub async fn stream_answer(
     if request.task != "ask" {
         return Err("流式接口仅用于问答".into());
     }
-    let text = cancellable(&request.request_id, post_chat_stream(&app, &request)).await?;
+    validate_input(&request)?;
+    let text = bounded_request(&request, post_chat_stream(&app, &request)).await?;
+    Ok(ProcessTextResponse {
+        text,
+        duration_ms: started.elapsed().as_millis(),
+    })
+}
+
+#[tauri::command]
+pub async fn stream_text(
+    app: AppHandle,
+    request: ProcessTextRequest,
+) -> Result<ProcessTextResponse, String> {
+    if !matches!(
+        request.task.as_str(),
+        "smart" | "skill" | "translate" | "command"
+    ) {
+        return Err("此任务不支持流式文字预览".into());
+    }
+    validate_input(&request)?;
+    let started = std::time::Instant::now();
+    let text = bounded_request(&request, post_chat_stream(&app, &request)).await?;
     Ok(ProcessTextResponse {
         text,
         duration_ms: started.elapsed().as_millis(),
@@ -540,12 +621,52 @@ pub async fn stream_answer(
 mod tests {
     use super::*;
 
+    #[test]
+    fn task_cancellation_stops_active_children_and_rejects_late_children() {
+        let parent = "lifecycle-test-parent";
+        let child = format!("{parent}:segment-1");
+        let notify = Arc::new(tokio::sync::Notify::new());
+        let other = Arc::new(tokio::sync::Notify::new());
+        {
+            let mut state = sessions().lock().unwrap();
+            state.active.insert(child.clone(), notify.clone());
+            state
+                .active
+                .insert("lifecycle-test-unrelated:segment-1".into(), other.clone());
+        }
+        cancel_task_requests(parent);
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        runtime.block_on(async {
+            tokio::time::timeout(Duration::from_millis(50), notify.notified())
+                .await
+                .unwrap();
+            assert!(
+                tokio::time::timeout(Duration::from_millis(1), other.notified())
+                    .await
+                    .is_err()
+            );
+            let mut started = false;
+            let result = cancellable(&format!("{parent}:segment-2"), async {
+                started = true;
+                Ok::<(), String>(())
+            })
+            .await;
+            assert_eq!(result.unwrap_err(), "文字请求已取消");
+            assert!(!started, "cancelled child must not start network work");
+        });
+        let mut state = sessions().lock().unwrap();
+        state.active.remove(&child);
+        state.active.remove("lifecycle-test-unrelated:segment-1");
+        state.cancelled.remove(parent);
+    }
+
     /// 测试夹具里出现的都是明显的假值，绝不使用真实内网密钥（见 README 的 Security 段）。
     const FAKE_KEY_SHAPED_TEXT: &str = "sk-this-is-not-a-real-key";
 
     fn request(messages: Vec<(&str, &str)>) -> ProcessTextRequest {
         ProcessTextRequest {
             request_id: "test".into(),
+            session_id: None,
             task: "smart".into(),
             raw_text: "原始文本".into(),
             skill_id: None,
@@ -650,10 +771,7 @@ mod tests {
             clamp_timeout(None),
             Duration::from_millis(DEFAULT_TIMEOUT_MS)
         );
-        assert_eq!(
-            clamp_timeout(Some(10)),
-            Duration::from_millis(MIN_TIMEOUT_MS)
-        );
+        assert_eq!(clamp_timeout(Some(10)), Duration::from_millis(10));
         assert_eq!(
             clamp_timeout(Some(u64::MAX)),
             Duration::from_millis(MAX_TIMEOUT_MS)
@@ -716,9 +834,46 @@ mod tests {
             r#"{{"choices":[{{"message":{{"content":"{}"}}}}]}}"#,
             "字".repeat(MAX_OUTPUT_CHARS + 100)
         );
+        assert!(parse_content(&body).unwrap_err().contains("超限"));
+    }
+
+    #[test]
+    fn input_limits_are_rejected_without_mutating_messages() {
+        let mut r = request(vec![("user", "保留原文")]);
+        r.raw_text = "字".repeat(MAX_INPUT_CHARS + 1);
+        assert!(validate_input(&r).unwrap_err().contains("上限"));
+        assert_eq!(r.messages[0].content, "保留原文");
+    }
+
+    #[test]
+    fn incomplete_nonstream_output_is_not_a_success() {
+        assert!(parse_content(
+            r#"{"choices":[{"message":{"content":"半篇"},"finish_reason":"length"}]}"#
+        )
+        .is_err());
+    }
+
+    #[tokio::test]
+    async fn invocation_deadline_covers_all_work_and_releases_cancellation_state() {
+        let mut r = request(vec![]);
+        r.request_id = "deadline-fixture".into();
+        r.timeout_ms = Some(5);
+        let result = bounded_request(&r, async {
+            tokio::time::sleep(Duration::from_millis(30)).await;
+            Ok("迟到结果".into())
+        })
+        .await;
+        assert!(result.unwrap_err().contains("超时"));
+        assert!(!sessions()
+            .lock()
+            .unwrap()
+            .active
+            .contains_key(&r.request_id));
         assert_eq!(
-            parse_content(&body).unwrap().chars().count(),
-            MAX_OUTPUT_CHARS
+            bounded_request(&r, async { Ok("及时结果".into()) })
+                .await
+                .unwrap(),
+            "及时结果"
         );
     }
 }

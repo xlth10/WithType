@@ -1,0 +1,38 @@
+{
+  "duringReplay": {
+    "duration": "3.6",
+    "phase": "drop",
+    "time": "0.142000",
+    "welcome": "Welcome，outsider"
+  },
+  "completedReplay": {
+    "finished": "true",
+    "phase": "ready",
+    "time": "3.600000"
+  },
+  "persistedAfterReload": {
+    "duration": "3.6",
+    "fontSize": "24",
+    "phase": "welcome",
+    "textWidth": "220.88388061523438",
+    "time": "2.200000",
+    "welcome": "Welcome，outsider"
+  },
+  "longText": {
+    "fontSize": 6.4079743681025265,
+    "height": 480,
+    "overflow": false,
+    "textWidth": 255.999755859375,
+    "time": "2.200000",
+    "welcome": "愿每一次表达都自在清晰愿每一次表达都自在清晰愿每一次表达都自在清晰愿每一次表达都",
+    "width": 640
+  },
+  "emptyFallback": "Welcome, Ellen",
+  "restoredDefault": "Welcome, Ellen",
+  "productionReplay": {
+    "className": "app-entry is-entering",
+    "duration": "1400ms",
+    "welcome": "Welcome，outsider"
+  },
+  "productionReplayCompleted": true
+}

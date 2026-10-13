@@ -1,0 +1,512 @@
+{
+  "date": "2026-10-10",
+  "target": "/Applications/Typeless.app",
+  "version": "2.8.1",
+  "build": "2.8.1.130",
+  "scope": "Static installed-artifact analysis only. No Typeless launch, real audio, personal history or network capture.",
+  "authority": "Shipped local bytes + analyst static reconstruction; runtime behavior unobserved.",
+  "limitations": [
+    "Local app signature invalid; publisher authenticity and reason unknown.",
+    "Original ASAR REA analysis stopped at native addon member hash mismatch.",
+    "Main JavaScript string-table names resolved by an inert AST transform; 190 rotations, 9518 substitutions, 1245 aliases; checked alias declarations/params/assignments found no conflicts. Runtime equivalence remains untested.",
+    "REA gateway graph retained the IPC expression as dynamic; literal feature trace had no match and is not an absence finding.",
+    "Client wire fields do not establish server ASR conditioning, prompt text, provider or model identity.",
+    "Native Hopper backend did not start. Native findings use nm/otool arm64 call instructions and static attribute arrays; no decompiled pseudocode or runtime observation."
+  ],
+  "files": [
+    {
+      "original_path": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "bytes": 635722,
+      "inspection_path": "/private/tmp/typeless-rea-static-20261010-zmas64pr/dist/main/index.js"
+    },
+    {
+      "original_path": "dist/renderer/static/js/qA149QP2.mjs",
+      "sha256": "40723210d92894508ad2d8672f51023e5e5f43f259d43c85bc21b293c4c6e84a",
+      "bytes": 224155,
+      "inspection_path": "/private/tmp/typeless-context-analysis/renderer/qA149QP2.mjs"
+    },
+    {
+      "original_path": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "bytes": 403329,
+      "inspection_path": "/private/tmp/typeless-context-analysis/renderer/UfR9-a2Z.js"
+    },
+    {
+      "original_path": "dist/renderer/static/js/CSQqv-L0.js",
+      "sha256": "af6e6a709c6c89da3aae78c892b1a128e7bc9683dd6e43c661347e672d6ccd35",
+      "bytes": 347,
+      "inspection_path": "/private/tmp/typeless-context-analysis/renderer/CSQqv-L0.js"
+    }
+  ],
+  "locations": [
+    {
+      "id": "J-ENCRYPT",
+      "name": "encryptValue",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 117881,
+        "end_utf16": 118890,
+        "start_byte": 117881,
+        "end_byte": 118890,
+        "line": 1,
+        "column_utf16": 117881
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "J-RSA-AES",
+      "name": "rsaAesEncrypt",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 118890,
+        "end_utf16": 119697,
+        "start_byte": 118890,
+        "end_byte": 119697,
+        "line": 1,
+        "column_utf16": 118890
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-URL",
+      "name": "parseFocusedAppInfo",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 291412,
+        "end_utf16": 291884,
+        "start_byte": 291707,
+        "end_byte": 292179,
+        "line": 1,
+        "column_utf16": 291412
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "J-SELECT",
+      "name": "getSelectedText",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 298400,
+        "end_utf16": 298561,
+        "start_byte": 298695,
+        "end_byte": 298856,
+        "line": 1,
+        "column_utf16": 298400
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-STATE",
+      "name": "getCurrentInputState",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 298561,
+        "end_utf16": 298847,
+        "start_byte": 298856,
+        "end_byte": 299142,
+        "line": 1,
+        "column_utf16": 298561
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-COPY",
+      "name": "getSelectedTextBySimulateCopyAsync",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 298847,
+        "end_utf16": 299823,
+        "start_byte": 299142,
+        "end_byte": 300118,
+        "line": 1,
+        "column_utf16": 298847
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "J-APP",
+      "name": "collectFocusedAppInfo",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 311508,
+        "end_utf16": 313130,
+        "start_byte": 311803,
+        "end_byte": 313425,
+        "line": 1,
+        "column_utf16": 311508
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-INPUT",
+      "name": "collectFocusedInputInfo",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 313258,
+        "end_utf16": 317821,
+        "start_byte": 313553,
+        "end_byte": 318116,
+        "line": 1,
+        "column_utf16": 313258
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-SELECT",
+      "name": "getSelectedText",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 317821,
+        "end_utf16": 318264,
+        "start_byte": 318116,
+        "end_byte": 318559,
+        "line": 1,
+        "column_utf16": 317821
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-FULL",
+      "name": "collectFullContext",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 318443,
+        "end_utf16": 321002,
+        "start_byte": 318738,
+        "end_byte": 321297,
+        "line": 1,
+        "column_utf16": 318443
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-GATEWAY-MAIN",
+      "name": "getAudioContext",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 524345,
+        "end_utf16": 524446,
+        "start_byte": 525087,
+        "end_byte": 525188,
+        "line": 1,
+        "column_utf16": 524345
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-TRAITS",
+      "name": "sendTrackResultToServer",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 546153,
+        "end_utf16": 547989,
+        "start_byte": 546895,
+        "end_byte": 548735,
+        "line": 1,
+        "column_utf16": 546153
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-TRACK-START",
+      "name": "startTrack",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 547989,
+        "end_utf16": 551284,
+        "start_byte": 548735,
+        "end_byte": 552030,
+        "line": 1,
+        "column_utf16": 547989
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "J-TRACK-CHECK",
+      "name": "checkEditedText",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 551815,
+        "end_utf16": 554255,
+        "start_byte": 552563,
+        "end_byte": 555005,
+        "line": 1,
+        "column_utf16": 551815
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": true
+    },
+    {
+      "id": "J-HTTP",
+      "name": "audio:ai-voice-flow IPC handler",
+      "file": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "location": {
+        "start_utf16": 560054,
+        "end_utf16": 564481,
+        "start_byte": 560804,
+        "end_byte": 565231,
+        "line": 1,
+        "column_utf16": 560054
+      }
+    },
+    {
+      "id": "R-COPY-GUARD",
+      "name": "bo",
+      "file": "dist/renderer/static/js/qA149QP2.mjs",
+      "sha256": "40723210d92894508ad2d8672f51023e5e5f43f259d43c85bc21b293c4c6e84a",
+      "location": {
+        "start_utf16": 117533,
+        "end_utf16": 117636,
+        "start_byte": 117533,
+        "end_byte": 117636,
+        "line": 1,
+        "column_utf16": 117533
+      },
+      "kind": "FunctionDeclaration",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-SESSION",
+      "name": "ne",
+      "file": "dist/renderer/static/js/qA149QP2.mjs",
+      "sha256": "40723210d92894508ad2d8672f51023e5e5f43f259d43c85bc21b293c4c6e84a",
+      "location": {
+        "start_utf16": 128785,
+        "end_utf16": 130519,
+        "start_byte": 128785,
+        "end_byte": 130519,
+        "line": 1,
+        "column_utf16": 128785
+      },
+      "kind": "VariableDeclarator",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-INITIAL",
+      "name": "_0x40ac2c",
+      "file": "dist/renderer/static/js/qA149QP2.mjs",
+      "sha256": "40723210d92894508ad2d8672f51023e5e5f43f259d43c85bc21b293c4c6e84a",
+      "location": {
+        "start_utf16": 148790,
+        "end_utf16": 150016,
+        "start_byte": 148790,
+        "end_byte": 150016,
+        "line": 1,
+        "column_utf16": 148790
+      },
+      "kind": "VariableDeclarator",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-EXPAND",
+      "name": "_0xbd2ba",
+      "file": "dist/renderer/static/js/qA149QP2.mjs",
+      "sha256": "40723210d92894508ad2d8672f51023e5e5f43f259d43c85bc21b293c4c6e84a",
+      "location": {
+        "start_utf16": 150017,
+        "end_utf16": 152762,
+        "start_byte": 150017,
+        "end_byte": 152762,
+        "line": 1,
+        "column_utf16": 150017
+      },
+      "kind": "VariableDeclarator",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-ENCRYPT",
+      "name": "encryptSensitiveFields",
+      "file": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "location": {
+        "start_utf16": 276682,
+        "end_utf16": 277029,
+        "start_byte": 277679,
+        "end_byte": 278026,
+        "line": 2,
+        "column_utf16": 276572
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-SEND",
+      "name": "handleSendLogic",
+      "file": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "location": {
+        "start_utf16": 277029,
+        "end_utf16": 278657,
+        "start_byte": 278026,
+        "end_byte": 279654,
+        "line": 2,
+        "column_utf16": 276919
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-RETRY",
+      "name": "sendRetryRequest",
+      "file": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "location": {
+        "start_utf16": 279385,
+        "end_utf16": 282146,
+        "start_byte": 280382,
+        "end_byte": 283143,
+        "line": 2,
+        "column_utf16": 279275
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-FALLBACK",
+      "name": "startRefineRace",
+      "file": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "location": {
+        "start_utf16": 282146,
+        "end_utf16": 283917,
+        "start_byte": 283143,
+        "end_byte": 284914,
+        "line": 2,
+        "column_utf16": 282036
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-RECV",
+      "name": "handleMessage",
+      "file": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "location": {
+        "start_utf16": 290628,
+        "end_utf16": 293520,
+        "start_byte": 291625,
+        "end_byte": 294517,
+        "line": 2,
+        "column_utf16": 290518
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-TRANSCRIPT",
+      "name": "handleTranscriptionChunk",
+      "file": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "location": {
+        "start_utf16": 293520,
+        "end_utf16": 293855,
+        "start_byte": 294517,
+        "end_byte": 294852,
+        "line": 2,
+        "column_utf16": 293410
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-REFINE",
+      "name": "handleRefineCompleted",
+      "file": "dist/renderer/static/js/UfR9-a2Z.js",
+      "sha256": "efba7d2db84c1da476b521c84cd38446d594ffd4f0d8e59cac85e7ec7d6ae49a",
+      "location": {
+        "start_utf16": 293855,
+        "end_utf16": 294833,
+        "start_byte": 294852,
+        "end_byte": 295830,
+        "line": 2,
+        "column_utf16": 293745
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    },
+    {
+      "id": "R-GATEWAY",
+      "name": "getAudioContext",
+      "file": "dist/renderer/static/js/CSQqv-L0.js",
+      "sha256": "af6e6a709c6c89da3aae78c892b1a128e7bc9683dd6e43c661347e672d6ccd35",
+      "location": {
+        "start_utf16": 111,
+        "end_utf16": 315,
+        "start_byte": 111,
+        "end_byte": 315,
+        "line": 1,
+        "column_utf16": 111
+      },
+      "kind": "ClassMethod",
+      "decoded_property_name": false
+    }
+  ],
+  "native_evidence": [
+    {
+      "id": "N-INPUT",
+      "source": "/Applications/Typeless.app/Contents/Resources/lib/input-helper/build/libInputHelper.dylib",
+      "sha256_whole_file": "4cd6ba0205e0e7a0d7e6a3706102cb7e98e09d626fbfd738311f05e2cdb0ad47",
+      "architecture": "arm64",
+      "address_kind": "unslid virtual address",
+      "report": "/Users/outsider/codex_projects/emergence-lab/projects/15-typefree-windows/docs/typeless-input-context-notes.md",
+      "raw_evidence": "/private/tmp/typeless-input-helper-evidence/",
+      "anchors": {
+        "AXSelectedText": "readSelectedInputText@0x3aac; AXUIElementCopyAttributeValue@0x3b08",
+        "input_state": "readCurrentInputText@0x3c50; captureCurrentInputState@0x51dc",
+        "input_window_limits": "before/after truncation callsites@0x5290/0x52a0, 5000 Swift Character each",
+        "copy_backup": "savePasteboard@0x8b08; clearContents@0x8b18",
+        "copy_event": "CGEventPost@0x90c0/0x90cc, Command flag 0x100000",
+        "copy_read": "stringForType(NSPasteboardTypeString)@0x9540",
+        "empty_restore": "restorePasteboard@0x84b4 -> 0x86e8 returns without clearing"
+      }
+    },
+    {
+      "id": "N-CONTEXT",
+      "source": "/Applications/Typeless.app/Contents/Resources/lib/context-helper/build/libContextHelper.dylib",
+      "sha256_whole_file": "521e38bbf92eca7186a853b621784e9c0fcce998f624500c97e27eba6732aa56",
+      "architecture": "arm64",
+      "address_kind": "unslid virtual address",
+      "report": "/Users/outsider/codex_projects/emergence-lab/projects/15-typefree-windows/docs/typeless-native-context-notes.md",
+      "raw_evidence": "/private/tmp/typeless-native-context-evidence/",
+      "anchors": {
+        "current_app": "NSWorkspace.frontmostApplication@0x3a34",
+        "app_window": "AXFocusedApplication Copy@0x4108; AXFocusedWindow Copy@0x4190; window attributes CopyMultiple@0x4218",
+        "focused_element": "AXFocusedUIElement Copy@0x8310; element attributes CopyMultiple@0xbaa0",
+        "visible_text": "findWebArea@0x63f4; collectVisibleTexts@0x643c; smartJoinTexts@0x6448; AXRole/AXValue/AXTitle/AXIdentifier CopyMultiple@0xd728",
+        "browser_url": "AXURL/AXTitle/AXParent CopyMultiple@0xafb0",
+        "related_text": "collectContentBefore@0x8ee4; collectContentAfter@0x94ac; AXParent/AXChildren traversal",
+        "parameter_roles": "visible first param -> maxLength@0x6418; second -> timeoutMs@0x5fb8; related first/second -> targetChars@0x8ee4/0x94ac, third -> timeoutMs@0x8d94"
+      }
+    }
+  ]
+}

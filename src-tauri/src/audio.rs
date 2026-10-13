@@ -227,7 +227,9 @@ fn join_transcripts(parts: &[String]) -> String {
 
 #[cfg(windows)]
 mod platform {
-    use super::{has_voice, is_silent, join_transcripts, pause_end, wav_bytes, Resampler, OUTPUT_RATE};
+    use super::{
+        has_voice, is_silent, join_transcripts, pause_end, wav_bytes, Resampler, OUTPUT_RATE,
+    };
     use cpal::{
         traits::{DeviceTrait, HostTrait, StreamTrait},
         FromSample, Sample, SampleFormat, SizedSample,
@@ -376,8 +378,7 @@ mod platform {
                     errors = probe.error_callbacks
                 )
             } else {
-                "麦克风没有送出任何音频：音频回调一次都没有触发（设备可能未被驱动供数）"
-                    .to_string()
+                "麦克风没有送出任何音频：音频回调一次都没有触发（设备可能未被驱动供数）".to_string()
             }
         } else if probe.frames < PROBE_MIN_FRAMES {
             format!(
@@ -394,7 +395,10 @@ mod platform {
         };
         if probe.error_callbacks > 0 && probe.callbacks != 0 {
             // callbacks == 0 时上一段已经报过错误回调次数，不重复。
-            message.push_str(&format!("；错误回调 {errors} 次", errors = probe.error_callbacks));
+            message.push_str(&format!(
+                "；错误回调 {errors} 次",
+                errors = probe.error_callbacks
+            ));
         }
         // 设备抖动是可自愈的，但它正好解释了「为什么只采到这么点」：
         // 与前面那些计数并列写出，用户才知道该去查哪一头。
@@ -598,6 +602,13 @@ mod platform {
         message: String,
     }
 
+    #[derive(Clone, Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct TranscriptEvent {
+        session_id: String,
+        text: String,
+    }
+
     struct Active {
         session_id: String,
         source_rate: u32,
@@ -660,6 +671,7 @@ mod platform {
     struct Store {
         active: Option<Active>,
         stopping: HashMap<String, Arc<AtomicBool>>,
+        interrupted: HashSet<String>,
     }
     static STORE: OnceLock<Mutex<Store>> = OnceLock::new();
     #[derive(Default)]
@@ -767,9 +779,7 @@ mod platform {
                     // 于是一次刚开头的抖动就把整段录音掐掉，用户念的字一个都没采到。
                     error_probe.recoverable.fetch_add(1, Ordering::Relaxed);
                     if error_probe.recoverable_kind.load(Ordering::Relaxed) == WARNING_NONE {
-                        error_probe
-                            .recoverable_kind
-                            .store(kind, Ordering::Relaxed);
+                        error_probe.recoverable_kind.store(kind, Ordering::Relaxed);
                     }
                     // 错误回调可能早于采集线程第一次取 packet；用空 packet 把它叫醒，
                     // 让「本次录音出现过设备抖动」这条通知尽快发出去。
@@ -790,6 +800,7 @@ mod platform {
         cancelled: Arc<AtomicBool>,
         endpoint: String,
         model: String,
+        early_text: bool,
         probe: Arc<CaptureProbeAtoms>,
     ) -> Result<CaptureResult, String> {
         let (job_tx, job_rx) = mpsc::channel::<AsrJob>();
@@ -901,7 +912,17 @@ mod platform {
                 last_level = Instant::now();
             }
             if let Ok(outcome) = outcome_rx.try_recv() {
+                let previous = progress.partials.len();
                 progress.receive(outcome);
+                if early_text && progress.partials.len() > previous {
+                    let _ = app.emit(
+                        "audio-transcript",
+                        TranscriptEvent {
+                            session_id: session_id.clone(),
+                            text: join_transcripts(&progress.partials),
+                        },
+                    );
+                }
             }
             let total = converter.output.len();
             if total.saturating_sub(spooled) >= SPOOL_INTERVAL {
@@ -934,6 +955,17 @@ mod platform {
             }
         }
         if cancelled.load(Ordering::Relaxed) {
+            // A lifecycle interruption preserves the tail as well as already-spooled chunks.
+            if store()
+                .lock()
+                .map(|s| s.interrupted.contains(&session_id))
+                .unwrap_or(false)
+            {
+                let samples = converter.finish();
+                if samples.len() > spooled {
+                    write_chunk(&spool, sequence, &samples[spooled..])?;
+                }
+            }
             drop(job_tx);
             drop(uploader);
             return Err("录音已取消".into());
@@ -1017,12 +1049,15 @@ mod platform {
         device_id: Option<String>,
         endpoint: String,
         model: String,
+        early_text: Option<bool>,
         intent: Option<String>,
     ) -> Result<SessionInfo, String> {
         // 设备探测、spool 创建、流构建都会做 COM/IO，放阻塞线程，避免主线程被
         // 蓝牙麦克风的冷启动（重连、格式协商）拖住几秒。
         tauri::async_runtime::spawn_blocking(move || {
-            start_audio_session_inner(app, session_id, device_id, endpoint, model, intent)
+            start_audio_session_inner(
+                app, session_id, device_id, endpoint, model, early_text, intent,
+            )
         })
         .await
         .map_err(|error| format!("录音启动线程失败：{error}"))?
@@ -1034,8 +1069,10 @@ mod platform {
         device_id: Option<String>,
         endpoint: String,
         model: String,
+        early_text: Option<bool>,
         intent: Option<String>,
     ) -> Result<SessionInfo, String> {
+        crate::background::require_task(&app, &session_id)?;
         if session_id.is_empty() {
             return Err("录音会话缺少 ID".into());
         }
@@ -1043,6 +1080,8 @@ mod platform {
         if state.active.is_some() {
             return Err("已有录音正在进行".into());
         }
+        // Recheck after acquiring capture ownership: recovery may have run between the two locks.
+        crate::background::require_task(&app, &session_id)?;
         let spool = session_path(&app, &session_id)?;
         let host = cpal::default_host();
         let device = match device_id.filter(|id| !id.is_empty()) {
@@ -1099,6 +1138,7 @@ mod platform {
                 worker_cancelled,
                 endpoint,
                 model,
+                early_text.unwrap_or(false),
                 worker_probe,
             )
         });
@@ -1165,8 +1205,10 @@ mod platform {
             .remove(&session_id)
             .is_some_and(|flag| flag.load(Ordering::Relaxed));
         if was_cancelled {
-            if let Ok(path) = session_path(&app, &session_id) {
-                let _ = fs::remove_dir_all(path);
+            if !state.interrupted.contains(&session_id) {
+                if let Ok(path) = session_path(&app, &session_id) {
+                    let _ = fs::remove_dir_all(path);
+                }
             }
             return Err("录音已取消".into());
         }
@@ -1215,6 +1257,15 @@ mod platform {
 
     #[tauri::command]
     pub fn cancel_audio_session(app: AppHandle, session_id: String) -> Result<(), String> {
+        // Late cleanup from a reloaded renderer must not delete recovery audio.
+        if store()
+            .lock()
+            .map_err(|e| e.to_string())?
+            .interrupted
+            .contains(&session_id)
+        {
+            return Ok(());
+        }
         if let Ok(mut retries) = retry_cancel().lock() {
             retries.cancelled.insert(session_id.clone());
             if let Some(flag) = retries.active.get(&session_id) {
@@ -1226,6 +1277,9 @@ mod platform {
         }
         let (active, was_stopping) = {
             let mut state = store().lock().map_err(|e| e.to_string())?;
+            if state.interrupted.contains(&session_id) {
+                return Ok(());
+            }
             let was_stopping = state.stopping.contains_key(&session_id);
             if let Some(flag) = state.stopping.get(&session_id) {
                 flag.store(true, Ordering::Relaxed);
@@ -1246,31 +1300,96 @@ mod platform {
             // Keep cancellation immediate, then clean after the writer exits.
             thread::spawn(move || {
                 let _ = active.worker.join();
-                if let Ok(path) = session_path(&app, &session_id) {
-                    let _ = fs::remove_dir_all(path);
-                }
+                remove_cancelled_audio(&app, &session_id);
             });
         } else if !was_stopping {
-            if let Ok(path) = session_path(&app, &session_id) {
-                let _ = fs::remove_dir_all(path);
-            }
+            remove_cancelled_audio(&app, &session_id);
         }
         Ok(())
     }
 
-    #[tauri::command]
-    pub async fn release_native_audio(app: AppHandle, session_id: String) -> Result<(), String> {
-        tauri::async_runtime::spawn_blocking(move || release_native_audio_inner(app, session_id))
-            .await
-            .map_err(|error| format!("清理录音线程失败：{error}"))?
+    fn remove_cancelled_audio(app: &AppHandle, session_id: &str) {
+        // Hold the same lock as lifecycle interruption through deletion, closing its final race.
+        let Ok(state) = store().lock() else {
+            return;
+        };
+        if state.interrupted.contains(session_id) {
+            return;
+        }
+        if let Ok(path) = session_path(app, session_id) {
+            let _ = fs::remove_dir_all(path);
+        }
     }
 
-    fn release_native_audio_inner(app: AppHandle, session_id: String) -> Result<(), String> {
+    #[tauri::command]
+    pub async fn release_native_audio(
+        app: AppHandle,
+        session_id: String,
+        task_id: Option<String>,
+    ) -> Result<(), String> {
+        tauri::async_runtime::spawn_blocking(move || {
+            release_native_audio_inner(app, session_id, task_id)
+        })
+        .await
+        .map_err(|error| format!("清理录音线程失败：{error}"))?
+    }
+
+    fn release_native_audio_inner(
+        app: AppHandle,
+        session_id: String,
+        task_id: Option<String>,
+    ) -> Result<(), String> {
+        let mut state = store().lock().map_err(|e| e.to_string())?;
+        // Automatic task cleanup needs a live lease; explicit user discard has no task ID.
+        if let Some(id) = task_id {
+            crate::background::require_task(&app, &id)?;
+        }
         let path = session_path(&app, &session_id)?;
         if path.exists() {
             fs::remove_dir_all(path).map_err(|e| format!("清理录音暂存失败：{e}"))?;
         }
+        state.interrupted.remove(&session_id);
         Ok(())
+    }
+
+    pub fn interrupt_sessions(app: AppHandle, task_ids: &[String]) {
+        let active = {
+            let Ok(mut state) = store().lock() else {
+                return;
+            };
+            state.interrupted.extend(
+                task_ids
+                    .iter()
+                    .filter(|id| session_path(&app, id).is_ok_and(|path| path.exists()))
+                    .cloned(),
+            );
+            let stopping: Vec<_> = state.stopping.keys().cloned().collect();
+            state.interrupted.extend(stopping);
+            for flag in state.stopping.values() {
+                flag.store(true, Ordering::Relaxed);
+            }
+            let active = state.active.take();
+            if let Some(ref capture) = active {
+                state.interrupted.insert(capture.session_id.clone());
+                capture.cancelled.store(true, Ordering::Relaxed);
+            }
+            active
+        };
+        if let Ok(mut retries) = retry_cancel().lock() {
+            for id in task_ids {
+                retries.cancelled.insert(id.clone());
+                if let Some(flag) = retries.active.get(id) {
+                    flag.store(true, Ordering::Relaxed);
+                }
+            }
+        }
+        if let Some(active) = active {
+            drop(active.stream);
+            thread::spawn(move || {
+                let _ = active.worker.join();
+                let _ = app.emit("recoverable-audio-changed", ());
+            });
+        }
     }
 
     #[tauri::command]
@@ -1291,9 +1410,11 @@ mod platform {
         app: AppHandle,
         kept_session_ids: Vec<String>,
     ) -> Result<(), String> {
-        tauri::async_runtime::spawn_blocking(move || cleanup_history_audio_inner(app, kept_session_ids))
-            .await
-            .map_err(|error| format!("清理历史录音线程失败：{error}"))?
+        tauri::async_runtime::spawn_blocking(move || {
+            cleanup_history_audio_inner(app, kept_session_ids)
+        })
+        .await
+        .map_err(|error| format!("清理历史录音线程失败：{error}"))?
     }
 
     fn cleanup_history_audio_inner(
@@ -1425,6 +1546,7 @@ mod platform {
         _device_id: Option<String>,
         _endpoint: String,
         _model: String,
+        _early_text: Option<bool>,
         _intent: Option<String>,
     ) -> Result<SessionInfo, String> {
         Err("原生录音仅支持 Windows".into())
@@ -1437,6 +1559,7 @@ mod platform {
     pub fn cancel_audio_session(_session_id: String) -> Result<(), String> {
         Ok(())
     }
+    pub fn interrupt_sessions(_app: AppHandle, _task_ids: &[String]) {}
     #[tauri::command]
     pub fn release_native_audio(_session_id: String) -> Result<(), String> {
         Ok(())
@@ -1526,7 +1649,13 @@ mod tests {
         // 近静音抖动（|v| = 2/32768 ≈ 6e-5）全部落在 SILENCE_FLOOR 之下，
         // 会被上游幻觉成文字，本地就该拦下。
         let dither: Vec<f32> = (0..8_000)
-            .map(|index| if index % 2 == 0 { 2.0 / 32_768.0 } else { -2.0 / 32_768.0 })
+            .map(|index| {
+                if index % 2 == 0 {
+                    2.0 / 32_768.0
+                } else {
+                    -2.0 / 32_768.0
+                }
+            })
             .collect();
         assert!(is_silent(&dither));
 
@@ -1547,7 +1676,7 @@ mod tests {
     }
 
     /// 真实录音里确实会出现的形状：3 秒数字静音（麦克风打开但用户没说话）
-/// 加 0.1 秒的 300 Hz 撞击（合上笔记本、碰到桌面）。
+    /// 加 0.1 秒的 300 Hz 撞击（合上笔记本、碰到桌面）。
     ///
     /// 这道门**刻意放它过去**：0.1 秒是 3 秒的 3.3%，已经在
     /// `SILENCE_VOICED_FRACTION` 之上。假阳性（扣下一次正确转写）的代价高于
@@ -1624,7 +1753,10 @@ mod tests {
         fn the_three_failure_shapes_read_differently() {
             // ① 回调压根没触发。
             let silent_device = capture_diagnostics(&no_fault(), &probe(0, 0, 0), 0, 1).unwrap();
-            assert!(silent_device.contains("音频回调一次都没有触发"), "{silent_device}");
+            assert!(
+                silent_device.contains("音频回调一次都没有触发"),
+                "{silent_device}"
+            );
 
             // ② 回调装了、但设备直接报错。
             let errored = capture_diagnostics(&no_fault(), &probe(0, 0, 3), 0, 1).unwrap();

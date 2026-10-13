@@ -1,0 +1,35 @@
+{
+  "request": {
+    "tool": "search_procedures",
+    "arguments": {
+      "pattern": "Context|SelectedText|Clipboard|Prompt",
+      "mode": "regex"
+    },
+    "save": "context-procedures-long-startup"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"error\":{\"code\":\"provider_timeout\",\"category\":\"timeout\",\"message\":\"Hopper timed out during startup before it started. Check binary_session for provider health, then retry.\",\"retryable\":true,\"remediation\":{\"action\":\"Check binary_session for Hopper health, then retry the operation.\"},\"details\":{\"stage\":\"startup\",\"timeout_ms\":300000,\"provider_state\":\"not_started\"}}}"
+      }
+    ],
+    "structuredContent": {
+      "error": {
+        "code": "provider_timeout",
+        "category": "timeout",
+        "message": "Hopper timed out during startup before it started. Check binary_session for provider health, then retry.",
+        "retryable": true,
+        "remediation": {
+          "action": "Check binary_session for Hopper health, then retry the operation."
+        },
+        "details": {
+          "stage": "startup",
+          "timeout_ms": 300000,
+          "provider_state": "not_started"
+        }
+      }
+    },
+    "isError": true
+  }
+}

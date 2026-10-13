@@ -1,0 +1,120 @@
+{
+  "checkedOn": "2026-10-12",
+  "environment": "macOS Codex in-app browser; browser preview only",
+  "main": {
+    "fontLoaded": true,
+    "fontStatus": "loaded",
+    "forcedColors": false,
+    "prefersDark": false,
+    "rootScrollWidth": 1060,
+    "scheme": "light only",
+    "styles": {
+      ".button.dark": {
+        "backgroundColor": "rgb(40, 44, 39)",
+        "color": "rgb(255, 255, 255)",
+        "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "600"
+      },
+      ".hero-card": {
+        "backgroundColor": "rgb(240, 242, 233)",
+        "color": "rgb(40, 44, 39)",
+        "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400"
+      },
+      ".mini-shortcut": {
+        "backgroundColor": "rgb(252, 252, 249)",
+        "color": "rgb(77, 76, 73)",
+        "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+        "fontSize": "12px",
+        "fontWeight": "400"
+      },
+      ".page-heading h1": {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "color": "rgb(40, 44, 39)",
+        "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+        "fontSize": "32px",
+        "fontWeight": "650"
+      },
+      ".panel": {
+        "backgroundColor": "rgb(252, 252, 249)",
+        "color": "rgb(40, 44, 39)",
+        "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400"
+      },
+      ".sidebar": {
+        "backgroundColor": "rgb(239, 239, 233)",
+        "color": "rgb(40, 44, 39)",
+        "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400"
+      },
+      ".workspace": {
+        "backgroundColor": "rgb(248, 249, 244)",
+        "color": "rgb(40, 44, 39)",
+        "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400"
+      }
+    },
+    "topbarScrollWidth": 836,
+    "topbarWidth": 836,
+    "width": 1060,
+    "workspaceScrollWidth": 836,
+    "workspaceWidth": 836
+  },
+  "minimumWindow": {
+    "height": 620,
+    "htmlScrollWidth": 860,
+    "topbarClientWidth": 636,
+    "topbarScrollWidth": 636,
+    "width": 860,
+    "workspaceClientWidth": 636,
+    "workspaceScrollWidth": 636
+  },
+  "form": {
+    "background": "rgb(252, 252, 249)",
+    "color": "rgb(40, 44, 39)",
+    "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+    "fontSize": "14px",
+    "workspaceClientWidth": 636,
+    "workspaceScrollWidth": 636
+  },
+  "delivery": {
+    "canvas": "rgb(252, 252, 248)",
+    "card": "rgb(252, 252, 248)",
+    "fontFamily": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+    "fontLoaded": true,
+    "fontSize": "14px",
+    "footerBottom": 311,
+    "header": "rgb(241, 244, 235)",
+    "lineHeight": "25.9px",
+    "scrollWidth": 420,
+    "surface": "answer",
+    "viewportHeight": 320
+  },
+  "ask": {
+    "followup": "rgb(240, 243, 233)",
+    "footerBottom": 311,
+    "header": "rgb(241, 244, 235)",
+    "inputFont": "\"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+    "question": "rgb(236, 239, 229)",
+    "scrollWidth": 420,
+    "viewportHeight": 320
+  },
+  "overlay": {
+    "actualHeight": 160,
+    "actualWidth": 240,
+    "body": "rgba(0, 0, 0, 0)",
+    "html": "rgba(0, 0, 0, 0)",
+    "htmlMinWidth": "0px",
+    "htmlScrollWidth": 240,
+    "hud": "rgb(250, 251, 246)",
+    "requestedHeight": 54,
+    "requestedWidth": 176,
+    "root": "rgba(0, 0, 0, 0)",
+    "surface": "overlay"
+  }
+}

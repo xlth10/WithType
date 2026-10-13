@@ -1,0 +1,176 @@
+{
+  "analysis": {
+    "evidence_id": "ev_463b04446e139d4da65f8b2572ec0566cbf2e74b0b17afaa34a52ac9e0f52a2c",
+    "subject": {
+      "name": "rea-gateway",
+      "digest": {
+        "sha256": "faa9dbfa34555d3e40acdd4575b3dc0293e0ca1f04e8fadf4e58bfac3436d809"
+      },
+      "format": "directory",
+      "architecture": null,
+      "local_path": "/private/tmp/typeless-context-analysis/rea-gateway"
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 1,
+        "literal_channels": 0,
+        "dynamic_channel_operations": 1,
+        "renderer_transmissions": 1,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    },
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 347,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "visited_ast_nodes": 63,
+      "findings": 2,
+      "modules": 0,
+      "parse_failures": 0,
+      "truncated_scopes": 0
+    },
+    "limitations": [
+      "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
+      "Dynamic IPC channel expressions remain unresolved and are never paired by textual similarity.",
+      "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
+      "Graph coverage is incomplete; unavailable facts remain explicit and must not be read as absence.",
+      "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
+      "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",
+      "Static paths and relationships may remain unresolved when expressions are dynamic or obfuscated.",
+      "Webpack/Rspack factories were recovered from AST literals; REA did not invoke push handlers or bundle bootstrap code."
+    ]
+  },
+  "trace": {
+    "result": {
+      "trace_id": "jatr_a738f333eb6f24be20fadd44081bc09b94344eb507ce9b47b3a843075c7f958d",
+      "source_evidence_id": "ev_463b04446e139d4da65f8b2572ec0566cbf2e74b0b17afaa34a52ac9e0f52a2c",
+      "source_graph_id": "jag_8c4159b068a8c938a83cf3fcac4413478fc71d603bdc54d20539f9f80bdc2737",
+      "seed": {
+        "kind": "string",
+        "value": "audio-context:get-audio-context",
+        "match": "exact",
+        "case_sensitive": false
+      },
+      "direction": "both",
+      "seed_matches": [],
+      "graph": null,
+      "paths": [],
+      "native_handoffs": [],
+      "summary": {
+        "matched_seeds": 0,
+        "traced_nodes": 0,
+        "traced_edges": 0,
+        "terminal_paths": 0,
+        "native_handoffs": 0,
+        "observed_facts": 0,
+        "inferred_facts": 0,
+        "unknown_facts": 0,
+        "unavailable_facts": 0
+      },
+      "coverage": {
+        "status": "no-match",
+        "source_graph_status": "partial",
+        "total_seed_matches": 0
+      },
+      "evidence_links": [
+        "ev_463b04446e139d4da65f8b2572ec0566cbf2e74b0b17afaa34a52ac9e0f52a2c"
+      ],
+      "limitations": [
+        "No graph entity matched the literal seed; this is not evidence that the feature is absent.",
+        "The source application graph is incomplete; unmatched seeds and frontiers remain unknown."
+      ]
+    },
+    "evidence_id": "ev_be733219a55bb4bae51fbde10ae5f095eebbe220119ba43a511d7dc33897bd42",
+    "evidence": {
+      "evidence_id": "ev_be733219a55bb4bae51fbde10ae5f095eebbe220119ba43a511d7dc33897bd42",
+      "subject": null,
+      "provider": {
+        "id": "rea-javascript-application-workflows",
+        "name": "REA JavaScript application workflows",
+        "version": "1"
+      },
+      "predicate_type": "rea.application-feature-trace",
+      "operation": "trace_application_feature",
+      "parameters": {
+        "application_evidence_id": "ev_463b04446e139d4da65f8b2572ec0566cbf2e74b0b17afaa34a52ac9e0f52a2c",
+        "native_evidence_ids": [],
+        "seed": {
+          "kind": "string",
+          "value": "audio-context:get-audio-context",
+          "match": "exact",
+          "case_sensitive": false
+        },
+        "direction": "both"
+      },
+      "raw_result": null,
+      "normalized_result": {
+        "trace_id": "jatr_a738f333eb6f24be20fadd44081bc09b94344eb507ce9b47b3a843075c7f958d",
+        "source_evidence_id": "ev_463b04446e139d4da65f8b2572ec0566cbf2e74b0b17afaa34a52ac9e0f52a2c",
+        "source_graph_id": "jag_8c4159b068a8c938a83cf3fcac4413478fc71d603bdc54d20539f9f80bdc2737",
+        "seed": {
+          "kind": "string",
+          "value": "audio-context:get-audio-context",
+          "match": "exact",
+          "case_sensitive": false
+        },
+        "direction": "both",
+        "seed_matches": [],
+        "graph": null,
+        "paths": [],
+        "native_handoffs": [],
+        "summary": {
+          "matched_seeds": 0,
+          "traced_nodes": 0,
+          "traced_edges": 0,
+          "terminal_paths": 0,
+          "native_handoffs": 0,
+          "observed_facts": 0,
+          "inferred_facts": 0,
+          "unknown_facts": 0,
+          "unavailable_facts": 0
+        },
+        "coverage": {
+          "status": "no-match",
+          "source_graph_status": "partial",
+          "total_seed_matches": 0
+        },
+        "evidence_links": [
+          "ev_463b04446e139d4da65f8b2572ec0566cbf2e74b0b17afaa34a52ac9e0f52a2c"
+        ],
+        "limitations": [
+          "No graph entity matched the literal seed; this is not evidence that the feature is absent.",
+          "The source application graph is incomplete; unmatched seeds and frontiers remain unknown."
+        ]
+      },
+      "confidence": "inferred",
+      "authority": "analyst-inference",
+      "environment": null,
+      "limitations": [
+        "Artifact identity is unavailable for this observation.",
+        "No graph entity matched the literal seed; this is not evidence that the feature is absent.",
+        "The source application graph is incomplete; unmatched seeds and frontiers remain unknown."
+      ],
+      "locations": [],
+      "evidence_links": [
+        "ev_463b04446e139d4da65f8b2572ec0566cbf2e74b0b17afaa34a52ac9e0f52a2c"
+      ]
+    }
+  },
+  "full_evidence_path": "/private/tmp/typeless-context-analysis/rea-gateway-evidence.json"
+}

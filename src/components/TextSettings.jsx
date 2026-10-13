@@ -114,8 +114,8 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
         <div className="panel-title">
           <div className="icon-tile"><BookOpenText size={22} weight="bold" /></div>
           <div>
-            <h3>兼容 OpenAI 的文字服务</h3>
-            <p>提问时可逐步显示回答；服务不支持时等待完整结果。</p>
+            <h2>文字服务接口</h2>
+            <p>支持流式预览；成稿完成后一次输入到目标应用。</p>
           </div>
         </div>
         <div className="form-grid">
@@ -132,10 +132,10 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
               onChange={(event) => patch({ textModel: event.target.value })}
             />
           </Field>
-          <Field label="快速模型（可选）" hint="判断处理方式和翻译时优先使用；留空则使用上方模型。">
+          <Field label="快速模型（可选）" hint="普通智能整理、翻译与意图判断优先使用；技能使用主模型。留空时使用主模型。">
             <input value={settings.textFastModel || ""} onChange={(event) => patch({ textFastModel: event.target.value })} />
           </Field>
-          <Field label="备用模型（可选）" hint="同一服务下的模型名称，用逗号分隔。仅超时、网络错误或限流时按顺序尝试。">
+          <Field label="备用模型（可选）" hint="用逗号分隔。失败时按顺序尝试，共享本次整理的总等待预算。">
             <input value={settings.textFallbackModels || ""} onChange={(event) => patch({ textFallbackModels: event.target.value })} />
           </Field>
           <Field label="认证方式">
@@ -148,7 +148,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
               ))}
             </select>
           </Field>
-          <Field label="等待时限">
+          <Field label="本次整理总等待预算" hint="包括分段处理与备用模型；耗尽后普通口述保留原文。">
             <select
               value={settings.textTimeoutMs}
               onChange={(event) => patch({ textTimeoutMs: Number(event.target.value) })}
@@ -169,6 +169,18 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
                 disabled={settings.textAuthMode === "none"}
               />
             </div>
+          </Field>
+        </div>
+        <div className="form-grid">
+          <Field label="流式预览" hint="在概览显示生成进展；服务不支持时回退完整响应。">
+            <select value={settings.textStreaming === false ? "off" : "on"} onChange={(event) => patch({ textStreaming: event.target.value === "on" })}>
+              <option value="on">开启</option><option value="off">关闭</option>
+            </select>
+          </Field>
+          <Field label="录音期间提前整理" hint="仅普通智能整理生效，会增加文字请求；自动意图判断开启时不使用。">
+            <select value={settings.textIncremental ? "on" : "off"} onChange={(event) => patch({ textIncremental: event.target.value === "on" })}>
+              <option value="off">关闭</option><option value="on">开启</option>
+            </select>
           </Field>
         </div>
         <div className="form-actions">

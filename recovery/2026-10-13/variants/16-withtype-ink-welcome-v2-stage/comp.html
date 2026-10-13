@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WithType · 落墨成字</title>
+<link rel="preload" href="/fonts/noto-sans-sc-variable.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#f8f7ef; }
+#stage { position:fixed; inset:0; overflow:hidden; background:#f8f7ef; }
+#world { position:absolute; inset:0; transform-origin:0 0; background:#f8f7ef; }
+#app-root { position:absolute; inset:0; opacity:0; }
+#paper { position:absolute; inset:0; background:#f8f7ef; pointer-events:none; }
+#fibers { position:absolute; inset:0; width:100%; height:100%; }
+#ink { position:absolute; pointer-events:none; }
+#world[data-finished="true"] #paper,#world[data-finished="true"] #ink { visibility:hidden; }
+@media(prefers-reduced-motion:reduce) {
+  #world { transform:none!important; } #paper,#ink { visibility:hidden; } #app-root { opacity:1!important; }
+}
+</style>
+<script src="../onetake/motion.js"></script>
+</head>
+<body>
+<div id="stage" tabindex="-1" aria-label="动画预览"><div id="world">
+  <div id="app-root"></div>
+  <div id="paper" aria-hidden="true"><canvas id="fibers"></canvas></div>
+  <canvas id="ink" aria-hidden="true"></canvas>
+</div></div>
+<script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from '/src/App.jsx';
+import { BRAND } from '/src/ui/brand.js';
+import '/src/styles.css';
+
+// Experimental composition only. The production entrance and versions A/B stay intact.
+const OM=window.OM, DURATION=3.6, SCALE=3;
+const query=new URLSearchParams(location.search);
+const gravity=OM.bezier(.55,0,1,.45);
+const pinned=query.has('t')&&Number.isFinite(Number(query.get('t')));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const world=document.getElementById('world'),ui=document.getElementById('app-root');
+const paper=document.getElementById('paper'),ink=document.getElementById('ink');
+const ctx=ink.getContext('2d'), raster=document.createElement('canvas');
+const rasterCtx=raster.getContext('2d',{willReadFrequently:true});
+let W=innerWidth,H=innerHeight,X=W/2,Y=H/2;
+let cw=0,ch=0,pw=0,ph=0,fontSize=30,textWidth=0,dropHeight=170,anchor=190,field=null;
+let clock=0,raf=0,started=0,playing=false,ready=false;
+document.documentElement.dataset.surface='main';
+createRoot(ui).render(React.createElement(App));
+
+function paperHash(x,y) {
+  let n=Math.imul(x,374761393)+Math.imul(y,668265263);
+  n=Math.imul(n^(n>>>13),1274126177);
+  return ((n^(n>>>16))>>>0)/4294967295;
+}
+function valueNoise(x,y) {
+  const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+  const u=OM.ease.sineInOut(fx),v=OM.ease.sineInOut(fy);
+  return OM.lerp(OM.lerp(paperHash(ix,iy),paperHash(ix+1,iy),u),OM.lerp(paperHash(ix,iy+1),paperHash(ix+1,iy+1),u),v);
+}
+function noise(x,y) {
+  return .58*valueNoise(x/4.7,y/2.4)+.28*valueNoise(x/1.4,y/.8)+.14*paperHash(Math.floor(x*3),Math.floor(y*3));
+}
+function distance(mask,width,height) {
+  const d=new Float32Array(mask.length);
+  for(let i=0;i<d.length;i++)d[i]=mask[i]>.12?0:1e4;
+  const rt=Math.SQRT2;
+  for(let y=0;y<height;y++)for(let x=0;x<width;x++) {
+    const i=y*width+x;let v=d[i];
+    if(x)v=Math.min(v,d[i-1]+1);
+    if(y)v=Math.min(v,d[i-width]+1);
+    if(x&&y)v=Math.min(v,d[i-width-1]+rt);
+    if(y&&x+1<width)v=Math.min(v,d[i-width+1]+rt);
+    d[i]=v;
+  }
+  for(let y=height-1;y>=0;y--)for(let x=width-1;x>=0;x--) {
+    const i=y*width+x;let v=d[i];
+    if(x+1<width)v=Math.min(v,d[i+1]+1);
+    if(y+1<height)v=Math.min(v,d[i+width]+1);
+    if(x+1<width&&y+1<height)v=Math.min(v,d[i+width+1]+rt);
+    if(x&&y+1<height)v=Math.min(v,d[i+width-1]+rt);
+    d[i]=v;
+  }
+  return d;
+}
+function prepare() {
+  W=innerWidth;H=innerHeight;X=W/2;Y=H/2;
+  fontSize=Math.min(30,Math.max(24,W/28));
+  dropHeight=Math.min(170,(H/2-54)/2+24);anchor=dropHeight+20;
+  const font=`420 ${fontSize}px "Typefree UI", "Segoe UI", sans-serif`;
+  rasterCtx.font=font;textWidth=rasterCtx.measureText(BRAND.welcome).width;
+  cw=Math.ceil(textWidth+80);ch=Math.ceil(dropHeight+70);pw=cw*SCALE;ph=ch*SCALE;
+  ink.width=pw;ink.height=ph;ink.style.width=cw+'px';ink.style.height=ch+'px';
+  ink.style.left=(X-cw/2)+'px';ink.style.top=(Y-anchor)+'px';
+  raster.width=pw;raster.height=ph;
+  rasterCtx.setTransform(SCALE,0,0,SCALE,0,0);
+  rasterCtx.font=font;rasterCtx.textAlign='center';rasterCtx.textBaseline='middle';
+  rasterCtx.fillStyle='#000';rasterCtx.fillText(BRAND.welcome,cw/2,anchor);
+  const pixels=rasterCtx.getImageData(0,0,pw,ph).data;
+  const a=new Float32Array(pw*ph),arrival=new Float32Array(pw*ph),porosity=new Float32Array(pw*ph);
+  for(let y=0;y<ph;y++)for(let x=0;x<pw;x++) {
+    const i=y*pw+x,dx=x/SCALE-cw/2,dy=y/SCALE-anchor,n=noise(x/SCALE,y/SCALE);
+    a[i]=pixels[4*i+3]/255;porosity[i]=n;
+    arrival[i]=Math.abs(dx)/(textWidth/2)*.61+Math.abs(dy)/fontSize*.16+n*.11;
+  }
+  const solid=Float32Array.from(a,v=>v>.5?1:0);
+  const outside=distance(solid,pw,ph),inside=distance(Float32Array.from(solid,v=>1-v),pw,ph);
+  const sdf=Float32Array.from(outside,(v,i)=>(v-inside[i])/SCALE);
+  const offset=new Float32Array(pw),width=new Float32Array(pw);
+  for(let x=0;x<pw;x++) {
+    const dx=x/SCALE-cw/2;
+    offset[x]=fontSize*(.18*Math.sin(dx/textWidth*Math.PI*2)+.12*(valueNoise(dx/18,47)-.5));
+    width[x]=.60+.48*valueNoise(dx/18,11);
+  }
+  field={a,porosity,sdf,offset,width,image:ctx.createImageData(pw,ph),top:Math.floor((anchor-fontSize*1.25)*SCALE),bottom:Math.ceil((anchor+fontSize*1.25)*SCALE)};
+  const fibers=document.getElementById('fibers');fibers.width=W*2;fibers.height=H*2;
+  const g=fibers.getContext('2d'),random=OM.rng(2317);
+  g.setTransform(2,0,0,2,0,0);g.lineCap='round';
+  for(let i=0;i<Math.ceil(W*H/560);i++) {
+    const x=random()*W,y=random()*H,len=1+random()*7,dy=(random()-.5)*3;
+    g.strokeStyle=`rgba(112,108,87,${.016+random()*.030})`;g.lineWidth=.22+random()*.3;
+    g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+len*.52,y+dy*.3,x+len,y+dy);g.stroke();
+  }
+  for(let i=0;i<95;i++) {
+    const x=random()*W,y=random()*H;
+    g.strokeStyle='rgba(128,121,95,.026)';g.lineWidth=.32;
+    g.beginPath();g.moveTo(x,y);g.bezierCurveTo(x+5,y-1,x+10,y+2,x+15,y+1);g.stroke();
+  }
+}
+function camera(t) {
+  return OM.camera(t,[
+    {t:0,x:X,y:Y-24,zoom:2},
+    {t:.14,x:X,y:Y-24,zoom:2},
+    {t:.62,x:X,y:Y,zoom:2.10,curve:OM.ease.sineInOut},
+    {t:.84,x:X,y:Y+1,zoom:2.12,curve:OM.ease.cubicOut},
+    {t:1.10,x:X,y:Y+1,zoom:2.12},
+    {t:1.76,x:X,y:Y,zoom:1.60,curve:OM.ease.cubicOut},
+    {t:2.70,x:X,y:Y,zoom:1.60},
+    {t:DURATION,x:X,y:Y,zoom:1,curve:OM.ease.sineInOut},
+  ],{W,H});
+}
+function dropAt(t) {
+  return OM.hop(t,.14,.70,{x:0,y:-dropHeight},{x:0,y:0},{height:0,curve:gravity});
+}
+function liquidAt(t) {
+  const spread=OM.ease.cubicOut(OM.seg(t,.70,1.30));
+  return {spread,rx:OM.lerp(11,textWidth*.53,spread),ry:OM.lerp(4,fontSize*.56,spread),morph:OM.ease.sineInOut(OM.seg(t,1.16,2.0))};
+}
+function organic(cx,cy,rx,ry,alpha,phase=0) {
+  ctx.globalAlpha=alpha;ctx.fillStyle='#282c27';ctx.beginPath();
+  for(let i=0;i<=64;i++) {
+    const angle=i/64*Math.PI*2;
+    const r=1+.024*Math.sin(angle*5+phase)+.012*Math.sin(angle*9+1.3);
+    const x=cx+Math.cos(angle)*rx*r,y=cy+Math.sin(angle)*ry*r;
+    if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+  }
+  ctx.closePath();ctx.fill();ctx.globalAlpha=1;
+}
+function drawInk(t) {
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,pw,ph);
+  const {a,porosity,sdf,offset,width,image,top,bottom}=field,data=image.data;
+  const liquid=liquidAt(t),{spread,rx,ry,morph}=liquid;
+  if(t>=.70) {
+    const touch=OM.seg(t,.70,.75),settled=t>=2;
+    for(let y=top;y<bottom;y++)for(let x=0;x<pw;x++) {
+      const i=y*pw+x,dx=x/SCALE-cw/2,dy=y/SCALE-anchor;
+      const yy=dy-offset[x]*spread;
+      const pool=Math.max(-4,(Math.sqrt((dx/rx)**2+(yy/(ry*width[x]))**2)-1)*ry);
+      // The liquid footprint changes topology into the letter footprint.
+      // Letter counters and spaces open inside existing ink, rather than fading type in.
+      const contour=OM.lerp(pool,sdf[i],morph)+(porosity[i]-.5)*(.7-.52*morph);
+      const softness=settled?.23:OM.lerp(.72,.23,morph);
+      const core=OM.clamp(.5-contour/(softness*2));
+      const halo=Math.exp(-Math.max(0,contour)/(1.1-.78*morph))*.11*(1-morph);
+      const density=.97-.055*porosity[i]-.12*(1-morph)*Math.min(1,Math.abs(dx)/rx);
+      const alpha=touch*Math.max(core*density,halo);
+      data[4*i]=40;data[4*i+1]=44;data[4*i+2]=39;data[4*i+3]=Math.round(255*OM.clamp(alpha));
+    }
+    ctx.putImageData(image,0,0);
+  }
+  ctx.setTransform(SCALE,0,0,SCALE,0,0);
+  const cx=cw/2,cy=anchor;
+  if(t<.88) {
+    const p=dropAt(t),absorb=OM.ease.cubicOut(OM.seg(t,.70,.88));
+    const hit=OM.impact(t,.70,{decay:17,omega:24,sqx:.20,sqy:.25});
+    const radius=9.6,op=1-OM.seg(t,.75,.88);
+    const sh=ctx.createRadialGradient(cx,cy+3,0,cx,cy+3,14);
+    sh.addColorStop(0,`rgba(40,44,39,${(.02+.09*OM.clamp(1+p.y/dropHeight))*op})`);sh.addColorStop(1,'rgba(40,44,39,0)');
+    ctx.fillStyle=sh;ctx.save();ctx.translate(cx,cy+3);ctx.scale(1,.22);
+    ctx.translate(-cx,-cy-3);ctx.fillRect(cx-14,cy-11,28,28);ctx.restore();
+    const elongation=1+.16*gravity(OM.seg(t,.14,.70))*(1-absorb);
+    organic(cx,cy+p.y,radius*hit.sx*(1+absorb*.70)/Math.sqrt(elongation),radius*hit.sy*(1-absorb*.88)*elongation,op,.3);
+  }
+  ctx.setTransform(1,0,0,1,0,0);
+}
+function seek(value) {
+  const t=OM.clamp(value,0,DURATION);clock=t;
+  world.style.transform=t>=DURATION?'none':`matrix(${OM.view(camera(t),{W,H}).join(',')})`;
+  world.dataset.time=t.toFixed(6);world.dataset.duration=String(DURATION);
+  world.dataset.finished=String(t>=DURATION);world.dataset.phase=t<.70?'drop':t<1.16?'absorb':t<2?'form':t<2.7?'welcome':t<DURATION?'expand':'ready';
+  const appear=OM.ease.sineInOut(OM.seg(t,2.88,DURATION));
+  ui.style.opacity=String(t>=DURATION?1:appear);
+  ui.inert=t<DURATION;
+  paper.style.opacity=String(1-appear);
+  ink.style.opacity=String(1-OM.ease.sineInOut(OM.seg(t,2.70,3.10)));
+  if(field&&t<DURATION)drawInk(t);
+  return true;
+}
+function finish(){
+  if(playing)world.dataset.playbackMs=(performance.now()-started).toFixed(1);
+  playing=false;cancelAnimationFrame(raf);seek(DURATION);
+}
+function tick(now){if(!playing)return;seek((now-started)/1000);if(clock<DURATION)raf=requestAnimationFrame(tick);else finish();}
+function play(){if(reduced.matches||query.has('reduced'))return finish();playing=true;started=performance.now();seek(0);raf=requestAnimationFrame(tick);}
+addEventListener('pointerdown',()=>{if(clock<DURATION)finish();},{capture:true});
+addEventListener('keydown',event=>{
+  if(query.has('frames')&&['Shift','Control','Alt','Meta'].includes(event.key))return;
+  // Keyboard-accessible frame viewer, used only by the development composition.
+  if(query.has('frames')&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) {
+    event.preventDefault();event.stopImmediatePropagation();playing=false;cancelAnimationFrame(raf);
+    const step=event.shiftKey?1/480:1/30;
+    seek(event.key==='Home'?0:event.key==='End'?DURATION:clock+(event.key==='ArrowLeft'?-step:step));
+    return;
+  }
+  if(clock>=DURATION)return;finish();
+  if(event.key==='Tab'){event.preventDefault();ui.querySelector('button')?.focus();}
+},{capture:true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)finish();});
+reduced.addEventListener('change',()=>{if(reduced.matches)finish();});
+addEventListener('resize',()=>{if(!ready)return;const was=clock;prepare();playing?finish():seek(was);});
+
+window.__seek=seek;
+window.__meta={dur:DURATION,fps:30,cuts:[],beats:[0,.14,.70,1.16,2.0,2.70,DURATION],inFrame:{drop:[0,.88,'whole'],ink:[.70,3.10,'whole']}};
+window.__track=t=>{
+  const M=OM.view(camera(t),{W,H}),p=dropAt(t),l=liquidAt(t);
+  const op=1-OM.ease.sineInOut(OM.seg(t,2.70,3.10));
+  return {
+    drop:{...OM.projectBox(M,{x:X-18,y:Y+p.y-18,w:36,h:36}),op:t<.88?1-OM.seg(t,.75,.88):0},
+    ink:{...OM.projectBox(M,{x:X-cw/2,y:Y-fontSize*1.25,w:cw,h:fontSize*2.5}),op:t>=.70?op:0},
+  };
+};
+window.__motion=(a,b)=>{
+  const ca=camera(a),cb=camera(b),pa=dropAt(a),pb=dropAt(b);
+  const A=OM.project(OM.view(ca,{W,H}),X,Y+pa.y),B=OM.project(OM.view(cb,{W,H}),X,Y+pb.y);
+  const front=Math.abs(liquidAt(a).rx-liquidAt(b).rx)*Math.max(ca.zoom,cb.zoom);
+  return Math.max(OM.screenTravel(ca,cb,camera((a+b)/2),{W,H}),Math.hypot(B[0]-A[0],B[1]-A[1]),front);
+};
+window.__ready=document.fonts.ready.then(()=>new Promise(resolve=>requestAnimationFrame(resolve))).then(()=>{
+  prepare();ready=true;world.dataset.ready='true';
+  if(reduced.matches||query.has('reduced'))finish();else if(pinned)seek(Number(query.get('t')));else play();
+  return true;
+});
+</script>
+</body>
+</html>

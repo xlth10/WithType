@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>WithType 进入动画代码核验</title>
+<style>body{font:14px/1.6 system-ui;background:#f8f7ef;color:#282c27}button{padding:8px 16px}pre{white-space:pre-wrap}.frames{display:flex;gap:20px;height:190px}.frame{width:280px;height:180px;overflow:hidden}iframe{width:1060px;height:720px;border:0;transform:scale(.25);transform-origin:0 0}</style></head>
+<body><h1>批准基线与共享绘制器</h1><p>同一离线字体、1060×720 逻辑尺寸，逐像素比较墨画布与纸纹；不会把本机核验称为 Windows 实机验收。</p><button id="run">运行对照</button><pre id="result">待运行</pre>
+<div class="frames"><div class="frame"><iframe id="approved" title="批准基线"></iframe></div><div class="frame"><iframe id="shared" title="共享绘制器"></iframe></div></div>
+<script type="module">
+const result=document.getElementById('result'),button=document.getElementById('run');
+const frames=[document.getElementById('approved'),document.getElementById('shared')];
+const urls=['./approved-reference.html?t=0&frames','./comp.html?t=0&frames'];
+const load=(frame,url)=>new Promise((resolve,reject)=>{
+  const timer=setTimeout(()=>reject(new Error('预览就绪超时')),20000);
+  frame.onload=async()=>{try{await frame.contentWindow.__ready;clearTimeout(timer);resolve(frame.contentWindow);}catch(error){clearTimeout(timer);reject(error);}};
+  frame.src=url+'&check='+Date.now();
+});
+const pixels=canvas=>canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+function diff(a,b){
+  if(a.width!==b.width||a.height!==b.height)return{sameSize:false,changedPixels:null};
+  const A=pixels(a),B=pixels(b);let changedPixels=0,maxChannelDifference=0;
+  for(let i=0;i<A.length;i+=4){let changed=false;for(let c=0;c<4;c++){const delta=Math.abs(A[i+c]-B[i+c]);if(delta)changed=true;maxChannelDifference=Math.max(maxChannelDifference,delta);}if(changed)changedPixels++;}
+  return{sameSize:true,changedPixels,maxChannelDifference};
+}
+button.addEventListener('click',async()=>{
+  button.disabled=true;result.textContent='正在核验…';
+  const key='typefree-windows.settings',previous=localStorage.getItem(key),checks=[];
+  try{
+    for(const greeting of ['Welcome, Ellen','Welcome，outsider','墨'.repeat(40)]){
+      const prefs=JSON.parse(previous||'{}');localStorage.setItem(key,JSON.stringify({...prefs,welcomeText:greeting}));
+      for(const [width,height] of [[1060,720],[640,480]]){
+        frames.forEach(frame=>{frame.style.width=width+'px';frame.style.height=height+'px';});
+        const [approved,shared]=await Promise.all(frames.map((frame,i)=>load(frame,urls[i])));
+        const paper=diff(approved.document.getElementById('fibers'),shared.document.getElementById('fibers'));
+        for(const time of [0,.62,.76,1.3,1.6,2,2.2,2.6]){
+          approved.__seek(time);shared.__seek(time);
+          const ink=diff(approved.document.getElementById('ink'),shared.document.getElementById('ink'));
+          const a=approved.document.getElementById('world'),b=shared.document.getElementById('world');
+          checks.push({greeting,width,height,time,ink,paper,glyphWidthEqual:a.dataset.textWidth===b.dataset.textWidth,fontSizeEqual:a.dataset.fontSize===b.dataset.fontSize});
+        }
+        shared.__seek(3.6);
+        checks.push({greeting,width,height,finish:shared.document.getElementById('world').dataset.finished==='true'&&!shared.document.getElementById('app-root').inert&&shared.document.getElementById('world').style.transform==='none'});
+      }
+    }
+    const ok=checks.every(item=>item.finish===true||(item.ink?.sameSize&&item.ink.changedPixels===0&&item.paper.changedPixels===0&&item.glyphWidthEqual&&item.fontSizeEqual));
+    result.textContent=JSON.stringify({ok,platform:'macOS browser; Windows runtime not tested',checks},null,2);
+  }catch(error){result.textContent=JSON.stringify({ok:false,error:String(error)},null,2);}
+  finally{if(previous===null)localStorage.removeItem(key);else localStorage.setItem(key,previous);button.disabled=false;}
+});
+</script></body></html>

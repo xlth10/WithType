@@ -1,0 +1,18 @@
+from pathlib import Path
+import shutil
+r=Path('/private/tmp/typefree-refine-stage')
+p=r/'src/App.jsx'; s=p.read_text()
+s=s.replace('可前往「文字模型」页填写。','可前往「模型配置 → 文字处理」填写。')
+s=s.replace('function SpeechSettings({ settings, setSettings, online, testing, testConnection, onNotice })','function SpeechSettings({ settings, setSettings, online, testing, testConnection, onNotice, onKeySaved })')
+s=s.replace('onNotice({ text: "ASR API Key 已保存到系统凭据库", ok: true });','onKeySaved();\n      onNotice({ text: "ASR API Key 已保存到系统凭据库", ok: true });')
+s=s.replace('function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice })','function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice, onSpeechKeySaved })')
+s=s.replace('testConnection={testConnection} onNotice={onNotice} />','testConnection={testConnection} onNotice={onNotice} onKeySaved={onSpeechKeySaved} />')
+s=s.replace('testConnection={testConnection} onNotice={notify} />','testConnection={testConnection} onNotice={notify} onSpeechKeySaved={() => setOnline(false)} />')
+s=s.replace('const [page, setPage] = useState(!isTauri() && ["shortcut", "vocabulary", "history", "skills", "writing", "model", "text"].includes(previewParams.get("page")) ? previewParams.get("page") === "text" ? "model" : previewParams.get("page") : "home");','const previewPage = previewParams.get("page");\n  const [page, setPage] = useState(() => {\n    if (isTauri()) return "home";\n    if (previewPage === "text") return "model";\n    return ["shortcut", "vocabulary", "history", "skills", "writing", "model"].includes(previewPage) ? previewPage : "home";\n  });')
+p.write_text(s)
+p=r/'src/components/TextSettings.jsx'; s=p.read_text().replace('// 文字模型设置页：','// 模型配置中的文字处理分区：').replace('setKey("");\n      onNotice','setKey("");\n      setResult(null);\n      onNotice').replace('disabled={testing || !settings.textEndpoint || !settings.textModel}','disabled={testing || !settings.textEndpoint.trim() || !settings.textModel.trim()}'); p.write_text(s)
+p=r/'src/components/SkillEditor.jsx'; shutil.copy2('/Users/outsider/SEVB/Type/src/components/SkillEditor.jsx',p); s=p.read_text().replace('先在“文字模型”填写服务地址和模型名称。','先在“模型配置 → 文字处理”填写服务地址和模型名称。'); p.write_text(s)
+p=r/'README.md'; s=p.read_text().replace('1. 「语音模型」填入','语音与文字服务合在侧栏 **「模型配置」**，页内分为「语音识别」与「文字处理」。配置字段与两项 Windows 凭据仍独立，合并页面不共享或覆盖密钥。\n\n1. 「模型配置 → 语音识别」填入').replace('2. 「文字模型」独立配置','2. 「模型配置 → 文字处理」独立配置').replace('逐项状态与已知缺口见','验收未通过时，按 [逐项处理与复验方案](docs/windows-remediation.md) 排查；包括窗口/DPI、模型、构建、音频、投递和词汇学习。\n\n逐项状态与已知缺口见'); s += '\n## 应用图标\n\n新版图标根据用户提供的“墨珠沿笔迹前行”意象重构：暖纸底、深墨珠与流动笔迹，在小尺寸省去飞溅和纸张纹理。侧栏、问答卡片、浏览器标识与 Windows EXE / 托盘 / 安装程序共用 v2 资源。旧图标文件保留，新文件位于 `public/assets/typefree-ink-v2.svg` 和 `src-tauri/icons/ink-v2/`。设计来源、取舍、导出和复生成命令见 [图标交付记录](icon-design/README.md)。\n';p.write_text(s)
+p=r/'docs/windows-remediation.md'; s=p.read_text().replace('墨珠横线造型','墨珠笔迹造型').replace('src/voice/motion-core.mjs','src/voice/motion.js');p.write_text(s)
+p=r/'docs/design/windows-ui-skills-2026-10-10.md';s=p.read_text().replace('墨珠横线造型','墨珠笔迹造型');p.write_text(s)
+p=r/'research.md';s=p.read_text();s += '\n## 2026-10-10 图标与模型配置补充\n\n用户要求重构应用图标、替换问答卡片单珠标识、补全 Windows 失败处理方案，并把两类模型合到“模型配置”。随后指定用户上传的三颗墨珠与流动笔迹图像作为新图标依据。\n\n- 保留用户参考的墨珠、前行方向和笔迹；减少飞溅、纹理与复杂高光，使用当前暖纸/墨色，重建几何 SVG 并导出 Windows 多尺寸 PNG/ICO。图标探索、用户修订与素材来源单独记录，不使用 Typefree 原版品牌资源。\n- 问答卡片和侧栏使用同一 AppIcon，原生窗口/托盘/安装包同步切换到版本化资源，旧文件保留。\n- 单页两个分区，合并导航和使用路径；底层 asr/text 配置字段、服务地址与凭据项独立，旧配置无需迁移。测试状态随参数/密钥更新失效，浏览器预览不伪报真实连接通过。\n- 给全部既有 Windows 验收项和新增 UI 项编号，失败处理明确现场排查、源码定位与复验标准；原生 Windows 验收仍由实机证据判定。\n';p.write_text(s)

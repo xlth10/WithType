@@ -1,17 +1,20 @@
 mod audio;
+mod background;
+mod card_position;
 mod correction_monitor;
+mod delivery;
 mod floating;
 mod history;
 mod quick_phrase;
 mod skills;
 mod startup;
 mod text_api;
+mod text_stream;
 #[cfg(windows)]
 mod uia;
 mod vocabulary;
 
 use std::{
-    collections::HashSet,
     fs,
     future::Future,
     path::PathBuf,
@@ -19,7 +22,6 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex, OnceLock,
     },
-    thread,
     time::{Duration, Instant},
 };
 
@@ -32,48 +34,71 @@ use tauri::{
 };
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 
+// Keep the legacy credential service through the WithType rename.
 const SERVICE_NAME: &str = "app.typefree.windows.unofficial";
 const ACCOUNT_NAME: &str = "qwen-asr-api-key";
 
-#[derive(Default)]
-struct PasteSessions {
-    active: HashSet<String>,
-    cancelled: HashSet<String>,
-}
-
-static PASTE_SESSIONS: OnceLock<Mutex<PasteSessions>> = OnceLock::new();
-static PASTE_BUSY: AtomicBool = AtomicBool::new(false);
-
-/// 托盘和窗口标题栏用的图标。
-///
-/// 不能用 `app.default_window_icon()`：Windows 上它取自 `icons/ink-v3/icon.ico`，
-/// 而 tauri-codegen 解析 ICO 时写死了 `entries()[0]`，也就是目录里的第一帧 ——
-/// 按 scripts/generate_ink_icon.py 的写入顺序恰好是 16×16。这个 16px 位图随后被
-/// tao / tray-icon 原样交给 CreateIcon（不缩放），DPI 放大后就糊了。
-///
-/// 这里嵌的是整个 icon.ico：`tauri::Image::from_bytes` 走 image crate 的
-/// ico 解码器，它按「位深优先、再比面积」挑帧，会选到 256×256 那帧，
-/// 而不是像 tauri-codegen 那样只认第一帧。
-///
-/// 之所以用 .ico 而不是 128×128.png：本机 DLP 会把 .png 就地加密成
-/// %TSD-Header-###%，编译期 include_bytes! 读到的就是密文（.ico 不受影响），
-/// 运行时再读盘则要依赖解密，所以宁可嵌裸的 .ico 字节。
 static APP_ICON: &[u8] = include_bytes!("../icons/ink-v3/icon.ico");
 
 fn app_icon() -> tauri::Result<tauri::image::Image<'static>> {
     tauri::image::Image::from_bytes(APP_ICON)
 }
 
-fn paste_sessions() -> &'static Mutex<PasteSessions> {
-    PASTE_SESSIONS.get_or_init(|| Mutex::new(PasteSessions::default()))
+/// 双 bug 排查用的临时诊断日志，写到系统临时目录的 typefree-debug.log。
+/// 定位完成后会移除，不是正式日志设施：不记正文内容，只记定位需要的窗口与按键事实。
+fn debug_log(message: &str) {
+    use std::io::Write;
+    let path = std::env::temp_dir().join("typefree-debug.log");
+    let _ = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&path)
+        .and_then(|mut file| {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default();
+            writeln!(
+                file,
+                "[{:?}+{:03}ms] {}",
+                now.as_secs(),
+                now.subsec_millis(),
+                message
+            )
+        });
+}
+
+/// 悬浮窗的 show() 在第二次起走 SW_SHOW 会激活自己；粘贴键打到的是前台窗口，
+/// 所以显示前后都要看住前台，被抢走就还给用户正在打字的应用。
+#[cfg(target_os = "windows")]
+fn foreground_window() -> windows_sys::Win32::Foundation::HWND {
+    use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
+    unsafe { GetForegroundWindow() }
+}
+
+#[cfg(target_os = "windows")]
+fn restore_foreground(window: windows_sys::Win32::Foundation::HWND, scenario: &str) {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, SetForegroundWindow};
+    if window.is_null() {
+        return;
+    }
+    let current = unsafe { GetForegroundWindow() };
+    if current != window {
+        debug_log(&format!(
+            "{scenario}: 前台 {:p} 被换成 {:p}，SetForegroundWindow 恢复 = {}",
+            window,
+            current,
+            unsafe { SetForegroundWindow(window) } != 0
+        ));
+    }
 }
 
 /// 与前端 src/text/settingsMigration.js 的默认值一致。
 const DEFAULT_DICTATION_SHORTCUT: &str = "Ctrl+Alt+Space";
 const DEFAULT_ASK_SHORTCUT: &str = "Ctrl+Alt+Shift+Space";
 const DEFAULT_ACTION_SHORTCUT: &str = "Ctrl+Alt+Shift+T";
+const DEFAULT_COPY_SHORTCUT: &str = "Ctrl+Alt+V";
 
-/// 当前实际注册成功的组合。
+/// 当前实际注册成功的四个组合。
 ///
 /// 记着「注册成功的值」而不是「配置里的值」很重要：注册失败（被别的程序占用）时
 /// 两者会不一致，如果按配置去 unregister，就会去注销一个从未注册过的快捷键而报错，
@@ -85,20 +110,16 @@ struct ShortcutRegistry(Mutex<RegisteredShortcuts>);
 
 #[derive(Default)]
 struct ShortcutCaptureState(AtomicBool);
+#[derive(Default)]
+struct InteractionActiveState(AtomicBool);
 
 #[derive(Default, Clone)]
 struct RegisteredShortcuts {
     dictation: String,
     ask: String,
     action: String,
+    copy: String,
     phrase: String,
-}
-
-#[derive(Default)]
-struct QuickPhraseState {
-    config: Mutex<quick_phrase::QuickPhrase>,
-    busy: AtomicBool,
-    shortcut_error: Mutex<Option<String>>,
 }
 
 #[derive(Default)]
@@ -107,6 +128,15 @@ struct AnswerCardState(Mutex<AnswerCardSession>);
 struct AnswerCardSession {
     card: Option<AnswerCardData>,
     closed_request_id: Option<String>,
+}
+#[derive(Default)]
+struct CardAnchorState(Mutex<Option<(String, card_position::Anchor)>>);
+
+#[derive(Default)]
+struct QuickPhraseState {
+    config: Mutex<quick_phrase::QuickPhrase>,
+    busy: AtomicBool,
+    shortcut_error: Mutex<Option<String>>,
 }
 
 #[derive(Default)]
@@ -226,8 +256,10 @@ struct AnswerCardData {
     request_id: Option<String>,
     kind: String,
     title: String,
-    streaming: bool,
     error: Option<String>,
+    status: Option<String>,
+    message: Option<String>,
+    streaming: bool,
 }
 
 /// 把配置里的字符串和插件回调拿到的 Shortcut 对比。
@@ -322,81 +354,6 @@ fn get_active_window_context() -> Option<ActiveWindowContext> {
     }
 }
 
-/// 双 bug 排查用的临时诊断日志，写到系统临时目录的 typefree-debug.log。
-/// 定位完成后会移除，不是正式日志设施：不记正文内容，只记定位需要的窗口与按键事实。
-fn debug_log(message: &str) {
-    use std::io::Write;
-    let path = std::env::temp_dir().join("typefree-debug.log");
-    let _ = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&path)
-        .and_then(|mut file| {
-            let now = std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap_or_default();
-            writeln!(
-                file,
-                "[{:?}+{:03}ms] {}",
-                now.as_secs(),
-                now.subsec_millis(),
-                message
-            )
-        });
-}
-
-/// 悬浮窗的 show() 在第二次起走 SW_SHOW 会激活自己；粘贴键打到的是前台窗口，
-/// 所以显示前后都要看住前台，被抢走就还给用户正在打字的应用。
-#[cfg(target_os = "windows")]
-fn foreground_window() -> windows_sys::Win32::Foundation::HWND {
-    use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
-    unsafe { GetForegroundWindow() }
-}
-
-#[cfg(target_os = "windows")]
-fn restore_foreground(window: windows_sys::Win32::Foundation::HWND, scenario: &str) {
-    use windows_sys::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, SetForegroundWindow};
-    if window.is_null() {
-        return;
-    }
-    let current = unsafe { GetForegroundWindow() };
-    if current != window {
-        debug_log(&format!(
-            "{scenario}: 前台 {:p} 被换成 {:p}，SetForegroundWindow 恢复 = {}",
-            window,
-            current,
-            unsafe { SetForegroundWindow(window) } != 0
-        ));
-    }
-}
-
-/// Ctrl+V 只打前台窗口。悬浮 HUD 的 show() 第二次起是 SW_SHOW（会激活自己），
-/// 且 tao 的 force_window_active 失败时还会发 Alt 键 hack——两者都可能把前台
-/// 挪走，粘贴就打错了地方。粘贴前确认前台还是启动口述时的那个应用；不是的话
-/// 直接把前台还给那个窗口，再发键。
-#[cfg(target_os = "windows")]
-fn paste_focus_note() -> Option<isize> {
-    let hwnd = foreground_window();
-    if hwnd.is_null() {
-        debug_log("paste_focus: 启动口述时前台窗口为空");
-        return None;
-    }
-    Some(hwnd as isize)
-}
-
-#[cfg(target_os = "windows")]
-fn paste_focus_restore(hwnd: Option<isize>, scenario: &str) {
-    let Some(hwnd) = hwnd else { return };
-    restore_foreground(hwnd as windows_sys::Win32::Foundation::HWND, scenario);
-}
-
-#[cfg(target_os = "windows")]
-fn paste_focus_force(window: isize) -> bool {
-    use windows_sys::Win32::UI::WindowsAndMessaging::SetForegroundWindow;
-    let ok = unsafe { SetForegroundWindow(window as windows_sys::Win32::Foundation::HWND) };
-    ok != 0
-}
-
 #[tauri::command]
 fn get_answer_card(app: AppHandle) -> Option<AnswerCardData> {
     app.state::<AnswerCardState>().0.lock().ok()?.card.clone()
@@ -408,9 +365,9 @@ fn show_answer_card(
     question: String,
     answer: String,
     request_id: Option<String>,
+    streaming: Option<bool>,
     kind: Option<String>,
     title: Option<String>,
-    streaming: Option<bool>,
     error: Option<String>,
 ) -> Result<(), String> {
     let card = AnswerCardData {
@@ -419,34 +376,101 @@ fn show_answer_card(
         request_id,
         kind: kind.unwrap_or_else(|| "ask".into()),
         title: title.unwrap_or_else(|| "提问".into()),
-        streaming: streaming.unwrap_or(false),
         error,
+        status: None,
+        message: None,
+        streaming: streaming.unwrap_or(false),
     };
-    let changed = {
+    present_card(app, card)
+}
+
+#[tauri::command]
+fn show_delivery_card(
+    app: AppHandle,
+    text: String,
+    status: String,
+    message: String,
+    request_id: Option<String>,
+) -> Result<(), String> {
+    present_card(
+        app,
+        AnswerCardData {
+            question: String::new(),
+            answer: text,
+            request_id,
+            kind: "delivery".into(),
+            title: "语音结果".into(),
+            error: None,
+            status: Some(status),
+            message: Some(message),
+            streaming: false,
+        },
+    )
+}
+
+fn present_card(app: AppHandle, card: AnswerCardData) -> Result<(), String> {
+    {
         let state = app.state::<AnswerCardState>();
-        let mut current = state.0.lock().map_err(|e| e.to_string())?;
-        // A late final response cannot reopen a card the user dismissed.
+        let mut current = state.0.lock().map_err(|error| error.to_string())?;
         if card.request_id.is_some() && current.closed_request_id == card.request_id {
             return Ok(());
         }
-        let changed = current
-            .card
-            .as_ref()
-            .map(|old| (&old.request_id, &old.question))
-            != Some((&card.request_id, &card.question));
         current.card = Some(card.clone());
-        changed
-    };
+    }
     if let Some(window) = app.get_webview_window("answer") {
-        if changed {
-            if let Some(monitor) = floating_monitor(&app, &window, false) {
-                place_floating(&window, &monitor, floating::Surface::Card)?;
+        let id = card
+            .request_id
+            .clone()
+            .unwrap_or_else(|| card.question.clone());
+        let state = app.state::<CardAnchorState>();
+        let mut saved = state.0.lock().map_err(|e| e.to_string())?;
+        if saved.as_ref().is_none_or(|(existing, _)| existing != &id) {
+            let caret = delivery::caret();
+            let mouse = window.cursor_position().ok();
+            let point = caret
+                .map(|r| (r.x as f64, r.y as f64))
+                .or_else(|| mouse.map(|p| (p.x, p.y)));
+            let monitor = point
+                .and_then(|(x, y)| window.monitor_from_point(x, y).ok().flatten())
+                .or_else(|| window.primary_monitor().ok().flatten());
+            if let Some(monitor) = monitor {
+                let work = monitor.work_area();
+                *saved = Some((
+                    id,
+                    card_position::Anchor {
+                        caret,
+                        work: card_position::Rect {
+                            x: work.position.x,
+                            y: work.position.y,
+                            width: work.size.width as i32,
+                            height: work.size.height as i32,
+                        },
+                        scale: monitor.scale_factor(),
+                    },
+                ));
             }
         }
-        window.emit("ask-answer", card).map_err(|e| e.to_string())?;
-        if !window.is_visible().map_err(|e| e.to_string())? {
-            window.show().map_err(|e| e.to_string())?;
+        if let Some((_, anchor)) = saved.as_ref() {
+            let bounds = card_position::place(
+                anchor,
+                (floating::CARD_WIDTH * anchor.scale).round() as i32,
+                (floating::CARD_HEIGHT * anchor.scale).round() as i32,
+            );
+            window
+                .set_position(PhysicalPosition::new(bounds.x, bounds.y))
+                .map_err(|error| error.to_string())?;
+            window
+                .set_size(tauri::PhysicalSize::new(
+                    bounds.width as u32,
+                    bounds.height as u32,
+                ))
+                .map_err(|e| e.to_string())?;
         }
+        drop(saved);
+        window.show().map_err(|error| error.to_string())?;
+        window
+            .emit("ask-answer", card)
+            .map_err(|error| error.to_string())?;
     }
     Ok(())
 }
@@ -467,6 +491,10 @@ fn hide_answer_card(app: AppHandle, request_id: Option<String>) -> Result<(), St
         }
         current.closed_request_id = current.card.take().and_then(|card| card.request_id);
     }
+    *app.state::<CardAnchorState>()
+        .0
+        .lock()
+        .map_err(|e| e.to_string())? = None;
     if let Some(window) = app.get_webview_window("answer") {
         window.hide().map_err(|error| error.to_string())?;
     }
@@ -477,7 +505,7 @@ fn api_key() -> Result<String, String> {
     keyring::Entry::new(SERVICE_NAME, ACCOUNT_NAME)
         .map_err(|error| format!("无法打开系统凭据库：{error}"))?
         .get_password()
-        .map_err(|_| "尚未保存语音 API 密钥".to_string())
+        .map_err(|_| "尚未保存 ASR API Key".to_string())
 }
 
 fn api_url(endpoint: &str, path: &str) -> String {
@@ -498,15 +526,9 @@ fn save_api_key(key: String) -> Result<(), String> {
     keyring::Entry::new(SERVICE_NAME, ACCOUNT_NAME)
         .map_err(|error| format!("无法打开系统凭据库：{error}"))?
         .set_password(key.trim())
-        .map_err(|error| format!("保存 API 密钥失败：{error}"))
+        .map_err(|error| format!("保存 API Key 失败：{error}"))
 }
 
-/// 探针音频的形状：1 秒 16 kHz 单声道 PCM16 的 440 Hz 低幅正弦。
-///
-/// 时长维持 1 秒是有实测依据的——1 秒正弦在该上游稳定返回 200。
-/// 幅度只为避开「整段数字静音」这一个会稳定触发 500 的输入；
-/// 不要拿它去和 audio.rs 里 pause_end / has_voice 的录音阈值（0.008 / 0.012）比较，
-/// 那判的是「录音里有没有人声」，比「上游能不能解码出文字」严得多。
 const PROBE_RATE: u32 = 16_000;
 const PROBE_SAMPLES: usize = PROBE_RATE as usize;
 const PROBE_AMPLITUDE: f32 = 0.1;
@@ -622,6 +644,16 @@ where
     result.map_err(|error| format!("{context}：{error}"))
 }
 
+fn asr_client() -> &'static reqwest::Client {
+    static CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+    CLIENT.get_or_init(|| {
+        reqwest::Client::builder()
+            .connect_timeout(Duration::from_secs(10))
+            .build()
+            .unwrap_or_else(|_| reqwest::Client::new())
+    })
+}
+
 pub(crate) async fn transcribe_bytes_with_cancel(
     audio: Vec<u8>,
     filename: String,
@@ -642,7 +674,7 @@ pub(crate) async fn transcribe_bytes_with_cancel(
         .part("file", part);
 
     let response = cancellable_request(
-        text_api::client()
+        asr_client()
             .post(api_url(&endpoint, "audio/transcriptions"))
             .bearer_auth(api_key()?)
             .multipart(form)
@@ -654,15 +686,10 @@ pub(crate) async fn transcribe_bytes_with_cancel(
     .await?;
 
     let status = response.status();
-    // 先读 body 再判状态：请求成功时它就是识别结果，失败时它是服务端唯一
-    // 留下的线索——只回一句「HTTP 500」用户查不出任何东西。
-    let body = cancellable_request(response.text(), cancelled.as_ref(), "读取识别结果失败").await?;
     if !status.is_success() {
-        return Err(format!(
-            "语音服务返回 HTTP {status}：{}",
-            text_api::excerpt(&body)
-        ));
+        return Err(format!("ASR 服务返回 HTTP {status}"));
     }
+    let body = cancellable_request(response.text(), cancelled.as_ref(), "读取识别结果失败").await?;
     let json: serde_json::Value =
         serde_json::from_str(&body).map_err(|error| format!("无法解析识别结果：{error}"))?;
     let text = json
@@ -676,7 +703,7 @@ pub(crate) async fn transcribe_bytes_with_cancel(
         .trim()
         .to_string();
     if text.is_empty() {
-        return Err("语音服务没有返回文字".into());
+        return Err("ASR 服务没有返回文字".into());
     }
     Ok(TranscribeResponse {
         text,
@@ -705,7 +732,10 @@ fn save_settings(app: AppHandle, settings: serde_json::Value) -> Result<(), Stri
     let data = serde_json::to_vec_pretty(&settings).map_err(|error| error.to_string())?;
     skills::write_atomic(&settings_path(&app)?, &data)
         .map_err(|error| format!("保存设置失败：{error}"))?;
-    *app.state::<QuickPhraseState>().config.lock().map_err(|error| error.to_string())? = phrase;
+    *app.state::<QuickPhraseState>()
+        .config
+        .lock()
+        .map_err(|error| error.to_string())? = phrase;
     Ok(())
 }
 
@@ -719,114 +749,118 @@ fn load_settings(app: AppHandle) -> Result<serde_json::Value, String> {
     serde_json::from_slice(&data).map_err(|error| error.to_string())
 }
 
-fn quick_phrase_from_settings(settings: &serde_json::Value) -> Result<quick_phrase::QuickPhrase, String> {
+fn quick_phrase_from_settings(
+    settings: &serde_json::Value,
+) -> Result<quick_phrase::QuickPhrase, String> {
     quick_phrase::QuickPhrase::new(
-        settings.get("phraseName").and_then(|value| value.as_str()).unwrap_or(""),
-        settings.get("phraseText").and_then(|value| value.as_str()).unwrap_or(""),
+        settings
+            .get("phraseName")
+            .and_then(|value| value.as_str())
+            .unwrap_or(""),
+        settings
+            .get("phraseText")
+            .and_then(|value| value.as_str())
+            .unwrap_or(""),
     )
 }
 
 #[tauri::command]
 fn get_phrase_shortcut_status(app: AppHandle) -> Result<serde_json::Value, String> {
-    let shortcut = app.state::<ShortcutRegistry>().0.lock().map_err(|error| error.to_string())?.phrase.clone();
-    let error = app.state::<QuickPhraseState>().shortcut_error.lock().map_err(|error| error.to_string())?.clone();
+    let shortcut = app
+        .state::<ShortcutRegistry>()
+        .0
+        .lock()
+        .map_err(|error| error.to_string())?
+        .phrase
+        .clone();
+    let error = app
+        .state::<QuickPhraseState>()
+        .shortcut_error
+        .lock()
+        .map_err(|error| error.to_string())?
+        .clone();
     Ok(serde_json::json!({ "shortcut": shortcut, "error": error }))
 }
 
 #[cfg(windows)]
 fn wait_for_phrase_keys(target: isize) -> Result<(), String> {
-    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{GetAsyncKeyState, VK_CONTROL, VK_MENU, VK_SHIFT, VK_LWIN, VK_RWIN};
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
+        GetAsyncKeyState, VK_CONTROL, VK_LWIN, VK_MENU, VK_RWIN, VK_SHIFT,
+    };
     let started = Instant::now();
     loop {
         if foreground_window() as isize != target {
             return Err("输入焦点已改变，请在目标输入框重新按快捷键".into());
         }
-        let held = [VK_CONTROL, VK_MENU, VK_SHIFT, VK_LWIN, VK_RWIN].iter()
+        let held = [VK_CONTROL, VK_MENU, VK_SHIFT, VK_LWIN, VK_RWIN]
+            .iter()
             .any(|key| unsafe { GetAsyncKeyState(*key as i32) < 0 });
-        if !held { return Ok(()); }
+        if !held {
+            return Ok(());
+        }
         if started.elapsed() > Duration::from_secs(3) {
             return Err("请松开组合键后重试".into());
         }
-        thread::sleep(Duration::from_millis(15));
+        std::thread::sleep(Duration::from_millis(15));
     }
 }
 
 fn insert_quick_phrase(app: &AppHandle) {
     let state = app.state::<QuickPhraseState>();
-    if state.busy.swap(true, Ordering::SeqCst) { return; }
-    let phrase = state.config.lock().map(|value| value.clone()).map_err(|error| error.to_string());
+    if state.busy.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    let phrase = state
+        .config
+        .lock()
+        .map(|value| value.clone())
+        .map_err(|error| error.to_string());
     #[cfg(windows)]
     let target = foreground_window() as isize;
     let app = app.clone();
-    thread::spawn(move || {
+    std::thread::spawn(move || {
         let result = (|| -> Result<String, String> {
             let phrase = phrase?;
             phrase.ready()?;
             #[cfg(windows)]
             {
+                let id = format!("phrase-{:?}", Instant::now());
+                delivery::capture(&id)?;
                 wait_for_phrase_keys(target)?;
                 correction_monitor::stop_learning_monitor();
-                paste_to_foreground(phrase.text, "", Some(target), true)?;
-                // Ignore held-key repeats while the clipboard is being restored.
-                thread::sleep(Duration::from_millis(950));
-                Ok(format!("已填入{}", if phrase.name.is_empty() { "快捷短语" } else { &phrase.name }))
+                let result = delivery::deliver(phrase.text, id, true, app.clone(), false)?;
+                if !result.pasted {
+                    return Err(result.message);
+                }
+                Ok(format!(
+                    "已填入{}",
+                    if phrase.name.is_empty() {
+                        "快捷短语"
+                    } else {
+                        &phrase.name
+                    }
+                ))
             }
             #[cfg(not(windows))]
             Err("快捷短语的全局输入需要 Windows 桌面版".into())
         })();
-        app.state::<QuickPhraseState>().busy.store(false, Ordering::SeqCst);
         let payload = match result {
             Ok(message) => serde_json::json!({ "ok": true, "message": message }),
             Err(message) => serde_json::json!({ "ok": false, "message": message }),
         };
-        // Status only: the phrase itself never enters history, HUD or model requests.
         let _ = app.emit_to("main", "quick-phrase-result", payload);
+        app.state::<QuickPhraseState>()
+            .busy
+            .store(false, Ordering::SeqCst);
     });
 }
 
-#[cfg(target_os = "windows")]
-fn send_ctrl_v() -> Result<(), String> {
-    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{
-        SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYEVENTF_KEYUP, VK_CONTROL,
-    };
-    const V_KEY: u16 = 0x56;
-    fn key(vk: u16, flags: u32) -> INPUT {
-        INPUT {
-            r#type: INPUT_KEYBOARD,
-            Anonymous: INPUT_0 {
-                ki: KEYBDINPUT {
-                    wVk: vk,
-                    wScan: 0,
-                    dwFlags: flags,
-                    time: 0,
-                    dwExtraInfo: 0,
-                },
-            },
-        }
-    }
-    let mut inputs = [
-        key(VK_CONTROL, 0),
-        key(V_KEY, 0),
-        key(V_KEY, KEYEVENTF_KEYUP),
-        key(VK_CONTROL, KEYEVENTF_KEYUP),
-    ];
-    let sent = unsafe {
-        SendInput(
-            inputs.len() as u32,
-            inputs.as_mut_ptr(),
-            std::mem::size_of::<INPUT>() as i32,
-        )
-    };
-    if sent == inputs.len() as u32 {
-        Ok(())
-    } else {
-        Err("Windows 未接受粘贴按键".into())
-    }
-}
-
-#[cfg(not(target_os = "windows"))]
-fn send_ctrl_v() -> Result<(), String> {
-    Ok(())
+#[tauri::command]
+async fn capture_input_target(app: AppHandle, session_id: String) -> Result<(), String> {
+    background::require_task(&app, &session_id)?;
+    tauri::async_runtime::spawn_blocking(move || delivery::capture(&session_id))
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -835,181 +869,31 @@ async fn paste_text(
     text: String,
     learn: Option<bool>,
     session_id: Option<String>,
-) -> Result<(), String> {
-    let session_id = session_id.unwrap_or_default();
-    if !session_id.is_empty() {
-        let mut sessions = paste_sessions().lock().map_err(|error| error.to_string())?;
-        sessions.active.insert(session_id.clone());
-        sessions.cancelled.remove(&session_id);
-    }
+) -> Result<delivery::Delivery, String> {
+    let id = session_id.unwrap_or_else(|| format!("manual-{:?}", Instant::now()));
+    background::require_task(&app, &id)?;
     tauri::async_runtime::spawn_blocking(move || {
-        correction_monitor::stop_learning_monitor();
-        #[cfg(windows)]
-        let monitor = if learn == Some(true) && correction_monitor::is_enabled() {
-            correction_monitor::prepare(app, text.clone(), session_id.clone())
-        } else {
-            None
-        };
-        #[cfg(not(windows))]
-        let _ = (app, learn);
-        // 粘贴目标是启动口述时的前台窗口；先记下来，paste_to_foreground 里恢复用。
-        #[cfg(windows)]
-        let captured_foreground = paste_focus_note();
-        // cfg 只能挂在 let 语句上，不能挂在调用参数上（表达式属性未稳定）。
-        #[cfg(windows)]
-        let result = paste_to_foreground(text, &session_id, captured_foreground, false);
-        #[cfg(not(windows))]
-        let result = paste_to_foreground(text, &session_id, false);
-        #[cfg(windows)]
-        paste_focus_restore(captured_foreground, "end");
-        #[cfg(windows)]
-        if let Some(monitor) = monitor {
-            let _ = monitor.send(result.is_ok());
-        }
-        if !session_id.is_empty() {
-            if let Ok(mut sessions) = paste_sessions().lock() {
-                sessions.active.remove(&session_id);
-                sessions.cancelled.remove(&session_id);
-            }
-        }
-        result
+        delivery::deliver(text, id, true, app, learn == Some(true))
     })
     .await
     .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
-fn cancel_paste(session_id: String) -> Result<(), String> {
-    if session_id.is_empty() {
-        return Ok(());
-    }
-    let mut sessions = paste_sessions().lock().map_err(|error| error.to_string())?;
-    if sessions.active.contains(&session_id) {
-        sessions.cancelled.insert(session_id);
-    }
-    Ok(())
-}
-
-fn paste_was_cancelled(session_id: &str) -> bool {
-    if session_id.is_empty() {
-        return false;
-    }
-    paste_sessions()
-        .lock()
-        .map(|sessions| sessions.cancelled.contains(session_id))
-        .unwrap_or(true)
-}
-
-fn paste_to_foreground(
+async fn copy_text(
+    app: AppHandle,
     text: String,
-    session_id: &str,
-    #[cfg(windows)] captured_foreground: Option<isize>,
-    require_same_focus: bool,
-) -> Result<(), String> {
-    let permit = quick_phrase::InputPermit::acquire(&PASTE_BUSY)
-        .ok_or("正在输入上一段文字，请稍后再试")?;
-    #[cfg(not(windows))]
-    let _ = require_same_focus;
-    if paste_was_cancelled(session_id) {
-        return Err("输入已取消".into());
-    }
-    let mut clipboard =
-        arboard::Clipboard::new().map_err(|error| format!("无法打开剪贴板：{error}"))?;
-    let previous = clipboard.get_text().ok();
-    clipboard
-        .set_text(text.clone())
-        .map_err(|error| format!("复制失败：{error}"))?;
-    thread::sleep(Duration::from_millis(70));
-    if paste_was_cancelled(session_id) {
-        if clipboard.get_text().ok().as_deref() == Some(text.as_str()) {
-            if let Some(previous) = previous {
-                let _ = clipboard.set_text(previous);
-            }
-        }
-        return Err("输入已取消".into());
-    }
-    #[cfg(windows)]
-    if require_same_focus && captured_foreground != Some(foreground_window() as isize) {
-        if clipboard.get_text().ok().as_deref() == Some(text.as_str()) {
-            if let Some(previous) = previous { let _ = clipboard.set_text(previous); }
-        }
-        return Err("输入焦点已改变，请在目标输入框重新按快捷键".into());
-    }
-    // Ctrl+V 打的是前台窗口。如果这时前台已经是自己（或别的不是用户目标的应用），
-    // 键就打错了地方——先确认前台还是启动口述时的那个应用，被挪走就还回去。
-    #[cfg(windows)]
-    {
-        use windows_sys::Win32::Foundation::CloseHandle;
-        use windows_sys::Win32::System::Threading::{
-            OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION,
-        };
-        use windows_sys::Win32::UI::WindowsAndMessaging::GetWindowThreadProcessId;
-        let foreground = foreground_window();
-        let mut pid = 0u32;
-        let mut app = String::from("(空)");
-        unsafe {
-            if !foreground.is_null() {
-                GetWindowThreadProcessId(foreground, &mut pid);
-                if pid != 0 {
-                    let process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
-                    if !process.is_null() {
-                        let mut path_buf = vec![0u16; 1024];
-                        let mut path_len = path_buf.len() as u32;
-                        if QueryFullProcessImageNameW(
-                            process,
-                            0,
-                            path_buf.as_mut_ptr(),
-                            &mut path_len,
-                        ) != 0
-                        {
-                            let path = String::from_utf16_lossy(&path_buf[..path_len as usize]);
-                            let file = path.rsplit(['\\', '/']).next().unwrap_or("");
-                            app = file.strip_suffix(".exe").unwrap_or(file).to_string();
-                        }
-                        CloseHandle(process);
-                    }
-                }
-            }
-        }
-        debug_log(&format!(
-            "paste_to_foreground: 前台窗口 pid={pid} app={app} hwnd={foreground:p}"
-        ));
-        // 前台被挪走了（比如 overlay 的 show 激活了自己、或用户点了别的窗口）：
-        // 把前台还给打字的应用，否则 Ctrl+V 就打进了错误窗口。
-        if pid as usize == std::process::id() as usize {
-            if let Some(captured) = captured_foreground {
-                debug_log(&format!(
-                    "paste_to_foreground: 前台是本应用，恢复到 {:p}",
-                    captured as windows_sys::Win32::Foundation::HWND
-                ));
-                let _ = paste_focus_force(captured);
-            }
-        }
-    }
-    let result = send_ctrl_v();
-    #[cfg(windows)]
-    debug_log(&format!(
-        "paste_to_foreground: send_ctrl_v = {}",
-        if result.is_ok() {
-            "已发送"
-        } else {
-            "失败"
-        }
-    ));
-    let restore_delay = if result.is_ok() { 900 } else { 0 };
+    session_id: Option<String>,
+) -> Result<delivery::Delivery, String> {
+    let id = session_id.unwrap_or_else(|| format!("copy-{:?}", Instant::now()));
+    tauri::async_runtime::spawn_blocking(move || delivery::deliver(text, id, false, app, false))
+        .await
+        .map_err(|e| e.to_string())?
+}
 
-    thread::spawn(move || {
-        let _permit = permit;
-        thread::sleep(Duration::from_millis(restore_delay));
-        if let Ok(mut current) = arboard::Clipboard::new() {
-            if current.get_text().ok().as_deref() == Some(text.as_str()) {
-                if let Some(previous) = previous {
-                    let _ = current.set_text(previous);
-                }
-            }
-        }
-    });
-    result
+#[tauri::command]
+fn cancel_paste(session_id: String) {
+    delivery::cancel(&session_id);
 }
 
 /// 只替换目标键：
@@ -1020,32 +904,33 @@ fn replace_shortcut(app: &AppHandle, kind: &str, value: &str) -> Result<(), Stri
     if trimmed.is_empty() && kind != "phrase" {
         return Err("快捷键不能为空".into());
     }
+    if trimmed.parse::<Shortcut>().ok() == "Escape".parse::<Shortcut>().ok() {
+        return Err("Esc 用于取消当前任务，请选择其他快捷键".into());
+    }
     let manager = app.global_shortcut();
     let state = app.state::<ShortcutRegistry>();
     let mut registered = state.inner().0.lock().map_err(|error| error.to_string())?;
 
-    let (old, others) = match kind {
-        "dictation" => (
-            registered.dictation.clone(),
-            vec![registered.ask.clone(), registered.action.clone(), registered.phrase.clone()],
-        ),
-        "ask" => (
-            registered.ask.clone(),
-            vec![registered.dictation.clone(), registered.action.clone(), registered.phrase.clone()],
-        ),
-        "action" => (
-            registered.action.clone(),
-            vec![registered.dictation.clone(), registered.ask.clone(), registered.phrase.clone()],
-        ),
-        "phrase" => (
-            registered.phrase.clone(),
-            vec![registered.dictation.clone(), registered.ask.clone(), registered.action.clone()],
-        ),
-        _ => return Err("未知的快捷键类型".into()),
-    };
+    let bindings = [
+        ("dictation", registered.dictation.clone()),
+        ("ask", registered.ask.clone()),
+        ("action", registered.action.clone()),
+        ("copy", registered.copy.clone()),
+        ("phrase", registered.phrase.clone()),
+    ];
+    let old = bindings
+        .iter()
+        .find(|(entry, _)| *entry == kind)
+        .ok_or("未知的快捷键类型")?
+        .1
+        .clone();
+    let others = bindings
+        .into_iter()
+        .filter(|(entry, _)| *entry != kind)
+        .map(|(_, key)| key);
 
-    // 各入口的组合键必须互不相同。
-    for other in others.into_iter().filter(|value| !value.is_empty()) {
+    // 四个入口的组合键必须互不相同。
+    for other in others.filter(|value| !value.is_empty()) {
         let same = other
             .parse::<Shortcut>()
             .ok()
@@ -1053,7 +938,7 @@ fn replace_shortcut(app: &AppHandle, kind: &str, value: &str) -> Result<(), Stri
             .map(|(a, b)| a == b)
             .unwrap_or_else(|| other == trimmed);
         if same {
-            return Err("各入口不能使用同一个快捷键".into());
+            return Err("不同操作不能使用同一个快捷键".into());
         }
     }
 
@@ -1061,15 +946,17 @@ fn replace_shortcut(app: &AppHandle, kind: &str, value: &str) -> Result<(), Stri
         return Ok(());
     }
 
-    if kind == "phrase" && trimmed.is_empty() {
+    if trimmed.is_empty() {
         if !old.is_empty() {
-            manager.unregister(old.as_str()).map_err(|error| format!("解除快捷键失败：{error}"))?;
+            let _ = manager.unregister(old.as_str());
         }
         registered.phrase.clear();
-        *app.state::<QuickPhraseState>().shortcut_error.lock().map_err(|error| error.to_string())? = None;
+        *app.state::<QuickPhraseState>()
+            .shortcut_error
+            .lock()
+            .map_err(|e| e.to_string())? = None;
         return Ok(());
     }
-
     manager
         .register(trimmed)
         .map_err(|error| format!("快捷键「{trimmed}」不可用：{error}"))?;
@@ -1083,10 +970,14 @@ fn replace_shortcut(app: &AppHandle, kind: &str, value: &str) -> Result<(), Stri
         "dictation" => registered.dictation = trimmed.to_string(),
         "ask" => registered.ask = trimmed.to_string(),
         "action" => registered.action = trimmed.to_string(),
+        "copy" => registered.copy = trimmed.to_string(),
         "phrase" => {
             registered.phrase = trimmed.to_string();
-            *app.state::<QuickPhraseState>().shortcut_error.lock().map_err(|error| error.to_string())? = None;
-        },
+            *app.state::<QuickPhraseState>()
+                .shortcut_error
+                .lock()
+                .map_err(|e| e.to_string())? = None;
+        }
         _ => unreachable!(),
     }
     Ok(())
@@ -1104,24 +995,126 @@ fn set_shortcut_capture_active(app: AppHandle, active: bool) {
         .store(active, Ordering::SeqCst);
 }
 
-/// 启动时按保存的配置一次性注册三个键。
+#[tauri::command]
+fn set_interaction_active(app: AppHandle, active: bool) -> Result<(), String> {
+    let previous = app
+        .state::<InteractionActiveState>()
+        .0
+        .swap(active, Ordering::SeqCst);
+    if previous == active {
+        return Ok(());
+    }
+    if active {
+        if let Err(error) = app.global_shortcut().register("Escape") {
+            app.state::<InteractionActiveState>()
+                .0
+                .store(false, Ordering::SeqCst);
+            return Err(error.to_string());
+        }
+        Ok(())
+    } else {
+        app.global_shortcut()
+            .unregister("Escape")
+            .map_err(|e| e.to_string())
+    }
+}
+
+/// 启动时按保存的配置一次性注册四个键。
 ///
 /// 刻意不再用 unregister_all()：它会连「上一个键」之后用户手工加的其它绑定一起抹掉，
-/// 而且失败时无法区分是哪一个键的问题。回退也按失败的那个键回退它自己的默认值：
-/// 只回退 dictation 会把注册成功的自定义听写键也一并注销掉。
-fn register_shortcuts(app: &AppHandle, dictation: &str, ask: &str, action: &str) -> Vec<String> {
+/// 而且失败时无法区分是哪一个键的问题。
+fn available_copy_shortcut(configured: &str, occupied: &[&str]) -> String {
+    let available = |candidate: &str| {
+        !occupied
+            .iter()
+            .filter(|other| !other.is_empty())
+            .any(|other| {
+                other
+                    .parse::<Shortcut>()
+                    .ok()
+                    .zip(candidate.parse::<Shortcut>().ok())
+                    .is_some_and(|(a, b)| a == b)
+            })
+    };
+    if available(configured) {
+        return configured.to_string();
+    }
+    [
+        DEFAULT_COPY_SHORTCUT,
+        "Ctrl+Alt+Shift+V",
+        "Ctrl+Alt+Shift+C",
+        "Ctrl+Alt+Shift+F12",
+    ]
+    .into_iter()
+    .find(|candidate| available(candidate))
+    .unwrap_or(DEFAULT_COPY_SHORTCUT)
+    .to_string()
+}
+
+fn register_shortcuts(
+    app: &AppHandle,
+    dictation: &str,
+    ask: &str,
+    action: &str,
+    copy: &str,
+) -> Vec<String> {
     let mut notices = Vec::new();
-    let attempts = [
+    let saved = load_settings(app.clone()).unwrap_or_default();
+    let phrase = settings_field(&saved, "phraseShortcut", "");
+    let copy = available_copy_shortcut(copy, &[dictation, ask, action, &phrase]);
+    for (kind, configured, default) in [
         ("dictation", dictation, DEFAULT_DICTATION_SHORTCUT),
         ("ask", ask, DEFAULT_ASK_SHORTCUT),
         ("action", action, DEFAULT_ACTION_SHORTCUT),
-    ];
-    for (key, configured, default) in attempts {
-        if let Err(error) = replace_shortcut(app, key, configured) {
+        ("copy", copy.as_str(), copy.as_str()),
+    ] {
+        if let Err(error) = replace_shortcut(app, kind, configured) {
             notices.push(error);
-            // 只回退失败的那个键，保证至少有一个可用入口，同时让前端能提示用户。
-            let _ = replace_shortcut(app, key, default);
+            let _ = replace_shortcut(app, kind, default);
         }
+    }
+    if let Err(error) = replace_shortcut(app, "phrase", &phrase) {
+        let message = format!("快捷短语未能绑定：{error}。请在快捷键页重新设置，内容已保留。");
+        if let Ok(mut status) = app.state::<QuickPhraseState>().shortcut_error.lock() {
+            *status = Some(message.clone());
+        }
+        notices.push(message);
+    }
+    notices
+}
+
+fn refresh_shortcuts(app: &AppHandle) -> Vec<String> {
+    let old = app
+        .state::<ShortcutRegistry>()
+        .0
+        .lock()
+        .map(|mut registered| {
+            let old = registered.clone();
+            *registered = RegisteredShortcuts::default();
+            old
+        })
+        .unwrap_or_default();
+    for value in [
+        &old.dictation,
+        &old.ask,
+        &old.action,
+        &old.copy,
+        &old.phrase,
+    ] {
+        if !value.is_empty() {
+            let _ = app.global_shortcut().unregister(value.as_str());
+        }
+    }
+    let saved = load_settings(app.clone()).unwrap_or_default();
+    let notices = register_shortcuts(
+        app,
+        &settings_field(&saved, "shortcut", DEFAULT_DICTATION_SHORTCUT),
+        &settings_field(&saved, "askShortcut", DEFAULT_ASK_SHORTCUT),
+        &settings_field(&saved, "actionShortcut", DEFAULT_ACTION_SHORTCUT),
+        &settings_field(&saved, "copyShortcut", DEFAULT_COPY_SHORTCUT),
+    );
+    if !notices.is_empty() {
+        let _ = app.emit("shortcut-register-failed", &notices);
     }
     notices
 }
@@ -1134,6 +1127,7 @@ struct OverlayState {
     state: String,
     intent: String,
     phase: String,
+    countdown: Option<u32>,
 }
 
 #[tauri::command]
@@ -1142,6 +1136,7 @@ fn set_overlay_state(
     state: String,
     intent: Option<String>,
     phase: Option<String>,
+    countdown: Option<u32>,
 ) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("overlay") {
         window
@@ -1151,6 +1146,7 @@ fn set_overlay_state(
                     state: state.clone(),
                     intent: intent.unwrap_or_default(),
                     phase: phase.unwrap_or_default(),
+                    countdown,
                 },
             )
             .map_err(|error| error.to_string())?;
@@ -1182,10 +1178,19 @@ fn set_overlay_state(
     Ok(())
 }
 
+fn should_play_main_entrance(visible: Option<bool>, minimized: Option<bool>) -> bool {
+    !visible.unwrap_or(true) || minimized.unwrap_or(false)
+}
+
 fn show_main(app: &AppHandle) {
     if let Some(window) = app.get_webview_window("main") {
+        let entering =
+            should_play_main_entrance(window.is_visible().ok(), window.is_minimized().ok());
         let _ = window.show();
         let _ = window.unminimize();
+        if entering {
+            let _ = window.emit("main-window-opening", ());
+        }
         let _ = window.set_focus();
     }
 }
@@ -1206,26 +1211,51 @@ pub fn run() {
     tauri::Builder::default()
         .manage(ShortcutRegistry::default())
         .manage(ShortcutCaptureState::default())
+        .manage(InteractionActiveState::default())
         .manage(QuickPhraseState::default())
-        .manage(AnswerCardState::default())
         .manage(FloatingContextState::default())
-        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
-            show_main(app)
+        .manage(AnswerCardState::default())
+        .manage(CardAnchorState::default())
+        .manage(background::Supervisor::default())
+        .plugin(tauri_plugin_single_instance::init(|app, args, _| {
+            let saved = load_settings(app.clone()).unwrap_or_default();
+            if !startup::should_launch_silently(&args, &saved) {
+                show_main(app);
+            }
         }))
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, shortcut, event| {
                     // 必须按「按下的到底是哪个键」分流：三个入口共用一条
                     // toggle-recording 会让用户分不清这次是输入还是命令。
+                    if matches_shortcut(shortcut, "Escape") {
+                        if event.state() == ShortcutState::Pressed
+                            && app
+                                .state::<InteractionActiveState>()
+                                .0
+                                .load(Ordering::SeqCst)
+                            && !app.state::<ShortcutCaptureState>().0.load(Ordering::SeqCst)
+                        {
+                            background::trigger(app, "cancel-recording");
+                        }
+                        return;
+                    }
                     let registered = app.state::<ShortcutRegistry>();
-                    let (dictation, ask, action, phrase) = match registered.inner().0.lock() {
+                    let (dictation, ask, action, copy, phrase) = match registered.inner().0.lock() {
                         Ok(state) => (
                             state.dictation.clone(),
                             state.ask.clone(),
                             state.action.clone(),
+                            state.copy.clone(),
                             state.phrase.clone(),
                         ),
-                        Err(_) => (String::new(), String::new(), String::new(), String::new()),
+                        Err(_) => (
+                            String::new(),
+                            String::new(),
+                            String::new(),
+                            String::new(),
+                            String::new(),
+                        ),
                     };
                     if app.state::<ShortcutCaptureState>().0.load(Ordering::SeqCst) {
                         if event.state() != ShortcutState::Pressed {
@@ -1235,6 +1265,8 @@ pub fn run() {
                             "dictation"
                         } else if matches_shortcut(shortcut, &ask) {
                             "ask"
+                        } else if matches_shortcut(shortcut, &copy) {
+                            "copy"
                         } else if matches_shortcut(shortcut, &phrase) {
                             "phrase"
                         } else {
@@ -1244,7 +1276,15 @@ pub fn run() {
                         return;
                     }
                     if !phrase.is_empty() && matches_shortcut(shortcut, &phrase) {
-                        if event.state() == ShortcutState::Pressed { insert_quick_phrase(app); }
+                        if event.state() == ShortcutState::Pressed {
+                            insert_quick_phrase(app);
+                        }
+                        return;
+                    }
+                    if !copy.is_empty() && matches_shortcut(shortcut, &copy) {
+                        if event.state() == ShortcutState::Pressed {
+                            background::trigger(app, "copy-last-result");
+                        }
                         return;
                     }
                     let kind = if !ask.is_empty() && matches_shortcut(shortcut, &ask) {
@@ -1258,12 +1298,19 @@ pub fn run() {
                     };
                     if let Some(kind) = kind {
                         if event.state() == ShortcutState::Pressed {
-                            let _ = app.emit(format!("toggle-{kind}").as_str(), ());
+                            background::trigger(app, format!("toggle-{kind}").as_str());
                         }
                     }
                 })
                 .build(),
         )
+        .on_page_load(|webview, payload| {
+            if webview.label() == "main"
+                && payload.event() == tauri::webview::PageLoadEvent::Started
+            {
+                background::page_loading(webview.app_handle());
+            }
+        })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 match window.label() {
@@ -1272,7 +1319,6 @@ pub fn run() {
                         let _ = window.hide();
                     }
                     "answer" => {
-                        // Alt+F4 must dismiss the reusable card, not destroy its WebView.
                         api.prevent_close();
                         let _ = window.emit("answer-window-close", ());
                         let _ = hide_answer_card(window.app_handle().clone(), None);
@@ -1284,9 +1330,12 @@ pub fn run() {
         .setup(|app| {
             let handle = app.handle().clone();
             let saved = load_settings(handle.clone()).unwrap_or(serde_json::json!({}));
-            if saved.get("launchAtLogin").and_then(|value| value.as_bool()) == Some(true) {
-                #[cfg(windows)]
-                let _ = startup::apply(true);
+            #[cfg(windows)]
+            if let Err(error) = startup::migrate_existing() {
+                eprintln!("WithType startup: {error}");
+            }
+            if !startup::should_launch_silently(&std::env::args().collect::<Vec<_>>(), &saved) {
+                show_main(&handle);
             }
             correction_monitor::set_enabled(
                 saved
@@ -1294,6 +1343,13 @@ pub fn run() {
                     .and_then(|v| v.as_bool())
                     .unwrap_or(true),
             );
+            if let Ok(phrase) = quick_phrase_from_settings(&saved) {
+                *handle
+                    .state::<QuickPhraseState>()
+                    .config
+                    .lock()
+                    .map_err(|e| std::io::Error::other(e.to_string()))? = phrase;
+            }
             let dictation = settings_field(&saved, "shortcut", DEFAULT_DICTATION_SHORTCUT);
             let ask = settings_field(&saved, "askShortcut", DEFAULT_ASK_SHORTCUT);
             let legacy_command = settings_field(&saved, "commandShortcut", DEFAULT_ACTION_SHORTCUT);
@@ -1301,92 +1357,100 @@ pub fn run() {
             if saved.get("actionShortcut").is_none() && (action == ask || action == dictation) {
                 action = DEFAULT_ACTION_SHORTCUT.to_string();
             }
-            let mut notices = register_shortcuts(&handle, &dictation, &ask, &action);
-            match quick_phrase_from_settings(&saved) {
-                Ok(phrase) => *handle.state::<QuickPhraseState>().config.lock().map_err(|error| std::io::Error::other(error.to_string()))? = phrase,
-                Err(error) => notices.push(error),
-            }
-            let phrase_shortcut = settings_field(&saved, "phraseShortcut", "");
-            if !phrase_shortcut.is_empty() {
-                if let Err(error) = replace_shortcut(&handle, "phrase", &phrase_shortcut) {
-                    let message = format!("快捷短语未能绑定：{error}。请在快捷键页重新设置，内容已保留。");
-                    *handle.state::<QuickPhraseState>().shortcut_error.lock().map_err(|error| std::io::Error::other(error.to_string()))? = Some(message.clone());
-                    notices.push(message);
-                }
-            }
+            let copy = settings_field(&saved, "copyShortcut", DEFAULT_COPY_SHORTCUT);
+            let notices = register_shortcuts(&handle, &dictation, &ask, &action, &copy);
             if !notices.is_empty() {
+                background::note(&handle, notices.join("；"));
                 // 交给前端在启动后提示；这里不能直接弹窗，启动阶段还没有界面。
                 let _ = handle.emit("shortcut-register-failed", notices);
             }
 
             if let Some(main) = app.get_webview_window("main") {
                 main.set_zoom(1.0)?;
-                if let Some(monitor) = main.current_monitor()?.or(main.primary_monitor()?) {
+                if let Some(monitor) = main.current_monitor()? {
                     place_floating(&main, &monitor, floating::Surface::Main)?;
                 }
             }
-
             if let Some(overlay) = app.get_webview_window("overlay") {
                 overlay.set_focusable(false)?;
                 overlay.set_zoom(1.0)?;
             }
-
             if let Some(answer) = app.get_webview_window("answer") {
                 answer.set_zoom(1.0)?;
             }
-
-            let record = MenuItemBuilder::with_id("record", "开始 / 结束语音输入").build(app)?;
-            let ask_item = MenuItemBuilder::with_id("ask", "提问").build(app)?;
-            let action_item = MenuItemBuilder::with_id("action", "动作快捷键").build(app)?;
-            let settings = MenuItemBuilder::with_id("settings", "打开设置").build(app)?;
-            let cancel = MenuItemBuilder::with_id("cancel", "取消当前任务").build(app)?;
-            let quit = MenuItemBuilder::with_id("quit", "退出 WithType").build(app)?;
-            let menu = MenuBuilder::new(app)
-                .item(&record)
-                .item(&ask_item)
-                .item(&action_item)
-                .separator()
-                .item(&settings)
-                .item(&cancel)
-                .separator()
-                .item(&quit)
-                .build()?;
-
-            let mut tray = TrayIconBuilder::new()
-                .tooltip("WithType")
-                .menu(&menu)
-                .show_menu_on_left_click(true)
-                .on_menu_event(|app, event| match event.id.as_ref() {
-                    "record" => {
-                        let _ = app.emit("toggle-dictation", ());
-                    }
-                    "ask" => {
-                        let _ = app.emit("toggle-ask", ());
-                    }
-                    "action" => {
-                        let _ = app.emit("toggle-action", ());
-                    }
-                    "settings" => show_main(app),
-                    "cancel" => {
-                        let _ = app.emit("cancel-recording", ());
-                    }
-                    "quit" => app.exit(0),
-                    _ => {}
-                });
-            if let Ok(icon) = app_icon() {
-                tray = tray.icon(icon);
-            }
-            tray.build(app)?;
-            // 三个窗口是在 setup 回调之前由 tauri 按 tauri.conf.json 建好的，
-            // 那时挂的仍是上面那份 16px 图标，得在这里覆盖掉。
             if let Ok(icon) = app_icon() {
                 for (_, window) in app.webview_windows() {
                     let _ = window.set_icon(icon.clone());
                 }
             }
+
+            let record = MenuItemBuilder::with_id("record", "开始 / 结束语音输入").build(app)?;
+            let ask_item = MenuItemBuilder::with_id("ask", "随便问").build(app)?;
+            let action_item = MenuItemBuilder::with_id("action", "第三个快捷操作").build(app)?;
+            let settings = MenuItemBuilder::with_id("settings", "打开设置").build(app)?;
+            let copy_last = MenuItemBuilder::with_id("copy-last", "复制上次完成结果").build(app)?;
+            let cancel = MenuItemBuilder::with_id("cancel", "取消当前录音 / 处理").build(app)?;
+            let recover = MenuItemBuilder::with_id("recover", "恢复语音输入").build(app)?;
+            let quit = MenuItemBuilder::with_id("quit", "退出 WithType").build(app)?;
+            let menu = MenuBuilder::new(app)
+                .item(&record)
+                .item(&ask_item)
+                .item(&action_item)
+                .item(&copy_last)
+                .separator()
+                .item(&settings)
+                .item(&cancel)
+                .item(&recover)
+                .separator()
+                .item(&quit)
+                .build()?;
+
+            let mut tray = TrayIconBuilder::with_id("withtype")
+                .tooltip("WithType")
+                .menu(&menu)
+                .show_menu_on_left_click(true)
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "record" => {
+                        background::trigger(app, "toggle-dictation");
+                    }
+                    "ask" => {
+                        background::trigger(app, "toggle-ask");
+                    }
+                    "action" => {
+                        background::trigger(app, "toggle-action");
+                    }
+                    "settings" => show_main(app),
+                    "copy-last" => {
+                        background::trigger(app, "copy-last-result");
+                    }
+                    "cancel" => {
+                        background::trigger(app, "cancel-recording");
+                    }
+                    "recover" => background::recover(app, true),
+                    "quit" => {
+                        background::stop(app);
+                        app.exit(0);
+                    }
+                    _ => {}
+                });
+            if let Ok(icon) = app_icon() {
+                tray = tray.icon(icon.clone());
+            }
+            tray.build(app)?;
+            background::start(&handle);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            background::get_voice_controller,
+            background::voice_controller_ready,
+            background::voice_controller_pong,
+            background::voice_controller_unavailable,
+            background::voice_controller_dialog,
+            background::claim_voice_action,
+            background::track_voice_task,
+            background::finish_voice_task,
+            background::request_voice_action,
+            background::recover_voice_controller,
             audio::list_audio_devices,
             audio::list_recoverable_audio,
             audio::start_audio_session,
@@ -1412,23 +1476,62 @@ pub fn run() {
             get_active_window_context,
             get_answer_card,
             show_answer_card,
+            show_delivery_card,
             hide_answer_card,
             paste_text,
+            copy_text,
+            capture_input_target,
             cancel_paste,
             set_shortcut,
             set_shortcut_capture_active,
+            set_interaction_active,
             get_phrase_shortcut_status,
             set_overlay_state,
             text_api::save_text_api_key,
             text_api::test_text_connection,
             text_api::process_text,
             text_api::stream_answer,
+            text_api::stream_text,
             text_api::cancel_text_request,
             skills::load_custom_skills,
             skills::save_custom_skills,
         ])
-        .run(tauri::generate_context!())
-        .expect("failed to run typefree");
+        .build(tauri::generate_context!())
+        .expect("failed to build WithType")
+        .run(|app, event| {
+            match event {
+                // Recovery temporarily destroys every webview. Keep native tray ownership alive.
+                tauri::RunEvent::ExitRequested {
+                    code: None, api, ..
+                } if background::is_running(app) => api.prevent_exit(),
+                tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit => {
+                    background::stop(app)
+                }
+                _ => {}
+            }
+        });
+}
+
+#[cfg(test)]
+mod entrance_tests {
+    use super::should_play_main_entrance;
+
+    #[test]
+    fn only_hidden_or_minimized_main_windows_replay_the_entrance() {
+        assert!(should_play_main_entrance(Some(false), Some(false)));
+        assert!(should_play_main_entrance(Some(false), Some(true)));
+        assert!(should_play_main_entrance(Some(true), Some(true)));
+        assert!(!should_play_main_entrance(Some(true), Some(false)));
+    }
+
+    #[test]
+    fn unknown_window_state_does_not_spuriously_replay() {
+        assert!(!should_play_main_entrance(None, None));
+        assert!(!should_play_main_entrance(Some(true), None));
+        assert!(!should_play_main_entrance(None, Some(false)));
+        assert!(should_play_main_entrance(Some(false), None));
+        assert!(should_play_main_entrance(None, Some(true)));
+    }
 }
 
 #[cfg(test)]
@@ -1468,6 +1571,26 @@ mod tests {
         assert!(
             peak > 0.09 && peak < 0.11,
             "峰值应贴近 PROBE_AMPLITUDE，实测 {peak}"
+        );
+    }
+}
+
+#[cfg(test)]
+mod recovered_shortcut_tests {
+    use super::available_copy_shortcut;
+    #[test]
+    fn copy_default_does_not_displace_an_existing_phrase_binding() {
+        assert_eq!(
+            available_copy_shortcut("Ctrl+Alt+V", &["Alt+Control+V"]),
+            "Ctrl+Alt+Shift+V"
+        );
+        assert_eq!(
+            available_copy_shortcut("Ctrl+Alt+V", &["Alt+Control+V", "Alt+Control+Shift+V"]),
+            "Ctrl+Alt+Shift+C"
+        );
+        assert_eq!(
+            available_copy_shortcut("Ctrl+Alt+K", &["Ctrl+Alt+V"]),
+            "Ctrl+Alt+K"
         );
     }
 }

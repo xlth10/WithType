@@ -1,3 +1,6 @@
+import { BRAND } from "../ui/brand.js";
+import { normalizeWelcomeText } from "../ui/welcome.js";
+
 // 配置的默认值、归一化与旧版本迁移。
 // 只做纯函数变换，不读写任何存储；谁持久化由调用方决定。
 
@@ -10,8 +13,9 @@ export const DEFAULT_PROCESSING_MODE = "smart";
 export const DEFAULT_SHORTCUT = "Ctrl+Alt+Space";
 export const DEFAULT_ASK_SHORTCUT = "Ctrl+Alt+Shift+Space";
 export const DEFAULT_ACTION_SHORTCUT = "Ctrl+Alt+Shift+T";
+export const DEFAULT_COPY_SHORTCUT = "Ctrl+Alt+V";
 export const QUICK_PHRASE_LIMITS = Object.freeze({ name: 40, text: 2000 });
-export const SHORTCUT_FIELDS = Object.freeze({ dictation: "shortcut", ask: "askShortcut", action: "actionShortcut", phrase: "phraseShortcut" });
+export const SHORTCUT_FIELDS = Object.freeze({ dictation: "shortcut", ask: "askShortcut", action: "actionShortcut", copy: "copyShortcut", phrase: "phraseShortcut" });
 
 // 与后端 replace_shortcut 一致的按键语义比较：修饰键顺序、大小写、Ctrl/Control、
 // Super/Win/Command 这类别名都不应算成两个不同的组合键。裸字符串比对会漏掉这些，
@@ -37,12 +41,14 @@ export function shortcutConflict(settings, kind, value) {
 export const ACTION_TYPES = ["translate", "skill", "command"];
 
 export const DEFAULT_SETTINGS = {
+  welcomeText: BRAND.welcome,
   asrEndpoint: "",
   asrModel: "Qwen/Qwen3-ASR-1.7B",
   audioDeviceId: "",
   shortcut: DEFAULT_SHORTCUT,
   askShortcut: DEFAULT_ASK_SHORTCUT,
   actionShortcut: DEFAULT_ACTION_SHORTCUT,
+  copyShortcut: DEFAULT_COPY_SHORTCUT,
   phraseShortcut: "",
   phraseName: "",
   phraseText: "",
@@ -62,6 +68,8 @@ export const DEFAULT_SETTINGS = {
   textFastModel: "",
   textFallbackModels: "",
   textTimeoutMs: 60000,
+  textStreaming: true,
+  textIncremental: false,
   // bearer = 走 Authorization 头；none = 私有内网服务显式声明不需要认证。
   textAuthMode: "bearer",
   selectedSkillId: "",
@@ -146,10 +154,23 @@ export function normalizeSettings(raw) {
     notices.push("旧版语音指令已迁移为第三个快捷键的动作；可在快捷键页改为翻译或写法。");
   }
 
+  const used = [shortcut, askShortcut, actionShortcut].map(shortcutKey);
+  let copyShortcut = asString(source.copyShortcut, DEFAULT_SETTINGS.copyShortcut).trim() || DEFAULT_SETTINGS.copyShortcut;
+  if (used.includes(shortcutKey(copyShortcut))) {
+    copyShortcut = [DEFAULT_SETTINGS.copyShortcut, "Ctrl+Alt+Shift+V", "Ctrl+Alt+Shift+C"].find(key => !used.includes(shortcutKey(key))) || "Ctrl+Alt+Shift+F12";
+    notices.push("复制上次结果与录音入口不能共用快捷键，已调整复制快捷键。");
+  }
+
+  if (phraseShortcut && shortcutKey(phraseShortcut) === shortcutKey(copyShortcut)) {
+    copyShortcut = [DEFAULT_COPY_SHORTCUT, "Ctrl+Alt+Shift+V", "Ctrl+Alt+Shift+C"].find(key => ![...used, shortcutKey(phraseShortcut)].includes(shortcutKey(key)));
+    notices.push("复制上次结果与快捷短语不能共用快捷键，已调整复制快捷键。");
+  }
+
   const textAuthMode = source.textAuthMode === "none" ? "none" : "bearer";
 
   return {
     settings: {
+      welcomeText: normalizeWelcomeText(source.welcomeText),
       asrEndpoint: asString(source.asrEndpoint, DEFAULT_SETTINGS.asrEndpoint).trim(),
       asrModel: asString(source.asrModel, DEFAULT_SETTINGS.asrModel).trim(),
       audioDeviceId: asString(source.audioDeviceId, DEFAULT_SETTINGS.audioDeviceId),
@@ -163,6 +184,7 @@ export function normalizeSettings(raw) {
       actionType: ACTION_TYPES.includes(source.actionType) ? source.actionType : legacyCommand ? "command" : DEFAULT_SETTINGS.actionType,
       defaultTranslationLanguage: ["英文", "日文", "韩文", "中文", "法文", "德文", "西班牙文"].includes(source.defaultTranslationLanguage) ? source.defaultTranslationLanguage : DEFAULT_SETTINGS.defaultTranslationLanguage,
       actionSkillId: asString(source.actionSkillId, DEFAULT_SETTINGS.actionSkillId),
+      copyShortcut,
       skillDelivery: source.skillDelivery === "card" ? "card" : "paste",
       autoPaste: asBoolean(source.autoPaste, DEFAULT_SETTINGS.autoPaste),
       autoLearn: asBoolean(source.autoLearn, DEFAULT_SETTINGS.autoLearn),
@@ -176,6 +198,8 @@ export function normalizeSettings(raw) {
       textFastModel: asString(source.textFastModel, DEFAULT_SETTINGS.textFastModel).trim().slice(0, 200),
       textFallbackModels: asString(source.textFallbackModels, DEFAULT_SETTINGS.textFallbackModels).trim().slice(0, 1000),
       textTimeoutMs: clampTimeout(source.textTimeoutMs, DEFAULT_SETTINGS.textTimeoutMs),
+      textStreaming: asBoolean(source.textStreaming, DEFAULT_SETTINGS.textStreaming),
+      textIncremental: asBoolean(source.textIncremental, DEFAULT_SETTINGS.textIncremental),
       textAuthMode,
       selectedSkillId: asString(source.selectedSkillId, DEFAULT_SETTINGS.selectedSkillId),
       autoIntent: asBoolean(source.autoIntent, DEFAULT_SETTINGS.autoIntent),

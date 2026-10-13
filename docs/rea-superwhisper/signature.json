@@ -1,0 +1,273 @@
+{
+  "request": {
+    "tool": "inspect_signature",
+    "arguments": {},
+    "save": "signature"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"signed\":true,\"identifier\":\"com.superduper.superwhisper\",\"team_identifier\":\"XDP69BYUP9\",\"format\":\"app bundle with Mach-O universal (x86_64 arm64)\",\"cdhashes\":[\"babe8b924dfcd9e0a5dce3a001520cc68e48c899\"],\"hash_algorithms\":[\"sha256\"],\"authorities\":[\"Developer ID Application: SuperUltra, Inc. (XDP69BYUP9)\",\"Developer ID Certification Authority\",\"Apple Root CA\"],\"designated_requirement\":\"anchor apple generic and identifier \\\"com.superduper.superwhisper\\\" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = XDP69BYUP9)\",\"entitlements\":{\"com.apple.security.automation.apple-events\":true,\"com.apple.security.device.audio-input\":true},\"timestamp\":\"Oct 5, 2026 at 09:23:42\",\"hardened_runtime\":true,\"provenance\":[{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--verbose=4\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":0,\"stderr_bytes\":1186},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"-r-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":323,\"stderr_bytes\":92},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--entitlements\",\":-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":299,\"stderr_bytes\":180}],\"limitations\":[\"Entitlements and designated requirements require separate bounded commands.\"]},\"evidence_id\":\"ev_491c485c17da876b44a5260efde43d07c5d971d21ca5d3ad16280adc20adf8d9\",\"evidence\":{\"evidence_id\":\"ev_491c485c17da876b44a5260efde43d07c5d971d21ca5d3ad16280adc20adf8d9\",\"subject\":{\"name\":\"superwhisper\",\"digest\":{\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\"},\"format\":\"mach-o\",\"architecture\":\"arm64\",\"local_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\"},\"provider\":{\"id\":\"native-macos\",\"name\":\"macOS native inspection utilities\",\"version\":null},\"predicate_type\":\"rea.analysis\",\"operation\":\"inspect_signature\",\"parameters\":{},\"raw_result\":{\"provenance\":[{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--verbose=4\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":0,\"stderr_bytes\":1186},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"-r-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":323,\"stderr_bytes\":92},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--entitlements\",\":-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":299,\"stderr_bytes\":180}]},\"normalized_result\":{\"signed\":true,\"identifier\":\"com.superduper.superwhisper\",\"team_identifier\":\"XDP69BYUP9\",\"format\":\"app bundle with Mach-O universal (x86_64 arm64)\",\"cdhashes\":[\"babe8b924dfcd9e0a5dce3a001520cc68e48c899\"],\"hash_algorithms\":[\"sha256\"],\"authorities\":[\"Developer ID Application: SuperUltra, Inc. (XDP69BYUP9)\",\"Developer ID Certification Authority\",\"Apple Root CA\"],\"designated_requirement\":\"anchor apple generic and identifier \\\"com.superduper.superwhisper\\\" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = XDP69BYUP9)\",\"entitlements\":{\"com.apple.security.automation.apple-events\":true,\"com.apple.security.device.audio-input\":true},\"timestamp\":\"Oct 5, 2026 at 09:23:42\",\"hardened_runtime\":true,\"provenance\":[{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--verbose=4\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":0,\"stderr_bytes\":1186},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"-r-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":323,\"stderr_bytes\":92},{\"tool\":\"codesign\",\"command\":[\"/usr/bin/codesign\",\"-d\",\"--entitlements\",\":-\",\"$ARTIFACT\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":299,\"stderr_bytes\":180}],\"limitations\":[\"Entitlements and designated requirements require separate bounded commands.\"]},\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"Entitlements and designated requirements require separate bounded commands.\"],\"locations\":[],\"evidence_links\":[]}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "signed": true,
+        "identifier": "com.superduper.superwhisper",
+        "team_identifier": "XDP69BYUP9",
+        "format": "app bundle with Mach-O universal (x86_64 arm64)",
+        "cdhashes": [
+          "babe8b924dfcd9e0a5dce3a001520cc68e48c899"
+        ],
+        "hash_algorithms": [
+          "sha256"
+        ],
+        "authorities": [
+          "Developer ID Application: SuperUltra, Inc. (XDP69BYUP9)",
+          "Developer ID Certification Authority",
+          "Apple Root CA"
+        ],
+        "designated_requirement": "anchor apple generic and identifier \"com.superduper.superwhisper\" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = XDP69BYUP9)",
+        "entitlements": {
+          "com.apple.security.automation.apple-events": true,
+          "com.apple.security.device.audio-input": true
+        },
+        "timestamp": "Oct 5, 2026 at 09:23:42",
+        "hardened_runtime": true,
+        "provenance": [
+          {
+            "tool": "codesign",
+            "command": [
+              "/usr/bin/codesign",
+              "-d",
+              "--verbose=4",
+              "$ARTIFACT"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+            "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 0,
+            "stderr_bytes": 1186
+          },
+          {
+            "tool": "codesign",
+            "command": [
+              "/usr/bin/codesign",
+              "-d",
+              "-r-",
+              "$ARTIFACT"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+            "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 323,
+            "stderr_bytes": 92
+          },
+          {
+            "tool": "codesign",
+            "command": [
+              "/usr/bin/codesign",
+              "-d",
+              "--entitlements",
+              ":-",
+              "$ARTIFACT"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+            "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 299,
+            "stderr_bytes": 180
+          }
+        ],
+        "limitations": [
+          "Entitlements and designated requirements require separate bounded commands."
+        ]
+      },
+      "evidence_id": "ev_491c485c17da876b44a5260efde43d07c5d971d21ca5d3ad16280adc20adf8d9",
+      "evidence": {
+        "evidence_id": "ev_491c485c17da876b44a5260efde43d07c5d971d21ca5d3ad16280adc20adf8d9",
+        "subject": {
+          "name": "superwhisper",
+          "digest": {
+            "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a"
+          },
+          "format": "mach-o",
+          "architecture": "arm64",
+          "local_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper"
+        },
+        "provider": {
+          "id": "native-macos",
+          "name": "macOS native inspection utilities",
+          "version": null
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "inspect_signature",
+        "parameters": {},
+        "raw_result": {
+          "provenance": [
+            {
+              "tool": "codesign",
+              "command": [
+                "/usr/bin/codesign",
+                "-d",
+                "--verbose=4",
+                "$ARTIFACT"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 0,
+              "stderr_bytes": 1186
+            },
+            {
+              "tool": "codesign",
+              "command": [
+                "/usr/bin/codesign",
+                "-d",
+                "-r-",
+                "$ARTIFACT"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 323,
+              "stderr_bytes": 92
+            },
+            {
+              "tool": "codesign",
+              "command": [
+                "/usr/bin/codesign",
+                "-d",
+                "--entitlements",
+                ":-",
+                "$ARTIFACT"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 299,
+              "stderr_bytes": 180
+            }
+          ]
+        },
+        "normalized_result": {
+          "signed": true,
+          "identifier": "com.superduper.superwhisper",
+          "team_identifier": "XDP69BYUP9",
+          "format": "app bundle with Mach-O universal (x86_64 arm64)",
+          "cdhashes": [
+            "babe8b924dfcd9e0a5dce3a001520cc68e48c899"
+          ],
+          "hash_algorithms": [
+            "sha256"
+          ],
+          "authorities": [
+            "Developer ID Application: SuperUltra, Inc. (XDP69BYUP9)",
+            "Developer ID Certification Authority",
+            "Apple Root CA"
+          ],
+          "designated_requirement": "anchor apple generic and identifier \"com.superduper.superwhisper\" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = XDP69BYUP9)",
+          "entitlements": {
+            "com.apple.security.automation.apple-events": true,
+            "com.apple.security.device.audio-input": true
+          },
+          "timestamp": "Oct 5, 2026 at 09:23:42",
+          "hardened_runtime": true,
+          "provenance": [
+            {
+              "tool": "codesign",
+              "command": [
+                "/usr/bin/codesign",
+                "-d",
+                "--verbose=4",
+                "$ARTIFACT"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 0,
+              "stderr_bytes": 1186
+            },
+            {
+              "tool": "codesign",
+              "command": [
+                "/usr/bin/codesign",
+                "-d",
+                "-r-",
+                "$ARTIFACT"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 323,
+              "stderr_bytes": 92
+            },
+            {
+              "tool": "codesign",
+              "command": [
+                "/usr/bin/codesign",
+                "-d",
+                "--entitlements",
+                ":-",
+                "$ARTIFACT"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "d517c9be608ffd266ec106c685e880cda71abc94001450e36d2476016406dd1e",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 299,
+              "stderr_bytes": 180
+            }
+          ],
+          "limitations": [
+            "Entitlements and designated requirements require separate bounded commands."
+          ]
+        },
+        "confidence": "observed",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "Entitlements and designated requirements require separate bounded commands."
+        ],
+        "locations": [],
+        "evidence_links": []
+      }
+    }
+  }
+}

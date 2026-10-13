@@ -27,36 +27,39 @@ function Assert-X64Pe([string]$Path, [bool]$IsDll) {
 }
 
 $releasePath = (Resolve-Path -LiteralPath $ReleaseDir).Path
-$exePath = Join-Path $releasePath 'typefree.exe'
+$exePath = Join-Path $releasePath 'withtype.exe'
 $loaderPath = (Join-Path $PSScriptRoot '../src-tauri/WebView2Loader.dll')
 Assert-X64Pe $exePath $false
 Assert-X64Pe $loaderPath $true
 
 $null = New-Item -ItemType Directory -Force -Path $OutputDir
 $outputPath = (Resolve-Path -LiteralPath $OutputDir).Path
-$stagingPath = Join-Path $outputPath 'typefree-x64'
+$stagingPath = Join-Path $outputPath 'withtype-windows-x64'
 $null = New-Item -ItemType Directory -Force -Path $stagingPath
-$exeDestination = Join-Path $stagingPath 'typefree.exe'
+$exeDestination = Join-Path $stagingPath 'withtype.exe'
 $loaderDestination = Join-Path $stagingPath 'WebView2Loader.dll'
 Copy-Item -LiteralPath $exePath -Destination $exeDestination -Force
 Copy-Item -LiteralPath $loaderPath -Destination $loaderDestination -Force
 
 $noticeDestination = Join-Path $stagingPath 'THIRD_PARTY_NOTICES.md'
 $licenseDestination = Join-Path $stagingPath 'Typefree-GPL-3.0.txt'
-(Get-Content -LiteralPath (Join-Path $PSScriptRoot '../THIRD_PARTY_NOTICES.md') -Raw).Replace('LICENSES/Typefree-GPL-3.0.txt', 'Typefree-GPL-3.0.txt').Replace('public/fonts/OFL-NotoSansSC.txt', 'OFL-NotoSansSC.txt').Replace('public/fonts/COPYRIGHT-NotoSansSC.txt', 'COPYRIGHT-NotoSansSC.txt') | Set-Content -LiteralPath $noticeDestination -Encoding UTF8
+(Get-Content -LiteralPath (Join-Path $PSScriptRoot '../THIRD_PARTY_NOTICES.md') -Raw).Replace('LICENSES/Typefree-GPL-3.0.txt', 'Typefree-GPL-3.0.txt').Replace('public/fonts/OFL-NotoSansSC.txt', 'OFL-NotoSansSC.txt').Replace('public/fonts/COPYRIGHT-NotoSansSC.txt', 'COPYRIGHT-NotoSansSC.txt').Replace('public/fonts/manifest.json', 'font-manifest.json') | Set-Content -LiteralPath $noticeDestination -Encoding UTF8
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../LICENSES/Typefree-GPL-3.0.txt') -Destination $licenseDestination -Force
-
 $fontLicenseDestination = Join-Path $stagingPath 'OFL-NotoSansSC.txt'
 $fontCopyrightDestination = Join-Path $stagingPath 'COPYRIGHT-NotoSansSC.txt'
+$fontManifestDestination = Join-Path $stagingPath 'font-manifest.json'
+$appearanceDestination = Join-Path $stagingPath 'appearance-baseline.json'
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../public/fonts/OFL-NotoSansSC.txt') -Destination $fontLicenseDestination -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../public/fonts/COPYRIGHT-NotoSansSC.txt') -Destination $fontCopyrightDestination -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../public/fonts/manifest.json') -Destination $fontManifestDestination -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../dist/client/appearance-baseline.json') -Destination $appearanceDestination -Force
 
 $readmePath = Join-Path $stagingPath 'README.txt' 
 @'
-typefree (unofficial) - Windows x64 portable package
+WithType for Windows - x64 portable package
 
-Extract the entire archive to a writable local folder. Keep typefree.exe and
-WebView2Loader.dll together, then run typefree.exe.
+Extract the entire archive to a writable local folder. Keep withtype.exe and
+WebView2Loader.dll together, then run withtype.exe.
 
 Requires Microsoft Edge WebView2 Runtime. If it is unavailable, use the NSIS
 installer instead, or install the Evergreen Runtime from Microsoft:
@@ -66,7 +69,10 @@ Settings and learned vocabulary use the Windows user profile, not this folder.
 This package does not bundle model weights or API credentials.
 
 See THIRD_PARTY_NOTICES.md and Typefree-GPL-3.0.txt for source attribution and
-license terms. This development build has not been signed.
+license terms. Noto font attribution is in OFL-NotoSansSC.txt and
+COPYRIGHT-NotoSansSC.txt; font-manifest.json contains its checksum.
+appearance-baseline.json identifies this build's colour/font source baseline.
+This development build has not been signed.
 '@ | Set-Content -LiteralPath $readmePath -Encoding UTF8
 
 $checksumPath = Join-Path $stagingPath 'SHA256SUMS.txt'
@@ -75,8 +81,8 @@ $checksumPath = Join-Path $stagingPath 'SHA256SUMS.txt'
     "$hash  $([System.IO.Path]::GetFileName($_))"
 } | Set-Content -LiteralPath $checksumPath -Encoding ASCII
 
-$archivePath = Join-Path $outputPath 'typefree-x64-portable.zip'
-$members = @($exeDestination, $loaderDestination, $readmePath, $checksumPath, $noticeDestination, $licenseDestination, $fontLicenseDestination, $fontCopyrightDestination)
+$archivePath = Join-Path $outputPath 'withtype-windows-x64-portable.zip'
+$members = @($exeDestination, $loaderDestination, $readmePath, $checksumPath, $noticeDestination, $licenseDestination, $fontLicenseDestination, $fontCopyrightDestination, $fontManifestDestination, $appearanceDestination)
 Compress-Archive -LiteralPath $members -DestinationPath $archivePath -Force
 
 # 打开压缩包并校验成员内容，避免仅凭文件存在就认为便携包完整。

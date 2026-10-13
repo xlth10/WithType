@@ -1,0 +1,28 @@
+.ink-entry-shell {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f7ef;
+}
+.ink-entry-world {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  background: #f8f7ef;
+}
+.ink-entry-ui { position: absolute; inset: 0; opacity: 0; }
+.ink-entry-paper {
+  position: absolute;
+  inset: 0;
+  background: #f8f7ef;
+  pointer-events: none;
+}
+.ink-entry-paper canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ink-entry-ink { position: absolute; pointer-events: none; }
+.ink-entry-world[data-finished="true"] > .ink-entry-paper,
+.ink-entry-world[data-finished="true"] > .ink-entry-ink { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .ink-entry-world { transform: none !important; }
+  .ink-entry-ui { opacity: 1 !important; }
+  .ink-entry-paper, .ink-entry-ink { visibility: hidden; }
+}

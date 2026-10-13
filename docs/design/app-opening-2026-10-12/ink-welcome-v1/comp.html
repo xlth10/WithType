@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WithType · 落墨成字</title>
+<link rel="preload" href="/fonts/noto-sans-sc-variable.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face {font-family:"Typefree UI";src:url("/fonts/noto-sans-sc-variable.woff2") format("woff2");font-style:normal;font-weight:100 900;font-display:swap;}
+
+html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#f8f7ef; }
+#stage { position:fixed; inset:0; overflow:hidden; background:#f8f7ef; }
+#world { position:absolute; inset:0; transform-origin:0 0; background:#f8f7ef; }
+#app-root { position:absolute; inset:0; opacity:0; }
+#paper { position:absolute; inset:0; background:#f8f7ef; pointer-events:none; }
+#fibers { position:absolute; inset:0; width:100%; height:100%; }
+#ink { position:absolute; pointer-events:none; }
+#world[data-finished="true"] #paper,#world[data-finished="true"] #ink { visibility:hidden; }
+@media(prefers-reduced-motion:reduce) {
+  #world { transform:none!important; } #paper,#ink { visibility:hidden; } #app-root { opacity:1!important; }
+}
+</style>
+<script src="../onetake/motion.js"></script>
+</head>
+<body>
+<div id="stage" tabindex="-1" aria-label="动画预览"><div id="world">
+  <div id="app-root"></div>
+  <div id="paper" aria-hidden="true"><canvas id="fibers"></canvas></div>
+  <canvas id="ink" aria-hidden="true"></canvas>
+</div></div>
+<script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from '/src/App.jsx';
+import { BRAND } from '/src/ui/brand.js';
+import '/src/styles.css';
+
+// Experimental composition only. The production entrance and versions A/B stay intact.
+const OM=window.OM, DURATION=3.2, SCALE=3;
+const query=new URLSearchParams(location.search);
+const pinned=query.has('t')&&Number.isFinite(Number(query.get('t')));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+const world=document.getElementById('world'),ui=document.getElementById('app-root');
+const paper=document.getElementById('paper'),ink=document.getElementById('ink');
+const ctx=ink.getContext('2d'), raster=document.createElement('canvas');
+const rasterCtx=raster.getContext('2d',{willReadFrequently:true});
+let W=innerWidth,H=innerHeight,X=W/2,Y=H/2;
+let cw=0,ch=0,pw=0,ph=0,fontSize=32,textWidth=0,field=null;
+let clock=0,raf=0,started=0,playing=false,ready=false;
+document.documentElement.dataset.surface='main';
+createRoot(ui).render(React.createElement(App));
+
+function noise(x,y) {
+  // Fixed paper porosity. No random values are generated on the render path.
+  return .5+.22*Math.sin(x*.72+y*.23)+.16*Math.sin(x*.17-y*1.14)+.12*Math.sin(x*2.3+y*1.7);
+}
+function distance(mask,width,height) {
+  const d=new Float32Array(mask.length);
+  for(let i=0;i<d.length;i++)d[i]=mask[i]>.12?0:1e4;
+  const rt=Math.SQRT2;
+  for(let y=0;y<height;y++)for(let x=0;x<width;x++) {
+    const i=y*width+x;let v=d[i];
+    if(x)v=Math.min(v,d[i-1]+1);
+    if(y)v=Math.min(v,d[i-width]+1);
+    if(x&&y)v=Math.min(v,d[i-width-1]+rt);
+    if(y&&x+1<width)v=Math.min(v,d[i-width+1]+rt);
+    d[i]=v;
+  }
+  for(let y=height-1;y>=0;y--)for(let x=width-1;x>=0;x--) {
+    const i=y*width+x;let v=d[i];
+    if(x+1<width)v=Math.min(v,d[i+1]+1);
+    if(y+1<height)v=Math.min(v,d[i+width]+1);
+    if(x+1<width&&y+1<height)v=Math.min(v,d[i+width+1]+rt);
+    if(x&&y+1<height)v=Math.min(v,d[i+width-1]+rt);
+    d[i]=v;
+  }
+  return d;
+}
+function prepare() {
+  W=innerWidth;H=innerHeight;X=W/2;Y=H/2;
+  fontSize=Math.min(32,Math.max(24,W/29));
+  const font=`460 ${fontSize}px "Typefree UI", "Segoe UI", sans-serif`;
+  rasterCtx.font=font;textWidth=rasterCtx.measureText(BRAND.welcome).width;
+  cw=Math.ceil(textWidth+64);ch=136;pw=cw*SCALE;ph=ch*SCALE;
+  ink.width=pw;ink.height=ph;ink.style.width=cw+'px';ink.style.height=ch+'px';
+  ink.style.left=(X-cw/2)+'px';ink.style.top=(Y-ch/2)+'px';
+  raster.width=pw;raster.height=ph;
+  rasterCtx.setTransform(SCALE,0,0,SCALE,0,0);
+  rasterCtx.font=font;rasterCtx.textAlign='center';rasterCtx.textBaseline='middle';
+  rasterCtx.fillStyle='#000';rasterCtx.fillText(BRAND.welcome,cw/2,ch/2);
+  const pixels=rasterCtx.getImageData(0,0,pw,ph).data;
+  const a=new Float32Array(pw*ph),arrival=new Float32Array(pw*ph),porosity=new Float32Array(pw*ph);
+  for(let y=0;y<ph;y++)for(let x=0;x<pw;x++) {
+    const i=y*pw+x,dx=x/SCALE-cw/2,dy=y/SCALE-ch/2,n=noise(x/SCALE,y/SCALE);
+    a[i]=pixels[4*i+3]/255;porosity[i]=n;
+    arrival[i]=Math.abs(dx)/(textWidth/2)*.61+Math.abs(dy)/fontSize*.16+n*.11;
+  }
+  field={a,arrival,porosity,d:distance(a,pw,ph),image:ctx.createImageData(pw,ph)};
+  const fibers=document.getElementById('fibers');fibers.width=W*2;fibers.height=H*2;
+  const g=fibers.getContext('2d'),random=OM.rng(2317);
+  g.setTransform(2,0,0,2,0,0);g.lineCap='round';
+  for(let i=0;i<Math.ceil(W*H/290);i++) {
+    const x=random()*W,y=random()*H,len=1+random()*7,dy=(random()-.5)*3;
+    g.strokeStyle=`rgba(112,108,87,${.022+random()*.047})`;g.lineWidth=.22+random()*.3;
+    g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+len*.52,y+dy*.3,x+len,y+dy);g.stroke();
+  }
+  for(let i=0;i<95;i++) {
+    const x=random()*W,y=random()*H;
+    g.strokeStyle='rgba(128,121,95,.048)';g.lineWidth=.32;
+    g.beginPath();g.moveTo(x,y);g.bezierCurveTo(x+5,y-1,x+10,y+2,x+15,y+1);g.stroke();
+  }
+}
+function camera(t) {
+  return OM.camera(t,[
+    {t:0,x:X,y:Y-16,zoom:2.55},
+    {t:.12,x:X,y:Y-16,zoom:2.55},
+    {t:.52,x:X,y:Y,zoom:2.55,curve:OM.ease.sineInOut},
+    {t:.95,x:X,y:Y,zoom:2.55},
+    {t:1.62,x:X,y:Y,zoom:1.75,curve:OM.ease.cubicOut},
+    {t:2.32,x:X,y:Y,zoom:1.75},
+    {t:DURATION,x:X,y:Y,zoom:1,curve:OM.ease.sineInOut},
+  ],{W,H});
+}
+function organic(cx,cy,rx,ry,alpha,phase=0) {
+  ctx.globalAlpha=alpha;ctx.fillStyle='#282c27';ctx.beginPath();
+  for(let i=0;i<=64;i++) {
+    const angle=i/64*Math.PI*2;
+    const r=1+.024*Math.sin(angle*5+phase)+.012*Math.sin(angle*9+1.3);
+    const x=cx+Math.cos(angle)*rx*r,y=cy+Math.sin(angle)*ry*r;
+    if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+  }
+  ctx.closePath();ctx.fill();ctx.globalAlpha=1;
+}
+function drawInk(t) {
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,pw,ph);
+  const {a,arrival,porosity,d,image}=field,data=image.data;
+  const progress=1.38*OM.ease.sineInOut(OM.seg(t,.88,1.62));
+  const formed=t>=1.62;
+  if(t>=.88) {
+    for(let i=0;i<a.length;i++) {
+      const age=progress-arrival[i];
+      const wet=OM.clamp(age/.15),dry=OM.clamp((age-.10)/.21);
+      const halo=formed?.24:2.2*(1-dry)+.24;
+      const edge=Math.exp(-d[i]/(SCALE*halo));
+      const capillary=wet*(1-dry)*edge*.23*(.72+porosity[i]*.42);
+      const body=a[i]*wet*(.32+.66*dry)*(1-.038*porosity[i]);
+      const alpha=formed ? a[i]*.98*(1-.038*porosity[i]) : Math.max(body,capillary);
+      data[4*i]=40;data[4*i+1]=44;data[4*i+2]=39;data[4*i+3]=Math.round(255*OM.clamp(alpha));
+    }
+    ctx.putImageData(image,0,0);
+  }
+  ctx.setTransform(SCALE,0,0,SCALE,0,0);
+  const cx=cw/2,cy=ch/2;
+  // Low, connected capillary traces supply the letters; they settle into the paper.
+  if(t>.65&&t<1.62) {
+    const reach=(textWidth*.48)*OM.ease.sineInOut(OM.seg(t,.67,1.42));
+    const op=.035*OM.seg(t,.65,.86)*(1-OM.seg(t,1.08,1.62));
+    for(let j=0;j<4;j++) {
+      const yy=(j-1.5)*1.7;ctx.strokeStyle=`rgba(40,44,39,${op})`;
+      ctx.lineWidth=.3+(j%2)*.18;
+      for(const side of [-1,1]) {
+        ctx.beginPath();ctx.moveTo(cx,cy+yy*.25);
+        ctx.bezierCurveTo(cx+side*reach*.27,cy+yy-2,cx+side*reach*.7,cy+yy+Math.sin(j)*4,cx+side*reach,cy+yy);
+        ctx.stroke();
+      }
+    }
+  }
+  if(t>=.58&&t<1.23) {
+    const soak=OM.ease.quartOut(OM.seg(t,.58,.91));
+    const op=.72*OM.seg(t,.58,.64)*(1-OM.ease.sineInOut(OM.seg(t,.84,1.23)));
+    // The liquid source changes shape as it is absorbed, not a separate fading dot.
+    for(let j=4;j>=0;j--)organic(cx,cy,10+soak*(14+j*2),3+soak*(2+j*.45),op*(j===0?.82:.035),j*.5);
+  }
+  if(t<.88) {
+    const p=OM.hop(t,.12,.58,{x:0,y:-42},{x:0,y:0},{height:0,curve:OM.ease.cubicIn});
+    const absorb=OM.ease.cubicOut(OM.seg(t,.58,.88));
+    const hit=OM.impact(t,.58,{decay:16,omega:24,sqx:.18,sqy:.22});
+    const radius=9.3,op=1-OM.seg(t,.64,.88);
+    const sh=ctx.createRadialGradient(cx,cy+3,0,cx,cy+3,12);
+    sh.addColorStop(0,`rgba(40,44,39,${(.035+.075*OM.clamp(1+p.y/42))*op})`);sh.addColorStop(1,'rgba(40,44,39,0)');
+    ctx.fillStyle=sh;ctx.save();ctx.translate(cx,cy+3);ctx.scale(1,.21);
+    ctx.translate(-cx,-cy-3);ctx.fillRect(cx-12,cy-9,24,24);ctx.restore();
+    organic(cx,cy+p.y,radius*hit.sx*(1+absorb*.65),radius*hit.sy*(1-absorb*.87),op,.3);
+  }
+  ctx.setTransform(1,0,0,1,0,0);
+}
+function seek(value) {
+  const t=OM.clamp(value,0,DURATION);clock=t;
+  world.style.transform=t>=DURATION?'none':`matrix(${OM.view(camera(t),{W,H}).join(',')})`;
+  world.dataset.time=t.toFixed(6);world.dataset.duration=String(DURATION);
+  world.dataset.finished=String(t>=DURATION);world.dataset.phase=t<.58?'drop':t<.88?'absorb':t<1.62?'form':t<2.32?'welcome':t<DURATION?'expand':'ready';
+  const appear=OM.ease.sineInOut(OM.seg(t,2.46,DURATION));
+  ui.style.opacity=String(t>=DURATION?1:appear);
+  ui.inert=t<DURATION;
+  paper.style.opacity=String(1-appear);
+  ink.style.opacity=String(1-OM.ease.sineInOut(OM.seg(t,2.32,2.76)));
+  if(field&&t<DURATION)drawInk(t);
+  return true;
+}
+function finish(){
+  if(playing)world.dataset.playbackMs=(performance.now()-started).toFixed(1);
+  playing=false;cancelAnimationFrame(raf);seek(DURATION);
+}
+function tick(now){if(!playing)return;seek((now-started)/1000);if(clock<DURATION)raf=requestAnimationFrame(tick);else finish();}
+function play(){if(reduced.matches||query.has('reduced'))return finish();playing=true;started=performance.now();seek(0);raf=requestAnimationFrame(tick);}
+addEventListener('pointerdown',()=>{if(clock<DURATION)finish();},{capture:true});
+addEventListener('keydown',event=>{
+  if(query.has('frames')&&['Shift','Control','Alt','Meta'].includes(event.key))return;
+  // Keyboard-accessible frame viewer, used only by the development composition.
+  if(query.has('frames')&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) {
+    event.preventDefault();event.stopImmediatePropagation();playing=false;cancelAnimationFrame(raf);
+    const step=event.shiftKey?1/480:1/30;
+    seek(event.key==='Home'?0:event.key==='End'?DURATION:clock+(event.key==='ArrowLeft'?-step:step));
+    return;
+  }
+  if(clock>=DURATION)return;finish();
+  if(event.key==='Tab'){event.preventDefault();ui.querySelector('button')?.focus();}
+},{capture:true});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)finish();});
+reduced.addEventListener('change',()=>{if(reduced.matches)finish();});
+addEventListener('resize',()=>{if(!ready)return;const was=clock;prepare();playing?finish():seek(was);});
+
+window.__seek=seek;
+window.__meta={dur:DURATION,fps:30,cuts:[],beats:[0,.12,.58,.88,1.62,2.32,DURATION],inFrame:{ink:[0,2.76,'whole']}};
+window.__track=t=>{
+  const M=OM.view(camera(t),{W,H});
+  const op=1-OM.ease.sineInOut(OM.seg(t,2.32,2.76));
+  // One physical ink layer survives drop, absorption and letter formation.
+  return {ink:{...OM.projectBox(M,{x:X-cw/2,y:Y-ch/2,w:cw,h:ch}),op}};
+};
+window.__motion=(a,b)=>{
+  const ca=camera(a),cb=camera(b);
+  const drop=t=>OM.hop(t,.12,.58,{x:0,y:-42},{x:0,y:0},{height:0,curve:OM.ease.cubicIn}).y;
+  const pa=OM.project(OM.view(ca,{W,H}),X,Y+drop(a)),pb=OM.project(OM.view(cb,{W,H}),X,Y+drop(b));
+  const absorption=Math.abs(OM.seg(a,.88,1.62)-OM.seg(b,.88,1.62))*textWidth*Math.max(ca.zoom,cb.zoom);
+  return Math.max(OM.screenTravel(ca,cb,camera((a+b)/2),{W,H}),Math.hypot(pb[0]-pa[0],pb[1]-pa[1]),absorption);
+};
+window.__ready=document.fonts.ready.then(()=>new Promise(resolve=>requestAnimationFrame(resolve))).then(()=>{
+  prepare();ready=true;world.dataset.ready='true';
+  if(reduced.matches||query.has('reduced'))finish();else if(pinned)seek(Number(query.get('t')));else play();
+  return true;
+});
+</script>
+</body>
+</html>

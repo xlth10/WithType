@@ -1,0 +1,2 @@
+  0.0s |          . .   .|
+{"duration_s": 1.42, "still_ratio": 0.588, "low_ratio": 0.647, "cuts": [], "bursts": [], "longest_quiet_s": 0.83, "mean_energy": 1.478}

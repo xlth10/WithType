@@ -1,0 +1,25 @@
+
+draft.mp4 — energy map:
+  0.0s |                          :: |
+
+  PASS  cadence    shot lengths [0.1, 0.4, 0.34, 0.6, 0.4, 0.14, 0.44]  CV 0.47 (need >= 0.25)
+  PASS  rest       still 0.655  longest quiet 2.0 s
+  WARN  burst      no burst — the reference has none either
+  WARN  not-flat   row-profile variation 0.00 (advisory, >= 0.35)
+  skip  audio      (no audio track)
+
+reference — energy map:
+  0.0s |          . .   .|
+
+                  film  reference
+  still          0.655      0.588
+  low            0.897      0.647
+  cuts               0          0
+  bursts             0          0
+  quiet s          2.0       0.83
+  peak px/f        165        187
+  t80 median      0.75       0.86
+  soft %           100         79
+  smear           0.57       0.73
+
+VERDICT: PASS

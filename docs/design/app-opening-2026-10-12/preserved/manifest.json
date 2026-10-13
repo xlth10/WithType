@@ -1,0 +1,17 @@
+{
+  "version": "A · 墨珠跃动、宣纸展开与欢迎语",
+  "durationMs": 1400,
+  "sources": {
+    "source/src/ui/AppEntrance.jsx": "57697f8b905e3fce28b6959af99d009938be72f47a1616d802cf671075aea4c3",
+    "source/src/ui/brand.js": "d2067d09a9c56c43c87e5ee1e045cf8375958a3b9f196ba934574c4241e2cb68",
+    "source/src/main.jsx": "75bc8286fa2257986081fd83eec6dc05e4ec69c408e641c44e0c65c921b45882",
+    "source/src/styles.css": "c3fc08fcaee2bfa45fea56d7eb51fe494d69864b8732a1ea98a346d1ab6341e0",
+    "source/src-tauri/src/lib.rs": "fc4b3af2f6cd15de0d8fc195da3bcc10832ea3757983d13f824b655d956fd712",
+    "README.md": "7db486c5a90d0a4a049aedddc7d3565d8413662f97263de3f5434136e3b0cc7f",
+    "preview.html": "45edcec927e83b373e53a910c544c3c6e2aec80a96b7b45e80772ed03938310d",
+    "opening-welcome.gif": "498f1dbe17a9ffcd8cd200ab2598ddd61a9849883c077129faa3d44a4764d06b",
+    "welcome.jpg": "88ce258f8f43573833dc3b8cb850f65b5a1deeec2285f7a740b475d2b449deea",
+    "welcome-minimum.jpg": "ab8940d5cc439e34502034e1a1d7e85b874c4c78c3285b4138509db73db7a3b8",
+    "welcome-frame-checks.json": "400ec854249bb21110b885f1984377823f6a2394c950fe1c3cf122ddb886ef20"
+  }
+}

@@ -10,6 +10,7 @@ import { test } from "node:test";
 import {
   DEFAULT_ASK_SHORTCUT,
   DEFAULT_ACTION_SHORTCUT,
+  DEFAULT_COPY_SHORTCUT,
   DEFAULT_PROCESSING_MODE,
   DEFAULT_SETTINGS,
   DEFAULT_SHORTCUT,
@@ -97,6 +98,16 @@ test("三个快捷键不同时原样保留、不提示", () => {
   assert.deepEqual(notices, []);
 });
 
+test("复制上次结果的快捷键补默认值，冲突时使用独立组合并落盘", () => {
+  assert.equal(normalizeSettings({}).settings.copyShortcut, DEFAULT_COPY_SHORTCUT);
+  const { settings, notices } = normalizeSettings({ shortcut: DEFAULT_COPY_SHORTCUT, copyShortcut: DEFAULT_COPY_SHORTCUT });
+  assert.notEqual(settings.copyShortcut, settings.shortcut);
+  assert.notEqual(settings.copyShortcut, settings.askShortcut);
+  assert.notEqual(settings.copyShortcut, settings.actionShortcut);
+  assert.ok(notices.length > 0);
+  assert.equal(toPersistedSettings(settings).copyShortcut, settings.copyShortcut);
+});
+
 test("旧语音命令快捷键迁移到第三个入口，并保留命令动作", () => {
   const { settings, notices } = normalizeSettings({ commandShortcut: "Ctrl+Shift+E" });
   assert.equal(settings.askShortcut, DEFAULT_ASK_SHORTCUT);
@@ -180,6 +191,15 @@ test("自动学习旧配置默认开启，显式关闭可持久化", () => {
   assert.equal(normalizeSettings({ autoLearn: "false" }).settings.autoLearn, true);
 });
 
+test("流式默认开启，提前整理仅显式启用且配置可以持久化", () => {
+  assert.equal(normalizeSettings({}).settings.textStreaming, true);
+  assert.equal(normalizeSettings({}).settings.textIncremental, false);
+  const saved = toPersistedSettings({ textStreaming: false, textIncremental: true });
+  assert.equal(normalizeSettings(saved).settings.textStreaming, false);
+  assert.equal(normalizeSettings(saved).settings.textIncremental, true);
+  assert.equal(normalizeSettings({ textIncremental: "true" }).settings.textIncremental, false);
+});
+
 test("快捷短语旧配置默认不绑定，也不占用现有快捷键", () => {
   const { settings, notices } = normalizeSettings({});
   assert.equal(settings.phraseShortcut, "");
@@ -208,4 +228,12 @@ test("短语内容与名称校验类型和长度，使用字符计数保留完�
   const { settings } = normalizeSettings({ phraseText: "墨".repeat(2001), phraseName: "字".repeat(41) });
   assert.equal(settings.phraseText.length, 2000);
   assert.equal(settings.phraseName.length, 40);
+});
+
+
+test("复制结果迁移保留已有快捷短语，并按语义检测五个入口的冲突", () => {
+  const { settings } = normalizeSettings({ phraseShortcut: "Option+Control+V", phraseText: "00123" });
+  assert.equal(settings.phraseShortcut, "Option+Control+V");
+  assert.equal(settings.copyShortcut, "Ctrl+Alt+Shift+V");
+  assert.equal(settings.phraseText, "00123");
 });

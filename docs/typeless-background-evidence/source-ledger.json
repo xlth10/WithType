@@ -1,0 +1,291 @@
+{
+  "date": "2026-10-12",
+  "target": "/Applications/Typeless.app",
+  "version": "2.8.1",
+  "build": "2.8.1.130",
+  "asar_sha256": "eb9bcc842478b12a7488d90778ad6b08e6788c8fa5e875782ec2af0387c6c80b",
+  "main_sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+  "cache_verified_against_current_asar_member": true,
+  "signature_limitation": "Previous verification failed; unchanged ASAR hash. Publisher authenticity remains unverified.",
+  "scope": "Static local installed bytes and bounded inert AST reconstruction. No app launch, recording, personal data, or service installation.",
+  "platform_limit": "Ft is compiled as darwin. Windows branch is present but not selected in this installed build; its child script is absent. No Windows release/runtime verification.",
+  "reconstruction": {
+    "method": "Inert Babel AST parsing; literal string table; bounded rotation arithmetic; literal call substitution; token-boundary line breaks. No source code execution.",
+    "rotation": 190,
+    "aliases": 1245,
+    "substitutions": 9518
+  },
+  "raw_slice": {
+    "path": "/private/tmp/typeless-background-analysis/raw-keyboard-slice/keyboard-class.js",
+    "sha256": "609d3f2087d14c46d6e56666bc8b0dc9fcf8f26aaf3ba71fb92c28a2a4ae9b7d",
+    "start_utf16": 326013,
+    "end_utf16": 336397,
+    "bytes": 10384,
+    "limitations": [
+      "Exact original class expression bytes only; imports/string decoder/callers omitted; runtime reachability unobserved."
+    ]
+  },
+  "anchors": [
+    {
+      "id": "BG-PLATFORM-CONSTANT",
+      "name": "Ft",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 4660,
+      "end_utf16": 4679,
+      "start_byte": 4660,
+      "end_byte": 4679,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-STARTUP-ARG",
+      "name": "Gu",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 5136,
+      "end_utf16": 5155,
+      "start_byte": 5136,
+      "end_byte": 5155,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-SETTINGS",
+      "name": "U",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 130185,
+      "end_utf16": 131432,
+      "start_byte": 130185,
+      "end_byte": 131432,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-WINDOW-BASE",
+      "name": "ys",
+      "kind": "ClassDeclaration",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 135356,
+      "end_utf16": 139930,
+      "start_byte": 135356,
+      "end_byte": 139930,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-LAUNCH-ROUTER",
+      "name": "Et",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 153138,
+      "end_utf16": 153856,
+      "start_byte": 153138,
+      "end_byte": 153856,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-FLOATING-WINDOW",
+      "name": "ig",
+      "kind": "ClassDeclaration",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 182200,
+      "end_utf16": 186367,
+      "start_byte": 182455,
+      "end_byte": 186622,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-WIN-KEYBOARD-PROCESS",
+      "name": "Uo",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 326010,
+      "end_utf16": 336397,
+      "start_byte": 326305,
+      "end_byte": 336692,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-KEYBOARD-PLATFORM",
+      "name": "mf",
+      "kind": "FunctionDeclaration",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 336443,
+      "end_utf16": 336605,
+      "start_byte": 336738,
+      "end_byte": 336900,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-KEYBOARD-SERVICE",
+      "name": "Tf",
+      "kind": "ClassDeclaration",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 344131,
+      "end_utf16": 349117,
+      "start_byte": 344426,
+      "end_byte": 349412,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-TRAY",
+      "name": "Ff",
+      "kind": "ClassDeclaration",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 363918,
+      "end_utf16": 368460,
+      "start_byte": 364213,
+      "end_byte": 368755,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-QUIT",
+      "name": "zf",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 374831,
+      "end_utf16": 375216,
+      "start_byte": 375126,
+      "end_byte": 375511,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-SINGLE-INSTANCE",
+      "name": "Jf",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 375217,
+      "end_utf16": 375313,
+      "start_byte": 375512,
+      "end_byte": 375608,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-FLOATING-EXPAND-IPC",
+      "name": "page:floating-bar-set-expanded",
+      "kind": "CallExpression",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 592019,
+      "end_utf16": 592148,
+      "start_byte": 592769,
+      "end_byte": 592898
+    },
+    {
+      "id": "BG-AUTO-LAUNCH-IPC",
+      "name": "permission:update-auto-launch",
+      "kind": "CallExpression",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 599203,
+      "end_utf16": 599404,
+      "start_byte": 599953,
+      "end_byte": 600154
+    },
+    {
+      "id": "BG-PERMISSIONS",
+      "name": "qy",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 615011,
+      "end_utf16": 615112,
+      "start_byte": 615761,
+      "end_byte": 615862,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-STARTUP",
+      "name": "c_",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 627550,
+      "end_utf16": 628390,
+      "start_byte": 628300,
+      "end_byte": 629140,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-POWER",
+      "name": "y_",
+      "kind": "VariableDeclarator",
+      "source": "dist/main/index.js",
+      "sha256": "7b87e1578597b6fce6b6589a2f8aa18496e9513f0e74d0b8b26186a641b59ade",
+      "start_utf16": 633443,
+      "end_utf16": 633930,
+      "start_byte": 634193,
+      "end_byte": 634680,
+      "note": "Original minified member location. Decoded names are an analyst inspection aid; no target code was executed."
+    },
+    {
+      "id": "BG-RENDERER-EXPAND",
+      "source": "dist/renderer/static/js/qA149QP2.mjs",
+      "sha256": "40723210d92894508ad2d8672f51023e5e5f43f259d43c85bc21b293c4c6e84a",
+      "start_utf16": 13394,
+      "end_utf16": 13424,
+      "start_byte": 13394,
+      "note": "Literal channel location. Nearby useEffect sends the OR of recording-control-visible and floating-bar-alerts states. UI-hidden state does not by itself establish OS page visibility or absence of throttling."
+    }
+  ],
+  "bounded_searches": [
+    {
+      "term": "window-all-closed",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    },
+    {
+      "term": "render-process-gone",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    },
+    {
+      "term": "child-process-gone",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    },
+    {
+      "term": "backgroundThrottling",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    },
+    {
+      "term": "powerSaveBlocker",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    },
+    {
+      "term": "disable-renderer-backgrounding",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    },
+    {
+      "term": "watchdog",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    },
+    {
+      "term": "heartbeat",
+      "decoded_mapping_match": false,
+      "raw_literal_match": false,
+      "boundary": "dist/main/index.js only; dynamic/native/installer behavior not excluded"
+    }
+  ]
+}

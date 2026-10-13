@@ -1,17 +1,9 @@
 # 随包界面字体
 
-网页与 Windows WebView2 共用 `noto-sans-sc-variable.woff2`，避免依赖 Segoe UI / PingFang 等不同系统字体造成的字宽、换行与字重差异。
+本项目使用用户指定的本机 Type 最新版中的 Noto Sans SC Sans2.004 可变字体，CSS 别名为 `WithType UI`。同一 WOFF2 文件在浏览器预览和 Windows WebView2 中离线加载。
 
-- 来源：[Noto Sans SC Sans2.004](https://github.com/notofonts/noto-cjk/blob/Sans2.004/Sans/Variable/TTF/Subset/NotoSansSC-VF.ttf)。
-- 版权与许可：`COPYRIGHT-NotoSansSC.txt`、`OFL-NotoSansSC.txt`。
-- 仅从 TTF 转为 WOFF2 容器，保留全部 31,036 字形、100–900 字重与原版权/名称元数据；没有根据页面文案裁字，口述和模型回复可使用字体内的全部字符。
-- 来源与导出 SHA-256 见 `manifest.json`。资源为约 7.8 MB，增加安装包体积，换取离线字体一致性；不访问在线字体服务。
-- CSS 中的 `Typefree UI` 是本应用字体别名，原字体作者归属不变。字体未覆盖的语言/符号继续使用系统回退，系统文本光栅化也可能存在细微差异。
-
-正常构建直接使用已提交的 WOFF2，无需 Python。只在复生成资源时安装 `fonttools` 和 `brotli`，下载上述固定版原始 TTF 后执行：
-
-```bash
-python scripts/prepare_ui_font.py /path/to/NotoSansSC-VF.ttf
-```
-
-若重新生成内容发生变化，应同时更新 manifest 并复验字体加载与前端构建。
+- 来源、100–900 字重范围、31,036 个字形及 SHA-256 见 `manifest.json`。
+- 字体约 7.8 MB，增加相应的包体积。不请求在线字体。
+- 官方版权和 OFL 1.1 许可分别保留在 `COPYRIGHT-NotoSansSC.txt` 与 `OFL-NotoSansSC.txt`，随安装包和便携包分发。
+- 正常构建直接使用当前 WOFF2，不需要字体转换工具。`npm run verify:appearance` 核对源字体、构建产物和配色基准。
+- 字体未覆盖的字符仍使用系统回退；相同字形文件不能保证不同系统的光栅化像素完全一致。

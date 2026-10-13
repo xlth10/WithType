@@ -1,0 +1,25 @@
+{
+  "request": {
+    "tool": "export_evidence_bundle",
+    "arguments": {
+      "path": "/Users/outsider/codex_projects/emergence-lab/projects/15-typefree-windows/docs/rea-superwhisper/native-evidence-bundle.json"
+    },
+    "save": "export-native-evidence"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"path\":\"/Users/outsider/codex_projects/emergence-lab/projects/15-typefree-windows/docs/rea-superwhisper/native-evidence-bundle.json\",\"bytes\":183915,\"records\":26,\"unknowns\":0}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "path": "/Users/outsider/codex_projects/emergence-lab/projects/15-typefree-windows/docs/rea-superwhisper/native-evidence-bundle.json",
+        "bytes": 183915,
+        "records": 26,
+        "unknowns": 0
+      }
+    }
+  }
+}

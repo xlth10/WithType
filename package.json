@@ -1,17 +1,19 @@
 {
-  "name": "typefree",
+  "name": "withtype-windows",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/appearance-baseline.mjs --write",
     "build": "vite build",
+    "verify:appearance": "node scripts/appearance-baseline.mjs --built",
     "tauri": "tauri",
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build",
     "preview": "vite preview",
     "test": "npm run test:unit",
-    "test:unit": "node scripts/run-unit-tests.mjs"
+    "test:unit": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

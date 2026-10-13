@@ -1,0 +1,178 @@
+{
+  "nativeFrameCount": 109,
+  "viewport": [
+    1060,
+    720
+  ],
+  "noOverflow": true,
+  "welcomeRestPixelIdentical": true,
+  "restSamples": [
+    2,
+    2.6666666666666665
+  ],
+  "gifAnimationDurationMs": 3600,
+  "gifFinalHoldMs": 1200,
+  "inkPixelStats": {
+    "0.0": {
+      "area": 1161,
+      "bounds": [
+        511,
+        49,
+        549,
+        87
+      ],
+      "center": [
+        529.5409130060293,
+        67.48923341946598
+      ],
+      "components": 1,
+      "largestComponent": 1161
+    },
+    "0.6666666666666666": {
+      "area": 1374,
+      "bounds": [
+        511,
+        295,
+        548,
+        340
+      ],
+      "center": [
+        529.4534206695779,
+        316.9192139737991
+      ],
+      "components": 1,
+      "largestComponent": 1374
+    },
+    "0.7": {
+      "area": 1402,
+      "bounds": [
+        511,
+        335,
+        548,
+        382
+      ],
+      "center": [
+        529.4764621968616,
+        357.89800285306706
+      ],
+      "components": 1,
+      "largestComponent": 1402
+    },
+    "1.3": {
+      "area": 15182,
+      "bounds": [
+        336,
+        324,
+        723,
+        392
+      ],
+      "center": [
+        529.7375181135556,
+        359.3556184955869
+      ],
+      "components": 1,
+      "largestComponent": 15182
+    },
+    "1.6": {
+      "area": 8501,
+      "bounds": [
+        360,
+        338,
+        699,
+        387
+      ],
+      "center": [
+        531.2653805434654,
+        362.5881660981061
+      ],
+      "components": 2,
+      "largestComponent": 5732
+    },
+    "2.2": {
+      "area": 3916,
+      "bounds": [
+        360,
+        340,
+        697,
+        386
+      ],
+      "center": [
+        523.7936670071501,
+        362.18513789581203
+      ],
+      "components": 13,
+      "largestComponent": 609
+    }
+  },
+  "dropDistancePixels": 290.41,
+  "materialForming": {
+    "wetInkComponents": 1,
+    "welcomeComponents": 13,
+    "wetToWelcomeAreaRatio": 3.88,
+    "inkOpacityAtWet": 1,
+    "inkOpacityAtWelcome": 1
+  },
+  "foregroundFits": true,
+  "deterministic1300": true,
+  "finalMatchesHydratedVersionA": false,
+  "draftFrames": 109,
+  "draftCaptures": 361,
+  "browser": {
+    "click": {
+      "H": 720,
+      "W": 1060,
+      "finished": "true",
+      "inert": false,
+      "inkOpacity": 0,
+      "matrix": "none",
+      "overflow": false,
+      "phase": "ready",
+      "t": 3.6,
+      "uiOpacity": 1
+    },
+    "keyboard": {
+      "finished": "true",
+      "focus": "开始",
+      "inert": false
+    },
+    "reduced": {
+      "H": 720,
+      "W": 1060,
+      "finished": "true",
+      "inert": false,
+      "inkOpacity": 0,
+      "matrix": "none",
+      "overflow": false,
+      "phase": "ready",
+      "t": 3.6,
+      "uiOpacity": 1
+    },
+    "normalPreview": {
+      "H": 720,
+      "W": 1060,
+      "finished": "true",
+      "inert": false,
+      "inkOpacity": 0,
+      "matrix": "none",
+      "overflow": false,
+      "phase": "ready",
+      "t": 3.6,
+      "uiOpacity": 1
+    },
+    "playbackMs": "3612.4"
+  },
+  "limits": "Pixel checks cover the rendered browser candidate, not Windows WebView2 runtime performance or user aesthetic acceptance.",
+  "finalDifferenceBounds": [
+    840,
+    304,
+    992,
+    344
+  ],
+  "finalMatchesHydratedVersionAOutsideAnimatedHUD": true,
+  "animatedHUDExcludedBounds": [
+    833,
+    295,
+    997,
+    352
+  ]
+}

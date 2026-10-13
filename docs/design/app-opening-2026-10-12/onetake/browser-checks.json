@@ -1,0 +1,31 @@
+{
+  "viewportChecks": [
+    [
+      1060,
+      720
+    ],
+    [
+      640,
+      480
+    ]
+  ],
+  "keyboardInterrupt": {
+    "finished": true,
+    "focusedControl": "开始"
+  },
+  "pointerInterrupt": true,
+  "normalFinish": true,
+  "reducedMotion": {
+    "cameraTransform": "none",
+    "interfaceClip": "none",
+    "decorationVisibility": "hidden"
+  },
+  "comparisonPreview": {
+    "versionAMaxMs": 1400,
+    "versionBMaxMs": 2400,
+    "bothFinalFramesReachable": true,
+    "reducedMode": true,
+    "replay": true
+  },
+  "preservedVersionASourceHashesUnchanged": true
+}

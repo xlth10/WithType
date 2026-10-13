@@ -1,0 +1,418 @@
+{
+  "request": {
+    "tool": "search_strings",
+    "arguments": {
+      "pattern": "Application Context|Clipboard Context|Selected Text|User Message|contextFrom|Context information",
+      "mode": "regex"
+    },
+    "save": "context-strings-long-startup"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":[{\"address\":\"0x1010ce210\",\"value\":\"The following user message will contain instructions, follow these and do what they say.\\\\n\\\\nUse the context in the rest of the message to accomplish whatever the instruction says. \"},{\"address\":\"0x1010ce540\",\"value\":\"contextFromSelection\"},{\"address\":\"0x1010ce560\",\"value\":\"contextFromClipboard\"},{\"address\":\"0x1010ce580\",\"value\":\"contextFromActiveApplication\"},{\"address\":\"0x1010d2380\",\"value\":\"You are an email formatting specialist. Your task is to transform user messages into professional email format.\\\\n\\\\nCRITICAL INSTRUCTION: Your response must ONLY contain the formatted email. Nothing else.\\\\n\\\\nEMAIL STRUCTURE REQUIREMENTS:\\\\n1. Greeting: If the use…\"},{\"address\":\"0x1010d4140\",\"value\":\"You are an AI assistant tasked with reformatting user messages for an active application that the user has focused on. \\\\n\\\\nYour goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provide…\"},{\"address\":\"0x1010d4280\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nhttps://github.com/acme/widget/pull/912\\\\n\\\\nUSER MESSAGE:\\\\nhere's the PR if you want to take a look\"},{\"address\":\"0x1010d4330\",\"value\":\"USER CLIPBOARD CONTENT:\\\\njordan@acme.com\\\\n\\\\nUSER MESSAGE:\\\\nI'll loop him in now\"},{\"address\":\"0x1010d43a0\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nHeads up, the staging deploy is blocked on the migration.\\\\n\\\\nUSER MESSAGE:\\\\nsend this to the team\"},{\"address\":\"0x1010d4440\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nheads up the deploy is stuck, will ping when its unblocked\\\\n\\\\nUSER MESSAGE:\\\\nmake this more formal\"},{\"address\":\"0x1010d4530\",\"value\":\"Your task is to reformat the user message.\\\\n\\\\nUSER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually\\\\nfor some unrelated purpose. They are background only.\\\\n\\\\n- Default: output USER MESSAGE, reformatted. Nothing else.\\\\n- Never append c…\"},{\"address\":\"0x1010d4730\",\"value\":\"the copied text. Do not reach for its adjectives or\\\\n  phrasing when rewriting a sentence.\\\\n- Only when USER MESSAGE is a direct instruction to change the copied text\\\\n  (\\\\\\\"make this more formal\\\\\\\", \\\\\\\"summarise this\\\\\\\", \\\\\\\"translate this\\\\\\\") do you output the\\\\n  transfo…\"},{\"address\":\"0x1010d4830\",\"value\":\"rmed copied text instead.\\\\n- If USER MESSAGE is empty, output nothing.\\\\n\\\\n**PRESERVE THE ORIGINAL MESSAGE**\\\\n- Keep the user's own words. Only change what you are certain improves accuracy.\\\\n- When in doubt, leave the text unchanged.\\\\n- Do not paraphrase, re-ord…\"},{\"address\":\"0x1010e0640\",\"value\":\"Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance.\"},{\"address\":\"0x1010e3c30\",\"value\":\"Selected text included in context\"},{\"address\":\"0x1010e7c80\",\"value\":\"If enabled, details about your system and active app will be included in the prompt.\\\\n\\\\nApplication context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Con…\"},{\"address\":\"0x1010e7d80\",\"value\":\"text'.\\\\n\\\\nClipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'\\\\n\\\\nSelected text will grab the text you have highlighted or selected when starting the recording. In your pr…\"},{\"address\":\"0x1010e7e80\",\"value\":\"ompt refer to it as 'Selected text'.\"},{\"address\":\"0x1010ea300\",\"value\":\"Found selected text: \"},{\"address\":\"0x1010eb860\",\"value\":\"Could not get selected text \"},{\"address\":\"0x1010efa90\",\"value\":\"APPLICATION CONTEXT\"},{\"address\":\"0x1010efb30\",\"value\":\"USER SELECTED TEXT\"},{\"address\":\"0x10111b907\",\"value\":\"User message\"},{\"address\":\"0x101270479\",\"value\":\"readPreviousContextFromDisk\"},{\"address\":\"0x101270c4d\",\"value\":\"removeExtraDeviceContextFromEvent:\"},{\"address\":\"0x1012826c0\",\"value\":\"contextFromSelection\"},{\"address\":\"0x1012826e0\",\"value\":\"contextFromClipboard\"},{\"address\":\"0x101282700\",\"value\":\"contextFromActiveApplication\"}],\"evidence_id\":\"ev_c13bb6ec60f762b9b922f1ac6b199e1658cf365aaa1a5ef28f07c264ec461175\",\"evidence\":{\"evidence_id\":\"ev_c13bb6ec60f762b9b922f1ac6b199e1658cf365aaa1a5ef28f07c264ec461175\",\"subject\":{\"name\":\"superwhisper\",\"digest\":{\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\"},\"format\":\"mach-o\",\"architecture\":\"arm64\",\"local_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\"},\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"predicate_type\":\"rea.analysis\",\"operation\":\"search_strings\",\"parameters\":{\"pattern\":\"Application Context|Clipboard Context|Selected Text|User Message|contextFrom|Context information\",\"mode\":\"regex\",\"case_sensitive\":false,\"document\":null},\"raw_result\":[{\"address\":\"0x1010ce210\",\"value\":\"The following user message will contain instructions, follow these and do what they say.\\\\n\\\\nUse the context in the rest of the message to accomplish whatever the instruction says. \"},{\"address\":\"0x1010ce540\",\"value\":\"contextFromSelection\"},{\"address\":\"0x1010ce560\",\"value\":\"contextFromClipboard\"},{\"address\":\"0x1010ce580\",\"value\":\"contextFromActiveApplication\"},{\"address\":\"0x1010d2380\",\"value\":\"You are an email formatting specialist. Your task is to transform user messages into professional email format.\\\\n\\\\nCRITICAL INSTRUCTION: Your response must ONLY contain the formatted email. Nothing else.\\\\n\\\\nEMAIL STRUCTURE REQUIREMENTS:\\\\n1. Greeting: If the use…\"},{\"address\":\"0x1010d4140\",\"value\":\"You are an AI assistant tasked with reformatting user messages for an active application that the user has focused on. \\\\n\\\\nYour goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provide…\"},{\"address\":\"0x1010d4280\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nhttps://github.com/acme/widget/pull/912\\\\n\\\\nUSER MESSAGE:\\\\nhere's the PR if you want to take a look\"},{\"address\":\"0x1010d4330\",\"value\":\"USER CLIPBOARD CONTENT:\\\\njordan@acme.com\\\\n\\\\nUSER MESSAGE:\\\\nI'll loop him in now\"},{\"address\":\"0x1010d43a0\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nHeads up, the staging deploy is blocked on the migration.\\\\n\\\\nUSER MESSAGE:\\\\nsend this to the team\"},{\"address\":\"0x1010d4440\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nheads up the deploy is stuck, will ping when its unblocked\\\\n\\\\nUSER MESSAGE:\\\\nmake this more formal\"},{\"address\":\"0x1010d4530\",\"value\":\"Your task is to reformat the user message.\\\\n\\\\nUSER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually\\\\nfor some unrelated purpose. They are background only.\\\\n\\\\n- Default: output USER MESSAGE, reformatted. Nothing else.\\\\n- Never append c…\"},{\"address\":\"0x1010d4730\",\"value\":\"the copied text. Do not reach for its adjectives or\\\\n  phrasing when rewriting a sentence.\\\\n- Only when USER MESSAGE is a direct instruction to change the copied text\\\\n  (\\\\\\\"make this more formal\\\\\\\", \\\\\\\"summarise this\\\\\\\", \\\\\\\"translate this\\\\\\\") do you output the\\\\n  transfo…\"},{\"address\":\"0x1010d4830\",\"value\":\"rmed copied text instead.\\\\n- If USER MESSAGE is empty, output nothing.\\\\n\\\\n**PRESERVE THE ORIGINAL MESSAGE**\\\\n- Keep the user's own words. Only change what you are certain improves accuracy.\\\\n- When in doubt, leave the text unchanged.\\\\n- Do not paraphrase, re-ord…\"},{\"address\":\"0x1010e0640\",\"value\":\"Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance.\"},{\"address\":\"0x1010e3c30\",\"value\":\"Selected text included in context\"},{\"address\":\"0x1010e7c80\",\"value\":\"If enabled, details about your system and active app will be included in the prompt.\\\\n\\\\nApplication context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Con…\"},{\"address\":\"0x1010e7d80\",\"value\":\"text'.\\\\n\\\\nClipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'\\\\n\\\\nSelected text will grab the text you have highlighted or selected when starting the recording. In your pr…\"},{\"address\":\"0x1010e7e80\",\"value\":\"ompt refer to it as 'Selected text'.\"},{\"address\":\"0x1010ea300\",\"value\":\"Found selected text: \"},{\"address\":\"0x1010eb860\",\"value\":\"Could not get selected text \"},{\"address\":\"0x1010efa90\",\"value\":\"APPLICATION CONTEXT\"},{\"address\":\"0x1010efb30\",\"value\":\"USER SELECTED TEXT\"},{\"address\":\"0x10111b907\",\"value\":\"User message\"},{\"address\":\"0x101270479\",\"value\":\"readPreviousContextFromDisk\"},{\"address\":\"0x101270c4d\",\"value\":\"removeExtraDeviceContextFromEvent:\"},{\"address\":\"0x1012826c0\",\"value\":\"contextFromSelection\"},{\"address\":\"0x1012826e0\",\"value\":\"contextFromClipboard\"},{\"address\":\"0x101282700\",\"value\":\"contextFromActiveApplication\"}],\"normalized_result\":[{\"address\":\"0x1010ce210\",\"value\":\"The following user message will contain instructions, follow these and do what they say.\\\\n\\\\nUse the context in the rest of the message to accomplish whatever the instruction says. \"},{\"address\":\"0x1010ce540\",\"value\":\"contextFromSelection\"},{\"address\":\"0x1010ce560\",\"value\":\"contextFromClipboard\"},{\"address\":\"0x1010ce580\",\"value\":\"contextFromActiveApplication\"},{\"address\":\"0x1010d2380\",\"value\":\"You are an email formatting specialist. Your task is to transform user messages into professional email format.\\\\n\\\\nCRITICAL INSTRUCTION: Your response must ONLY contain the formatted email. Nothing else.\\\\n\\\\nEMAIL STRUCTURE REQUIREMENTS:\\\\n1. Greeting: If the use…\"},{\"address\":\"0x1010d4140\",\"value\":\"You are an AI assistant tasked with reformatting user messages for an active application that the user has focused on. \\\\n\\\\nYour goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provide…\"},{\"address\":\"0x1010d4280\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nhttps://github.com/acme/widget/pull/912\\\\n\\\\nUSER MESSAGE:\\\\nhere's the PR if you want to take a look\"},{\"address\":\"0x1010d4330\",\"value\":\"USER CLIPBOARD CONTENT:\\\\njordan@acme.com\\\\n\\\\nUSER MESSAGE:\\\\nI'll loop him in now\"},{\"address\":\"0x1010d43a0\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nHeads up, the staging deploy is blocked on the migration.\\\\n\\\\nUSER MESSAGE:\\\\nsend this to the team\"},{\"address\":\"0x1010d4440\",\"value\":\"USER CLIPBOARD CONTENT:\\\\nheads up the deploy is stuck, will ping when its unblocked\\\\n\\\\nUSER MESSAGE:\\\\nmake this more formal\"},{\"address\":\"0x1010d4530\",\"value\":\"Your task is to reformat the user message.\\\\n\\\\nUSER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually\\\\nfor some unrelated purpose. They are background only.\\\\n\\\\n- Default: output USER MESSAGE, reformatted. Nothing else.\\\\n- Never append c…\"},{\"address\":\"0x1010d4730\",\"value\":\"the copied text. Do not reach for its adjectives or\\\\n  phrasing when rewriting a sentence.\\\\n- Only when USER MESSAGE is a direct instruction to change the copied text\\\\n  (\\\\\\\"make this more formal\\\\\\\", \\\\\\\"summarise this\\\\\\\", \\\\\\\"translate this\\\\\\\") do you output the\\\\n  transfo…\"},{\"address\":\"0x1010d4830\",\"value\":\"rmed copied text instead.\\\\n- If USER MESSAGE is empty, output nothing.\\\\n\\\\n**PRESERVE THE ORIGINAL MESSAGE**\\\\n- Keep the user's own words. Only change what you are certain improves accuracy.\\\\n- When in doubt, leave the text unchanged.\\\\n- Do not paraphrase, re-ord…\"},{\"address\":\"0x1010e0640\",\"value\":\"Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance.\"},{\"address\":\"0x1010e3c30\",\"value\":\"Selected text included in context\"},{\"address\":\"0x1010e7c80\",\"value\":\"If enabled, details about your system and active app will be included in the prompt.\\\\n\\\\nApplication context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Con…\"},{\"address\":\"0x1010e7d80\",\"value\":\"text'.\\\\n\\\\nClipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'\\\\n\\\\nSelected text will grab the text you have highlighted or selected when starting the recording. In your pr…\"},{\"address\":\"0x1010e7e80\",\"value\":\"ompt refer to it as 'Selected text'.\"},{\"address\":\"0x1010ea300\",\"value\":\"Found selected text: \"},{\"address\":\"0x1010eb860\",\"value\":\"Could not get selected text \"},{\"address\":\"0x1010efa90\",\"value\":\"APPLICATION CONTEXT\"},{\"address\":\"0x1010efb30\",\"value\":\"USER SELECTED TEXT\"},{\"address\":\"0x10111b907\",\"value\":\"User message\"},{\"address\":\"0x101270479\",\"value\":\"readPreviousContextFromDisk\"},{\"address\":\"0x101270c4d\",\"value\":\"removeExtraDeviceContextFromEvent:\"},{\"address\":\"0x1012826c0\",\"value\":\"contextFromSelection\"},{\"address\":\"0x1012826e0\",\"value\":\"contextFromClipboard\"},{\"address\":\"0x101282700\",\"value\":\"contextFromActiveApplication\"}],\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"Results depend on Hopper's completed static analysis.\"],\"locations\":[],\"evidence_links\":[],\"analysis_profile\":{\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"parameters\":{\"target_kind\":\"executable\",\"target_format\":\"mach-o\",\"architecture\":\"arm64\",\"available_architectures\":[\"arm64\",\"x86_64\"],\"loader\":{\"source\":\"derived\",\"argument_count\":5,\"arguments_sha256\":\"3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5\"}},\"digest\":\"61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236\"}}}"
+      }
+    ],
+    "structuredContent": {
+      "result": [
+        {
+          "address": "0x1010ce210",
+          "value": "The following user message will contain instructions, follow these and do what they say.\\n\\nUse the context in the rest of the message to accomplish whatever the instruction says. "
+        },
+        {
+          "address": "0x1010ce540",
+          "value": "contextFromSelection"
+        },
+        {
+          "address": "0x1010ce560",
+          "value": "contextFromClipboard"
+        },
+        {
+          "address": "0x1010ce580",
+          "value": "contextFromActiveApplication"
+        },
+        {
+          "address": "0x1010d2380",
+          "value": "You are an email formatting specialist. Your task is to transform user messages into professional email format.\\n\\nCRITICAL INSTRUCTION: Your response must ONLY contain the formatted email. Nothing else.\\n\\nEMAIL STRUCTURE REQUIREMENTS:\\n1. Greeting: If the use…"
+        },
+        {
+          "address": "0x1010d4140",
+          "value": "You are an AI assistant tasked with reformatting user messages for an active application that the user has focused on. \\n\\nYour goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provide…"
+        },
+        {
+          "address": "0x1010d4280",
+          "value": "USER CLIPBOARD CONTENT:\\nhttps://github.com/acme/widget/pull/912\\n\\nUSER MESSAGE:\\nhere's the PR if you want to take a look"
+        },
+        {
+          "address": "0x1010d4330",
+          "value": "USER CLIPBOARD CONTENT:\\njordan@acme.com\\n\\nUSER MESSAGE:\\nI'll loop him in now"
+        },
+        {
+          "address": "0x1010d43a0",
+          "value": "USER CLIPBOARD CONTENT:\\nHeads up, the staging deploy is blocked on the migration.\\n\\nUSER MESSAGE:\\nsend this to the team"
+        },
+        {
+          "address": "0x1010d4440",
+          "value": "USER CLIPBOARD CONTENT:\\nheads up the deploy is stuck, will ping when its unblocked\\n\\nUSER MESSAGE:\\nmake this more formal"
+        },
+        {
+          "address": "0x1010d4530",
+          "value": "Your task is to reformat the user message.\\n\\nUSER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually\\nfor some unrelated purpose. They are background only.\\n\\n- Default: output USER MESSAGE, reformatted. Nothing else.\\n- Never append c…"
+        },
+        {
+          "address": "0x1010d4730",
+          "value": "the copied text. Do not reach for its adjectives or\\n  phrasing when rewriting a sentence.\\n- Only when USER MESSAGE is a direct instruction to change the copied text\\n  (\\\"make this more formal\\\", \\\"summarise this\\\", \\\"translate this\\\") do you output the\\n  transfo…"
+        },
+        {
+          "address": "0x1010d4830",
+          "value": "rmed copied text instead.\\n- If USER MESSAGE is empty, output nothing.\\n\\n**PRESERVE THE ORIGINAL MESSAGE**\\n- Keep the user's own words. Only change what you are certain improves accuracy.\\n- When in doubt, leave the text unchanged.\\n- Do not paraphrase, re-ord…"
+        },
+        {
+          "address": "0x1010e0640",
+          "value": "Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance."
+        },
+        {
+          "address": "0x1010e3c30",
+          "value": "Selected text included in context"
+        },
+        {
+          "address": "0x1010e7c80",
+          "value": "If enabled, details about your system and active app will be included in the prompt.\\n\\nApplication context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Con…"
+        },
+        {
+          "address": "0x1010e7d80",
+          "value": "text'.\\n\\nClipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'\\n\\nSelected text will grab the text you have highlighted or selected when starting the recording. In your pr…"
+        },
+        {
+          "address": "0x1010e7e80",
+          "value": "ompt refer to it as 'Selected text'."
+        },
+        {
+          "address": "0x1010ea300",
+          "value": "Found selected text: "
+        },
+        {
+          "address": "0x1010eb860",
+          "value": "Could not get selected text "
+        },
+        {
+          "address": "0x1010efa90",
+          "value": "APPLICATION CONTEXT"
+        },
+        {
+          "address": "0x1010efb30",
+          "value": "USER SELECTED TEXT"
+        },
+        {
+          "address": "0x10111b907",
+          "value": "User message"
+        },
+        {
+          "address": "0x101270479",
+          "value": "readPreviousContextFromDisk"
+        },
+        {
+          "address": "0x101270c4d",
+          "value": "removeExtraDeviceContextFromEvent:"
+        },
+        {
+          "address": "0x1012826c0",
+          "value": "contextFromSelection"
+        },
+        {
+          "address": "0x1012826e0",
+          "value": "contextFromClipboard"
+        },
+        {
+          "address": "0x101282700",
+          "value": "contextFromActiveApplication"
+        }
+      ],
+      "evidence_id": "ev_c13bb6ec60f762b9b922f1ac6b199e1658cf365aaa1a5ef28f07c264ec461175",
+      "evidence": {
+        "evidence_id": "ev_c13bb6ec60f762b9b922f1ac6b199e1658cf365aaa1a5ef28f07c264ec461175",
+        "subject": {
+          "name": "superwhisper",
+          "digest": {
+            "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a"
+          },
+          "format": "mach-o",
+          "architecture": "arm64",
+          "local_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper"
+        },
+        "provider": {
+          "id": "hopper",
+          "name": "Hopper Disassembler",
+          "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "search_strings",
+        "parameters": {
+          "pattern": "Application Context|Clipboard Context|Selected Text|User Message|contextFrom|Context information",
+          "mode": "regex",
+          "case_sensitive": false,
+          "document": null
+        },
+        "raw_result": [
+          {
+            "address": "0x1010ce210",
+            "value": "The following user message will contain instructions, follow these and do what they say.\\n\\nUse the context in the rest of the message to accomplish whatever the instruction says. "
+          },
+          {
+            "address": "0x1010ce540",
+            "value": "contextFromSelection"
+          },
+          {
+            "address": "0x1010ce560",
+            "value": "contextFromClipboard"
+          },
+          {
+            "address": "0x1010ce580",
+            "value": "contextFromActiveApplication"
+          },
+          {
+            "address": "0x1010d2380",
+            "value": "You are an email formatting specialist. Your task is to transform user messages into professional email format.\\n\\nCRITICAL INSTRUCTION: Your response must ONLY contain the formatted email. Nothing else.\\n\\nEMAIL STRUCTURE REQUIREMENTS:\\n1. Greeting: If the use…"
+          },
+          {
+            "address": "0x1010d4140",
+            "value": "You are an AI assistant tasked with reformatting user messages for an active application that the user has focused on. \\n\\nYour goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provide…"
+          },
+          {
+            "address": "0x1010d4280",
+            "value": "USER CLIPBOARD CONTENT:\\nhttps://github.com/acme/widget/pull/912\\n\\nUSER MESSAGE:\\nhere's the PR if you want to take a look"
+          },
+          {
+            "address": "0x1010d4330",
+            "value": "USER CLIPBOARD CONTENT:\\njordan@acme.com\\n\\nUSER MESSAGE:\\nI'll loop him in now"
+          },
+          {
+            "address": "0x1010d43a0",
+            "value": "USER CLIPBOARD CONTENT:\\nHeads up, the staging deploy is blocked on the migration.\\n\\nUSER MESSAGE:\\nsend this to the team"
+          },
+          {
+            "address": "0x1010d4440",
+            "value": "USER CLIPBOARD CONTENT:\\nheads up the deploy is stuck, will ping when its unblocked\\n\\nUSER MESSAGE:\\nmake this more formal"
+          },
+          {
+            "address": "0x1010d4530",
+            "value": "Your task is to reformat the user message.\\n\\nUSER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually\\nfor some unrelated purpose. They are background only.\\n\\n- Default: output USER MESSAGE, reformatted. Nothing else.\\n- Never append c…"
+          },
+          {
+            "address": "0x1010d4730",
+            "value": "the copied text. Do not reach for its adjectives or\\n  phrasing when rewriting a sentence.\\n- Only when USER MESSAGE is a direct instruction to change the copied text\\n  (\\\"make this more formal\\\", \\\"summarise this\\\", \\\"translate this\\\") do you output the\\n  transfo…"
+          },
+          {
+            "address": "0x1010d4830",
+            "value": "rmed copied text instead.\\n- If USER MESSAGE is empty, output nothing.\\n\\n**PRESERVE THE ORIGINAL MESSAGE**\\n- Keep the user's own words. Only change what you are certain improves accuracy.\\n- When in doubt, leave the text unchanged.\\n- Do not paraphrase, re-ord…"
+          },
+          {
+            "address": "0x1010e0640",
+            "value": "Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance."
+          },
+          {
+            "address": "0x1010e3c30",
+            "value": "Selected text included in context"
+          },
+          {
+            "address": "0x1010e7c80",
+            "value": "If enabled, details about your system and active app will be included in the prompt.\\n\\nApplication context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Con…"
+          },
+          {
+            "address": "0x1010e7d80",
+            "value": "text'.\\n\\nClipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'\\n\\nSelected text will grab the text you have highlighted or selected when starting the recording. In your pr…"
+          },
+          {
+            "address": "0x1010e7e80",
+            "value": "ompt refer to it as 'Selected text'."
+          },
+          {
+            "address": "0x1010ea300",
+            "value": "Found selected text: "
+          },
+          {
+            "address": "0x1010eb860",
+            "value": "Could not get selected text "
+          },
+          {
+            "address": "0x1010efa90",
+            "value": "APPLICATION CONTEXT"
+          },
+          {
+            "address": "0x1010efb30",
+            "value": "USER SELECTED TEXT"
+          },
+          {
+            "address": "0x10111b907",
+            "value": "User message"
+          },
+          {
+            "address": "0x101270479",
+            "value": "readPreviousContextFromDisk"
+          },
+          {
+            "address": "0x101270c4d",
+            "value": "removeExtraDeviceContextFromEvent:"
+          },
+          {
+            "address": "0x1012826c0",
+            "value": "contextFromSelection"
+          },
+          {
+            "address": "0x1012826e0",
+            "value": "contextFromClipboard"
+          },
+          {
+            "address": "0x101282700",
+            "value": "contextFromActiveApplication"
+          }
+        ],
+        "normalized_result": [
+          {
+            "address": "0x1010ce210",
+            "value": "The following user message will contain instructions, follow these and do what they say.\\n\\nUse the context in the rest of the message to accomplish whatever the instruction says. "
+          },
+          {
+            "address": "0x1010ce540",
+            "value": "contextFromSelection"
+          },
+          {
+            "address": "0x1010ce560",
+            "value": "contextFromClipboard"
+          },
+          {
+            "address": "0x1010ce580",
+            "value": "contextFromActiveApplication"
+          },
+          {
+            "address": "0x1010d2380",
+            "value": "You are an email formatting specialist. Your task is to transform user messages into professional email format.\\n\\nCRITICAL INSTRUCTION: Your response must ONLY contain the formatted email. Nothing else.\\n\\nEMAIL STRUCTURE REQUIREMENTS:\\n1. Greeting: If the use…"
+          },
+          {
+            "address": "0x1010d4140",
+            "value": "You are an AI assistant tasked with reformatting user messages for an active application that the user has focused on. \\n\\nYour goal is to adapt the message to fit the context of the application and correct any spelling errors based on the vocabulary provide…"
+          },
+          {
+            "address": "0x1010d4280",
+            "value": "USER CLIPBOARD CONTENT:\\nhttps://github.com/acme/widget/pull/912\\n\\nUSER MESSAGE:\\nhere's the PR if you want to take a look"
+          },
+          {
+            "address": "0x1010d4330",
+            "value": "USER CLIPBOARD CONTENT:\\njordan@acme.com\\n\\nUSER MESSAGE:\\nI'll loop him in now"
+          },
+          {
+            "address": "0x1010d43a0",
+            "value": "USER CLIPBOARD CONTENT:\\nHeads up, the staging deploy is blocked on the migration.\\n\\nUSER MESSAGE:\\nsend this to the team"
+          },
+          {
+            "address": "0x1010d4440",
+            "value": "USER CLIPBOARD CONTENT:\\nheads up the deploy is stuck, will ping when its unblocked\\n\\nUSER MESSAGE:\\nmake this more formal"
+          },
+          {
+            "address": "0x1010d4530",
+            "value": "Your task is to reformat the user message.\\n\\nUSER CLIPBOARD CONTENT and USER SELECTED TEXT are things the user copied, usually\\nfor some unrelated purpose. They are background only.\\n\\n- Default: output USER MESSAGE, reformatted. Nothing else.\\n- Never append c…"
+          },
+          {
+            "address": "0x1010d4730",
+            "value": "the copied text. Do not reach for its adjectives or\\n  phrasing when rewriting a sentence.\\n- Only when USER MESSAGE is a direct instruction to change the copied text\\n  (\\\"make this more formal\\\", \\\"summarise this\\\", \\\"translate this\\\") do you output the\\n  transfo…"
+          },
+          {
+            "address": "0x1010d4830",
+            "value": "rmed copied text instead.\\n- If USER MESSAGE is empty, output nothing.\\n\\n**PRESERVE THE ORIGINAL MESSAGE**\\n- Keep the user's own words. Only change what you are certain improves accuracy.\\n- When in doubt, leave the text unchanged.\\n- Do not paraphrase, re-ord…"
+          },
+          {
+            "address": "0x1010e0640",
+            "value": "Super mode intelligently adapts to your current application context to provide the most relevant text formatting and assistance."
+          },
+          {
+            "address": "0x1010e3c30",
+            "value": "Selected text included in context"
+          },
+          {
+            "address": "0x1010e7c80",
+            "value": "If enabled, details about your system and active app will be included in the prompt.\\n\\nApplication context will grab information about the application currently in use and the information present on the screen, in your prompt refer to it as 'Application Con…"
+          },
+          {
+            "address": "0x1010e7d80",
+            "value": "text'.\\n\\nClipboard context will grab the content you copied 3 seconds before starting the recording. In your prompt refer to it as 'Clipboard context'\\n\\nSelected text will grab the text you have highlighted or selected when starting the recording. In your pr…"
+          },
+          {
+            "address": "0x1010e7e80",
+            "value": "ompt refer to it as 'Selected text'."
+          },
+          {
+            "address": "0x1010ea300",
+            "value": "Found selected text: "
+          },
+          {
+            "address": "0x1010eb860",
+            "value": "Could not get selected text "
+          },
+          {
+            "address": "0x1010efa90",
+            "value": "APPLICATION CONTEXT"
+          },
+          {
+            "address": "0x1010efb30",
+            "value": "USER SELECTED TEXT"
+          },
+          {
+            "address": "0x10111b907",
+            "value": "User message"
+          },
+          {
+            "address": "0x101270479",
+            "value": "readPreviousContextFromDisk"
+          },
+          {
+            "address": "0x101270c4d",
+            "value": "removeExtraDeviceContextFromEvent:"
+          },
+          {
+            "address": "0x1012826c0",
+            "value": "contextFromSelection"
+          },
+          {
+            "address": "0x1012826e0",
+            "value": "contextFromClipboard"
+          },
+          {
+            "address": "0x101282700",
+            "value": "contextFromActiveApplication"
+          }
+        ],
+        "confidence": "observed",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "Results depend on Hopper's completed static analysis."
+        ],
+        "locations": [],
+        "evidence_links": [],
+        "analysis_profile": {
+          "provider": {
+            "id": "hopper",
+            "name": "Hopper Disassembler",
+            "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+          },
+          "parameters": {
+            "target_kind": "executable",
+            "target_format": "mach-o",
+            "architecture": "arm64",
+            "available_architectures": [
+              "arm64",
+              "x86_64"
+            ],
+            "loader": {
+              "source": "derived",
+              "argument_count": 5,
+              "arguments_sha256": "3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5"
+            }
+          },
+          "digest": "61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236"
+        }
+      }
+    }
+  }
+}

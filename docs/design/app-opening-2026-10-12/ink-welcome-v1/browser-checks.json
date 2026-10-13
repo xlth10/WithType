@@ -1,0 +1,65 @@
+{
+  "minimum": {
+    "H": 480,
+    "W": 640,
+    "finished": "false",
+    "inkBox": {
+      "h": 238,
+      "w": 416.5,
+      "x": 111.75,
+      "y": 121
+    },
+    "inkOpacity": 1,
+    "matrix": "matrix(1.75, 0, 0, 1.75, -240, -180)",
+    "overflow": false,
+    "phase": "welcome",
+    "ready": "true",
+    "t": 1.8,
+    "uiOpacity": 0
+  },
+  "click": {
+    "H": 480,
+    "W": 640,
+    "finished": "true",
+    "inkBox": {
+      "h": 136,
+      "w": 238,
+      "x": 201,
+      "y": 172
+    },
+    "inkOpacity": 0,
+    "matrix": "none",
+    "overflow": false,
+    "phase": "ready",
+    "ready": "true",
+    "t": 3.2,
+    "uiOpacity": 1
+  },
+  "keyboard": {
+    "finished": "true",
+    "focus": "开始",
+    "inert": false
+  },
+  "reduced": {
+    "H": 480,
+    "W": 640,
+    "finished": "true",
+    "inkBox": {
+      "h": 136,
+      "w": 238,
+      "x": 201,
+      "y": 172
+    },
+    "inkOpacity": 0,
+    "matrix": "none",
+    "overflow": false,
+    "phase": "ready",
+    "ready": "true",
+    "t": 3.2,
+    "uiOpacity": 1
+  },
+  "normalPreview": {
+    "finished": "true",
+    "playbackMs": "3200.5"
+  }
+}

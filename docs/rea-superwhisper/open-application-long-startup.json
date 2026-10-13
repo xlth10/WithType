@@ -1,0 +1,34 @@
+{
+  "request": {
+    "tool": "open_binary",
+    "arguments": {
+      "path": "/private/tmp/rea-superwhisper-input/superwhisper.app",
+      "provider_id": "hopper"
+    },
+    "save": "open-application-long-startup"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\",\"format\":\"mach-o\",\"kind\":\"executable\",\"loaderArgs\":[\"-l\",\"FAT\",\"--aarch64\",\"-l\",\"Mach-O\"],\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\",\"architecture\":\"arm64\"}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper",
+        "format": "mach-o",
+        "kind": "executable",
+        "loaderArgs": [
+          "-l",
+          "FAT",
+          "--aarch64",
+          "-l",
+          "Mach-O"
+        ],
+        "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a",
+        "architecture": "arm64"
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "scope": "Actual App event handler, isolated mock effects; no OS behavior observed",
+  "source": "/Users/outsider/codex_projects/emergence-lab/projects/15-typefree-windows/src/App.jsx",
+  "sha256": "a6add57bd6522d9d4a0e5437b0a84cb0ea1ecdfd4091be0d57c8c58042a7f70e",
+  "handlerStartLine": 753,
+  "findings": {
+    "pasteFailureSkipsClipboardFallback": {
+      "copyAttempts": [],
+      "notices": [
+        {
+          "message": "mock paste denied",
+          "ok": false
+        }
+      ],
+      "history": [
+        {
+          "id": "1791700547114-l4v15",
+          "savedAt": 1791700547114,
+          "text": "audit final text",
+          "time": "audit-time",
+          "intent": "dictation",
+          "ms": 0,
+          "breakdown": "audit-timings",
+          "timings": {},
+          "rawText": "audit raw text",
+          "warning": null,
+          "audioSessionId": null
+        }
+      ],
+      "lastResult": {
+        "text": "audit final text",
+        "ms": 0,
+        "intent": "dictation",
+        "breakdown": "audit-timings"
+      },
+      "pendingFailure": null,
+      "state": "error"
+    },
+    "copyFailureStillReportsCompletion": {
+      "copyAttempts": [
+        "audit final text"
+      ],
+      "notices": [
+        {
+          "message": "已完成",
+          "ok": true
+        }
+      ],
+      "history": [
+        {
+          "id": "1791700547114-fllug",
+          "savedAt": 1791700547114,
+          "text": "audit final text",
+          "time": "audit-time",
+          "intent": "dictation",
+          "ms": 0,
+          "breakdown": "audit-timings",
+          "timings": {},
+          "rawText": "audit raw text",
+          "warning": null,
+          "audioSessionId": null
+        }
+      ],
+      "lastResult": {
+        "text": "audit final text",
+        "ms": 0,
+        "intent": "dictation",
+        "breakdown": "audit-timings"
+      },
+      "pendingFailure": null,
+      "state": "done"
+    },
+    "insertRawCopyOnlyStillClaimsInsertion": {
+      "nativeCalls": [],
+      "result": {
+        "ok": true,
+        "text": "audit original",
+        "intent": "dictation",
+        "timings": {
+          "encodeMs": 0,
+          "asrMs": 0,
+          "textMs": 0,
+          "pasteMs": 0,
+          "audioMs": 0,
+          "stopToReadyMs": 0,
+          "textRequests": 0,
+          "textModels": [],
+          "textFirstTokenMs": null,
+          "reusedSegments": 0,
+          "outputChars": 14,
+          "stopToDeliveredMs": 0
+        },
+        "pasted": false
+      },
+      "copyAttempts": [
+        "audit original"
+      ],
+      "notices": [
+        {
+          "message": "已插入识别原文",
+          "ok": true
+        }
+      ],
+      "history": [
+        {
+          "id": "1791700547115-bsnag",
+          "savedAt": 1791700547115,
+          "text": "audit original",
+          "time": "audit-time",
+          "intent": "dictation",
+          "ms": 0,
+          "breakdown": "audit-timings",
+          "timings": {
+            "encodeMs": 0,
+            "asrMs": 0,
+            "textMs": 0,
+            "pasteMs": 0,
+            "audioMs": 0,
+            "stopToReadyMs": 0,
+            "textRequests": 0,
+            "textModels": [],
+            "textFirstTokenMs": null,
+            "reusedSegments": 0,
+            "outputChars": 14,
+            "stopToDeliveredMs": 0
+          },
+          "rawText": "audit original",
+          "warning": null,
+          "audioSessionId": null,
+          "windowContext": null
+        }
+      ],
+      "lastResult": {
+        "text": "audit original",
+        "ms": 0,
+        "intent": "dictation",
+        "breakdown": "audit-timings"
+      },
+      "pendingFailure": null,
+      "state": "done"
+    }
+  }
+}

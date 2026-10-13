@@ -1,0 +1,41 @@
+{
+  "method": "offline-state-model",
+  "scenarios": [
+    {
+      "scenario": "cancel-before-paste-registration",
+      "source": "src-tauri/src/lib.rs",
+      "sourceLines": [
+        514,
+        547,
+        558
+      ],
+      "sequence": [
+        "cancel_paste(task)",
+        "paste_text registers task",
+        "paste_was_cancelled(task)"
+      ],
+      "actual": false,
+      "expectedForPersistentCancellation": true,
+      "limitation": "Confirms state-loss branch; does not prove Windows IPC scheduling or a real paste."
+    },
+    {
+      "scenario": "overlapping-clipboard-restores",
+      "source": "src-tauri/src/lib.rs",
+      "sourceLines": [
+        574,
+        588,
+        590
+      ],
+      "sequence": [
+        "initial original",
+        "paste A",
+        "paste B before A restore",
+        "restore A skips",
+        "restore B restores A"
+      ],
+      "actual": "dictation A",
+      "expectedForOriginalRestore": "original",
+      "limitation": "Pure text-state model; no Windows clipboard calls or real timing measurements."
+    }
+  ]
+}

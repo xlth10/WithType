@@ -1,0 +1,24 @@
+{
+  "fields": [
+    {
+      "label": "技能名称",
+      "width": 531
+    },
+    {
+      "label": "什么时候使用",
+      "width": 256
+    },
+    {
+      "label": "输出格式",
+      "width": 256
+    },
+    {
+      "label": "整理要求",
+      "width": 256
+    }
+  ],
+  "viewport": {
+    "height": 720,
+    "width": 1060
+  }
+}

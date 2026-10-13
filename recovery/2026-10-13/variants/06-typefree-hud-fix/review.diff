@@ -1,0 +1,156 @@
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -170,16 +170,15 @@
+ 
+ function Overlay({ state, level, intent, phase, onStop, onCancel }) {
+   const label = statusLabel(state, intent, phase);
++  const cancelLabel = state === "recording" ? "取消录音" : state === "processing" ? "取消处理" : "关闭提示";
+   return (
+     <main className="overlay-shell">
+-      <section className={`voice-hud ${state} ${intent || "dictation"}`} aria-label={label} title={label}>
+-        <VoiceMotion state={state} level={level} width={76} height={26} />
+-        {state === "done" && <Check className="hud-symbol success" size={18} weight="bold" />}
+-        {state === "error" && <WarningCircle className="hud-symbol error" size={19} weight="fill" />}
+-        <span className="hud-status">{state === "recording" ? `${INTENT_META[intent]?.label || "口述"}中` : state === "processing" ? phase === "asr" ? "识别中" : "整理中" : state === "done" ? "已完成" : state === "error" ? "请重试" : "就绪"}</span>
+-        <div className="hud-controls">
+-          {state === "recording" && <button onClick={onStop} aria-label="结束录音"><Stop size={15} weight="fill" /></button>}
+-          <button onClick={onCancel} aria-label="取消或关闭"><X size={16} /></button>
++      <section className={`voice-hud ${state} ${intent || "dictation"}`} aria-label="语音录入">
++        <VoiceMotion state={state} level={level} width={76} height={26} feedback />
++        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{label}</span>
++        <div className="hud-controls" role="group" aria-label="录音控制">
++          <div className="hud-control-slot">{state === "recording" && <button type="button" onClick={onStop} aria-label="结束录音" title="结束录音"><Stop size={15} weight="fill" /></button>}</div>
++          <div className="hud-control-slot"><button type="button" onClick={onCancel} aria-label={cancelLabel} title={cancelLabel}><X size={16} /></button></div>
+         </div>
+       </section>
+     </main>
+@@ -601,8 +600,8 @@
+   const [online, setOnline] = useState(false);
+   const [testing, setTesting] = useState(false);
+   const [state, setState] = useState(overlayPreview || "idle");
+-  const [intent, setIntent] = useState("");
+-  const [phase, setPhase] = useState("idle");
++  const [intent, setIntent] = useState(() => !isTauri() && overlayPreview && INTENT_META[previewParams.get("intent")] ? previewParams.get("intent") : "");
++  const [phase, setPhase] = useState(() => !isTauri() && overlayPreview ? ["asr", "classify", "text"].includes(previewParams.get("phase")) ? previewParams.get("phase") : overlayPreview === "processing" ? "asr" : "idle" : "idle");
+   const [audioLevel, setAudioLevel] = useState(overlayPreview === "recording" ? Math.max(0, Math.min(1, Number(previewParams.get("level") ?? 0.55) || 0)) : 0);
+   const [notice, setNotice] = useState(null);
+   const [lastResult, setLastResult] = useState(null);
+@@ -1420,8 +1419,14 @@
+         level={audioLevel}
+         intent={intent}
+         phase={phase}
+-        onStop={() => emit("stop-recording")}
+-        onCancel={() => emit("cancel-recording")}
++        onStop={() => {
++          if (isTauri()) return emit("stop-recording");
++          setPhase("asr"); setState("processing");
++        }}
++        onCancel={() => {
++          if (isTauri()) return emit("cancel-recording");
++          setState("idle"); setPhase("idle");
++        }}
+       />
+     );
+   }
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -212,8 +212,6 @@
+ .preview-box.error p { color: #b3352f; }
+ 
+ .voice-motion { display: block; width: 60px; height: 20px; transition: opacity .13s ease; }
+-.voice-hud:hover .voice-motion, .voice-hud:hover .hud-symbol, .voice-hud:hover .hud-badge { opacity: .1; }
+-.voice-hud:hover .hud-controls { opacity: 1; }
+ .hud-controls button:hover { background: #efefed; }
+ 
+ @media (max-width: 760px) {
+@@ -355,17 +353,15 @@
+ html[data-surface=overlay], html[data-surface=answer], html[data-surface=overlay] body, html[data-surface=answer] body,
+ html[data-surface=overlay] #root, html[data-surface=answer] #root { width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; background: transparent; }
+ .overlay-shell { display: grid; place-items: center; background: transparent; position: fixed; inset: 0; width: 100%; height: 100%; padding: 10px; }
+-.voice-hud { position: relative; place-items: center; overflow: hidden; width: 176px; max-width: 100%; height: 54px; border-radius: 27px; display: flex; align-items: center; justify-content: center; gap: 12px; background: #fafbf6; border: 1px solid #dfe3d7; box-shadow: 0 2px 6px #242c221c; animation: ink-appear .16s ease-out; }
++.voice-hud { position: relative; place-items: center; overflow: hidden; width: 176px; max-width: 100%; height: 54px; border-radius: 27px; display: flex; align-items: center; justify-content: center; background: #fafbf6; border: 1px solid #dfe3d7; box-shadow: 0 2px 6px #242c221c; animation: ink-appear .16s ease-out; }
+ .voice-motion { flex: 0 0 auto; }
+-.hud-status { font-size: 12px; font-weight: 550; color: #62695b; white-space: nowrap; }
+-.hud-symbol { position: absolute; left: 35px; top: 17px; }
+-.hud-symbol.success { color: #526844; }
+-.hud-symbol.error { color: #a64b2f; filter: none; }
++.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; pointer-events: none; }
+ .voice-hud:hover { background: #fafbf6; box-shadow: 0 2px 6px #242c221c; backdrop-filter: none; }
+-.voice-hud:hover .voice-motion, .voice-hud:hover .hud-status, .voice-hud:hover .hud-symbol,
+-.voice-hud:focus-within .voice-motion, .voice-hud:focus-within .hud-status, .voice-hud:focus-within .hud-symbol { opacity: .06; }
+-.hud-controls { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .12s ease; gap: 12px; }
+-.voice-hud:focus-within .hud-controls { opacity: 1; }
++.hud-controls { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding-inline: 12px; opacity: 0; pointer-events: none; transition: opacity .12s ease; }
++.hud-control-slot { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; }
++.voice-hud:focus-within .hud-controls { opacity: 1; pointer-events: auto; }
++@media (hover: hover) { .voice-hud:hover .hud-controls { opacity: 1; pointer-events: auto; } }
++@media (hover: none) { .hud-controls { opacity: 1; pointer-events: auto; } }
+ .hud-controls button { display: grid; place-items: center; border: 1px solid rgba(0,0,0,.08); background: rgba(255,255,255,.92); color: #353535; cursor: pointer; width: 34px; height: 34px; border-radius: 50%; box-shadow: none; }
+ @keyframes ink-appear { from { opacity: 0; } to { opacity: 1; } }
+ .answer-shell { background: transparent; width: 100%; height: 100%; padding: 10px; }
+--- a/src/voice/VoiceMotion.jsx
++++ b/src/voice/VoiceMotion.jsx
+@@ -1,8 +1,8 @@
+ import { useEffect, useRef } from "react";
+-import { advanceEngine, createEngine, inkBeads } from "./motion.js";
++import { advanceEngine, createEngine, hudBeads, inkBeads } from "./motion.js";
+ 
+ /** The same ink geometry at every size, redrawn at the current display DPR. */
+-export function VoiceMotion({ state, level, width = 60, height = 20 }) {
++export function VoiceMotion({ state, level, width = 60, height = 20, feedback = false }) {
+   const canvasRef = useRef(null);
+   const input = useRef({ mode: state, level });
+   input.current = { mode: state, level };
+@@ -22,16 +22,23 @@
+       context.clearRect(0, 0, 60, 20);
+       advanceEngine(engine, input.current, previous === undefined ? 0 : (now - previous) / 1000, reduced.matches);
+       previous = now;
+-      if (input.current.mode !== "error" && input.current.mode !== "done") {
+-        for (const shape of inkBeads(engine)) {
+-          context.beginPath(); context.ellipse(shape.cx, shape.cy, shape.rx, shape.ry, 0, 0, Math.PI * 2);
+-          context.fillStyle = shape.fill; context.fill();
++      const shapes = feedback ? hudBeads(engine) : ["error", "done"].includes(input.current.mode) ? [] : inkBeads(engine);
++      for (const shape of shapes) {
++        context.beginPath();
++        if (shape.type === "half-disc") {
++          const start = shape.side < 0 ? Math.PI / 2 : -Math.PI / 2;
++          context.arc(shape.cx, shape.cy, shape.rx, start, start + Math.PI);
++          context.closePath();
++        } else {
++          context.ellipse(shape.cx, shape.cy, shape.rx, shape.ry, 0, 0, Math.PI * 2);
+         }
++        if (shape.fill) { context.fillStyle = shape.fill; context.fill(); }
++        if (shape.stroke) { context.strokeStyle = shape.stroke; context.lineWidth = shape.lineWidth; context.stroke(); }
+       }
+       frame = requestAnimationFrame(draw);
+     };
+     frame = requestAnimationFrame(draw);
+     return () => cancelAnimationFrame(frame);
+-  }, [width, height]);
++  }, [width, height, feedback]);
+   return <canvas className="voice-motion" ref={canvasRef} style={{ width, height }} aria-hidden="true" />;
+ }
+--- a/src/voice/motion.js
++++ b/src/voice/motion.js
+@@ -15,6 +15,7 @@
+ export function createEngine() {
+   return {
+     energy: 0, energyVelocity: 0, processing: 0, processingVelocity: 0, done: 0, doneVelocity: 0,
++    error: 0, errorVelocity: 0, reducedMotion: false,
+     phase: 0, mode: "idle", sampleClock: 0, sampleTargets: [0, 0, 0],
+     sampleValues: [0, 0, 0], sampleVelocities: [0, 0, 0],
+   };
+@@ -42,11 +43,13 @@
+   const step = dt / steps;
+   if (engine.mode !== "recording" && input.mode === "recording") engine.sampleClock = 0.055;
+   engine.mode = input.mode;
++  engine.reducedMotion = reducedMotion;
+   for (let index = 0; index < steps; index += 1) {
+     const energyTarget = input.mode === "recording" ? clamp(input.level) : 0;
+     spring(engine, "energy", "energyVelocity", energyTarget, energyTarget > engine.energy ? 0.16 : 0.31, step);
+     spring(engine, "processing", "processingVelocity", input.mode === "processing" ? 1 : 0, 0.33, step);
+     spring(engine, "done", "doneVelocity", input.mode === "done" ? 1 : 0, 0.25, step);
++    spring(engine, "error", "errorVelocity", input.mode === "error" ? 1 : 0, 0.22, step);
+     if (input.mode === "recording") {
+       // A visual sample is a short-time energy window, never an individual PCM sample.
+       engine.sampleClock += step;

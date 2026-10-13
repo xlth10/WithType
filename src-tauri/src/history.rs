@@ -206,7 +206,7 @@ mod platform {
             .duration_since(UNIX_EPOCH)
             .map_err(|e| e.to_string())?
             .as_secs();
-        let path = directory.join(format!("typefree-history-{stamp}.json"));
+        let path = directory.join(format!("withtype-history-{stamp}.json"));
         fs::write(
             &path,
             serde_json::to_vec_pretty(&entries).map_err(|e| e.to_string())?,

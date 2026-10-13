@@ -1,0 +1,128 @@
+{
+  "nav": [
+    {
+      "class": "",
+      "current": null,
+      "name": "概览",
+      "pressed": null
+    },
+    {
+      "class": "",
+      "current": null,
+      "name": "语音模型",
+      "pressed": null
+    },
+    {
+      "class": "",
+      "current": null,
+      "name": "文字整理",
+      "pressed": null
+    },
+    {
+      "class": "",
+      "current": null,
+      "name": "个人词库",
+      "pressed": null
+    },
+    {
+      "class": "",
+      "current": null,
+      "name": "文字模型",
+      "pressed": null
+    },
+    {
+      "class": "",
+      "current": null,
+      "name": "技能",
+      "pressed": null
+    },
+    {
+      "class": "active",
+      "current": null,
+      "name": "快捷键",
+      "pressed": null
+    },
+    {
+      "class": "",
+      "current": null,
+      "name": "历史记录",
+      "pressed": null
+    }
+  ],
+  "smallText": [
+    {
+      "color": "rgb(120, 119, 116)",
+      "fontSize": "8px",
+      "text": "说完后输入到当前窗口。"
+    },
+    {
+      "color": "rgb(32, 32, 32)",
+      "fontSize": "11px",
+      "text": "Ctrl + Alt + Space"
+    },
+    {
+      "color": "rgb(120, 119, 116)",
+      "fontSize": "8px",
+      "text": "口述问题，回答只显示在卡片中。"
+    },
+    {
+      "color": "rgb(32, 32, 32)",
+      "fontSize": "11px",
+      "text": "Ctrl + Alt + Shift + Space"
+    },
+    {
+      "color": "rgb(120, 119, 116)",
+      "fontSize": "8px",
+      "text": "使用绑定的动作，不改变普通口述。"
+    },
+    {
+      "color": "rgb(32, 32, 32)",
+      "fontSize": "11px",
+      "text": "Ctrl + Alt + Shift + T"
+    },
+    {
+      "color": "rgb(120, 119, 116)",
+      "fontSize": "8px",
+      "text": "关闭后复制到剪贴板；随便问始终只显示卡片。"
+    },
+    {
+      "color": "rgb(120, 119, 116)",
+      "fontSize": "8px",
+      "text": "实验功能：会增加一次文字模型请求。关掉后仍可在第三个入口选择语音命令。"
+    },
+    {
+      "color": "rgb(120, 119, 116)",
+      "fontSize": "8px",
+      "text": "随当前 Windows 用户登录启动本程序。"
+    }
+  ],
+  "toggles": [
+    {
+      "disabled": false,
+      "height": 21,
+      "label": null,
+      "labelledby": null,
+      "pressed": "true",
+      "text": "",
+      "width": 36
+    },
+    {
+      "disabled": true,
+      "height": 21,
+      "label": null,
+      "labelledby": null,
+      "pressed": "false",
+      "text": "",
+      "width": 36
+    },
+    {
+      "disabled": true,
+      "height": 21,
+      "label": null,
+      "labelledby": null,
+      "pressed": "false",
+      "text": "",
+      "width": 36
+    }
+  ]
+}

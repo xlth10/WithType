@@ -1,0 +1,82 @@
+[
+  {
+    "path": "src/App.jsx",
+    "before": "afb5d133df5bcd3790996f00aed21c1c477434c1dfe6903d567818aa105d4191"
+  },
+  {
+    "path": "src/components/SkillEditor.jsx",
+    "before": "a50be8f3bc451218bfbc966024bd78be54dea4960d0ee84e02e093f14fa86373"
+  },
+  {
+    "path": "src/components/TextSettings.jsx",
+    "before": "57f05fa16236057469a8dca8074df7f1e61ba089ae81026608292c443a3cc06d"
+  },
+  {
+    "path": "src/components/VocabularySettings.jsx",
+    "before": "8d7deb4e51d17ffd8c2830cadaf95dff9e5f3439c09335ddbf8c96b53da64b16"
+  },
+  {
+    "path": "src/components/AnswerCard.jsx",
+    "before": "111b21867e5b3d3ab93772558425bce6b6701c0a513c669fed0bc5eee6a335bd"
+  },
+  {
+    "path": "src/components/HistoryCorrection.jsx",
+    "before": "5dd8b19a92054388cf33455736e81ac68be248ebf8cf3f3641179e9fc3297688"
+  },
+  {
+    "path": "src/text/builtinSkills.js",
+    "before": "b49548c6d70a96bec352579c2eb67d85a274a42dde6e1ddf7f1411cc75d6abf1"
+  },
+  {
+    "path": "src/text/skillScenarios.js",
+    "before": "fa778df001ca3e3c36cac115f71b7ec37cd637e9f471fb383dfb8669475004b2"
+  },
+  {
+    "path": "src/text/skillValidation.js",
+    "before": "8619f0b58c357aedbd64b9387912685e838cc939a4fc6d8829a1d865b89ce60d"
+  },
+  {
+    "path": "src-tauri/src/skills.rs",
+    "before": "87faa4f34c9327357745894d085f9d2dc1a43d64532a9f7f30312f7637a0584e"
+  },
+  {
+    "path": "src/text/settingsMigration.js",
+    "before": "bb0900676261724c0c4cfeb28c677e87f09cefe2eeff71f95714b8e2a48254b8"
+  },
+  {
+    "path": "src/dictation/pipeline.js",
+    "before": "455f2c14bf361afd062ead3e2a846f0e0d87ccad3b998a1853ba28877e504ff4"
+  },
+  {
+    "path": "src-tauri/src/lib.rs",
+    "before": "48d0135cc588de4d4402a5547489c378611e607ba464474e574737a8dbf37840"
+  },
+  {
+    "path": "src-tauri/tauri.conf.json",
+    "before": "336f5983ea25cfb0d3cfd01f5de17bcd8b2835c0d5fd25430807750e0fceb221"
+  },
+  {
+    "path": "index.html",
+    "before": "01c23d422a33ca41fefeedf55a67959e849a06d6bcd6f4de4b94abd01e9f8925"
+  },
+  {
+    "path": "tests/desktop-ui-contract.test.mjs",
+    "before": "732feaed43228b44633cbcde019be9d93de06eed2211e667da6dbffaa0afa970"
+  },
+  {
+    "path": "tests/skill-schema.test.mjs",
+    "before": "d4bd237b56868de41ae5da0bf779525c33d0a257d361783dfdce085863621b49"
+  },
+  {
+    "path": "tests/pipeline.test.mjs",
+    "before": "e4973c01d578fafebd11d33b6f41214bdfa061c437cf134b9d5436c68c4abdf6"
+  },
+  {
+    "path": "README.md",
+    "before": "99f7b19671c83ad18d80d69cfc9fb0bc538db6a7ad8b8ed9c637800e150a24be"
+  },
+  {
+    "path": "src/ui/brand.js",
+    "before": null
+  }
+]

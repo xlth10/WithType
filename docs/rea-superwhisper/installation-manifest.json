@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-09",
+  "rea_package_version": "6.0.0",
+  "skill_metadata_version": "33",
+  "catalog_digest": "4c5f67d076baf821b5cb6d6fb2cc0f6c274e96b627b85b892577760a6f71ab1a",
+  "actual_mcp_tool_count": 139,
+  "node_version": "24.19.0",
+  "hopper_version": "6.6.0-demo",
+  "hopper_python_version": "3.12.15",
+  "scoped_doctor_healthy": true,
+  "target_version": "2.19.2",
+  "target_architecture": "arm64",
+  "target_binary_sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a",
+  "dmg_sha256": "08712e6370a7b33adf877a0550ce061b0a48989a2dc0c334b792aaaeca9a29da",
+  "registration_path": "/Users/outsider/.codex/config.toml",
+  "installed_skill": "/Users/outsider/.agents/skills/reverse-engineer-anything/SKILL.md",
+  "scoped_doctor_limit": "Registration and prerequisite checks; not a successful decompilation probe.",
+  "investigation_timeout_adapter": {
+    "original_module_sha256": "1c1884468242da774dd95c247ce5b3530e1d6ab57054d9baaada9ceacd8adca6",
+    "default_ms": 120000,
+    "investigation_ms": 300000,
+    "installed_files_modified": false
+  }
+}

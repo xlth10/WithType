@@ -1,5 +1,17 @@
 # Typefree Windows 复现研究
 
+## 2026-10-12 后台可用性实施决定
+
+用户已授权按 [Typeless 后台调查](docs/typeless-background-lifecycle-research.md) 的方向优化。本轮先由原生宿主监管现有语音页面，逐步解耦任务生命周期，不整体重写录音流水线。
+
+- Rust 保存控制器代次、就绪状态、命令确认与当前任务身份；快捷键、托盘与 HUD 经同一入口调度。页面订阅完成且配置、历史、词库载入后才就绪。未就绪明确反馈，已送达的操作不自动重放，避免重复录音或投递。
+- 原生定时探测页面响应，超时或页面重新载入时撤销旧代次，取消旧任务的文字/投递并保留已采集音频。恢复有次数和时间窗口限制，明确退出停止监管，不无限重载。
+- Windows 电源/用户会话事件由原生消息窗口接收；睡眠或锁屏中止当前任务，解锁/唤醒后验证控制器与热键。设备错误沿用现有保存/重试路径；不自动延续被中断的录音，也不占用麦克风待机。
+- 登录启动命令使用明确标记，已完成语音模型配置时静默进入托盘；首次配置、手动打开和托盘设置显示主界面。读取系统禁用启动项的状态，应用启动时不自行重新启用用户禁用的项目。
+- 增加原生状态机和前端异步入口测试，覆盖旧页面迟到确认、命令不重放、准备失败、恢复次数限制、睡眠去重与退出。Mac 自动验证与 Windows 编译检查不等同于长时间闲置、真实睡眠、WebView2 故障的实机验收。
+
+平台一手依据：[WM_POWERBROADCAST](https://learn.microsoft.com/en-us/windows/win32/power/wm-powerbroadcast)、[WTSRegisterSessionNotification](https://learn.microsoft.com/en-us/windows/win32/api/wtsapi32/nf-wtsapi32-wtsregistersessionnotification)、[WebView2 process model](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/process-model)。本轮不设置系统服务或阻止 Windows 睡眠。
+
 日期：2026-09-24
 
 ## 研究问题
@@ -85,45 +97,56 @@
 
 用户已选通用 OpenAI 兼容 WAV 接口：实现固定使用 16 kHz PCM16 WAV，不假设 M4A/AAC、词汇上下文或额外并发额度。WASAPI 共享采集不等价于浏览器的回声消除/降噪，需用实际设备录音比较；原生采集不能直接推导为识别更准。未声称尚未测量的性能提升。
 
+## 2026-10-09 语音 Skill 案例调研
 
-## 2026-10-10 Windows 界面与 Skill 使用流程修订
+针对现有技能使用不成熟的问题，核对了本项目源码，以及 Superwhisper、闪电说、Aqua、Wispr Flow、VoiceInk、OpenWhispr、Windows Voice Access 和 Agent Skills 的一手资料。建议先补明确调用、场景与输入契约、样例、选区编辑和恢复闭环，工具执行另设路径。公开功能与实验功能、平台差异、设计推论均分别标明；本次未实施产品变更或完成效果实测。
 
-用户要求优化主界面、墨珠 HUD、随便问卡片，并重新梳理 Skill 的场景和使用流程。当前独立仓库基线为 9d2fd56。
+完整结论见 [语音 Skill 调研](docs/voice-skills-research.md)，外部案例的具体证据见 [案例笔记](docs/voice-skill-cases-notes.md)。
 
-### 当前证据与决定
+## 2026-10-11 长文完整性与低延迟整理实施
 
-- 本轮浏览器截图确认：主界面和技能页大量使用 8–12 px 字号；技能详情优先展示提示词，缺少输入示例、使用场景和执行入口；问答卡片的正文可用高度偏小。证据与截图见 `docs/design/windows-ui-skills-2026-10-10.md`。
-- 源码确认：HUD 当前为 88×46，与原墨珠 176×54 基线不一致；HTML 根元素仍有 320px 最小宽度。HUD 按完整屏幕高度定位而没有避开任务栏；每次状态变化重新跟随鼠标；问答使用自身 current_monitor，可能留在错误的屏幕。
-- 使用现有墨珠引擎作为视觉来源，统一暖纸底色、深墨色、圆角和清晰的无衬线文字层级；无需新增品牌素材或外部字体依赖。
-- 浮窗几何由 Rust 统一计算：设计尺寸为逻辑像素，按目标显示器 DPI 转物理像素；使用工作区避开任务栏；会话内固定目标显示器，HUD 底部居中。原墨珠可见区域 176×54，额外透明边距容纳阴影。
-- Skill 是把用户口述整理为特定结果的文本模板。界面明确区分一次使用、动作快捷键绑定、日常口述持续使用；保留既有配置。场景示例先覆盖现有邮件、汇报、会议和开发需求；所有技能均可在保存或绑定前试用。
-- 技能页一次使用在结果卡片查看；动作快捷键的 Skill 允许选择输入光标处或先在结果卡片查看；普通口述的既有上屏行为保持；模型失败时不把技能指令当正文上屏。
+用户已授权按 Typeless 对照研究的方向优化。研究依据为 [机制与差距](/Users/outsider/codex_projects/emergence-lab/projects/15-withtype/docs/typeless-performance-lessons.md) 与 [文字路径核查](/Users/outsider/codex_projects/emergence-lab/projects/15-withtype/docs/typefree-text-latency-code-notes.md)。本次进入实现前的决定：
 
-### 验证边界
+- 首先保证全文覆盖，普通整理/翻译超长输入按语义边界分段；需要全文规划的技能、问答与命令超限明确失败或回退原文，禁止静默裁尾。
+- 补独立停止后墙钟计时、分类与文字请求统计；普通整理允许快速模型优先，失败与分段共享阶段总预算。保留普通口述原文回退、取消和单次最终投递。
+- ASR 复用 HTTP Client；继续采用用户已选的 WAV 接口和串行 ASR，不引入厂商私有推理参数、预测输出或并行模型竞速。
+- 将已有 SSE 扩展为文字整理预览，预览不直接写入目标应用；流不完整、模型长度停止与输出超限作为失败处理，不能把半篇当成功。
+- 稳定段提前整理作为可选能力，默认关闭并说明会增加请求；仅普通智能整理、无自动意图分类时适用。保留尾段、编号、原文与缓存一致性检查；复杂 skill 与翻译整条任务不使用这一缓存。
+- 本轮仅处理录音文本与已有应用身份，不增加目标输入框、剪贴板或屏幕上下文上传。上下文采集契约另行设计。
 
-本机可以验证前端不同窗口尺寸、布局/键盘交互、DPI/多屏几何换算代码审查和 Mac Rust 编译。Windows 原生透明窗口、任务栏、焦点和跨屏 DPI 必须在 Windows 10/11 复验；不能仅凭浏览器截图宣称 Windows 实机通过。
+验证使用本地可控制的假服务/注入式流水线，覆盖超限保真、分段失败、共享预算、迟到与取消、提前整理复用及流式截断。真实模型吞吐、整理质量和 Windows 设备/投递效果仍须实机测量；自动检查不作固定倍数提速声明。
 
-## 2026-10-10 图标与模型配置补充
+## 2026-10-11 输入交互与卡片定位实施
 
-用户要求重构应用图标、替换问答卡片单珠标识、补全 Windows 失败处理方案，并把两类模型合到“模型配置”。随后指定用户上传的三颗墨珠与流动笔迹图像作为新图标依据。
+用户明确选择：卡片优先出现在输入光标附近；无法取得输入光标时，在鼠标所在屏幕底部居中。并授权落实此前[交互审计](/Users/outsider/codex_projects/emergence-lab/projects/15-withtype/docs/voice-input-interaction-audit.md)中的投递和恢复方案。
 
-- 保留用户参考的墨珠、前行方向和笔迹；减少飞溅、纹理与复杂高光，使用当前暖纸/墨色，重建几何 SVG 并导出 Windows 多尺寸 PNG/ICO。图标探索、用户修订与素材来源单独记录，不使用 Typefree 原版品牌资源。
-- 问答卡片和侧栏使用同一 AppIcon，原生窗口/托盘/安装包同步切换到版本化资源，旧文件保留。
-- 单页两个分区，合并导航和使用路径；底层 asr/text 配置字段、服务地址与凭据项独立，旧配置无需迁移。测试状态随参数/密钥更新失效，浏览器预览不伪报真实连接通过。
-- 给全部既有 Windows 验收项和新增 UI 项编号，失败处理明确现场排查、源码定位与复验标准；原生 Windows 验收仍由实机证据判定。
+- 定位按 Windows UIA TextPattern2 活动 caret 与 Win32 GUITHREADINFO 系统 caret 获取，不把鼠标或输入框矩形冒充输入光标。屏幕使用工作区和 DPI，优先下方、空间不足向上、边缘限制；同一张卡片更新内容保持初始锚点。
+- 录音开始捕获目标控件身份；投递前校验同一目标、可编辑性与焦点。不可编辑、变化或无法确认时复制并显示可恢复的结果卡片，不把 SendInput 返回计数当成文字已输入。
+- 默认完成后保留正文在剪贴板，取消原有纯文本恢复线程；明确这会替换系统剪贴板内容，不提供会损坏多格式内容的部分恢复。用户在投递过程中主动复制的新内容优先，粘贴与复制通过同一串行路径执行。
+- 取消状态覆盖原生登记前阶段，已取消 ID 不得因登记重新激活；发送按键前等待用户修饰键释放，并再次检查目标与取消。请求重试/历史重转写默认只生成可回看结果，显式重新输入另选目标。
+- 统一记录结果去处、准确的复制反馈与失败恢复；从保留历史恢复最近结果，提供直接复制上次结果入口。保留现有问答卡片、命令失败不输入原命令、迟到结果过滤与词汇观察保护。
+- 本轮不引入任意系统工具、批量文件操作、屏幕/剪贴板内容上传或厂商私有推理参数。选区编辑等进一步的模型上下文能力与外部动作不是修复投递所需的隐含行为。
 
-## 2026-10-10 桌面前端一致性与命名
-
-用户要求网页前端在 Windows 桌面完整复刻，显示名统一为 `typefree` 并提交推送。源码审查确认两端共用入口/CSS；系统字体及主窗边框扣除会改变文本度量与内容区尺寸。使用官方 Noto CJK Sans2.004 字体（SIL OFL，原字形保留），网页与 WebView2 共用离线 WOFF2；主窗按内容区设计尺寸加边框再钳制工作区，所有窗固定浅色/1.0 缩放。新增一致性契约与 DPI 几何检查。
-
-用户界面、原生标题栏/托盘和产品名统一 `typefree`；原应用标识、存储和凭据保留以避免数据迁移。当前宿主机为 macOS，构建/契约/逻辑检查不能替代 Windows 实机透明、DPI 和字体渲染验收。
+一手接口依据：[GetCaretRange](https://learn.microsoft.com/en-us/windows/win32/api/uiautomationclient/nf-uiautomationclient-iuiautomationtextpattern2-getcaretrange)、[GetBoundingRectangles](https://learn.microsoft.com/en-us/windows/win32/api/uiautomationclient/nf-uiautomationclient-iuiautomationtextrange-getboundingrectangles)、[GetGUIThreadInfo](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getguithreadinfo)、[SendInput](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput)。退化文本范围可能没有矩形，光标获取失败须正常回退；实际 Windows 浏览器/富文本应用、管理员窗口和混合 DPI 行为仍须实机验收。
 
 
-## 2026-10-12 快捷短语
+## 2026-10-12 前端色彩与字体基准
 
-用户要求保存一段自定义文字（例如手机号），通过独立快捷键直接填入当前输入框。
+用户报告此前导入 Windows 后与 Mac 色彩不同，并明确选择“以本机 Type 最新版为准，同步色彩和字体，保留当前交互”。参考目录 `/Users/outsider/SEVB/Type` 仅作为只读输入。
 
-- 源码依据：`src-tauri/src/lib.rs` 的全局快捷键注册、配置保存和剪贴板投递已经具备所需能力；扩展可选的第四个入口，不改变录音处理流程。
-- 第一版保存一条短语，包含名称、原样内容与可选快捷键；旧配置默认不绑定，避免占用用户现有组合键。内容通过已有本地配置保存，不发给模型或进入历史。
-- 输入前等待组合键修饰键松开，目标窗口改变时停止；投递共用已有 Ctrl+V 与剪贴板恢复机制。共享剪贴板租约防止语音和短语并发输入损坏备份。
-- 捕获与正常热键相互隔离，支持冲突提示、失败保留旧键、解除短语绑定和重启恢复。浏览器预览只验证界面与配置，Windows 全局输入仍需实机验收。
+- 确认存在不同源码色板：本项目沿用 `vibevoice-windows` 的白/暖灰；参考 Type 的表面为 `#fcfcf9`、工作区 `#f8f9f4`、侧栏 `#efefe9`、文字 `#282c27`。这是可确认的版本差异，不能直接认定为历史 Windows 色差的唯一原因。
+- 同步当前组件适用的颜色、字体家族和基础文字规格，保留现有窗口尺寸、页面组件、卡片定位和投递行为。使用参考项目随包 Noto Sans SC Sans2.004 可变 WOFF2，保留官方版权、OFL 1.1 许可和哈希信息，不依赖在线字体。
+- 固定 HTML/CSS 与三种 Tauri 窗口的浅色主题，明确主窗与卡片底色、保留 HUD 透明背景；保留系统强制高对比模式。
+- 建立可携带的色板、字体及源码/构建哈希基准；核对生产字体与源码字节一致，并检查实际浏览器计算色值及 HUD 透明背景。
+- 字形文件一致不等于屏幕像素完全一致：不同系统光栅化、DPI、显示器色彩管理与缺失字符回退仍需 Windows 实机核对。
+
+接口依据：[Tauri window configuration](https://v2.tauri.app/reference/config/#windowconfig)、[CSS color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/color-scheme)、[WebView2 PreferredColorScheme](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2profile.preferredcolorscheme)。当前锁定 Tauri 2.11.6 / Wry 0.55.1 源码同时确认了系统主题默认值与 WebView2 配色映射。
+
+
+### 已定稿进入动画接入生产 · 2026-10-13
+
+用户已确认 C 圆形墨珠落纸、湿墨成字与自定义欢迎语符合预期，要求确认 Windows 复现后提交；随后明确调整为「暂时不验证，代码通过测试即可」。用户随后明确将动画和欢迎语合入新的正式目录 projects/15-withtype，而不恢复旧 Type 作为正式版本。新正式版此前没有进入动画，C 只在旧 Type 文档预览，故提交前必须接入生产。保留新正式版其它语音输入功能；现有 Windows 主窗为 1060×720、最小 860×620，额外核验 640×480 的浏览器构图，使用 Vite 构建的同一 React 前端、离线 Noto 字体和 WebView2。当前 Mac 没有可用 Windows GUI/VM；GitLab origin 不执行现有 GitHub Actions，不能将源码/构建检查表述为实机验证。
+
+方案：将项目自行绘制的纸场与字形距离场提取为共享 ES module，正式 App 与 C 预览共用同一渲染器；保留 3.6 秒、初始正圆、3倍墨画布和2倍纸纹采样、同一几何参数。所需运动值由第一方标准插值、二次加速、衰减振荡、对数缩放与 xorshift32 实现，生产不导入仅非商业的 OneTake 原库。字体与保存配置就绪后播放；保留打断、减少动态、焦点、隐藏结束与托盘重新打开，释放 RAF 与画布缓存。保留 A/B/C1 及批准 C 的历史基线。
+
+本轮提交门槛：运动和播放器单测、完整前端单测、Vite 生产构建、可执行的本机 Rust 测试，以及批准 C 和共享绘制器的关键帧/主窗交互核对。Windows 实机的 DPI、CSP 和冷启动另列待验收。

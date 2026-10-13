@@ -1,0 +1,76 @@
+{
+  "request": {
+    "tool": "procedure_pseudo_code",
+    "arguments": {
+      "procedure": "0x100613b40"
+    },
+    "save": "context-section-format"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":\"    r1 = arg1;\\n    r0 = arg0;\\n    r31 = r31 - 0x50;\\n    var_30 = r24;\\n    decomp_var_28 = r23;\\n    var_20 = r22;\\n    decomp_var_18 = r21;\\n    var_10 = r20;\\n    decomp_var_8 = r19;\\n    saved_fp = r29;\\n    decomp_var_m8 = r30;\\n    r19 = arg4;\\n    r21 = arg3;\\n    if ((arg2 & 0xff) == 0x1) {\\n            var_40 = 0xa;\\n            decomp_var_38 = 0xe100000000000000;\\n            Swift.String.append(&var_40, {r0:r1});\\n            Swift.String.append(&var_40, \\\":\\\\n\\\");\\n            r0 = Swift.String.append(&var_40, {r21:r19});\\n            r20 = &var_40;\\n            r0 = 0xa0a;\\n            r1 = 0xe200000000000000;\\n    }\\n    else {\\n            var_40 = 0x3c;\\n            decomp_var_38 = 0xe100000000000000;\\n            Swift.String.append(&var_40, {r0:r1});\\n            Swift.String.append(&var_40, \\\">\\\");\\n            Swift.String.append(&var_40, {r21:r19});\\n            Swift.String.append(&var_40, \\\"</\\\");\\n            r0 = Swift.String.append(&var_40, {r0:r1});\\n            r20 = &var_40;\\n            r0 = 0xa0a3e;\\n            r1 = 0xe300000000000000;\\n    }\\n    Swift.String.append(r20, {r0:r1});\\n    r0 = var_40;\\n    return r0;\\n\",\"evidence_id\":\"ev_fd1e08a440622309ec366da293ae63c7588f1c34fab606445bd327e5d7d45add\",\"evidence\":{\"evidence_id\":\"ev_fd1e08a440622309ec366da293ae63c7588f1c34fab606445bd327e5d7d45add\",\"subject\":{\"name\":\"superwhisper\",\"digest\":{\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\"},\"format\":\"mach-o\",\"architecture\":\"arm64\",\"local_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\"},\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"predicate_type\":\"rea.analysis\",\"operation\":\"procedure_pseudo_code\",\"parameters\":{\"procedure\":\"0x100613b40\",\"document\":null},\"raw_result\":\"    r1 = arg1;\\n    r0 = arg0;\\n    r31 = r31 - 0x50;\\n    var_30 = r24;\\n    decomp_var_28 = r23;\\n    var_20 = r22;\\n    decomp_var_18 = r21;\\n    var_10 = r20;\\n    decomp_var_8 = r19;\\n    saved_fp = r29;\\n    decomp_var_m8 = r30;\\n    r19 = arg4;\\n    r21 = arg3;\\n    if ((arg2 & 0xff) == 0x1) {\\n            var_40 = 0xa;\\n            decomp_var_38 = 0xe100000000000000;\\n            Swift.String.append(&var_40, {r0:r1});\\n            Swift.String.append(&var_40, \\\":\\\\n\\\");\\n            r0 = Swift.String.append(&var_40, {r21:r19});\\n            r20 = &var_40;\\n            r0 = 0xa0a;\\n            r1 = 0xe200000000000000;\\n    }\\n    else {\\n            var_40 = 0x3c;\\n            decomp_var_38 = 0xe100000000000000;\\n            Swift.String.append(&var_40, {r0:r1});\\n            Swift.String.append(&var_40, \\\">\\\");\\n            Swift.String.append(&var_40, {r21:r19});\\n            Swift.String.append(&var_40, \\\"</\\\");\\n            r0 = Swift.String.append(&var_40, {r0:r1});\\n            r20 = &var_40;\\n            r0 = 0xa0a3e;\\n            r1 = 0xe300000000000000;\\n    }\\n    Swift.String.append(r20, {r0:r1});\\n    r0 = var_40;\\n    return r0;\\n\",\"normalized_result\":\"    r1 = arg1;\\n    r0 = arg0;\\n    r31 = r31 - 0x50;\\n    var_30 = r24;\\n    decomp_var_28 = r23;\\n    var_20 = r22;\\n    decomp_var_18 = r21;\\n    var_10 = r20;\\n    decomp_var_8 = r19;\\n    saved_fp = r29;\\n    decomp_var_m8 = r30;\\n    r19 = arg4;\\n    r21 = arg3;\\n    if ((arg2 & 0xff) == 0x1) {\\n            var_40 = 0xa;\\n            decomp_var_38 = 0xe100000000000000;\\n            Swift.String.append(&var_40, {r0:r1});\\n            Swift.String.append(&var_40, \\\":\\\\n\\\");\\n            r0 = Swift.String.append(&var_40, {r21:r19});\\n            r20 = &var_40;\\n            r0 = 0xa0a;\\n            r1 = 0xe200000000000000;\\n    }\\n    else {\\n            var_40 = 0x3c;\\n            decomp_var_38 = 0xe100000000000000;\\n            Swift.String.append(&var_40, {r0:r1});\\n            Swift.String.append(&var_40, \\\">\\\");\\n            Swift.String.append(&var_40, {r21:r19});\\n            Swift.String.append(&var_40, \\\"</\\\");\\n            r0 = Swift.String.append(&var_40, {r0:r1});\\n            r20 = &var_40;\\n            r0 = 0xa0a3e;\\n            r1 = 0xe300000000000000;\\n    }\\n    Swift.String.append(r20, {r0:r1});\\n    r0 = var_40;\\n    return r0;\\n\",\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"Results depend on Hopper's completed static analysis.\"],\"locations\":[],\"evidence_links\":[],\"analysis_profile\":{\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"parameters\":{\"target_kind\":\"executable\",\"target_format\":\"mach-o\",\"architecture\":\"arm64\",\"available_architectures\":[\"arm64\",\"x86_64\"],\"loader\":{\"source\":\"derived\",\"argument_count\":5,\"arguments_sha256\":\"3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5\"}},\"digest\":\"61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236\"}}}"
+      }
+    ],
+    "structuredContent": {
+      "result": "    r1 = arg1;\n    r0 = arg0;\n    r31 = r31 - 0x50;\n    var_30 = r24;\n    decomp_var_28 = r23;\n    var_20 = r22;\n    decomp_var_18 = r21;\n    var_10 = r20;\n    decomp_var_8 = r19;\n    saved_fp = r29;\n    decomp_var_m8 = r30;\n    r19 = arg4;\n    r21 = arg3;\n    if ((arg2 & 0xff) == 0x1) {\n            var_40 = 0xa;\n            decomp_var_38 = 0xe100000000000000;\n            Swift.String.append(&var_40, {r0:r1});\n            Swift.String.append(&var_40, \":\\n\");\n            r0 = Swift.String.append(&var_40, {r21:r19});\n            r20 = &var_40;\n            r0 = 0xa0a;\n            r1 = 0xe200000000000000;\n    }\n    else {\n            var_40 = 0x3c;\n            decomp_var_38 = 0xe100000000000000;\n            Swift.String.append(&var_40, {r0:r1});\n            Swift.String.append(&var_40, \">\");\n            Swift.String.append(&var_40, {r21:r19});\n            Swift.String.append(&var_40, \"</\");\n            r0 = Swift.String.append(&var_40, {r0:r1});\n            r20 = &var_40;\n            r0 = 0xa0a3e;\n            r1 = 0xe300000000000000;\n    }\n    Swift.String.append(r20, {r0:r1});\n    r0 = var_40;\n    return r0;\n",
+      "evidence_id": "ev_fd1e08a440622309ec366da293ae63c7588f1c34fab606445bd327e5d7d45add",
+      "evidence": {
+        "evidence_id": "ev_fd1e08a440622309ec366da293ae63c7588f1c34fab606445bd327e5d7d45add",
+        "subject": {
+          "name": "superwhisper",
+          "digest": {
+            "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a"
+          },
+          "format": "mach-o",
+          "architecture": "arm64",
+          "local_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper"
+        },
+        "provider": {
+          "id": "hopper",
+          "name": "Hopper Disassembler",
+          "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "procedure_pseudo_code",
+        "parameters": {
+          "procedure": "0x100613b40",
+          "document": null
+        },
+        "raw_result": "    r1 = arg1;\n    r0 = arg0;\n    r31 = r31 - 0x50;\n    var_30 = r24;\n    decomp_var_28 = r23;\n    var_20 = r22;\n    decomp_var_18 = r21;\n    var_10 = r20;\n    decomp_var_8 = r19;\n    saved_fp = r29;\n    decomp_var_m8 = r30;\n    r19 = arg4;\n    r21 = arg3;\n    if ((arg2 & 0xff) == 0x1) {\n            var_40 = 0xa;\n            decomp_var_38 = 0xe100000000000000;\n            Swift.String.append(&var_40, {r0:r1});\n            Swift.String.append(&var_40, \":\\n\");\n            r0 = Swift.String.append(&var_40, {r21:r19});\n            r20 = &var_40;\n            r0 = 0xa0a;\n            r1 = 0xe200000000000000;\n    }\n    else {\n            var_40 = 0x3c;\n            decomp_var_38 = 0xe100000000000000;\n            Swift.String.append(&var_40, {r0:r1});\n            Swift.String.append(&var_40, \">\");\n            Swift.String.append(&var_40, {r21:r19});\n            Swift.String.append(&var_40, \"</\");\n            r0 = Swift.String.append(&var_40, {r0:r1});\n            r20 = &var_40;\n            r0 = 0xa0a3e;\n            r1 = 0xe300000000000000;\n    }\n    Swift.String.append(r20, {r0:r1});\n    r0 = var_40;\n    return r0;\n",
+        "normalized_result": "    r1 = arg1;\n    r0 = arg0;\n    r31 = r31 - 0x50;\n    var_30 = r24;\n    decomp_var_28 = r23;\n    var_20 = r22;\n    decomp_var_18 = r21;\n    var_10 = r20;\n    decomp_var_8 = r19;\n    saved_fp = r29;\n    decomp_var_m8 = r30;\n    r19 = arg4;\n    r21 = arg3;\n    if ((arg2 & 0xff) == 0x1) {\n            var_40 = 0xa;\n            decomp_var_38 = 0xe100000000000000;\n            Swift.String.append(&var_40, {r0:r1});\n            Swift.String.append(&var_40, \":\\n\");\n            r0 = Swift.String.append(&var_40, {r21:r19});\n            r20 = &var_40;\n            r0 = 0xa0a;\n            r1 = 0xe200000000000000;\n    }\n    else {\n            var_40 = 0x3c;\n            decomp_var_38 = 0xe100000000000000;\n            Swift.String.append(&var_40, {r0:r1});\n            Swift.String.append(&var_40, \">\");\n            Swift.String.append(&var_40, {r21:r19});\n            Swift.String.append(&var_40, \"</\");\n            r0 = Swift.String.append(&var_40, {r0:r1});\n            r20 = &var_40;\n            r0 = 0xa0a3e;\n            r1 = 0xe300000000000000;\n    }\n    Swift.String.append(r20, {r0:r1});\n    r0 = var_40;\n    return r0;\n",
+        "confidence": "observed",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "Results depend on Hopper's completed static analysis."
+        ],
+        "locations": [],
+        "evidence_links": [],
+        "analysis_profile": {
+          "provider": {
+            "id": "hopper",
+            "name": "Hopper Disassembler",
+            "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+          },
+          "parameters": {
+            "target_kind": "executable",
+            "target_format": "mach-o",
+            "architecture": "arm64",
+            "available_architectures": [
+              "arm64",
+              "x86_64"
+            ],
+            "loader": {
+              "source": "derived",
+              "argument_count": 5,
+              "arguments_sha256": "3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5"
+            }
+          },
+          "digest": "61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236"
+        }
+      }
+    }
+  }
+}

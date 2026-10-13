@@ -1,0 +1,101 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "WithType",
+  "mainBinaryName": "typefree",
+  "version": "0.1.0",
+  "identifier": "app.typefree.windows.unofficial",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist/client"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "WithType",
+        "width": 1060,
+        "height": 720,
+        "minWidth": 640,
+        "minHeight": 480,
+        "center": true,
+        "decorations": true,
+        "resizable": true,
+        "theme": "Light",
+        "zoomHotkeysEnabled": false,
+        "backgroundColor": "#f8f9f4"
+      },
+      {
+        "label": "overlay",
+        "title": "WithType · 录音",
+        "width": 140,
+        "height": 64,
+        "visible": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": false,
+        "focus": false,
+        "focusable": false,
+        "theme": "Light",
+        "zoomHotkeysEnabled": false,
+        "backgroundColor": "#00000000"
+      },
+      {
+        "label": "answer",
+        "title": "WithType · 提问",
+        "width": 460,
+        "height": 520,
+        "visible": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "resizable": true,
+        "minWidth": 360,
+        "minHeight": 320,
+        "transparent": true,
+        "shadow": false,
+        "theme": "Light",
+        "zoomHotkeysEnabled": false,
+        "backgroundColor": "#00000000"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' asset: data:; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis",
+      "msi"
+    ],
+    "resources": {
+      "WebView2Loader.dll": "WebView2Loader.dll",
+      "../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md",
+      "../LICENSES/Typefree-GPL-3.0.txt": "LICENSES/Typefree-GPL-3.0.txt",
+      "../public/fonts/OFL-NotoSansSC.txt": "LICENSES/OFL-NotoSansSC.txt",
+      "../public/fonts/COPYRIGHT-NotoSansSC.txt": "LICENSES/COPYRIGHT-NotoSansSC.txt"
+    },
+    "category": "Productivity",
+    "shortDescription": "WithType · 语音输入与整理",
+    "longDescription": "WithType 通过语音输入文字，支持整理、翻译与提问。基于 Typefree 的独立版本。",
+    "icon": [
+      "icons/ink-v3/32x32.png",
+      "icons/ink-v3/128x128.png",
+      "icons/ink-v3/256x256.png",
+      "icons/ink-v3/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/ink-v3/icon.ico",
+        "installMode": "currentUser",
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}

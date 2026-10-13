@@ -1,0 +1,12 @@
+{
+  "camera": true,
+  "dropAt": true,
+  "liquidAt": true,
+  "organic": true,
+  "drawInk": true,
+  "seek": true,
+  "finish": true,
+  "tick": true,
+  "play": true,
+  "durationSame": true
+}

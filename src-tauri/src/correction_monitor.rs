@@ -26,6 +26,11 @@ struct Anchors {
     prefix: String,
     suffix: String,
 }
+
+#[cfg(any(windows, test))]
+pub(crate) fn insertion_confirmed(before: &str, after: &str, delivered: &str) -> bool {
+    Anchors::capture(before, after, delivered).is_some()
+}
 #[cfg(any(windows, test))]
 impl Anchors {
     fn capture(before: &str, after: &str, delivered: &str) -> Option<Self> {

@@ -1,0 +1,341 @@
+{
+  "request": {
+    "tool": "inspect_plist",
+    "arguments": {
+      "path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist"
+    },
+    "save": "info-plist"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"format\":\"xml\",\"value\":{\"CFBundleURLTypes\":[{\"CFBundleTypeRole\":\"Editor\",\"CFBundleURLName\":\"com.superduper.superwhisper\",\"CFBundleURLSchemes\":[\"superwhisper\",\"superwhisper-debug\"]},{\"CFBundleTypeRole\":\"Editor\",\"CFBundleURLName\":\"com.superduper.superwhisper-debug\",\"CFBundleURLSchemes\":[\"superwhisper-debug\"]}],\"CFBundleInfoDictionaryVersion\":\"6.0\",\"NSAudioCaptureUsageDescription\":\"Needed to lower other apps' audio while recording\",\"DTPlatformVersion\":\"27.0\",\"CFBundleIconFile\":\"AppIcon\",\"CFBundleName\":\"Superwhisper\",\"DTSDKName\":\"macosx27.0\",\"NSMainStoryboardFile\":\"Main\",\"NSPrincipalClass\":\"NSApplication\",\"LSApplicationCategoryType\":\"public.app-category.utilities\",\"SUEnableAutomaticChecks\":true,\"SUFeedURL\":\"https://superwhisper.com/appcast.xml\",\"CFBundleDisplayName\":\"Superwhisper\",\"UIBackgroundModes\":[],\"CFBundleDocumentTypes\":[{\"LSHandlerRank\":\"Owner\",\"LSItemContentTypes\":[\"public.audio\"],\"CFBundleTypeName\":\"Audio Files\"},{\"LSHandlerRank\":\"Owner\",\"LSItemContentTypes\":[\"public.movie\"],\"CFBundleTypeName\":\"Video Files\"}],\"DTSDKBuild\":\"26A5419a\",\"CFBundleSupportedPlatforms\":[\"MacOSX\"],\"CFBundleShortVersionString\":\"2.19.2\",\"BuildMachineOSBuild\":\"26A5425a\",\"DTPlatformBuild\":\"26A5419a\",\"CFBundlePackageType\":\"APPL\",\"DTXcodeBuild\":\"27A5252f\",\"CFBundleDevelopmentRegion\":\"en\",\"CFBundleVersion\":\"2.19.2\",\"NSAccessibilityUsageDescription\":\"Needed to paste into input fields once audio has been processed\",\"NSMicrophoneUsageDescription\":\"Needed to record your voice\",\"CFBundleIdentifier\":\"com.superduper.superwhisper\",\"DTXcode\":\"2700\",\"CFBundleIconName\":\"AppIcon\",\"CFBundleExecutable\":\"superwhisper\",\"LSMinimumSystemVersion\":\"14.0\",\"SUPublicEDKey\":\"LaNqajeJmIalBugxXQ/11U9E7xKcnzBiVMsY1DkpWQM=\",\"DTPlatformName\":\"macosx\",\"NSAppleEventsUsageDescription\":\"Needed to paste into input fields once audio has been processed\",\"SUScheduledCheckInterval\":86400,\"DTCompiler\":\"com.apple.compilers.llvm.clang.1_0\"},\"bundle\":{\"identifier\":\"com.superduper.superwhisper\",\"executable\":\"superwhisper\",\"name\":\"Superwhisper\",\"version\":\"2.19.2\",\"short_version\":\"2.19.2\"},\"source_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist\",\"provenance\":[{\"tool\":\"file\",\"command\":[\"/usr/bin/file\",\"-b\",\"$PLIST\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"8014815e1028410f48966f1880f99c842a5678cf2fcaa010e8d7e9e498f651d0\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":34,\"stderr_bytes\":0},{\"tool\":\"plutil\",\"command\":[\"/usr/bin/plutil\",\"-convert\",\"json\",\"-o\",\"-\",\"--\",\"$PLIST\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":1887,\"stderr_bytes\":0}],\"limitations\":[]},\"evidence_id\":\"ev_1b2b9f1fcb9d2aa60fb460a445301850eb74f639c35354a5a714694e80ce9e27\",\"evidence\":{\"evidence_id\":\"ev_1b2b9f1fcb9d2aa60fb460a445301850eb74f639c35354a5a714694e80ce9e27\",\"subject\":{\"name\":\"superwhisper\",\"digest\":{\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\"},\"format\":\"mach-o\",\"architecture\":\"arm64\",\"local_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\"},\"provider\":{\"id\":\"native-macos\",\"name\":\"macOS native inspection utilities\",\"version\":null},\"predicate_type\":\"rea.analysis\",\"operation\":\"inspect_plist\",\"parameters\":{\"path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist\"},\"raw_result\":{\"provenance\":[{\"tool\":\"file\",\"command\":[\"/usr/bin/file\",\"-b\",\"$PLIST\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"8014815e1028410f48966f1880f99c842a5678cf2fcaa010e8d7e9e498f651d0\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":34,\"stderr_bytes\":0},{\"tool\":\"plutil\",\"command\":[\"/usr/bin/plutil\",\"-convert\",\"json\",\"-o\",\"-\",\"--\",\"$PLIST\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":1887,\"stderr_bytes\":0}]},\"normalized_result\":{\"format\":\"xml\",\"value\":{\"CFBundleURLTypes\":[{\"CFBundleTypeRole\":\"Editor\",\"CFBundleURLName\":\"com.superduper.superwhisper\",\"CFBundleURLSchemes\":[\"superwhisper\",\"superwhisper-debug\"]},{\"CFBundleTypeRole\":\"Editor\",\"CFBundleURLName\":\"com.superduper.superwhisper-debug\",\"CFBundleURLSchemes\":[\"superwhisper-debug\"]}],\"CFBundleInfoDictionaryVersion\":\"6.0\",\"NSAudioCaptureUsageDescription\":\"Needed to lower other apps' audio while recording\",\"DTPlatformVersion\":\"27.0\",\"CFBundleIconFile\":\"AppIcon\",\"CFBundleName\":\"Superwhisper\",\"DTSDKName\":\"macosx27.0\",\"NSMainStoryboardFile\":\"Main\",\"NSPrincipalClass\":\"NSApplication\",\"LSApplicationCategoryType\":\"public.app-category.utilities\",\"SUEnableAutomaticChecks\":true,\"SUFeedURL\":\"https://superwhisper.com/appcast.xml\",\"CFBundleDisplayName\":\"Superwhisper\",\"UIBackgroundModes\":[],\"CFBundleDocumentTypes\":[{\"LSHandlerRank\":\"Owner\",\"LSItemContentTypes\":[\"public.audio\"],\"CFBundleTypeName\":\"Audio Files\"},{\"LSHandlerRank\":\"Owner\",\"LSItemContentTypes\":[\"public.movie\"],\"CFBundleTypeName\":\"Video Files\"}],\"DTSDKBuild\":\"26A5419a\",\"CFBundleSupportedPlatforms\":[\"MacOSX\"],\"CFBundleShortVersionString\":\"2.19.2\",\"BuildMachineOSBuild\":\"26A5425a\",\"DTPlatformBuild\":\"26A5419a\",\"CFBundlePackageType\":\"APPL\",\"DTXcodeBuild\":\"27A5252f\",\"CFBundleDevelopmentRegion\":\"en\",\"CFBundleVersion\":\"2.19.2\",\"NSAccessibilityUsageDescription\":\"Needed to paste into input fields once audio has been processed\",\"NSMicrophoneUsageDescription\":\"Needed to record your voice\",\"CFBundleIdentifier\":\"com.superduper.superwhisper\",\"DTXcode\":\"2700\",\"CFBundleIconName\":\"AppIcon\",\"CFBundleExecutable\":\"superwhisper\",\"LSMinimumSystemVersion\":\"14.0\",\"SUPublicEDKey\":\"LaNqajeJmIalBugxXQ/11U9E7xKcnzBiVMsY1DkpWQM=\",\"DTPlatformName\":\"macosx\",\"NSAppleEventsUsageDescription\":\"Needed to paste into input fields once audio has been processed\",\"SUScheduledCheckInterval\":86400,\"DTCompiler\":\"com.apple.compilers.llvm.clang.1_0\"},\"bundle\":{\"identifier\":\"com.superduper.superwhisper\",\"executable\":\"superwhisper\",\"name\":\"Superwhisper\",\"version\":\"2.19.2\",\"short_version\":\"2.19.2\"},\"source_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist\",\"provenance\":[{\"tool\":\"file\",\"command\":[\"/usr/bin/file\",\"-b\",\"$PLIST\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"8014815e1028410f48966f1880f99c842a5678cf2fcaa010e8d7e9e498f651d0\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":34,\"stderr_bytes\":0},{\"tool\":\"plutil\",\"command\":[\"/usr/bin/plutil\",\"-convert\",\"json\",\"-o\",\"-\",\"--\",\"$PLIST\"],\"tool_version\":null,\"version_reason\":\"Tool exposes no uniform stable version flag; executable digest identifies it.\",\"executable_sha256\":\"5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac\",\"exit\":{\"code\":0,\"signal\":null},\"stdout_bytes\":1887,\"stderr_bytes\":0}],\"limitations\":[]},\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[],\"locations\":[{\"kind\":\"artifact-path\",\"path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist\"}],\"evidence_links\":[]}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "format": "xml",
+        "value": {
+          "CFBundleURLTypes": [
+            {
+              "CFBundleTypeRole": "Editor",
+              "CFBundleURLName": "com.superduper.superwhisper",
+              "CFBundleURLSchemes": [
+                "superwhisper",
+                "superwhisper-debug"
+              ]
+            },
+            {
+              "CFBundleTypeRole": "Editor",
+              "CFBundleURLName": "com.superduper.superwhisper-debug",
+              "CFBundleURLSchemes": [
+                "superwhisper-debug"
+              ]
+            }
+          ],
+          "CFBundleInfoDictionaryVersion": "6.0",
+          "NSAudioCaptureUsageDescription": "Needed to lower other apps' audio while recording",
+          "DTPlatformVersion": "27.0",
+          "CFBundleIconFile": "AppIcon",
+          "CFBundleName": "Superwhisper",
+          "DTSDKName": "macosx27.0",
+          "NSMainStoryboardFile": "Main",
+          "NSPrincipalClass": "NSApplication",
+          "LSApplicationCategoryType": "public.app-category.utilities",
+          "SUEnableAutomaticChecks": true,
+          "SUFeedURL": "https://superwhisper.com/appcast.xml",
+          "CFBundleDisplayName": "Superwhisper",
+          "UIBackgroundModes": [],
+          "CFBundleDocumentTypes": [
+            {
+              "LSHandlerRank": "Owner",
+              "LSItemContentTypes": [
+                "public.audio"
+              ],
+              "CFBundleTypeName": "Audio Files"
+            },
+            {
+              "LSHandlerRank": "Owner",
+              "LSItemContentTypes": [
+                "public.movie"
+              ],
+              "CFBundleTypeName": "Video Files"
+            }
+          ],
+          "DTSDKBuild": "26A5419a",
+          "CFBundleSupportedPlatforms": [
+            "MacOSX"
+          ],
+          "CFBundleShortVersionString": "2.19.2",
+          "BuildMachineOSBuild": "26A5425a",
+          "DTPlatformBuild": "26A5419a",
+          "CFBundlePackageType": "APPL",
+          "DTXcodeBuild": "27A5252f",
+          "CFBundleDevelopmentRegion": "en",
+          "CFBundleVersion": "2.19.2",
+          "NSAccessibilityUsageDescription": "Needed to paste into input fields once audio has been processed",
+          "NSMicrophoneUsageDescription": "Needed to record your voice",
+          "CFBundleIdentifier": "com.superduper.superwhisper",
+          "DTXcode": "2700",
+          "CFBundleIconName": "AppIcon",
+          "CFBundleExecutable": "superwhisper",
+          "LSMinimumSystemVersion": "14.0",
+          "SUPublicEDKey": "LaNqajeJmIalBugxXQ/11U9E7xKcnzBiVMsY1DkpWQM=",
+          "DTPlatformName": "macosx",
+          "NSAppleEventsUsageDescription": "Needed to paste into input fields once audio has been processed",
+          "SUScheduledCheckInterval": 86400,
+          "DTCompiler": "com.apple.compilers.llvm.clang.1_0"
+        },
+        "bundle": {
+          "identifier": "com.superduper.superwhisper",
+          "executable": "superwhisper",
+          "name": "Superwhisper",
+          "version": "2.19.2",
+          "short_version": "2.19.2"
+        },
+        "source_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist",
+        "provenance": [
+          {
+            "tool": "file",
+            "command": [
+              "/usr/bin/file",
+              "-b",
+              "$PLIST"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+            "executable_sha256": "8014815e1028410f48966f1880f99c842a5678cf2fcaa010e8d7e9e498f651d0",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 34,
+            "stderr_bytes": 0
+          },
+          {
+            "tool": "plutil",
+            "command": [
+              "/usr/bin/plutil",
+              "-convert",
+              "json",
+              "-o",
+              "-",
+              "--",
+              "$PLIST"
+            ],
+            "tool_version": null,
+            "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+            "executable_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",
+            "exit": {
+              "code": 0,
+              "signal": null
+            },
+            "stdout_bytes": 1887,
+            "stderr_bytes": 0
+          }
+        ],
+        "limitations": []
+      },
+      "evidence_id": "ev_1b2b9f1fcb9d2aa60fb460a445301850eb74f639c35354a5a714694e80ce9e27",
+      "evidence": {
+        "evidence_id": "ev_1b2b9f1fcb9d2aa60fb460a445301850eb74f639c35354a5a714694e80ce9e27",
+        "subject": {
+          "name": "superwhisper",
+          "digest": {
+            "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a"
+          },
+          "format": "mach-o",
+          "architecture": "arm64",
+          "local_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper"
+        },
+        "provider": {
+          "id": "native-macos",
+          "name": "macOS native inspection utilities",
+          "version": null
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "inspect_plist",
+        "parameters": {
+          "path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist"
+        },
+        "raw_result": {
+          "provenance": [
+            {
+              "tool": "file",
+              "command": [
+                "/usr/bin/file",
+                "-b",
+                "$PLIST"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "8014815e1028410f48966f1880f99c842a5678cf2fcaa010e8d7e9e498f651d0",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 34,
+              "stderr_bytes": 0
+            },
+            {
+              "tool": "plutil",
+              "command": [
+                "/usr/bin/plutil",
+                "-convert",
+                "json",
+                "-o",
+                "-",
+                "--",
+                "$PLIST"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 1887,
+              "stderr_bytes": 0
+            }
+          ]
+        },
+        "normalized_result": {
+          "format": "xml",
+          "value": {
+            "CFBundleURLTypes": [
+              {
+                "CFBundleTypeRole": "Editor",
+                "CFBundleURLName": "com.superduper.superwhisper",
+                "CFBundleURLSchemes": [
+                  "superwhisper",
+                  "superwhisper-debug"
+                ]
+              },
+              {
+                "CFBundleTypeRole": "Editor",
+                "CFBundleURLName": "com.superduper.superwhisper-debug",
+                "CFBundleURLSchemes": [
+                  "superwhisper-debug"
+                ]
+              }
+            ],
+            "CFBundleInfoDictionaryVersion": "6.0",
+            "NSAudioCaptureUsageDescription": "Needed to lower other apps' audio while recording",
+            "DTPlatformVersion": "27.0",
+            "CFBundleIconFile": "AppIcon",
+            "CFBundleName": "Superwhisper",
+            "DTSDKName": "macosx27.0",
+            "NSMainStoryboardFile": "Main",
+            "NSPrincipalClass": "NSApplication",
+            "LSApplicationCategoryType": "public.app-category.utilities",
+            "SUEnableAutomaticChecks": true,
+            "SUFeedURL": "https://superwhisper.com/appcast.xml",
+            "CFBundleDisplayName": "Superwhisper",
+            "UIBackgroundModes": [],
+            "CFBundleDocumentTypes": [
+              {
+                "LSHandlerRank": "Owner",
+                "LSItemContentTypes": [
+                  "public.audio"
+                ],
+                "CFBundleTypeName": "Audio Files"
+              },
+              {
+                "LSHandlerRank": "Owner",
+                "LSItemContentTypes": [
+                  "public.movie"
+                ],
+                "CFBundleTypeName": "Video Files"
+              }
+            ],
+            "DTSDKBuild": "26A5419a",
+            "CFBundleSupportedPlatforms": [
+              "MacOSX"
+            ],
+            "CFBundleShortVersionString": "2.19.2",
+            "BuildMachineOSBuild": "26A5425a",
+            "DTPlatformBuild": "26A5419a",
+            "CFBundlePackageType": "APPL",
+            "DTXcodeBuild": "27A5252f",
+            "CFBundleDevelopmentRegion": "en",
+            "CFBundleVersion": "2.19.2",
+            "NSAccessibilityUsageDescription": "Needed to paste into input fields once audio has been processed",
+            "NSMicrophoneUsageDescription": "Needed to record your voice",
+            "CFBundleIdentifier": "com.superduper.superwhisper",
+            "DTXcode": "2700",
+            "CFBundleIconName": "AppIcon",
+            "CFBundleExecutable": "superwhisper",
+            "LSMinimumSystemVersion": "14.0",
+            "SUPublicEDKey": "LaNqajeJmIalBugxXQ/11U9E7xKcnzBiVMsY1DkpWQM=",
+            "DTPlatformName": "macosx",
+            "NSAppleEventsUsageDescription": "Needed to paste into input fields once audio has been processed",
+            "SUScheduledCheckInterval": 86400,
+            "DTCompiler": "com.apple.compilers.llvm.clang.1_0"
+          },
+          "bundle": {
+            "identifier": "com.superduper.superwhisper",
+            "executable": "superwhisper",
+            "name": "Superwhisper",
+            "version": "2.19.2",
+            "short_version": "2.19.2"
+          },
+          "source_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist",
+          "provenance": [
+            {
+              "tool": "file",
+              "command": [
+                "/usr/bin/file",
+                "-b",
+                "$PLIST"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "8014815e1028410f48966f1880f99c842a5678cf2fcaa010e8d7e9e498f651d0",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 34,
+              "stderr_bytes": 0
+            },
+            {
+              "tool": "plutil",
+              "command": [
+                "/usr/bin/plutil",
+                "-convert",
+                "json",
+                "-o",
+                "-",
+                "--",
+                "$PLIST"
+              ],
+              "tool_version": null,
+              "version_reason": "Tool exposes no uniform stable version flag; executable digest identifies it.",
+              "executable_sha256": "5ec63ed0506b7676b30fe69d00ae48c689daf1badc1e786a18166b01b615e8ac",
+              "exit": {
+                "code": 0,
+                "signal": null
+              },
+              "stdout_bytes": 1887,
+              "stderr_bytes": 0
+            }
+          ],
+          "limitations": []
+        },
+        "confidence": "observed",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [],
+        "locations": [
+          {
+            "kind": "artifact-path",
+            "path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/Info.plist"
+          }
+        ],
+        "evidence_links": []
+      }
+    }
+  }
+}

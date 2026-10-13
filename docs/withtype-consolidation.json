@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-13T11:03:44.984478+08:00",
+  "title": "WithType",
+  "canonicalDirectory": "/Users/outsider/codex_projects/emergence-lab/projects/15-withtype",
+  "previousCanonicalDirectory": "/Users/outsider/codex_projects/emergence-lab/projects/15-typefree-windows",
+  "retiredDirectories": [
+    {
+      "source": "/Users/outsider/SEVB/Type",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/01-Type"
+    },
+    {
+      "source": "/Users/outsider/temp/15-vibevoice-input-method",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/02-15-vibevoice-input-method"
+    },
+    {
+      "source": "/private/tmp/typefree-background-platform-check",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/03-typefree-background-platform-check"
+    },
+    {
+      "source": "/private/tmp/typefree-copy",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/04-typefree-copy"
+    },
+    {
+      "source": "/private/tmp/typefree-desktop-stage",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/05-typefree-desktop-stage"
+    },
+    {
+      "source": "/private/tmp/typefree-hud-fix",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/06-typefree-hud-fix"
+    },
+    {
+      "source": "/private/tmp/typefree-icon-v3",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/07-typefree-icon-v3"
+    },
+    {
+      "source": "/private/tmp/typefree-interaction-check",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/08-typefree-interaction-check"
+    },
+    {
+      "source": "/private/tmp/typefree-layout-review",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/09-typefree-layout-review"
+    },
+    {
+      "source": "/private/tmp/typefree-native-latency-check",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/10-typefree-native-latency-check"
+    },
+    {
+      "source": "/private/tmp/typefree-redesign-stage",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/11-typefree-redesign-stage"
+    },
+    {
+      "source": "/private/tmp/typefree-redesign-target",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/12-typefree-redesign-target"
+    },
+    {
+      "source": "/private/tmp/typefree-refine-stage",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/13-typefree-refine-stage"
+    },
+    {
+      "source": "/private/tmp/typefree-ui-fix",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/14-typefree-ui-fix"
+    },
+    {
+      "source": "/private/tmp/withtype-ink-welcome-stage",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/15-withtype-ink-welcome-stage"
+    },
+    {
+      "source": "/private/tmp/withtype-ink-welcome-v2-stage",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/16-withtype-ink-welcome-v2-stage"
+    },
+    {
+      "source": "/private/tmp/withtype-motion-stage",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/17-withtype-motion-stage"
+    },
+    {
+      "source": "/private/tmp/withtype-onetake-stage",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/18-withtype-onetake-stage"
+    },
+    {
+      "source": "/private/tmp/withtype-phrase-cargo",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/19-withtype-phrase-cargo"
+    },
+    {
+      "source": "/private/tmp/withtype-round-bead-2026-10-13",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/20-withtype-round-bead-2026-10-13"
+    },
+    {
+      "source": "/private/tmp/withtype-welcome-settings",
+      "trashPath": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344/21-withtype-welcome-settings"
+    }
+  ],
+  "trashDirectory": "/Users/outsider/.Trash/WithType-old-versions-20261013-110344",
+  "stoppedServices": [
+    {
+      "pid": 21628,
+      "project": "/Users/outsider/SEVB/Type",
+      "service": "Vite preview"
+    }
+  ],
+  "preservedProjectFilesVerifiedBySha256": 282,
+  "validation": {
+    "frontendUnitTestsPassed": 173,
+    "rustUnitTestsPassed": 37,
+    "frontendBuild": "passed",
+    "appearanceAssets": "passed",
+    "cargoCheckOfflineLocked": "passed",
+    "windowsExecutableRuntime": "not run on this Mac",
+    "sharedPublicIndex": {
+      "status": "failed-existing-unrelated-path",
+      "missingPath": "projects/10-sunwoda-public-opinion-monitor/project.json"
+    }
+  },
+  "compatibility": {
+    "applicationIdentifier": "app.typefree.windows.unofficial",
+    "credentialService": "app.typefree.windows.unofficial",
+    "localStoragePrefix": "typefree-windows",
+    "startupRegistryValue": "TypefreeWindowsUnofficial"
+  },
+  "postMoveDocumentationChanges": [
+    "README.md",
+    "docs/withtype-consolidation.md",
+    ".learnings/ERRORS.md"
+  ]
+}

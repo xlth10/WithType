@@ -1,0 +1,18 @@
+{
+  "request": {
+    "tool": "close_binary",
+    "arguments": {},
+    "save": "close-native-analysis"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":null}"
+      }
+    ],
+    "structuredContent": {
+      "result": null
+    }
+  }
+}

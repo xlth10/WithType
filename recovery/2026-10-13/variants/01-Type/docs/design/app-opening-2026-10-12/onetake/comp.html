@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WithType · 随珠入纸</title>
+<link rel="preload" href="/fonts/noto-sans-sc-variable.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#f8f7ef; }
+  #stage { position:fixed; inset:0; overflow:hidden; background:#f8f7ef; }
+  #world { position:absolute; inset:0; transform-origin:0 0; background:#f8f7ef; }
+  #app-root { position:absolute; inset:0; clip-path:circle(0px at 50% 50%); }
+  #art { position:absolute; inset:0; pointer-events:none; user-select:none; }
+  #fibers { position:absolute; inset:0; width:100%; height:100%; }
+  #ink { position:absolute; width:240px; height:180px; margin:-94px 0 0 -120px; color:#282c27; }
+  #ink svg { display:block; overflow:visible; }
+  #ink g,#ink circle,#ink ellipse,#ink path { transform-origin:center; transform-box:fill-box; }
+  #welcome { position:absolute; left:0; right:0; margin:0; text-align:center; color:#484d42; font:450 20px/1.4 var(--font-ui); letter-spacing:-.02em; }
+  #world[data-finished="true"] #art { visibility:hidden; }
+  @media(prefers-reduced-motion:reduce) { #world { transform:none!important; } #art { visibility:hidden; } #app-root { clip-path:none!important; } }
+</style>
+<script src="./motion.js"></script>
+</head>
+<body>
+<div id="stage"><div id="world">
+  <div id="app-root"></div>
+  <div id="art" aria-hidden="true">
+    <canvas id="fibers"></canvas>
+    <div id="ink"><svg width="240" height="180" viewBox="0 0 240 180" focusable="false">
+      <defs>
+        <radialGradient id="absorption"><stop stop-color="#515447" stop-opacity=".18"/><stop offset=".48" stop-color="#626553" stop-opacity=".07"/><stop offset="1" stop-color="#626553" stop-opacity="0"/></radialGradient>
+      </defs>
+      <g id="wet"><ellipse cx="120" cy="106" rx="38" ry="17" fill="url(#absorption)"/><path d="M93 107q8-8 24-6q19-4 29 6q-7 9-29 7q-17 3-24-7" fill="#59614c" opacity=".045"/></g>
+      <ellipse id="shadow" cx="120" cy="107" rx="17" ry="2.8" fill="currentColor"/>
+      <path id="contact" d="M113 103q7-6 14 0q-7 4-14 0" fill="currentColor" opacity=".08"/>
+      <circle id="outer-left" cx="58" cy="103" r="2.8" fill="currentColor"/>
+      <circle id="side-left" cx="86" cy="98" r="7" fill="currentColor"/>
+      <circle id="bead" cx="120" cy="94" r="12" fill="currentColor"/>
+      <circle id="side-right" cx="154" cy="98" r="7" fill="currentColor"/>
+      <circle id="outer-right" cx="182" cy="103" r="2.8" fill="currentColor"/>
+    </svg></div>
+    <p id="welcome" lang="en"></p>
+  </div>
+</div></div>
+<script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from '/src/App.jsx';
+import { BRAND } from '/src/ui/brand.js';
+import '/src/styles.css';
+
+// OneTake is confined to this experimental composition; the native entry remains version A.
+const OM = window.OM;
+const DURATION = 2.4;
+const query = new URLSearchParams(location.search);
+const pinned = query.has('t') && Number.isFinite(Number(query.get('t')));
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+const element = id => document.getElementById(id);
+const world=element('world'), ui=element('app-root'), art=element('art'), ink=element('ink'), welcome=element('welcome');
+const bead=element('bead'), shadow=element('shadow'), wet=element('wet'), contact=element('contact');
+const sides=[element('side-left'),element('side-right')], outers=[element('outer-left'),element('outer-right')];
+let W=innerWidth,H=innerHeight,X=W/2,Y=H/2-26,clock=0,raf=0,started=0,playing=false;
+document.documentElement.dataset.surface='main';
+welcome.textContent=BRAND.welcome;
+createRoot(ui).render(React.createElement(App));
+
+function grain() {
+  const canvas=element('fibers'); canvas.width=W;canvas.height=H;
+  const g=canvas.getContext('2d'), random=OM.rng(1729);
+  g.clearRect(0,0,W,H);g.lineCap='round';
+  for(let i=0;i<Math.ceil(W*H/1450);i++) {
+    const x=random()*W,y=random()*H,length=2+random()*8;
+    g.strokeStyle=`rgba(100,105,86,${.026+random()*.035})`;g.lineWidth=.3+random()*.35;
+    g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+length*.5,y-1.5+random()*3,x+length,y-1+random()*2);g.stroke();
+  }
+}
+function camera(t) {
+  const cam=OM.camera(t,[
+    {t:0,x:X,y:Y-38,zoom:2.8},
+    {t:.10,x:X,y:Y-38,zoom:2.8},
+    {t:.44,x:X,y:Y+5,zoom:3.9,curve:OM.ease.sineInOut},
+    {t:.64,x:X,y:Y+5,zoom:4.1,curve:OM.ease.cubicOut},
+    {t:.84,x:X,y:Y+5,zoom:4.1},
+    {t:1.44,x:X,y:H/2,zoom:1,curve:OM.ease.cubicOut},
+    {t:DURATION,x:X,y:H/2,zoom:1},
+  ],{W,H});
+  if(t>.50&&t<.84) {
+    const kick=OM.shake(t,.50,{amp:.6,decay:16,freq:12,seed:50});
+    cam.y+=kick.y/cam.zoom;
+  }
+  return cam;
+}
+function seek(value) {
+  const t=OM.clamp(value,0,DURATION);clock=t;
+  const cam=camera(t), matrix=OM.view(cam,{W,H});
+  world.style.transform=t>=DURATION?'none':`matrix(${matrix.join(',')})`;
+  world.dataset.time=t.toFixed(6);world.dataset.fps='30';world.dataset.duration=String(DURATION);
+  ink.style.left=X+'px';ink.style.top=Y+'px';welcome.style.top=(Y+48)+'px';
+  let p=OM.hop(t,.10,.50,{x:0,y:-58},{x:0,y:0},{height:8,curve:OM.ease.cubicInOut});
+  if(t>=.50) p=OM.hop(t,.50,.84,{x:0,y:0},{x:0,y:0},{height:10,curve:OM.ease.sineInOut});
+  const hit=OM.impact(t,.50,{decay:12,omega:30,sqx:.26,sqy:.32});
+  const landing=OM.impact(t,.84,{decay:16,omega:28,sqx:.10,sqy:.13});
+  const settled=t>=1.44;
+  const sx=settled?1:hit.sx*landing.sx,sy=settled?1:hit.sy*landing.sy;
+  bead.style.transform=`translateY(${p.y}px) scale(${sx},${sy})`;
+  const height=OM.clamp(-p.y/58),shadowScale=1-.5*height;
+  shadow.style.transform=`scaleX(${shadowScale})`;shadow.style.opacity=String(.12-.09*height);
+  for(let i=0;i<2;i++) {
+    const direction=i===0?-1:1;
+    const side=OM.gather(t,.58,.96,0,1,{x:-direction*27,y:0},{x:0,y:0},{arc:12,curve:OM.ease.cubicOut});
+    const k=OM.ease.expoOut(OM.seg(t,.58,.77));
+    sides[i].style.opacity=String(k);sides[i].style.transform=`translate(${side.x}px,${side.y}px)`;
+    const outer=OM.gather(t,.78,1.12,0,1,{x:-direction*15,y:0},{x:0,y:0},{arc:7,curve:OM.ease.cubicOut});
+    outers[i].style.opacity=String(.55*OM.ease.expoOut(OM.seg(t,.78,.98)));outers[i].style.transform=`translate(${outer.x}px,${outer.y}px)`;
+  }
+  const spread=OM.ease.quartOut(OM.seg(t,.50,1.02));
+  wet.style.opacity=String(OM.seg(t,.50,.58)*(1-OM.seg(t,1.84,2.12))*.8);
+  wet.style.transform=`scale(${.25+.75*spread})`;
+  contact.style.opacity=String(t<.5?0:.11*(1-OM.seg(t,.84,1.25)));
+  const rise=OM.wordRise(t,1.02,{zeta:.85,omega:24,dist:8,s0:.98,ds:.02});
+  welcome.style.opacity=String((settled?1:rise.op)*(1-OM.seg(t,1.84,1.98)));
+  welcome.style.transform=settled?'none':`translateY(${rise.y}px) scale(${rise.s})`;
+  const opening=OM.iris(t,1.98,DURATION,X,H/2,{W,H,curve:OM.ease.cubicOut});
+  ui.style.clipPath=t>=DURATION?'none':`circle(${opening.r}px at ${X}px ${H/2}px)`;
+  // The original world and subject survive the reveal; there is no scene replacement.
+  ink.style.opacity=String(1-OM.seg(t,1.94,2.04));
+  art.style.opacity=String(1-OM.seg(t,2.25,DURATION));
+  ui.dataset.radius=String(opening.r);
+  element('fibers').style.opacity=String(1-OM.seg(t,1.84,2.25));
+  world.dataset.finished=String(t>=DURATION);
+  ui.inert=t<1.98;
+  return true;
+}
+function finish(){playing=false;cancelAnimationFrame(raf);seek(DURATION);}
+function tick(now){if(!playing)return;seek((now-started)/1000);if(clock<DURATION)raf=requestAnimationFrame(tick);else finish();}
+function play(){if(reduced.matches||query.has('reduced')){finish();return;}started=performance.now();playing=true;seek(0);raf=requestAnimationFrame(tick);}
+window.__seek=seek;
+window.__meta={dur:DURATION,fps:30,cuts:[],inFrame:{bead:[0,2.04,'whole'],welcome:[1.12,1.98,'whole']}};
+window.__track=()=>Object.fromEntries(['bead','side-left','side-right','outer-left','outer-right','welcome','app-root'].map(id=>{
+ const el=element(id);let b=el.getBoundingClientRect(),op=1;
+ if(id==='welcome'){const range=document.createRange();range.selectNodeContents(el);b=range.getBoundingClientRect();}
+ for(let node=el;node&&node.nodeType===1;node=node.parentElement)op*=Number(getComputedStyle(node).opacity);
+ if(id==='app-root'){
+   const r=Number(ui.dataset.radius)||0;const x=Math.max(0,X-r),y=Math.max(0,H/2-r);
+   return [id,{x,y,w:Math.min(W,X+r)-x,h:Math.min(H,H/2+r)-y,op:clock<=1.98?0:1}];
+ }
+ return [id,{x:b.x,y:b.y,w:b.width,h:b.height,op}];
+}));
+window.__motion=(a,b)=>OM.screenTravel(camera(a),camera(b),camera((a+b)/2),{W,H});
+window.__ready=(async()=>{
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(image=>image.decode().catch(()=>{})));
+  grain();
+  if(reduced.matches||query.has('reduced'))finish();else if(pinned)seek(Number(query.get('t')));else play();
+  world.dataset.ready='true';return true;
+})();
+window.addEventListener('pointerdown',()=>{if(playing||pinned)finish();},true);
+window.addEventListener('keydown',()=>{if(playing||pinned)finish();},true);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)finish();});
+reduced.addEventListener('change',()=>{if(reduced.matches)finish();});
+window.addEventListener('resize',()=>{W=innerWidth;H=innerHeight;X=W/2;Y=H/2-26;grain();seek(playing?DURATION:clock);if(playing)finish();});
+</script>
+</body></html>

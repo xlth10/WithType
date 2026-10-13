@@ -1,0 +1,54 @@
+{
+  "master": [
+    1024,
+    1024
+  ],
+  "mode": "RGBA",
+  "transparentCorners": true,
+  "icoSizes": [
+    [
+      16,
+      16
+    ],
+    [
+      20,
+      20
+    ],
+    [
+      24,
+      24
+    ],
+    [
+      32,
+      32
+    ],
+    [
+      48,
+      48
+    ],
+    [
+      64,
+      64
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      256,
+      256
+    ]
+  ],
+  "pngSizes": [
+    16,
+    20,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256,
+    512
+  ],
+  "smallSizePolicy": "At 16\u201332px remove paper fibers and contact impressions; retain all three beads."
+}

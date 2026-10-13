@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WithType · 进入动画对照</title>
+<style>
+  * { box-sizing:border-box; }
+  body { height:100vh; display:grid; grid-template-rows:auto minmax(0,1fr); margin:0; background:#eeefe9; color:#282c27; font:14px/1.5 "Segoe UI",system-ui,sans-serif; }
+  header { display:flex; align-items:center; gap:14px; min-height:72px; padding:12px 20px; flex-wrap:wrap; }
+  strong { font-weight:650; } small { color:#676b63; }
+  select { min-height:36px; max-width:245px; padding:6px 28px 6px 10px; border:1px solid #cfd2c7; border-radius:9px; background:#fcfcf9; color:#282c27; font:inherit; }
+  button { background:#282c27; color:white; border:0; padding:9px 16px; border-radius:999px; cursor:pointer; }
+  label { display:flex; align-items:center; gap:8px; }
+  .seek { margin-left:auto; } input { width:min(190px,24vw); accent-color:#282c27; } output { width:64px; font-variant-numeric:tabular-nums; }
+  iframe { display:block; width:100%; height:100%; min-height:0; border:0; background:#f8f9f4; }
+  button:focus-visible,input:focus-visible,select:focus-visible { outline:2px solid #676b63; outline-offset:3px; }
+</style>
+<header>
+  <div><strong>WithType · 进入动画</strong><br><small id="description">墨珠跃动，宣纸舒展</small></div>
+  <label>版本<select id="version" aria-label="动画版本"><option value="paper">A · 当前版 · 1.4 秒</option><option value="onetake">B · 随珠入纸 · OneTake · 2.4 秒</option></select></label>
+  <button id="play">重播</button><button id="reduce">减少动态</button>
+  <label class="seek">查看时刻<input id="frame" aria-label="查看动画时刻" type="range" min="0" max="1400" step="10" value="0"><output id="time">播放中</output></label>
+</header>
+<iframe id="app" title="WithType 主窗口动画"></iframe>
+<script>
+  const app=document.getElementById('app'),slider=document.getElementById('frame'),time=document.getElementById('time'),version=document.getElementById('version');
+  const query=new URLSearchParams(location.search);
+  if(query.get('version')==='onetake')version.value='onetake';
+  function source(mode){
+    const isB=version.value==='onetake';
+    slider.max=isB?'2400':'1400';
+    document.getElementById('description').textContent=isB?'跟随落点，从纸纹拉远到界面':'墨珠跃动，宣纸舒展';
+    const base=isB?'./onetake/comp.html':'/';
+    const args=isB?(mode==='reduced'?'reduced':mode==='play'?'play':'t='+Number(mode)/1000):'opening='+mode;
+    app.src=base+'?'+args+'&replay='+Date.now();
+  }
+  version.addEventListener('change',()=>{slider.value=0;time.value='播放中';source('play');});
+  document.getElementById('play').addEventListener('click',()=>{slider.value=0;time.value='播放中';source('play');});
+  document.getElementById('reduce').addEventListener('click',()=>{time.value='静态';source('reduced');});
+  slider.addEventListener('input',()=>{time.value=slider.value+' ms';source(slider.value);});
+  source('play');
+</script>
+</html>

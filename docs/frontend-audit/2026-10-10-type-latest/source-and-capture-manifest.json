@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-10",
+  "source": "/Users/outsider/SEVB/Type",
+  "commit": "c84d53d143375e8feeda86d0c26048dde126ac8a",
+  "source_sha256": {
+    "src/App.jsx": "0012998dd3f18c00914eff80738e3b68ae7b2e29b737b1d207f57042c70207b9",
+    "src/styles.css": "716566ceeb68134745c545a218b9686b64ac95b5c532d939b615f7e4d936fd0f",
+    "src/components/SkillEditor.jsx": "4b94e69fa708f85071d20bc63363201f4b670e2bb44216bec3fab9551607b7ad",
+    "src/components/AnswerCard.jsx": "111b21867e5b3d3ab93772558425bce6b6701c0a513c669fed0bc5eee6a335bd"
+  },
+  "screenshots": [
+    {
+      "file": "01-overview.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "b66700b9831533260da7d23c81a326143a5b4a82bfa8f211ceff8748b629bd45",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "02-overview-unconfigured.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "95498965ea604b29b46e43bbfd430eab104bbe31a6fec9c3e42042c258724355",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "03-model-speech.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "8e485290dbd49a5762fb9d5bca957980e5ade68cc528182a855d5a5d5f2f9c2a",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "04-model-text.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "54f786a5079319c3dec95499865afdbb0c81bf5ccce420bbb8d22cd62d6471ac",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "05-writing-after-navigation.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "2150339ad6820ee4e81ddaff8d52e3d37867ae4bcb44e6f6b0f1c4e97da8ac26",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "06-skills.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "39315a1d702b6351ed1f8eb934c8f31c2853902709760e5c7353fadde121b2c1",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "07-skill-editor.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "79f4993cc91237853a308b901139808b6dfc41bf7284786c7efbc3e9c168f137",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "08-skill-editor-860.jpg",
+      "width": 860,
+      "height": 620,
+      "sha256": "30f6e956ec3476428c3bde333934f82af24faa418f631b2dabb3ab9ccbb1186d",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "09-min-window-navigation.jpg",
+      "width": 640,
+      "height": 480,
+      "sha256": "ebd63f3535980f387434a2a27e656fa1749bf87e13a0142007219cba7728f810",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "10-vocabulary.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "4ac5f157a00f84e50e167822365eba12bbc900d1b60eb1131053f0d3799d7858",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "11-shortcuts.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "33f22cfd33f637cb63d8b0c052836161000b468e6179b464ba9203c848535592",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "12-shortcut-toggles.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "66225746be939b803026daee3e87e2bd23d7cfe82e63c9fdbc2677270a350784",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "13-history.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "aba300ad323d8f7fa4e7acb01a7a5feece84a72d7249da3343771811ffbe8718",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "14-history-correction.jpg",
+      "width": 1060,
+      "height": 720,
+      "sha256": "d4b2498484b3e9944d0ae718b8f39173e33351f7398f3af01185932a07642619",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "15-answer-card.jpg",
+      "width": 460,
+      "height": 520,
+      "sha256": "922f45b9fc8bcf9b056693181544300b14d84486d9b76d1a66f881bd966d7313",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "16-answer-keyboard-focus.jpg",
+      "width": 460,
+      "height": 520,
+      "sha256": "2d3b45102302f902b9a94b2e53cf193305ec0ee1e0e93c3ec1a6bcf5757798b3",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "17-answer-min-window.jpg",
+      "width": 360,
+      "height": 320,
+      "sha256": "2125c8fc991c1d6edf79aed46d6193fa278c3191b69779494729e1b38943b5cc",
+      "saved_file_inspected": true
+    },
+    {
+      "file": "18-recording-hud.jpg",
+      "width": 240,
+      "height": 160,
+      "sha256": "8a059b2544411050f62d783c1b45761acbe66e80165885fe81ca7f59cba82f19",
+      "saved_file_inspected": true
+    }
+  ]
+}

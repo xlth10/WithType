@@ -1,0 +1,27 @@
+{
+  "request": {
+    "tool": "open_binary",
+    "arguments": {
+      "path": "/private/tmp/rea-superwhisper.dmg"
+    },
+    "save": "open-package"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"path\":\"/private/tmp/rea-superwhisper.dmg\",\"format\":\"dmg\",\"kind\":\"archive\",\"loaderArgs\":[],\"sha256\":\"08712e6370a7b33adf877a0550ce061b0a48989a2dc0c334b792aaaeca9a29da\",\"architecture\":null}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "path": "/private/tmp/rea-superwhisper.dmg",
+        "format": "dmg",
+        "kind": "archive",
+        "loaderArgs": [],
+        "sha256": "08712e6370a7b33adf877a0550ce061b0a48989a2dc0c334b792aaaeca9a29da",
+        "architecture": null
+      }
+    }
+  }
+}

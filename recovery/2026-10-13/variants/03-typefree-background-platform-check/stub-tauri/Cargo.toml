@@ -1,0 +1,8 @@
+[package]
+name = "tauri"
+version = "0.0.0"
+edition = "2021"
+[dependencies]
+macros = { path = "../stub-macros" }
+serde = "1"
+tokio = { version = "1", features = ["rt-multi-thread"] }

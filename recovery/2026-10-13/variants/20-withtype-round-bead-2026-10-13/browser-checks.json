@@ -1,0 +1,20 @@
+[
+  {
+    "duration": "3.6",
+    "phase": "drop",
+    "time": "0.620000",
+    "welcome": "Welcome, Ellen"
+  },
+  {
+    "duration": "3.6",
+    "phase": "absorb",
+    "time": "0.760000",
+    "welcome": "Welcome, Ellen"
+  },
+  {
+    "duration": "3.6",
+    "phase": "welcome",
+    "time": "2.200000",
+    "welcome": "Welcome, Ellen"
+  }
+]

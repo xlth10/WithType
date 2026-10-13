@@ -1,0 +1,8 @@
+{
+  "border": "0px none rgb(40, 44, 39)",
+  "boxShadow": "none",
+  "containerBorder": "1px solid rgb(220, 227, 210)",
+  "focused": true,
+  "label": "继续追问",
+  "outline": "rgb(40, 44, 39) none 3px"
+}

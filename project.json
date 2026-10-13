@@ -1,6 +1,6 @@
 {
   "id": "15",
-  "title": "Typefree Windows 非官方复现",
+  "title": "WithType",
   "oneLiner": "使用切换式快捷键与墨珠动效，在 Windows 口述上屏并自动学习用户纠正的术语。",
   "category": "Windows 语音输入与 AI 文字整理",
   "status": "implementing",
@@ -30,7 +30,7 @@
     "https://github.com/kdsz001/typefree",
     "/Users/outsider/SEVB/VA/vibevoice-windows"
   ],
-  "repoPath": "projects/15-typefree-windows",
+  "repoPath": "projects/15-withtype",
   "demoUrl": "",
   "sourceUrl": ""
 }

@@ -1,0 +1,44 @@
+{
+  "click": {
+    "H": 720,
+    "W": 1060,
+    "finished": "true",
+    "inert": false,
+    "inkOpacity": 0,
+    "matrix": "none",
+    "overflow": false,
+    "phase": "ready",
+    "t": 3.6,
+    "uiOpacity": 1
+  },
+  "keyboard": {
+    "finished": "true",
+    "focus": "开始",
+    "inert": false
+  },
+  "reduced": {
+    "H": 720,
+    "W": 1060,
+    "finished": "true",
+    "inert": false,
+    "inkOpacity": 0,
+    "matrix": "none",
+    "overflow": false,
+    "phase": "ready",
+    "t": 3.6,
+    "uiOpacity": 1
+  },
+  "normalPreview": {
+    "H": 720,
+    "W": 1060,
+    "finished": "true",
+    "inert": false,
+    "inkOpacity": 0,
+    "matrix": "none",
+    "overflow": false,
+    "phase": "ready",
+    "t": 3.6,
+    "uiOpacity": 1
+  },
+  "playbackMs": "3612.4"
+}

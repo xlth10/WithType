@@ -4,6 +4,12 @@
 - `src/text/builtinSkills.js` 的日常语音整理提示词改编自同一固定版本的 `AIPolisher.swift` 中 `cloudASRPolishPrompt`，同样遵循 GPL-3.0；增加的 Skill 和问答提示词属于此 Windows 实现。
 - 基础 Tauri/React 实现与 `src/voice/motion.js` 的 D 墨珠算法来自用户提供的本机 `vibevoice-windows` 项目。未在该项目发现单独许可声明；外部分发前需确认其授权。
 - `pinyin-pro`：zh-lx，MIT，负责本地拼音转换。其许可随 npm 包保留。
-- 未使用 Typefree 原版图标或官网素材；界面明确标识非官方 Windows 实现。
+- 随包界面字体：Noto Sans SC Sans2.004，字体元数据保留 Adobe 2014–2021 版权及 Reserved Font Name 'Source'，采用 [SIL Open Font License 1.1](public/fonts/OFL-NotoSansSC.txt)，保留 [版权信息](public/fonts/COPYRIGHT-NotoSansSC.txt)。资源从用户指定的本机 Type 项目同步，为 WOFF2 容器转换，原始字形与字体元数据未修改；来源、文件大小与 SHA-256 见 [字体清单](public/fonts/manifest.json)。安装包与便携包的打包配置均纳入许可和版权文件。
+- WithType 是独立的 Windows 实现，未使用 Typefree 原版图标或官网素材；原作名称仅用于来源与许可归属。
 
-- 界面字体使用 [Noto Sans SC](https://github.com/notofonts/noto-cjk)，固定 `Sans2.004` 中的 `NotoSansSC-VF.ttf`，转换为 WOFF2 容器，保留全部字形与原元数据；遵循 [SIL Open Font License 1.1](public/fonts/OFL-NotoSansSC.txt)。版权声明见 [COPYRIGHT-NotoSansSC.txt](public/fonts/COPYRIGHT-NotoSansSC.txt)，来源与 SHA-256 见 `public/fonts/manifest.json`。字体原作者归属保留，不作为本项目原创素材。
+
+## OneTake 历史动画实验
+
+`docs/design/app-opening-2026-10-12/onetake/motion.js` 是保留的实验依赖，来源 https://github.com/feitangyuan/onetake ，许可为 PolyForm Noncommercial 1.0.0，完整许可在同目录 `LICENSE`。历史 B、C1 和批准参考页使用它，正式应用入口不导入该文件；生产绘制器由本项目实现，其运动值使用标准数学方程。
+
+Required Notice: Copyright (c) 2026 Patrick. onetake is free for noncommercial use only.

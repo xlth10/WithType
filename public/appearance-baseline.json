@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "reference": "User-selected local Type appearance, 2026-10-12",
+  "colorSpace": "CSS sRGB",
+  "palette": {
+    "--ink": "#282c27",
+    "--muted": "#676b63",
+    "--faint": "#686e62",
+    "--line": "#e5e6de",
+    "--line-strong": "#d3d6cb",
+    "--surface": "#fcfcf9",
+    "--sidebar": "#efefe9",
+    "--hover": "#e7e9df",
+    "--selected": "#dfe3d7",
+    "--success": "#2f7d55",
+    "--workspace": "#f8f9f4",
+    "--card": "#fcfcf8",
+    "--hud-paper": "#fafbf6"
+  },
+  "componentColors": {
+    "hero": "#f0f2e9",
+    "answerHeader": "#f1f4eb",
+    "answerQuestion": "#ecefe5",
+    "followup": "#f0f3e9",
+    "preview": "#f4f6ef",
+    "hudInk": "#41433f",
+    "hudSoftInk": "#777a74",
+    "hudMotionPaper": "#fbfbfa"
+  },
+  "font": {
+    "family": "Noto Sans SC",
+    "cssFamily": "Typefree UI",
+    "version": "Sans2.004",
+    "source": "https://github.com/notofonts/noto-cjk/blob/Sans2.004/Sans/Variable/TTF/Subset/NotoSansSC-VF.ttf",
+    "license": "SIL Open Font License 1.1",
+    "licenseSource": "https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE",
+    "file": "noto-sans-sc-variable.woff2",
+    "glyphs": 31036,
+    "weightRange": [
+      100,
+      900
+    ],
+    "sourceSha256": "d68bafcb48a2707749396aa12bbbd833cb70401f3a9a689fd2902c7e0d295964",
+    "woff2Sha256": "a5822f9d6ef83d113dd94741221c16ba7a321f63033a02bd164968188995d547",
+    "bytes": 7779480,
+    "conversion": "Container conversion only; glyphs and name/copyright/license metadata preserved."
+  },
+  "cssColorScheme": "only light",
+  "windows": [
+    {
+      "label": "main",
+      "theme": "Light",
+      "backgroundColor": "#f8f9f4",
+      "transparent": false,
+      "width": 1060,
+      "height": 720
+    },
+    {
+      "label": "overlay",
+      "theme": "Light",
+      "backgroundColor": "#00000000",
+      "transparent": true,
+      "width": 140,
+      "height": 64
+    },
+    {
+      "label": "answer",
+      "theme": "Light",
+      "backgroundColor": "#00000000",
+      "transparent": true,
+      "width": 460,
+      "height": 520
+    }
+  ],
+  "sourceSha256": {
+    "src/styles.css": "e83ec371f07ba9ed5c5fff8f20835873b0ee0ec8b446ed675e605709d0380fbc",
+    "src/main.jsx": "45c8ab61adfeaf4c23484aa73d97b29ec3811aac4cbdb1aa4b3d0ab2b41afba0",
+    "src/ui/AppEntrance.jsx": "c79e761b1742e11d0369c44554b073535eeaaf7f7f31fa60cb4d6f04e6599f4d",
+    "src/ui/inkWelcome.js": "ec4bf9c546a8c0bda6f739d35d6ce362a06957b2633a19658d029a5c2bf0c429",
+    "src/ui/inkWelcomeMotion.js": "7967c49800f7aee99241afb5bfa6fea0403365a8395934d260a6e84670ad5f93",
+    "src/ui/inkWelcomePlayer.js": "99954980cd9a431c34a384821db7a38df7ce372f018f5663a77effbb56196395",
+    "src/ui/ink-welcome.css": "2e018d7c7132763facd57c21cf7f94cb295a22971cf568ddec8aeab2268b7f64",
+    "src/ui/welcome.js": "9e48c5da6de50d4845eeddd23943a0f88981ca9a8231ba2d84e5758f347a291b",
+    "index.html": "eb8fc38a52d2b72814d843be9549469c2362753afbc093e16c81686b4ecfe6f9",
+    "src/voice/motion.js": "f0fcef91c6e3838113fcd5ea4479e4fe8401b2d0db94dc99e2c9210b419411d4",
+    "src-tauri/tauri.conf.json": "285b1d632fdd91ac2e4a5f5cc27548e3f0c320100e6c7a88c7dbcb3f5b183d99"
+  }
+}

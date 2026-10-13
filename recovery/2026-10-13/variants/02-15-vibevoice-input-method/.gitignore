@@ -1,0 +1,5 @@
+.build/
+dist/
+runtime/VibeASR.cpp-main/build/
+runtime/VibeASR.cpp-main/models/
+.DS_Store

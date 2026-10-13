@@ -1,0 +1,130 @@
+{
+  "nativeFrameCount": 97,
+  "noOverflow": true,
+  "inkWithinFrame": true,
+  "deterministic0600": true,
+  "welcomeRestPixelIdentical": true,
+  "restSampleWindowSeconds": [
+    1.6333333333333333,
+    2.3
+  ],
+  "finalMatchesHydratedVersionA": true,
+  "gifAnimationDurationMs": 3200,
+  "gifFinalHoldMs": 1200,
+  "draftFrames": 97,
+  "draftCaptures": 310,
+  "browser": {
+    "minimum": {
+      "H": 480,
+      "W": 640,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 416.5,
+        "x": 111.75,
+        "y": 121
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -240, -180)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.8,
+      "uiOpacity": 0
+    },
+    "click": {
+      "H": 480,
+      "W": 640,
+      "finished": "true",
+      "inkBox": {
+        "h": 136,
+        "w": 238,
+        "x": 201,
+        "y": 172
+      },
+      "inkOpacity": 0,
+      "matrix": "none",
+      "overflow": false,
+      "phase": "ready",
+      "ready": "true",
+      "t": 3.2,
+      "uiOpacity": 1
+    },
+    "keyboard": {
+      "finished": "true",
+      "focus": "开始",
+      "inert": false
+    },
+    "reduced": {
+      "H": 480,
+      "W": 640,
+      "finished": "true",
+      "inkBox": {
+        "h": 136,
+        "w": 238,
+        "x": 201,
+        "y": 172
+      },
+      "inkOpacity": 0,
+      "matrix": "none",
+      "overflow": false,
+      "phase": "ready",
+      "ready": "true",
+      "t": 3.2,
+      "uiOpacity": 1
+    },
+    "normalPreview": {
+      "finished": "true",
+      "playbackMs": "3200.5"
+    }
+  },
+  "continuity": {
+    "score": 1.0,
+    "events": [],
+    "considered": 0,
+    "bare": 0,
+    "cuts": 0,
+    "bursts": []
+  },
+  "curves": {
+    "moves": [
+      {
+        "t0": 0.933,
+        "t1": 1.467,
+        "path": 143.7,
+        "t80": 0.562,
+        "peak": 22.3,
+        "overshoot": 0.0,
+        "id": "ink"
+      },
+      {
+        "t0": 0.133,
+        "t1": 0.5,
+        "path": 73.2,
+        "t80": 0.818,
+        "peak": 9.6,
+        "overshoot": 0.0,
+        "id": "ink"
+      },
+      {
+        "t0": 2.333,
+        "t1": 2.633,
+        "path": 46.2,
+        "t80": 0.889,
+        "peak": 8.0,
+        "overshoot": 0.0,
+        "id": "ink"
+      }
+    ],
+    "peak": 22.3,
+    "peak_at": [
+      "ink:",
+      0.933
+    ],
+    "soft_share": 1.0,
+    "t80_median": 0.562,
+    "count": 3
+  },
+  "oracleLimits": "The film oracle exempts the last 1.2 seconds and tracks the ink canvas bounding box, not every glyph or material boundary. Rest/framing/pixel checks and the authored script remain necessary. Zero considered boundaries were detected; the 1.0 score is not evidence that beat carries passed.",
+  "curvesPlot": "Not generated: optional matplotlib is unavailable; original numerical curves and continuity functions ran successfully."
+}

@@ -1,0 +1,155 @@
+{
+  "request": {
+    "tool": "binary_overview",
+    "arguments": {},
+    "save": "overview"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"document\":\"superwhisper.hop\",\"segments\":[{\"name\":\"__TEXT\",\"start\":\"0x100000000\",\"end\":\"0x101378000\",\"length\":20414464},{\"name\":\"__DATA_CONST\",\"start\":\"0x101378000\",\"end\":\"0x101418000\",\"length\":655360},{\"name\":\"__DATA\",\"start\":\"0x101418000\",\"end\":\"0x1015d8000\",\"length\":1835008},{\"name\":\"__LINKEDIT\",\"start\":\"0x1015d8000\",\"end\":\"0x101790000\",\"length\":1802240},{\"name\":\"External Symbols\",\"start\":\"0x101790000\",\"end\":\"0x10179bda8\",\"length\":48552}],\"segment_count\":5,\"procedure_count\":83561,\"string_count\":32113},\"evidence_id\":\"ev_fa1c53044b3408520d8886ffaab7d446e3ddddf443ad5d2142d560aeb670d4f3\",\"evidence\":{\"evidence_id\":\"ev_fa1c53044b3408520d8886ffaab7d446e3ddddf443ad5d2142d560aeb670d4f3\",\"subject\":{\"name\":\"superwhisper\",\"digest\":{\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\"},\"format\":\"mach-o\",\"architecture\":\"arm64\",\"local_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\"},\"provider\":{\"id\":\"rea-workflow\",\"name\":\"REA composed investigation workflow\",\"version\":\"1\"},\"predicate_type\":\"rea.analysis\",\"operation\":\"binary_overview\",\"parameters\":{},\"raw_result\":null,\"normalized_result\":{\"document\":\"superwhisper.hop\",\"segments\":[{\"name\":\"__TEXT\",\"start\":\"0x100000000\",\"end\":\"0x101378000\",\"length\":20414464},{\"name\":\"__DATA_CONST\",\"start\":\"0x101378000\",\"end\":\"0x101418000\",\"length\":655360},{\"name\":\"__DATA\",\"start\":\"0x101418000\",\"end\":\"0x1015d8000\",\"length\":1835008},{\"name\":\"__LINKEDIT\",\"start\":\"0x1015d8000\",\"end\":\"0x101790000\",\"length\":1802240},{\"name\":\"External Symbols\",\"start\":\"0x101790000\",\"end\":\"0x10179bda8\",\"length\":48552}],\"segment_count\":5,\"procedure_count\":83561,\"string_count\":32113},\"confidence\":\"derived\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"Derived by an REA workflow from one or more provider observations.\"],\"locations\":[],\"evidence_links\":[],\"analysis_profile\":{\"provider\":{\"id\":\"rea-workflow\",\"name\":\"REA composed investigation workflow\",\"version\":\"1\"},\"parameters\":{\"upstream_analysis_profile\":{\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"parameters\":{\"target_kind\":\"executable\",\"target_format\":\"mach-o\",\"architecture\":\"arm64\",\"available_architectures\":[\"arm64\",\"x86_64\"],\"loader\":{\"source\":\"derived\",\"argument_count\":5,\"arguments_sha256\":\"3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5\"}},\"digest\":\"61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236\"}},\"digest\":\"c34d2a00474c98c73a41733eb6fc8a564b8e465445d8d77f32eb1278653adf93\"}}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "document": "superwhisper.hop",
+        "segments": [
+          {
+            "name": "__TEXT",
+            "start": "0x100000000",
+            "end": "0x101378000",
+            "length": 20414464
+          },
+          {
+            "name": "__DATA_CONST",
+            "start": "0x101378000",
+            "end": "0x101418000",
+            "length": 655360
+          },
+          {
+            "name": "__DATA",
+            "start": "0x101418000",
+            "end": "0x1015d8000",
+            "length": 1835008
+          },
+          {
+            "name": "__LINKEDIT",
+            "start": "0x1015d8000",
+            "end": "0x101790000",
+            "length": 1802240
+          },
+          {
+            "name": "External Symbols",
+            "start": "0x101790000",
+            "end": "0x10179bda8",
+            "length": 48552
+          }
+        ],
+        "segment_count": 5,
+        "procedure_count": 83561,
+        "string_count": 32113
+      },
+      "evidence_id": "ev_fa1c53044b3408520d8886ffaab7d446e3ddddf443ad5d2142d560aeb670d4f3",
+      "evidence": {
+        "evidence_id": "ev_fa1c53044b3408520d8886ffaab7d446e3ddddf443ad5d2142d560aeb670d4f3",
+        "subject": {
+          "name": "superwhisper",
+          "digest": {
+            "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a"
+          },
+          "format": "mach-o",
+          "architecture": "arm64",
+          "local_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper"
+        },
+        "provider": {
+          "id": "rea-workflow",
+          "name": "REA composed investigation workflow",
+          "version": "1"
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "binary_overview",
+        "parameters": {},
+        "raw_result": null,
+        "normalized_result": {
+          "document": "superwhisper.hop",
+          "segments": [
+            {
+              "name": "__TEXT",
+              "start": "0x100000000",
+              "end": "0x101378000",
+              "length": 20414464
+            },
+            {
+              "name": "__DATA_CONST",
+              "start": "0x101378000",
+              "end": "0x101418000",
+              "length": 655360
+            },
+            {
+              "name": "__DATA",
+              "start": "0x101418000",
+              "end": "0x1015d8000",
+              "length": 1835008
+            },
+            {
+              "name": "__LINKEDIT",
+              "start": "0x1015d8000",
+              "end": "0x101790000",
+              "length": 1802240
+            },
+            {
+              "name": "External Symbols",
+              "start": "0x101790000",
+              "end": "0x10179bda8",
+              "length": 48552
+            }
+          ],
+          "segment_count": 5,
+          "procedure_count": 83561,
+          "string_count": 32113
+        },
+        "confidence": "derived",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "Derived by an REA workflow from one or more provider observations."
+        ],
+        "locations": [],
+        "evidence_links": [],
+        "analysis_profile": {
+          "provider": {
+            "id": "rea-workflow",
+            "name": "REA composed investigation workflow",
+            "version": "1"
+          },
+          "parameters": {
+            "upstream_analysis_profile": {
+              "provider": {
+                "id": "hopper",
+                "name": "Hopper Disassembler",
+                "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+              },
+              "parameters": {
+                "target_kind": "executable",
+                "target_format": "mach-o",
+                "architecture": "arm64",
+                "available_architectures": [
+                  "arm64",
+                  "x86_64"
+                ],
+                "loader": {
+                  "source": "derived",
+                  "argument_count": 5,
+                  "arguments_sha256": "3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5"
+                }
+              },
+              "digest": "61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236"
+            }
+          },
+          "digest": "c34d2a00474c98c73a41733eb6fc8a564b8e465445d8d77f32eb1278653adf93"
+        }
+      }
+    }
+  }
+}

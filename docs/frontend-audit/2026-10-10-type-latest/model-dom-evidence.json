@@ -1,0 +1,65 @@
+{
+  "fields": [
+    {
+      "label": "文字 API 地址",
+      "width": 735
+    },
+    {
+      "label": "文字模型名称",
+      "width": 358
+    },
+    {
+      "label": "快速模型（可选）",
+      "width": 358
+    },
+    {
+      "label": "备用模型（可选）",
+      "width": 358
+    },
+    {
+      "label": "认证方式",
+      "width": 358
+    },
+    {
+      "label": "响应超时",
+      "width": 358
+    },
+    {
+      "label": "文字 API Key",
+      "width": 358
+    }
+  ],
+  "hints": [
+    {
+      "background": "rgb(252, 252, 249)",
+      "color": "rgb(119, 123, 114)",
+      "label": "填写到 /v1 即可，例如 http://10.0.0.9:8000/v1；留空则不启用文字整理",
+      "size": "12px"
+    },
+    {
+      "background": "rgb(252, 252, 249)",
+      "color": "rgb(119, 123, 114)",
+      "label": "例如 Qwen3-8B、deepseek-v3；留空则不启用文字整理",
+      "size": "12px"
+    },
+    {
+      "background": "rgb(252, 252, 249)",
+      "color": "rgb(119, 123, 114)",
+      "label": "意图判断与翻译优先使用；留空时使用主模型。",
+      "size": "12px"
+    },
+    {
+      "background": "rgb(252, 252, 249)",
+      "color": "rgb(119, 123, 114)",
+      "label": "同一服务下的模型名称，用逗号分隔。仅超时、网络错误或限流时按顺序尝试。",
+      "size": "12px"
+    },
+    {
+      "background": "rgb(252, 252, 249)",
+      "color": "rgb(119, 123, 114)",
+      "label": "保存后写入 Windows 凭据库，不进入配置文件与浏览器存储",
+      "size": "12px"
+    }
+  ],
+  "scrollTop": 1124
+}

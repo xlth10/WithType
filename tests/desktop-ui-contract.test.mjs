@@ -42,7 +42,7 @@ test("three native windows keep design sizes, light theme and neutral zoom", asy
 
 test("visible product identity matches the frontend and native windows while saved identity remains compatible", async () => {
   assert.equal(config.productName, BRAND.name);
-  assert.equal(config.mainBinaryName, "typefree");
+  assert.equal(config.mainBinaryName, "withtype");
   assert.equal(config.identifier, "app.typefree.windows.unofficial");
   assert.equal(config.app.windows.find((window) => window.label === "main").title, BRAND.name);
   assert.ok(config.app.windows.every((window) => window.title.startsWith(BRAND.name)));
@@ -75,7 +75,7 @@ test("icons, font licenses and portable archive paths stay in sync", async () =>
   assert.match(await read("src-tauri/src/lib.rs"), /include_bytes!\("\.\.\/icons\/ink-v3\/icon\.ico"\)/);
   assert.ok(config.bundle.icon.every((path) => path.startsWith("icons/ink-v3/")));
   const portable = await read("scripts/package-windows.ps1");
-  assert.match(portable, /typefree-x64-portable\.zip/);
-  assert.match(portable, /\$members = @\([^\n]*\$fontLicenseDestination, \$fontCopyrightDestination\)/);
-  assert.match(await read(".github/workflows/build-windows.yml"), /dist\/windows\/typefree-x64-portable\.zip/);
+  assert.match(portable, /withtype-windows-x64-portable\.zip/);
+  assert.match(portable, /\$members = @\([^\n]*\$fontLicenseDestination, \$fontCopyrightDestination, \$fontManifestDestination, \$appearanceDestination\)/);
+  assert.match(await read(".github/workflows/build-windows.yml"), /dist\/windows\/withtype-windows-x64-portable\.zip/);
 });

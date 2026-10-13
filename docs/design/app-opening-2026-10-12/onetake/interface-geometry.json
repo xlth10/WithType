@@ -1,0 +1,97 @@
+{
+  "versionA": {
+    ".app-shell": {
+      "background": "rgb(252, 252, 249)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 720,
+      "w": 1060,
+      "x": 0,
+      "y": 0
+    },
+    ".hero-card": {
+      "background": "rgb(240, 242, 233)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 256,
+      "w": 781,
+      "x": 244,
+      "y": 226.09375
+    },
+    ".sidebar": {
+      "background": "rgb(239, 239, 233)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 720,
+      "w": 220,
+      "x": 0,
+      "y": 0
+    },
+    ".topbar": {
+      "background": "rgba(248, 249, 244, 0.96)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 60,
+      "w": 829,
+      "x": 220,
+      "y": 0
+    },
+    ".workspace": {
+      "background": "rgb(248, 249, 244)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 720,
+      "w": 840,
+      "x": 220,
+      "y": 0
+    }
+  },
+  "versionB": {
+    ".app-shell": {
+      "background": "rgb(252, 252, 249)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 720,
+      "w": 1060,
+      "x": 0,
+      "y": 0
+    },
+    ".hero-card": {
+      "background": "rgb(240, 242, 233)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 256,
+      "w": 781,
+      "x": 244,
+      "y": 226.09375
+    },
+    ".sidebar": {
+      "background": "rgb(239, 239, 233)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 720,
+      "w": 220,
+      "x": 0,
+      "y": 0
+    },
+    ".topbar": {
+      "background": "rgba(248, 249, 244, 0.96)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 60,
+      "w": 829,
+      "x": 220,
+      "y": 0
+    },
+    ".workspace": {
+      "background": "rgb(248, 249, 244)",
+      "color": "rgb(40, 44, 39)",
+      "font": "14px / 21px \"Typefree UI\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif",
+      "h": 720,
+      "w": 840,
+      "x": 220,
+      "y": 0
+    }
+  },
+  "identical": true
+}

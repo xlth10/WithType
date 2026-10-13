@@ -1,0 +1,32 @@
+{
+  "request": {
+    "tool": "extract_artifact",
+    "arguments": {},
+    "save": "extract-package"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"error\":{\"code\":\"artifact_operation_failed\",\"category\":\"unavailable\",\"message\":\"Artifact processing is unavailable for the current target or host. Check artifact support and required tools.\",\"retryable\":false,\"remediation\":{\"action\":\"Artifact processing is unavailable for the current target or host. Check artifact support and required tools.\"},\"details\":{\"operation\":\"extract_artifact\",\"reason\":\"unavailable\",\"detail\":\"Artifact format has no extraction reader: dmg\"}}}"
+      }
+    ],
+    "structuredContent": {
+      "error": {
+        "code": "artifact_operation_failed",
+        "category": "unavailable",
+        "message": "Artifact processing is unavailable for the current target or host. Check artifact support and required tools.",
+        "retryable": false,
+        "remediation": {
+          "action": "Artifact processing is unavailable for the current target or host. Check artifact support and required tools."
+        },
+        "details": {
+          "operation": "extract_artifact",
+          "reason": "unavailable",
+          "detail": "Artifact format has no extraction reader: dmg"
+        }
+      }
+    },
+    "isError": true
+  }
+}

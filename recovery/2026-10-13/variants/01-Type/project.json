@@ -1,0 +1,36 @@
+{
+  "id": "15",
+  "title": "Typefree Windows 非官方复现",
+  "oneLiner": "使用切换式快捷键与墨珠动效，在 Windows 口述上屏并自动学习用户纠正的术语。",
+  "category": "Windows 语音输入与 AI 文字整理",
+  "status": "implementing",
+  "startedAt": "2026-09-24",
+  "featured": false,
+  "coverImage": "",
+  "targetUser": "希望在 Windows 任意应用使用快捷键口述、自备模型服务和自动词库的用户",
+  "problem": "Typefree 的官方源码是 macOS Swift 应用，无法直接在 Windows 运行。",
+  "hypothesis": "使用 Windows 原生全局快捷键、WASAPI 采集与分段识别、OpenAI 兼容 WAV 接口和受保护的本地数据，可复现跨应用语音输入与恢复体验。",
+  "techStack": [
+    "Tauri 2",
+    "Rust",
+    "React",
+    "WebView2",
+    "WASAPI",
+    "Windows DPAPI",
+    "Windows Credential Manager",
+    "Windows UI Automation"
+  ],
+  "codexRole": [
+    "原版功能与许可核查",
+    "Windows 客户端实现",
+    "模型与快捷键集成",
+    "测试与构建配置"
+  ],
+  "references": [
+    "https://github.com/kdsz001/typefree",
+    "/Users/outsider/SEVB/VA/vibevoice-windows"
+  ],
+  "repoPath": "projects/15-typefree-windows",
+  "demoUrl": "",
+  "sourceUrl": ""
+}

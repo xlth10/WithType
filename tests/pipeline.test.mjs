@@ -70,7 +70,7 @@ test("只为允许自动学习的普通口述启动纠正观察，附带本次�
     const pipeline = createPipeline({ invoke: async (command, payload) => {
       if (command === "transcribe_audio") return { text: "明天开会" };
       if (command === "process_text") return { text: "已处理" };
-      if (command === "paste_text") { pastes.push(payload); return; }
+      if (command === "paste_text") { pastes.push(payload); return { status: "inserted", copied: true, pasted: true }; }
       throw new Error(command);
     } });
     const settings = { ...TEXT_SETTINGS, autoLearn, actionSkillId: BUILTIN_SKILLS[1].id };
@@ -89,7 +89,7 @@ test("关闭自动学习仍使用已保存词库；关闭自动粘贴不会启�
   const result = await pipeline.complete({ snapshot: pipeline.begin({ intent: "dictation", settings }), audio: AUDIO });
   assert.equal(result.text, "联系徐翔");
   assert.equal(result.pasted, false);
-  assert.deepEqual(calls, ["transcribe_audio"]);
+  assert.deepEqual(calls, ["transcribe_audio", "copy_text"]);
 });
 
 test("语音命令保持原始命令语义，不应用自动词库", async () => {
@@ -124,8 +124,9 @@ function makeBackend(handlers = {}) {
     calls.push(command);
     if (command === "paste_text") {
       pasted.push(payload.text);
-      return null;
+      return { status: "inserted", copied: true, pasted: true, message: "已输入" };
     }
+    if (command === "copy_text") return { status: "copied", copied: true, pasted: false, message: "已复制" };
     const handler = handlers[command];
     if (!handler) throw new Error(`测试里未预期的调用：${command}`);
     return handler(payload);
@@ -170,7 +171,7 @@ test("粘贴失败保留最终结果并退出处理中，命令原句不会被�
   const failure = findEvent(events, "paste-failed");
   assert.equal(failure.text, result.text);
   assert.equal(failure.rawText, "帮我写封邮件");
-  assert.match(failure.message, /历史记录中复制/);
+  assert.match(failure.message, /结果已保留/);
   assert.equal(findEvent(events, "done"), null);
 });
 
@@ -199,7 +200,7 @@ test("粘贴拒绝迟到时，取消或开始新任务不会写入旧结果", as
   }
 });
 
-test("文字重试和主动插入原文也处理粘贴失败", async () => {
+test("文字重试和保留原文只复制，复制失败也保留结果", async () => {
   const events = [];
   const pipeline = createPipeline({
     invoke: async (command) => {
@@ -210,21 +211,25 @@ test("文字重试和主动插入原文也处理粘贴失败", async () => {
   });
   for (const method of ["retry", "insertRaw"]) {
     const result = await pipeline[method]({ intent: "dictation", rawText: "应保留的文字", settings: LOCAL_SETTINGS });
-    assert.equal(result.stage, "paste");
+    assert.equal(result.stage, "copy");
     assert.equal(result.text, "应保留的文字");
+    assert.equal(result.delivery.status, "retained");
     assert.equal(pipeline.current(), null);
   }
-  assert.equal(events.filter((e) => e.type === "paste-failed").length, 2);
+  assert.equal(events.filter((e) => e.type === "done" && e.delivery.status === "retained").length, 2);
 });
 
 test("取消后迟到的 ASR 结果不改状态、不上屏", async () => {
   let resolveAsr;
+  let markStarted;
+  const started = new Promise((resolve) => { markStarted = resolve; });
   const { pipeline, events, calls, pasted } = makePipeline({
-    transcribe_audio: () => new Promise((resolve) => { resolveAsr = resolve; }),
+    transcribe_audio: () => new Promise((resolve) => { resolveAsr = resolve; markStarted(); }),
   });
 
   const snapshot = pipeline.begin({ intent: "dictation", settings: LOCAL_SETTINGS });
   const task = pipeline.complete({ snapshot, audio: AUDIO });
+  await started;
   pipeline.cancel();
   resolveAsr({ text: "这段文字不该出现", durationMs: 100 });
 
@@ -251,7 +256,9 @@ test("取消后迟到的文字结果同样不上屏", async () => {
   resolveText({ text: "生成好的邮件正文", durationMs: 10 });
 
   assert.deepEqual(await task, { ok: false, stage: "cancelled", stale: true });
-  assert.deepEqual(calls, ["transcribe_audio", "process_text", "cancel_paste", "cancel_audio_session", "cancel_text_request"]);
+  assert.deepEqual(calls.slice(0, 2), ["transcribe_audio", "process_text"]);
+  assert.ok(calls.includes("cancel_paste") && calls.includes("cancel_audio_session"));
+  assert.equal(calls.filter((call) => call === "cancel_text_request").length, 2, "取消当前调用和任务，防止子请求迟到");
   assert.deepEqual(pasted, []);
 });
 
@@ -433,7 +440,7 @@ test("第三个入口技能只影响本次任务", async () => {
   assert.deepEqual(pasted, ["已完成：项目交付", "项目已经交付"]);
 });
 
-test("insertRaw 对普通口述会走完上屏流程", async () => {
+test("insertRaw 对普通口述保留并复制原文，不误输入设置窗口", async () => {
   const { pipeline, calls, pasted } = makePipeline({});
 
   const result = await pipeline.insertRaw({
@@ -443,8 +450,8 @@ test("insertRaw 对普通口述会走完上屏流程", async () => {
   });
 
   assert.equal(result.ok, true);
-  assert.deepEqual(calls, ["paste_text"]);
-  assert.deepEqual(pasted, ["识别出来的原文"]);
+  assert.deepEqual(calls, ["capture_input_target", "copy_text"]);
+  assert.deepEqual(pasted, []);
 });
 
 test("smart 模式缺少文字服务时保留原文并说明原因", async () => {
@@ -604,7 +611,7 @@ test("关掉自动粘贴时仍然汇报文本，但不调用上屏", async () =>
   assert.equal(result.ok, true);
   assert.equal(result.text, "不要粘贴这段");
   assert.equal(result.pasted, false);
-  assert.deepEqual(calls, ["transcribe_audio"]);
+  assert.deepEqual(calls, ["transcribe_audio", "copy_text"]);
   assert.deepEqual(pasted, []);
 });
 
@@ -661,8 +668,8 @@ test("retry 沿用原文与意图，不重跑 ASR", async () => {
 
   assert.equal(result.ok, true);
   assert.equal(result.intent, "command");
-  assert.deepEqual(calls, ["process_text", "paste_text"]);
-  assert.deepEqual(pasted, ["生成好的邮件"]);
+  assert.deepEqual(calls, ["capture_input_target", "process_text", "copy_text"]);
+  assert.deepEqual(pasted, []);
 });
 
 test("retry 的意图沿用原值，命令不会退化成普通上屏", async () => {
@@ -678,7 +685,7 @@ test("retry 的意图沿用原值，命令不会退化成普通上屏", async ()
 
   assert.equal(result.ok, false);
   assert.equal(result.stage, "text");
-  assert.deepEqual(calls, ["process_text"]);
+  assert.deepEqual(calls, ["capture_input_target", "process_text"]);
   assert.deepEqual(pasted, []);
 });
 
@@ -761,12 +768,17 @@ test("预览失败时把原因原样带回界面", async () => {
 
 test("连续两次预览时，先返回的那一次被标为过期", async () => {
   const resolvers = [];
+  let firstStarted, secondStarted;
+  const startedFirst = new Promise((resolve) => { firstStarted = resolve; });
+  const startedSecond = new Promise((resolve) => { secondStarted = resolve; });
   const { pipeline } = makePipeline({
-    process_text: () => new Promise((resolve) => { resolvers.push(resolve); }),
+    process_text: () => new Promise((resolve) => { resolvers.push(resolve); (resolvers.length === 1 ? firstStarted : secondStarted)(); }),
   });
 
   const first = pipeline.preview({ settings: TEXT_SETTINGS, skill: BUILTIN_SKILLS[0], rawText: "第一次" });
+  await startedFirst;
   const second = pipeline.preview({ settings: TEXT_SETTINGS, skill: BUILTIN_SKILLS[0], rawText: "第二次" });
+  await startedSecond;
   resolvers[0]({ text: "第一次的结果", durationMs: 10 });
   resolvers[1]({ text: "第二次的结果", durationMs: 10 });
 

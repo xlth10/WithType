@@ -1,0 +1,334 @@
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -199,9 +199,9 @@
+   return (
+     <aside className="sidebar">
+       <div className="brand-row"><Logo /><div><strong>typefree</strong><span>非官方 · 声音写作</span></div></div>
+-      <nav>
++      <nav aria-label="主导航">
+         {items.map(([id, Icon, label]) => (
+-          <button className={page === id ? "active" : ""} key={id} onClick={() => setPage(id)}>
++          <button className={page === id ? "active" : ""} key={id} onClick={() => setPage(id)} aria-current={page === id ? "page" : undefined} aria-label={label} title={label}>
+             <Icon size={19} weight={page === id ? "fill" : "regular"} />{label}
+           </button>
+         ))}
+@@ -218,8 +218,8 @@
+   return <label className="field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>;
+ }
+ 
+-function Toggle({ checked, onChange, disabled = false }) {
+-  return <button type="button" className={`toggle ${checked ? "on" : ""}`} onClick={() => onChange(!checked)} aria-pressed={checked} disabled={disabled}><i /></button>;
++function Toggle({ label, checked, onChange, disabled = false }) {
++  return <button type="button" className={`toggle ${checked ? "on" : ""}`} onClick={() => onChange(!checked)} role="switch" aria-label={label} aria-checked={checked} disabled={disabled}><i /></button>;
+ }
+ 
+ function SpeechSettings({ settings, setSettings, online, testing, testConnection, onNotice, onKeySaved }) {
+@@ -289,11 +289,11 @@
+   return (
+     <section className="page-content">
+       <header className="page-heading"><div><span className="eyebrow">日常写法</span><h1>整理到刚刚好。</h1><p>从保留原文到重新组织，选一种你常用的处理程度。第三个快捷键另设。</p></div></header>
+-      <div className="mode-grid">
++      <div className="mode-grid" role="group" aria-label="文字整理模式">
+         {PROCESSING_MODES.map((id) => {
+           const item = MODE_META[id];
+           const Icon = item.icon;
+-          return <button key={id} className={`mode-card ${settings.processingMode === id ? "selected" : ""}`} onClick={() => setSettings({ ...settings, processingMode: id })}><span className="mode-icon"><Icon size={21} /></span><strong>{item.label}</strong><small>{item.detail}</small>{settings.processingMode === id && <span className="check-mark"><Check size={13} weight="bold" /></span>}</button>;
++          return <button key={id} className={`mode-card ${settings.processingMode === id ? "selected" : ""}`} aria-pressed={settings.processingMode === id} onClick={() => setSettings({ ...settings, processingMode: id })}><span className="mode-icon"><Icon size={21} /></span><span className="mode-copy"><strong>{item.label}</strong><small>{item.detail}</small></span>{settings.processingMode === id && <span className="check-mark"><Check size={13} weight="bold" /></span>}</button>;
+         })}
+       </div>
+ 
+@@ -467,9 +467,9 @@
+         </div>
+       </div>
+       <div className="panel settings-list">
+-        <div><div><strong>结果自动输入</strong><span>关闭后复制到剪贴板；随便问始终只显示卡片。</span></div><Toggle checked={settings.autoPaste} onChange={(value) => setSettings({ ...settings, autoPaste: value })} /></div>
+-        <div><div><strong>自动判断语音命令</strong><span>实验功能：会增加一次文字模型请求。关掉后仍可在第三个入口选择语音命令。</span></div><Toggle checked={settings.autoIntent} onChange={(value) => setSettings({ ...settings, autoIntent: value })} disabled={!settings.textEndpoint || !settings.textModel} /></div>
+-        <div><div><strong>登录 Windows 后启动</strong><span>随当前 Windows 用户登录启动本程序。</span></div><Toggle checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
++        <div><div><strong>结果自动输入</strong><span>关闭后复制到剪贴板；随便问始终只显示卡片。</span></div><Toggle label="结果自动输入" checked={settings.autoPaste} onChange={(value) => setSettings({ ...settings, autoPaste: value })} /></div>
++        <div><div><strong>自动判断语音命令</strong><span>实验功能：会增加一次文字模型请求。关掉后仍可在第三个入口选择语音命令。</span></div><Toggle label="自动判断语音命令" checked={settings.autoIntent} onChange={(value) => setSettings({ ...settings, autoIntent: value })} disabled={!settings.textEndpoint || !settings.textModel} /></div>
++        <div><div><strong>登录 Windows 后启动</strong><span>随当前 Windows 用户登录启动本程序。</span></div><Toggle label="登录 Windows 后启动" checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
+           try {
+             await desktopInvoke("set_launch_at_login", { enabled: value });
+             setSettings((current) => ({ ...current, launchAtLogin: value }));
+@@ -484,7 +484,7 @@
+   return (
+     <section className="page-content">
+       <header className="page-heading"><div><span className="eyebrow">回看</span><h1>最近说过的话</h1><p>保留最近 50 条。Windows 历史使用系统数据保护加密，应用与窗口名称不发送给模型。</p></div><div className="form-actions"><button className="button secondary" onClick={onExport}>导出历史</button>{history.length > 0 && <button className="button secondary" onClick={onClear}>清空历史</button>}</div></header>
+-      <div className="panel form-panel compact"><Field label="保留期限"><select value={retentionDays} onChange={(event) => onRetentionChange(Number(event.target.value))}><option value={7}>7 天</option><option value={30}>30 天</option><option value={90}>90 天</option><option value={365}>1 年</option><option value={0}>一直保留</option></select></Field><div><strong>保留后续录音</strong><span>默认关闭；开启后可从历史重新转写，录音与历史一同到期。</span><Toggle checked={keepAudio} onChange={onKeepAudioChange} disabled={!isTauri()} /></div></div>
++      <div className="panel form-panel compact"><Field label="保留期限"><select value={retentionDays} onChange={(event) => onRetentionChange(Number(event.target.value))}><option value={7}>7 天</option><option value={30}>30 天</option><option value={90}>90 天</option><option value={365}>1 年</option><option value={0}>一直保留</option></select></Field><div className="history-recording-setting"><div><strong>保留后续录音</strong><span>默认关闭；开启后可从历史重新转写，录音与历史一同到期。</span></div><Toggle label="保留后续录音" checked={keepAudio} onChange={onKeepAudioChange} disabled={!isTauri()} /></div></div>
+       <div className="history-list">
+         {history.length === 0 && <div className="panel form-panel"><p className="empty-text">这里还没有记录。按快捷键开始录音。</p></div>}
+         {history.map((item) => (
+@@ -493,10 +493,10 @@
+               <p>{item.text}</p>
+               {item.intent === "dictation" && <HistoryCorrection item={item} onTeach={onTeach} />}
+               {item.intent === "ask" && item.rawText && <span>问题：{item.rawText}</span>}
+-              <span>{item.time} · {(INTENT_META[item.intent] || INTENT_META.dictation).label}{windowName(item.windowContext) ? ` · ${windowName(item.windowContext)}` : ""} · {item.ms} ms{item.breakdown ? ` · ${item.breakdown}` : ""}</span>
++              <span className="history-meta">{item.time} · {(INTENT_META[item.intent] || INTENT_META.dictation).label}{windowName(item.windowContext) ? ` · ${windowName(item.windowContext)}` : ""} · {item.ms} ms{item.breakdown ? ` · ${item.breakdown}` : ""}</span>
+             </div>
+-            {item.audioSessionId && <button title="用当前模型重新转写" onClick={() => onRetranscribe(item)} disabled={busy}><Repeat size={18} /></button>}
+-            <button title="复制" onClick={() => navigator.clipboard.writeText(item.text)}><Copy size={18} /></button>
++            {item.audioSessionId && <button aria-label="用当前模型重新转写" title="用当前模型重新转写" onClick={() => onRetranscribe(item)} disabled={busy}><Repeat size={18} /></button>}
++            <button aria-label="复制记录" title="复制" onClick={() => navigator.clipboard.writeText(item.text)}><Copy size={18} /></button>
+           </article>
+         ))}
+       </div>
+@@ -509,24 +509,34 @@
+   const busy = state === "processing";
+   const mode = MODE_META[settings.processingMode] || MODE_META.original;
+   const locked = (trigger) => recording && activeTrigger !== trigger;
++  const speechReady = Boolean(settings.asrEndpoint.trim() && settings.asrModel.trim());
++  const needsText = settings.processingMode === "smart" || settings.processingMode === "skill";
++  const startOrConfigure = (trigger) => {
++    if (!recording && (!speechReady || (trigger !== "dictation" && !textReady))) {
++      setPage("model");
++      return;
++    }
++    toggleTask(trigger);
++  };
++  const readyLabel = !speechReady ? "待配置语音服务" : online ? "准备就绪" : "语音服务待测试";
+   return (
+     <section className="page-content overview">
+       <header className="page-heading"><div><span className="eyebrow">从开口开始</span><h1>说出来，写下去。</h1><p>一段话，可以直接落字，也可以先问、先整理。选好入口，再开口。</p></div></header>
+       <div className="hero-card">
+         <div className="hero-copy">
+-          <span className={`hero-status ${state}`}>{statusLabel(state, intent, phase)}</span>
++          <span className={`hero-status ${state}`}>{state === "idle" ? readyLabel : statusLabel(state, intent, phase)}</span>
+           <h2>{recording ? `${INTENT_META[intent]?.label || "口述"}录音中` : "让思绪，自然落在纸上。"}</h2>
+-          <p>{recording ? "再按同一个快捷键结束；也可点击按钮结束。" : "在任意应用按一次快捷键说话，再按一次，文字进入光标处。"}</p>
++          <p>{recording ? "再按同一个快捷键结束；也可点击按钮结束。" : !speechReady ? "先填写语音服务地址和模型名称，再测试连接。配置完成后，就可以用快捷键开始口述。" : "在任意应用按一次快捷键说话，再按一次，文字进入光标处。"}</p>
+           <div className="hero-actions">
+-            <button className="button dark" onClick={() => toggleTask("dictation")} disabled={busy || locked("dictation")}>
++            <button className="button dark" onClick={() => startOrConfigure("dictation")} disabled={busy || locked("dictation")}>
+               {recording && intent === "dictation" ? <Stop size={17} weight="fill" /> : <Microphone size={17} weight="fill" />}
+-              {recording && activeTrigger === "dictation" ? "结束录音" : "语音输入"}
++              {recording && activeTrigger === "dictation" ? "结束录音" : !speechReady ? "配置语音服务" : "语音输入"}
+             </button>
+-            <button className="button secondary" onClick={() => toggleTask("ask")} disabled={busy || locked("ask")}>
++            <button className="button secondary" onClick={() => startOrConfigure("ask")} title={!speechReady ? "先配置语音服务" : !textReady ? "先配置文字服务，再开始提问" : undefined} disabled={busy || locked("ask")}>
+               <Command size={17} />
+               {recording && activeTrigger === "ask" ? "结束提问" : "随便问"}
+             </button>
+-            <button className="button secondary" onClick={() => toggleTask("action")} disabled={busy || locked("action")}>
++            <button className="button secondary" onClick={() => startOrConfigure("action")} title={!speechReady ? "先配置语音服务" : !textReady ? "先配置文字服务，再使用动作" : undefined} disabled={busy || locked("action")}>
+               <PuzzlePiece size={17} />
+               {recording && activeTrigger === "action" ? "结束录音" : actionName(settings, customSkills)}
+             </button>
+@@ -535,15 +545,15 @@
+         <div className="hero-visual"><VoiceMotion state={state} level={level} width={164} height={56} /><span>{recording ? "声音，正在成为文字" : "从一小段话开始"}</span><small>{recording ? "同一个键结束" : displayShortcut(settings.shortcut)}</small></div>
+       </div>
+       <div className="summary-grid">
+-        <button className="summary-card" onClick={() => setPage("model")}><span><Waveform size={21} /></span><div><small>语音模型</small><strong>{settings.asrModel || "未配置"}</strong><p>{online ? "连接正常" : "需要测试连接"}</p></div><CheckCircle size={20} weight={online ? "fill" : "regular"} /></button>
+-        <button className="summary-card" onClick={() => setPage("writing")}><span><mode.icon size={21} /></span><div><small>当前模式</small><strong>{mode.label}</strong><p>{textReady || mode.label === "原文" ? mode.detail : `${mode.detail}（文字模型未配置）`}</p></div><GearSix size={20} /></button>
++        <button className="summary-card" onClick={() => setPage("model")}><span><Waveform size={21} /></span><div><small>语音模型</small><strong>{settings.asrModel || "未配置"}</strong><p>{!speechReady ? "填写地址与模型名称" : online ? "测试通过" : "待测试连接"}</p></div><CheckCircle size={20} weight={online ? "fill" : "regular"} /></button>
++        <button className="summary-card" onClick={() => setPage("writing")}><span><mode.icon size={21} /></span><div><small>当前模式</small><strong>{mode.label}</strong><p>{textReady || !needsText ? mode.detail : `${mode.detail}（文字模型未配置）`}</p></div><GearSix size={20} /></button>
+       </div>
+       <div className="last-result panel">
+         <div className="panel-title slim">
+           <div><h2>最近一次</h2><p>{lastResult ? lastResult.breakdown : "还没有输入记录"}</p></div>
+-          {lastResult && <button className="icon-button" onClick={() => navigator.clipboard.writeText(lastResult.text)}><Copy size={18} /></button>}
++          {lastResult && <button className="icon-button" aria-label="复制最近结果" title="复制最近结果" onClick={() => navigator.clipboard.writeText(lastResult.text)}><Copy size={18} /></button>}
+         </div>
+-        <p className={lastResult ? "result-text" : "empty-text"}>{lastResult?.text || "按一次快捷键开始录音。"}</p>
++        <p className={lastResult ? "result-text" : "empty-text"}>{lastResult?.text || (speechReady ? "按一次快捷键开始录音。" : "配置语音服务后，第一段口述会显示在这里。")}</p>
+       </div>
+     </section>
+   );
+--- a/src/components/SkillEditor.jsx
++++ b/src/components/SkillEditor.jsx
+@@ -7,7 +7,7 @@
+ 
+ const EMPTY = { id: "", name: "", description: "", instruction: "", outputFormat: "plain" };
+ function Field({ label, hint, children }) {
+-  return <label className="field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>;
++  return <label className="field full-width"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>;
+ }
+ 
+ /** Select a scenario, try its output, then use it once or bind an explicit entry. */
+@@ -77,15 +77,15 @@
+ 
+   return <section className="page-content skills-page">
+     <header className="page-heading"><div><span className="eyebrow">把话整理成你需要的样子</span><h1>选个场景，再开口。</h1><p>技能是一种固定写法。先看看效果，再决定用一次，还是留给快捷键。</p></div><button className="button secondary" onClick={() => edit({ ...EMPTY, id: createSkillId() })} disabled={locked || Boolean(draft)}><Plus size={17} />新建技能</button></header>
+-    <div className="skill-layout">
+-      <aside className="skill-list panel" aria-label="技能场景">
++    <div className={`skill-layout ${draft ? "editing" : ""}`}>
++      {!draft && <aside className="skill-list panel" aria-label="技能场景">
+         <div className="skill-list-heading">常用场景 <span>{allSkills.length}</span></div>
+-        {allSkills.map((skill) => <button key={skill.id} className={`skill-item ${selected?.id === skill.id && !draft ? "selected" : ""}`} onClick={() => select(skill)} disabled={locked || Boolean(draft)}>
++        {allSkills.map((skill) => <button key={skill.id} className={`skill-item ${selected?.id === skill.id && !draft ? "selected" : ""}`} aria-pressed={selected?.id === skill.id && !draft} onClick={() => select(skill)} disabled={locked}>
+           <span className="skill-item-head"><strong>{skill.name}</strong><span className="skill-category">{scenarioFor(skill).category}</span></span>
+           <small>{scenarioFor(skill).when}</small>
+           {(skill.id === selectedSkillId || skill.id === dailySkillId) && <span className="skill-binding-label"><Check size={12} />{skill.id === selectedSkillId ? "动作快捷键" : "日常口述"}</span>}
+         </button>)}
+-      </aside>
++      </aside>}
+       <div className="skill-detail">
+         {draft ? <section className="panel form-panel skill-editor-panel">
+           <div className="panel-title"><div className="icon-tile"><Sparkle size={22} /></div><div><h2>{customSkills.some((s) => s.id === draft.id) ? "编辑技能" : "创建一种写法"}</h2><p>写清使用场景、输出结构和需要保留的信息。</p></div></div>
+--- a/src/components/VocabularySettings.jsx
++++ b/src/components/VocabularySettings.jsx
+@@ -12,7 +12,7 @@
+   return <section className="page-content">
+     <header className="page-heading"><div><span className="eyebrow">越用越懂你的词</span><h1>个人词库</h1><p>你纠正过的人名、产品名和术语，在下一次口述中自动使用。</p></div></header>
+     <div className="panel settings-list">
+-      <div><div><strong>自动学习纠正</strong><span>同一改法在两次口述后出现，才会加入词库。关闭后保留已学词条。</span></div><button className={`toggle ${settings.autoLearn ? "on" : ""}`} aria-label="自动学习纠正" aria-pressed={settings.autoLearn} onClick={() => setSettings({ ...settings, autoLearn: !settings.autoLearn })}><i /></button></div>
++      <div><div><strong>自动学习纠正</strong><span>同一改法在两次口述后出现，才会加入词库。关闭后保留已学词条。</span></div><button className={`toggle ${settings.autoLearn ? "on" : ""}`} role="switch" aria-label="自动学习纠正" aria-checked={settings.autoLearn} onClick={() => setSettings({ ...settings, autoLearn: !settings.autoLearn })}><i /></button></div>
+     </div>
+     <p className="vocabulary-help">自动输入后，在原输入框里改正文字并停留 4 秒。仅观察本次输入，最长 60 秒；切换输入框即停止。部分编辑器无法读取时，可在历史记录中点击「纠正并记住」。候选 30 天过期，删除的纠正不会再自动学入。</p>
+     {!ready && <p role="status" className="test-result">词库尚未就绪，请查看提示后重新打开应用。</p>}
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -14,7 +14,7 @@
+   font-synthesis: none;
+   --ink: #282c27;
+   --muted: #676b63;
+-  --faint: #777b72;
++  --faint: #686e62;
+   --line: #e5e6de;
+   --line-strong: #d3d6cb;
+   --surface: #fcfcf9;
+@@ -112,7 +112,7 @@
+ .form-panel.compact { margin-top: 14px; }
+ .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+ .field { display: grid; gap: 7px; }
+-.field:first-child { grid-column: 1 / -1; }
++.field:first-child, .field.full-width { grid-column: 1 / -1; }
+ .field > span, .setting-label { font-size: 13px; font-weight: 620; }
+ .field input, .field select, textarea { width: 100%; min-height: 44px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); outline: none; color: var(--ink); font-size: 14px; }
+ .field select { padding-right: 26px; cursor: pointer; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 15px) 17px, calc(100% - 10px) 17px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+@@ -130,16 +130,17 @@
+ .note-card strong { font-size: 13px; }
+ .note-card p { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+ 
+-.mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(152px, 1fr)); gap: 9px; }
+-.mode-card { position: relative; min-height: 128px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); cursor: pointer; text-align: left; }
++.mode-grid { display: grid; grid-template-columns: 1fr; gap: 9px; }
++.mode-card { position: relative; min-height: 76px; display: grid; grid-template-columns: 36px minmax(0, 1fr) 20px; align-items: center; gap: 14px; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); cursor: pointer; text-align: left; }
+ .mode-card:hover { background: #fbfbfa; border-color: var(--line-strong); }
+ .mode-card:disabled { opacity: .44; cursor: not-allowed; }
+ .mode-card.selected { border-color: #8f8e89; background: var(--sidebar); box-shadow: inset 0 0 0 1px #8f8e89; }
+-.mode-icon { width: 32px; height: 32px; display: grid; place-items: center; margin-bottom: 5px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
++.mode-icon { width: 32px; height: 32px; display: grid; place-items: center; margin-bottom: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
++.mode-copy { display: grid; gap: 4px; }
+ .mode-card strong { font-size: 14px; }
+ .mode-card span { color: var(--muted); font-size: 12px; line-height: 1.45; }
+ .mode-card small { color: var(--muted); font-size: 12px; line-height: 1.4; }
+-.check-mark { position: absolute; top: 10px; right: 10px; width: 17px; height: 17px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; }
++.check-mark { justify-self: end; width: 17px; height: 17px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; }
+ textarea { padding: 10px; resize: vertical; line-height: 1.65; }
+ 
+ .shortcut-panel { padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; }
+@@ -156,23 +157,30 @@
+ .shortcut-capture-message { min-height: 22px; margin: 9px 2px 13px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+ .shortcut-capture-message.error { color: #a23731; }
+ .settings-list { margin-top: 12px; overflow: hidden; }
+-.settings-list > div { min-height: 64px; padding: 0 21px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
++.settings-list > div { min-height: 64px; gap: 16px; padding: 14px 21px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+ .settings-list > div:last-child { border: 0; }
+-.settings-list > div > div { display: grid; gap: 3px; }
+-.settings-list > div > .shortcut-edit { display: flex; align-items: center; gap: 8px; }
++.settings-list > div > div { display: grid; gap: 3px; min-width: 0; flex: 1; }
++.settings-list > div > .shortcut-edit { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+ .settings-list > .shortcut-row { min-height: 73px; }
+ .settings-list > .shortcut-row.capturing { background: #fbfbfa; }
+ .settings-list strong { font-size: 13px; }
+ .settings-list span { color: var(--muted); font-size: 12px; }
+ .settings-list .shortcut-record span { color: var(--ink); font-size: 14px; }
+-.toggle { width: 36px; height: 21px; padding: 3px; border: 0; border-radius: 20px; background: #d3d3d0; cursor: pointer; }
++.toggle { flex: 0 0 auto; width: 36px; height: 21px; padding: 3px; border: 0; border-radius: 20px; background: #d3d3d0; cursor: pointer; }
+ .toggle i { display: block; width: 15px; height: 15px; border-radius: 50%; background: var(--surface); transition: transform .16s ease; box-shadow: 0 1px 3px rgba(0,0,0,.16); }
+ .toggle.on { background: #353535; }
+ .toggle.on i { transform: translateX(15px); }
+ .toggle:disabled { opacity: .45; cursor: not-allowed; }
+ 
+-.history-list { display: grid; gap: 8px; }
+-.history-list article { min-height: 75px; display: flex; justify-content: space-between; align-items: center; padding: 14px 15px 13px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
++.history-list { display: grid; gap: 12px; margin-top: 18px; }
++.history-recording-setting { display: flex; gap: 16px; align-items: center; justify-content: space-between; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
++.history-recording-setting > div { display: grid; gap: 4px; min-width: 0; }
++.history-recording-setting strong { font-size: 14px; }
++.history-recording-setting span { color: var(--muted); font-size: 12px; line-height: 1.7; }
++.history-main { flex: 1; min-width: 0; overflow-wrap: anywhere; }
++.history-main .history-meta { display: block; margin-top: 12px; }
++.history-list article > button { flex-shrink: 0; }
++.history-list article { min-height: 75px; gap: 12px; display: flex; justify-content: space-between; align-items: center; padding: 14px 15px 13px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+ .history-main p { margin: 0 0 7px; font-size: 14px; }
+ .history-main span { color: var(--faint); font-size: 12px; }
+ .toast { position: fixed; right: 22px; bottom: 20px; z-index: 20; max-width: 420px; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid #333; border-radius: 14px; background: #202020; color: #fff; font-size: 13px; box-shadow: 0 10px 32px rgba(0,0,0,.14); }
+@@ -228,9 +236,9 @@
+ .vocabulary-help { color: var(--muted, #777); font-size: 14px; line-height: 1.8; margin: 14px 0 24px; }
+ .vocabulary-row { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-top: 1px solid #eeeeeb; }
+ .vocabulary-row > div { flex: 1; overflow-wrap: anywhere; }
+-.vocabulary-source, .vocabulary-variant { color: #777a74; font-size: 14px; }
++.vocabulary-source, .vocabulary-variant { color: var(--muted); font-size: 14px; }
+ .history-correction { margin: 12px 0; width: 100%; }
+-.history-correction label { font-size: 14px; color: #777a74; }
++.history-correction label { font-size: 14px; color: var(--muted); }
+ .history-correction textarea { display: block; width: 100%; margin-top: 8px; }
+ 
+ 
+@@ -252,7 +260,10 @@
+ .topbar { gap: 10px; padding-inline: 24px; }
+ .topbar > span { margin-right: auto; font-size: 12px; }
+ .mini-shortcut { font-size: 12px; border-radius: 999px; padding: 0 12px; box-shadow: none; }
+-.page-heading { gap: 20px; margin-bottom: 28px; }
++.page-heading { gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
++.page-heading > div:first-child { flex: 1 1 240px; min-width: 0; }
++.page-heading > .button, .page-heading > .form-actions { flex-shrink: 0; }
++.page-heading > .form-actions { flex-wrap: wrap; margin-top: 0; }
+ .page-heading h1 { letter-spacing: -.035em; font-weight: 650; }
+ .page-heading p { line-height: 1.75; }
+ .eyebrow { font-size: 12px; letter-spacing: .06em; }
+@@ -263,7 +274,7 @@
+ .hero-visual { width: 176px; height: 176px; gap: 12px; border: 0; background: transparent; box-shadow: none; }
+ .hero-visual span { font-size: 13px; color: var(--ink); }
+ .hero-visual small { font-size: 12px; color: var(--muted); }
+-.button { border-radius: 999px; min-height: 42px; padding-inline: 17px; font-size: 13px; }
++.button { white-space: nowrap; border-radius: 999px; min-height: 42px; padding-inline: 17px; font-size: 13px; }
+ .button.primary, .button.dark { background: var(--ink); color: #fff; }
+ .button.quiet { background: transparent; color: var(--muted); }
+ .summary-grid { gap: 14px; margin-top: 16px; }
+@@ -278,7 +289,7 @@
+ .form-panel { padding: 26px; }
+ .form-panel.compact { padding: 22px; }
+ .form-grid { gap: 20px; }
+-.field { gap: 8px; }
++.field { gap: 8px; min-width: 0; }
+ .field > span, .setting-label { font-size: 13px; }
+ .field small { font-size: 12px; line-height: 1.6; }
+ .field input, .field select, textarea { border-radius: 12px; font-size: 14px; line-height: 1.6; }
+@@ -288,7 +299,8 @@
+ .note-card strong, .settings-list strong { font-size: 14px; }
+ .note-card p, .settings-list span { font-size: 12px; line-height: 1.7; }
+ .mode-grid { gap: 10px; }
+-.mode-card { border-radius: 16px; padding: 18px 12px; }
++.mode-card { border-radius: 16px; padding: 14px 18px; }
++.mode-card .check-mark { color: #fff; }
+ .mode-card strong { font-size: 13px; }
+ .mode-card small, .mode-card span { font-size: 12px; line-height: 1.5; }
+ .shortcut-record span, .shortcut-key { font-size: 12px; }
+@@ -298,6 +310,7 @@
+ .history-main span { font-size: 12px; line-height: 1.6; }
+ .toast { max-width: min(520px, calc(100vw - 32px)); border-radius: 16px; font-size: 13px; }
+ .skill-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 18px; }
++.skill-layout.editing { grid-template-columns: minmax(0, 1fr); }
+ .skill-list { padding: 8px; position: sticky; top: 80px; }
+ .skill-list-heading { display: flex; justify-content: space-between; padding: 14px 12px; font-size: 12px; color: var(--muted); }
+ .skill-item { gap: 8px; padding: 16px 12px; border-radius: 12px; }
+@@ -371,6 +384,7 @@
+ .answer-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.85; color: var(--ink); }
+ .answer-turn + .answer-turn { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 24px; }
+ .answer-followup { display: flex; gap: 6px; border-top: 1px solid var(--line); align-items: flex-end; margin: 0 16px 12px; padding: 8px; background: #f0f3e9; border: 1px solid #dce3d2; border-radius: 18px; }
++.answer-followup:focus-within { outline: 2px solid #56614b; outline-offset: 2px; border-color: #56614b; }
+ .answer-followup textarea { flex: 1; min-width: 0; min-height: 32px; max-height: 96px; margin: 0; padding: 6px; resize: none; border: 0; background: transparent; font-size: 13px; box-shadow: none; outline: none; }
+ .answer-followup button { display: grid; place-items: center; border: 0; color: #fff; cursor: pointer; width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; background: var(--ink); }
+ .answer-card footer { flex: 0 0 auto; border-top: 0; padding: 0 20px 16px; }
+@@ -379,7 +393,7 @@
+ .answer-card footer button:hover { background: #ecf0e4; text-decoration: none; }
+ .answer-error { color: #b43a32; font-size: 12px; line-height: 1.7; }
+ @media (max-width: 1060px) { .topbar > span { display: none; } .topbar { justify-content: flex-end; } .skill-layout { grid-template-columns: 190px minmax(0,1fr); gap: 14px; } .page-content { width: calc(100% - 48px); } .form-panel { padding: 22px; } .skill-run-row > span { width: 100%; } }
+-@media (max-width: 900px) { .app-shell { grid-template-columns: 190px minmax(0,1fr); } .mode-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } .hero-card { padding: 26px; gap: 10px; } .hero-copy h2 { font-size: 24px; } .hero-visual { width: 140px; } .hero-visual canvas { max-width: 140px; } }
++@media (max-width: 900px) { .app-shell { grid-template-columns: 190px minmax(0,1fr); } .hero-card { padding: 26px; gap: 10px; } .hero-copy h2 { font-size: 24px; } .hero-visual { width: 140px; } .hero-visual canvas { max-width: 140px; } }
+ @media (max-width: 760px) { .app-shell { grid-template-columns: 66px minmax(0,1fr); } .sidebar { padding-inline: 8px; } .sidebar nav button { padding: 0; font-size: 0; } .page-content { width: calc(100% - 32px); } .skill-layout { grid-template-columns: 1fr; } .skill-list { position: static; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); } .skill-list-heading { grid-column: 1/-1; } .skill-preview-actions { align-items: flex-start; flex-direction: column; } .hero-card { grid-template-columns: 1fr; } .topbar { padding-inline: 12px; } .mini-shortcut { font-size: 0; gap: 0; width: 36px; padding: 0; } }
+ @media (max-width: 380px) { .answer-card header { padding: 12px; min-height: 64px; } .answer-content { padding: 16px 12px; } .answer-heading { gap: 8px; } .answer-heading small { display: none; } .answer-card footer { padding-inline: 12px; } .answer-card footer span { max-width: 135px; } }
+ @media (max-height: 400px) {

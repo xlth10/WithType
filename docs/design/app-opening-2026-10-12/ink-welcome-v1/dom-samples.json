@@ -1,0 +1,1761 @@
+{
+  "duration": 3.2,
+  "fps": 30,
+  "beats": [
+    0,
+    0.12,
+    0.58,
+    0.88,
+    1.62,
+    2.32,
+    3.2
+  ],
+  "samples": [
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 227.3999938964844
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -517.2)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 227.3999938964844
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -517.2)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.033333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 227.3999938964844
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -517.2)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.066667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 227.3999938964844
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -517.2)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.1,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 227.2882537841797
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -517.312)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.133333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 226.0450439453125
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -518.555)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.166667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 223.5039520263672
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -521.096)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.2,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 219.838134765625
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -524.762)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.233333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 215.29742431640625
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -529.303)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.266667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 210.19126892089844
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -534.409)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.3,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 204.86761474609375
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -539.732)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.333333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 199.68930053710935
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -544.911)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.366667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 195.0091857910156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -549.591)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.4,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.79998779296875,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 191.1462249755859
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -553.454)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.433333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 188.3636779785156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -556.236)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.466667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.800048828125,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.8511505126953
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -557.749)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.5,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.533333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "drop",
+      "ready": "true",
+      "t": 0.566667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.6,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.633333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.666667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.7,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.733333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.766667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.8,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.833333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "absorb",
+      "ready": "true",
+      "t": 0.866667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 0.9,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 346.8000183105469,
+        "w": 752.25,
+        "x": 153.875,
+        "y": 186.6000061035156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.55, 0, 0, 2.55, -821.5, -558)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 0.933333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 337.4259033203125,
+        "w": 731.91650390625,
+        "x": 164.04173278808594,
+        "y": 191.2870330810547
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.48107, 0, 0, 2.48107, -784.969, -533.186)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 0.966667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 320.728759765625,
+        "w": 695.6983642578125,
+        "x": 182.1508026123047,
+        "y": 199.6356201171875
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.3583, 0, 0, 2.3583, -719.899, -488.988)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 306.439208984375,
+        "w": 664.70263671875,
+        "x": 197.64865112304688,
+        "y": 206.7803955078125
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.25323, 0, 0, 2.25323, -664.212, -451.163)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.033333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 294.22320556640625,
+        "w": 638.2047119140625,
+        "x": 210.89761352539065,
+        "y": 212.88839721679688
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.16341, 0, 0, 2.16341, -616.605, -418.826)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.066667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 283.8016357421875,
+        "w": 615.59912109375,
+        "x": 222.2004241943359,
+        "y": 218.09918212890625
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.08678, 0, 0, 2.08678, -575.992, -391.24)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.1,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 274.939697265625,
+        "w": 596.3765869140625,
+        "x": 231.8117218017578,
+        "y": 222.5301513671875
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(2.02162, 0, 0, 2.02162, -541.456, -367.782)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.133333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 267.43841552734375,
+        "w": 580.1053466796875,
+        "x": 239.94732666015625,
+        "y": 226.2808074951172
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.96646, 0, 0, 1.96646, -512.223, -347.925)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.166667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 261.12774658203125,
+        "w": 566.416748046875,
+        "x": 246.79161071777344,
+        "y": 229.4361267089844
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.92006, 0, 0, 1.92006, -487.63, -331.22)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.2,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 255.86119079589844,
+        "w": 554.9930419921875,
+        "x": 252.5034942626953,
+        "y": 232.0694122314453
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.88133, 0, 0, 1.88133, -467.106, -317.28)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.233333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 251.5111083984375,
+        "w": 545.55712890625,
+        "x": 257.2214050292969,
+        "y": 234.24444580078125
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.84935, 0, 0, 1.84935, -450.154, -305.765)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.266667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 247.96502685546875,
+        "w": 537.8653564453125,
+        "x": 261.06732177734375,
+        "y": 236.0174865722656
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.82327, 0, 0, 1.82327, -436.334, -296.378)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.3,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 245.12266540527344,
+        "w": 531.6998291015625,
+        "x": 264.1500549316406,
+        "y": 237.4386749267578
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.80237, 0, 0, 1.80237, -425.257, -288.854)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.333333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 242.8932342529297,
+        "w": 526.864013671875,
+        "x": 266.5679931640625,
+        "y": 238.5533905029297
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.78598, 0, 0, 1.78598, -416.569, -282.953)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.366667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 241.19342041015625,
+        "w": 523.1768798828125,
+        "x": 268.4115295410156,
+        "y": 239.40328979492188
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.77348, 0, 0, 1.77348, -409.945, -278.453)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.4,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 239.9456329345703,
+        "w": 520.4703369140625,
+        "x": 269.76483154296875,
+        "y": 240.0271759033203
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.76431, 0, 0, 1.76431, -405.082, -275.15)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.433333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 239.076416015625,
+        "w": 518.5848388671875,
+        "x": 270.7075500488281,
+        "y": 240.4617919921875
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75791, 0, 0, 1.75791, -401.695, -272.849)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.466667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238.5153656005859,
+        "w": 517.367919921875,
+        "x": 271.3160705566406,
+        "y": 240.74232482910156
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75379, 0, 0, 1.75379, -399.508, -271.364)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.5,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238.1940155029297,
+        "w": 516.6707763671875,
+        "x": 271.6645812988281,
+        "y": 240.9029998779297
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75143, 0, 0, 1.75143, -398.256, -270.514)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.533333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238.0452117919922,
+        "w": 516.3480224609375,
+        "x": 271.82598876953125,
+        "y": 240.97740173339844
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75033, 0, 0, 1.75033, -397.676, -270.12)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.566667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238.00238037109375,
+        "w": 516.255126953125,
+        "x": 271.8724060058594,
+        "y": 240.99880981445312
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75002, 0, 0, 1.75002, -397.509, -270.006)",
+      "overflow": false,
+      "phase": "form",
+      "ready": "true",
+      "t": 1.6,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.633333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.666667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.7,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.733333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.766667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.8,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.833333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.866667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.9,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.933333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 1.966667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.033333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.066667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.1,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.133333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.166667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.2,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.233333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.266667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 238,
+        "w": 516.25,
+        "x": 271.875,
+        "y": 241
+      },
+      "inkOpacity": 1,
+      "matrix": "matrix(1.75, 0, 0, 1.75, -397.5, -270)",
+      "overflow": false,
+      "phase": "welcome",
+      "ready": "true",
+      "t": 2.3,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 237.9245758056641,
+        "w": 516.08642578125,
+        "x": 271.956787109375,
+        "y": 241.03770446777344
+      },
+      "inkOpacity": 0.997736,
+      "matrix": "matrix(1.74945, 0, 0, 1.74945, -397.206, -269.8)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.333333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 237.0797576904297,
+        "w": 514.25390625,
+        "x": 272.8730773925781,
+        "y": 241.4601287841797
+      },
+      "inkOpacity": 0.9725,
+      "matrix": "matrix(1.74323, 0, 0, 1.74323, -393.914, -267.564)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.366667,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 235.31768798828125,
+        "w": 510.4317626953125,
+        "x": 274.78411865234375,
+        "y": 242.34115600585935
+      },
+      "inkOpacity": 0.920627,
+      "matrix": "matrix(1.73028, 0, 0, 1.73028, -387.047, -262.9)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.4,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 232.6834716796875,
+        "w": 504.7178649902344,
+        "x": 277.6410827636719,
+        "y": 243.65826416015625
+      },
+      "inkOpacity": 0.845039,
+      "matrix": "matrix(1.71091, 0, 0, 1.71091, -376.781, -255.927)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.433333,
+      "uiOpacity": 0
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 229.24322509765625,
+        "w": 497.2554931640625,
+        "x": 281.37225341796875,
+        "y": 245.37838745117188
+      },
+      "inkOpacity": 0.75,
+      "matrix": "matrix(1.68561, 0, 0, 1.68561, -363.374, -246.82)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.466667,
+      "uiOpacity": 0.000200246
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 225.0810546875,
+        "w": 488.227294921875,
+        "x": 285.8863525390625,
+        "y": 247.45947265625
+      },
+      "inkOpacity": 0.640866,
+      "matrix": "matrix(1.65501, 0, 0, 1.65501, -347.154, -235.803)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.5,
+      "uiOpacity": 0.00719204
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 220.2953643798828,
+        "w": 477.8465881347656,
+        "x": 291.0766906738281,
+        "y": 249.8523101806641
+      },
+      "inkOpacity": 0.523791,
+      "matrix": "matrix(1.61982, 0, 0, 1.61982, -328.504, -223.135)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.533333,
+      "uiOpacity": 0.0240363
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 214.99476623535156,
+        "w": 466.3489685058594,
+        "x": 296.8255310058594,
+        "y": 252.5026092529297
+      },
+      "inkOpacity": 0.405374,
+      "matrix": "matrix(1.58084, 0, 0, 1.58084, -307.847, -209.104)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.566667,
+      "uiOpacity": 0.0503964
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 209.2936553955078,
+        "w": 453.9825744628906,
+        "x": 303.0086975097656,
+        "y": 255.35316467285156
+      },
+      "inkOpacity": 0.292293,
+      "matrix": "matrix(1.53892, 0, 0, 1.53892, -285.63, -194.013)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.6,
+      "uiOpacity": 0.0857452
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 203.3082275390625,
+        "w": 440.99951171875,
+        "x": 309.500244140625,
+        "y": 258.34588623046875
+      },
+      "inkOpacity": 0.190921,
+      "matrix": "matrix(1.49491, 0, 0, 1.49491, -262.304, -178.169)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.633333,
+      "uiOpacity": 0.129376
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 197.15277099609375,
+        "w": 427.6475830078125,
+        "x": 316.17620849609375,
+        "y": 261.4236145019531
+      },
+      "inkOpacity": 0.106973,
+      "matrix": "matrix(1.44965, 0, 0, 1.44965, -238.316, -161.875)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.666667,
+      "uiOpacity": 0.180417
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 190.93634033203125,
+        "w": 414.1634521484375,
+        "x": 322.91827392578125,
+        "y": 264.5318298339844
+      },
+      "inkOpacity": 0.045184,
+      "matrix": "matrix(1.40394, 0, 0, 1.40394, -214.09, -145.42)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.7,
+      "uiOpacity": 0.237846
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 184.76043701171875,
+        "w": 400.7672119140625,
+        "x": 329.61639404296875,
+        "y": 267.6197814941406
+      },
+      "inkOpacity": 0.00903565,
+      "matrix": "matrix(1.35853, 0, 0, 1.35853, -190.022, -129.072)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.733333,
+      "uiOpacity": 0.300517
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 178.71710205078125,
+        "w": 387.6583557128906,
+        "x": 336.1708068847656,
+        "y": 270.6414489746094
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.3141, 0, 0, 1.3141, -166.471, -113.075)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.766667,
+      "uiOpacity": 0.367176
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 172.88763427734375,
+        "w": 375.013671875,
+        "x": 342.4931640625,
+        "y": 273.5561828613281
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.27123, 0, 0, 1.27123, -143.753, -97.6438)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.8,
+      "uiOpacity": 0.436491
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 167.34259033203125,
+        "w": 362.9857482910156,
+        "x": 348.5071105957031,
+        "y": 276.3287048339844
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.23046, 0, 0, 1.23046, -122.144, -82.9657)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.833333,
+      "uiOpacity": 0.507075
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 162.141357421875,
+        "w": 351.7037353515625,
+        "x": 354.14813232421875,
+        "y": 278.9293212890625
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.19222, 0, 0, 1.19222, -101.875, -69.1978)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.866667,
+      "uiOpacity": 0.577518
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 157.33306884765625,
+        "w": 341.2739562988281,
+        "x": 359.3630065917969,
+        "y": 281.3334655761719
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.15686, 0, 0, 1.15686, -83.1363, -56.4699)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.9,
+      "uiOpacity": 0.646411
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 152.95721435546875,
+        "w": 331.7822265625,
+        "x": 364.10888671875,
+        "y": 283.5213928222656
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.12469, 0, 0, 1.12469, -66.0833, -44.8868)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.933333,
+      "uiOpacity": 0.712377
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 149.0447998046875,
+        "w": 323.2957763671875,
+        "x": 368.35211181640625,
+        "y": 285.47760009765625
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.09592, 0, 0, 1.09592, -50.8364, -34.5304)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 2.966667,
+      "uiOpacity": 0.774097
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 145.61962890625,
+        "w": 315.8661804199219,
+        "x": 372.0669250488281,
+        "y": 287.190185546875
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.07073, 0, 0, 1.07073, -37.4883, -25.4638)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 3,
+      "uiOpacity": 0.830337
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 142.6993408203125,
+        "w": 309.53173828125,
+        "x": 375.234130859375,
+        "y": 288.65032958984375
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.04926, 0, 0, 1.04926, -26.1078, -17.7336)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 3.033333,
+      "uiOpacity": 0.879973
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 140.29669189453125,
+        "w": 304.320068359375,
+        "x": 377.8399658203125,
+        "y": 289.8516540527344
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.03159, 0, 0, 1.03159, -16.7446, -11.3737)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 3.066667,
+      "uiOpacity": 0.922012
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 138.42059326171875,
+        "w": 300.2505798339844,
+        "x": 379.8747253417969,
+        "y": 290.7897033691406
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.0178, 0, 0, 1.0178, -9.43321, -6.40746)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 3.1,
+      "uiOpacity": 0.955614
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 137.076904296875,
+        "w": 297.3359375,
+        "x": 381.33203125,
+        "y": 291.4615478515625
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.00792, 0, 0, 1.00792, -4.19682, -2.85067)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 3.133333,
+      "uiOpacity": 0.980107
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "false",
+      "inkBox": {
+        "h": 136.2694091796875,
+        "w": 295.5843505859375,
+        "x": 382.2078247070313,
+        "y": 291.86529541015625
+      },
+      "inkOpacity": 0,
+      "matrix": "matrix(1.00198, 0, 0, 1.00198, -1.04982, -0.713085)",
+      "overflow": false,
+      "phase": "expand",
+      "ready": "true",
+      "t": 3.166667,
+      "uiOpacity": 0.995002
+    },
+    {
+      "H": 720,
+      "W": 1060,
+      "finished": "true",
+      "inkBox": {
+        "h": 136,
+        "w": 295,
+        "x": 382.5,
+        "y": 292
+      },
+      "inkOpacity": 0,
+      "matrix": "none",
+      "overflow": false,
+      "phase": "ready",
+      "ready": "true",
+      "t": 3.2,
+      "uiOpacity": 1
+    }
+  ]
+}

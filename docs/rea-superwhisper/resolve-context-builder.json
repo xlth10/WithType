@@ -1,0 +1,112 @@
+{
+  "request": {
+    "tool": "resolve_containing_procedure",
+    "arguments": {
+      "address": "0x100614658"
+    },
+    "save": "resolve-context-builder"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"query_address\":\"0x100614658\",\"found\":true,\"procedure\":{\"address\":\"0x10061411c\",\"name\":\"sub_10061411c\",\"classification\":null,\"body\":{\"available\":false,\"reason\":\"Hopper's public Python API does not expose complete function body ranges\"}}},\"evidence_id\":\"ev_1a05761cdde3a0d7996e3d134e4294a59d0b3836ec1f3c0fd31ee60758bddec7\",\"evidence\":{\"evidence_id\":\"ev_1a05761cdde3a0d7996e3d134e4294a59d0b3836ec1f3c0fd31ee60758bddec7\",\"subject\":{\"name\":\"superwhisper\",\"digest\":{\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\"},\"format\":\"mach-o\",\"architecture\":\"arm64\",\"local_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\"},\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"predicate_type\":\"rea.analysis\",\"operation\":\"resolve_containing_procedure\",\"parameters\":{\"address\":\"0x100614658\",\"document\":null},\"raw_result\":{\"query_address\":\"0x100614658\",\"found\":true,\"procedure\":{\"address\":\"0x10061411c\",\"name\":\"sub_10061411c\",\"classification\":null,\"body\":{\"available\":false,\"reason\":\"Hopper's public Python API does not expose complete function body ranges\"}}},\"normalized_result\":{\"query_address\":\"0x100614658\",\"found\":true,\"procedure\":{\"address\":\"0x10061411c\",\"name\":\"sub_10061411c\",\"classification\":null,\"body\":{\"available\":false,\"reason\":\"Hopper's public Python API does not expose complete function body ranges\"}}},\"confidence\":\"observed\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"Results depend on Hopper's completed static analysis.\"],\"locations\":[],\"evidence_links\":[],\"analysis_profile\":{\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"parameters\":{\"target_kind\":\"executable\",\"target_format\":\"mach-o\",\"architecture\":\"arm64\",\"available_architectures\":[\"arm64\",\"x86_64\"],\"loader\":{\"source\":\"derived\",\"argument_count\":5,\"arguments_sha256\":\"3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5\"}},\"digest\":\"61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236\"}}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "query_address": "0x100614658",
+        "found": true,
+        "procedure": {
+          "address": "0x10061411c",
+          "name": "sub_10061411c",
+          "classification": null,
+          "body": {
+            "available": false,
+            "reason": "Hopper's public Python API does not expose complete function body ranges"
+          }
+        }
+      },
+      "evidence_id": "ev_1a05761cdde3a0d7996e3d134e4294a59d0b3836ec1f3c0fd31ee60758bddec7",
+      "evidence": {
+        "evidence_id": "ev_1a05761cdde3a0d7996e3d134e4294a59d0b3836ec1f3c0fd31ee60758bddec7",
+        "subject": {
+          "name": "superwhisper",
+          "digest": {
+            "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a"
+          },
+          "format": "mach-o",
+          "architecture": "arm64",
+          "local_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper"
+        },
+        "provider": {
+          "id": "hopper",
+          "name": "Hopper Disassembler",
+          "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "resolve_containing_procedure",
+        "parameters": {
+          "address": "0x100614658",
+          "document": null
+        },
+        "raw_result": {
+          "query_address": "0x100614658",
+          "found": true,
+          "procedure": {
+            "address": "0x10061411c",
+            "name": "sub_10061411c",
+            "classification": null,
+            "body": {
+              "available": false,
+              "reason": "Hopper's public Python API does not expose complete function body ranges"
+            }
+          }
+        },
+        "normalized_result": {
+          "query_address": "0x100614658",
+          "found": true,
+          "procedure": {
+            "address": "0x10061411c",
+            "name": "sub_10061411c",
+            "classification": null,
+            "body": {
+              "available": false,
+              "reason": "Hopper's public Python API does not expose complete function body ranges"
+            }
+          }
+        },
+        "confidence": "observed",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "Results depend on Hopper's completed static analysis."
+        ],
+        "locations": [],
+        "evidence_links": [],
+        "analysis_profile": {
+          "provider": {
+            "id": "hopper",
+            "name": "Hopper Disassembler",
+            "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+          },
+          "parameters": {
+            "target_kind": "executable",
+            "target_format": "mach-o",
+            "architecture": "arm64",
+            "available_architectures": [
+              "arm64",
+              "x86_64"
+            ],
+            "loader": {
+              "source": "derived",
+              "argument_count": 5,
+              "arguments_sha256": "3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5"
+            }
+          },
+          "digest": "61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236"
+        }
+      }
+    }
+  }
+}

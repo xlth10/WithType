@@ -18,7 +18,10 @@ impl QuickPhrase {
         if name.contains('\0') || text.contains('\0') {
             return Err("短语不能包含空字符".into());
         }
-        Ok(Self { name: name.trim().to_string(), text: text.to_string() })
+        Ok(Self {
+            name: name.trim().to_string(),
+            text: text.to_string(),
+        })
     }
 
     pub fn ready(&self) -> Result<(), String> {
@@ -35,11 +38,15 @@ impl QuickPhrase {
 pub struct InputPermit<'a>(&'a AtomicBool);
 impl<'a> InputPermit<'a> {
     pub fn acquire(busy: &'a AtomicBool) -> Option<Self> {
-        busy.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst).ok().map(|_| Self(busy))
+        busy.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+            .ok()
+            .map(|_| Self(busy))
     }
 }
 impl Drop for InputPermit<'_> {
-    fn drop(&mut self) { self.0.store(false, Ordering::SeqCst); }
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::SeqCst);
+    }
 }
 
 #[cfg(test)]

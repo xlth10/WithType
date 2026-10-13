@@ -1,0 +1,123 @@
+{
+  "request": {
+    "tool": "batch_decompile",
+    "arguments": {
+      "addresses": [
+        "0x100198464",
+        "0x100207330"
+      ]
+    },
+    "save": "prompt-consumers"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"result\":{\"items\":[{\"address\":\"0x100198464\",\"status\":\"ok\",\"pseudocode\":\"    r31 = r31 - 0x60;\\n    var_40 = r27;\\n    var_38 = r26;\\n    decomp_var_30 = r25;\\n    var_28 = r24;\\n    decomp_var_20 = r23;\\n    var_18 = r21;\\n    decomp_var_10 = r19;\\n    saved_fp = r29 | 0x1000000000000000;\\n    decomp_var_m8 = r30;\\n    if (*qword_10149bfa0 != -0x1) {\\n            r1 = sub_10061143c;\\n            swift_once(qword_10149bfa0, sub_10061143c, r2);\\n    }\\n    r21 = r22[0xe];\\n    r24 = r22[0xb];\\n    r23 = r22[0xc];\\n    r19 = r22[0x10];\\n    r27 = r22[0x11];\\n    var_50 = *(int128_t *)(r22 + 0x78);\\n    r0 = sub_10014e07c();\\n    r0 = sub_10061411c(r0, r1, r24, r23, r21, 0x1);\\n    r26 = r0;\\n    r22[0x13] = r0;\\n    swift_bridgeObjectRelease(r1);\\n    r0 = swift_allocObject(0x1013849e0, 0x20, 0x7);\\n    r21 = r0;\\n    r22[0x14] = r0;\\n    r0[0x2] = 0x0;\\n    r0[0x3] = 0xe000000000000000;\\n    r0 = swift_allocObject(0x101384a08, 0x28, 0x7);\\n    r23 = r0;\\n    r22[0x15] = r0;\\n    r0[0x2] = r21;\\n    *(int128_t *)(r0 + 0x18) = var_50;\\n    r8 = *r27;\\n    r24 = *(r27 + 0x4);\\n    asm { sxtw       x8, w8 };\\n    var_50 = r8 + r27;\\n    swift_retain(r21);\\n    swift_retain(r19);\\n    r0 = swift_task_alloc(r24);\\n    r22[0x16] = r0;\\n    *r0 = r22;\\n    r0[0x1] = sub_1001985b0;\\n    r0 = (var_50)(r26, sub_100198b3c, r23, var_50);\\n    return r0;\\n\"},{\"address\":\"0x100207330\",\"status\":\"ok\",\"pseudocode\":\"    r31 = r31 - 0x70;\\n    var_30 = r25;\\n    var_28 = r24;\\n    decomp_var_20 = r23;\\n    var_18 = r21;\\n    decomp_var_10 = r19;\\n    saved_fp = r29 | 0x1000000000000000;\\n    decomp_var_m8 = r30;\\n    var_38 = **___stack_chk_guard;\\n    r8 = r22[0xd0];\\n    r9 = *objc_ivar_offset__TtC12superwhisper12WhisperState__modeManager;\\n    r22[0xd7] = r9;\\n    r21 = r8 + r9;\\n    r20 = r21[0x1];\\n    swift_retain(r20);\\n    r0 = sub_100150364();\\n    r19 = r0;\\n    r22[0x162] = r0 & 0x1;\\n    swift_release(r20);\\n    if ((r19 & 0x1) != 0x0) {\\n            r20 = r21[0x1];\\n            swift_retain(r20);\\n            sub_100150c58();\\n            swift_release(r20);\\n            if (*qword_10149bfa0 != -0x1) {\\n                    r1 = sub_10061143c;\\n                    swift_once(qword_10149bfa0, sub_10061143c, r2);\\n            }\\n            r21 = sub_10014e07c();\\n            sub_100046038(r22 + 0x4c0);\\n            r23 = swift_getKeyPath(0x10103c9f8, r1);\\n            r24 = swift_getKeyPath(0x10103ca20, r1);\\n            static Combine.Published.subscript.getter();\\n            swift_release(r24);\\n            swift_release(r23);\\n            memcpy(r22 + 0x10, r22 + 0x168, 0x151);\\n            r2 = 0xd000000000000016;\\n            r19 = sub_100614e68(r21, r1, 0xd000000000000016, \\\"{{SW_USER_TRANSCRIPT}}\\\" - 0x20 | 0x8000000000000000, r22 + 0x10, 0x1);\\n            r21 = r1;\\n            sub_100086784(r22 + 0x10);\\n            swift_bridgeObjectRelease(r1);\\n    }\\n    else {\\n            r19 = 0x0;\\n            r21 = 0xe000000000000000;\\n    }\\n    r22[0xd9] = r21;\\n    r22[0xd8] = r19;\\n    if ((r22[0x161] & 0x1) != 0x0) {\\n            r22[0xde] = 0xf000000000000000;\\n            r22[0xdd] = 0x0;\\n            r20 = *(r22[0xd0] + r22[0xd7] + 0x8);\\n            swift_retain(r20);\\n            sub_100150c58();\\n            swift_release(r20);\\n            r20 = r22[0x83];\\n            r19 = r22[0x84];\\n            r22[0xdf] = r19;\\n            swift_bridgeObjectRetain(r19);\\n            sub_100046038(r22 + 0x3c0);\\n            if (*qword_101476c78 != -0x1) {\\n                    swift_once(qword_101476c78, sub_10011158c, r2);\\n            }\\n            r21 = sub_100234670(0x1);\\n            r0 = swift_task_alloc(0x700);\\n            r22[0xe0] = r0;\\n            *r0 = r22;\\n            r0[0x1] = sub_1002077d0;\\n            r9 = r22[0xd9];\\n            r7 = r22[0xd8];\\n            r5 = r22[0x162];\\n            r4 = r22[0xcf];\\n            r1 = r22[0xce];\\n            if (**___stack_chk_guard != var_38) {\\n                    __stack_chk_fail();\\n            }\\n            r0 = sub_1001bf158(r22 + 0x5c0, r1, r20, r19, r4, r5, r21 & 0x1, r7, r9, 0x0, 0xf000000000000000);\\n    }\\n    else {\\n            r0 = swift_task_alloc(0x110);\\n            r22[0xda] = r0;\\n            *r0 = r22;\\n            r0[0x1] = sub_100207618;\\n            if (**___stack_chk_guard != var_38) {\\n                    __stack_chk_fail();\\n            }\\n            r0 = loc_100208088();\\n    }\\n    return r0;\\n\"}],\"total\":2,\"succeeded\":2,\"failed\":0},\"evidence_id\":\"ev_0d25850a2755bcd4a33d68b0cb581a7f66f5e077eb966e198dc7a8883563cda7\",\"evidence\":{\"evidence_id\":\"ev_0d25850a2755bcd4a33d68b0cb581a7f66f5e077eb966e198dc7a8883563cda7\",\"subject\":{\"name\":\"superwhisper\",\"digest\":{\"sha256\":\"0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a\"},\"format\":\"mach-o\",\"architecture\":\"arm64\",\"local_path\":\"/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper\"},\"provider\":{\"id\":\"rea-workflow\",\"name\":\"REA composed investigation workflow\",\"version\":\"1\"},\"predicate_type\":\"rea.analysis\",\"operation\":\"batch_decompile\",\"parameters\":{\"addresses\":[\"0x100198464\",\"0x100207330\"]},\"raw_result\":null,\"normalized_result\":{\"items\":[{\"address\":\"0x100198464\",\"status\":\"ok\",\"pseudocode\":\"    r31 = r31 - 0x60;\\n    var_40 = r27;\\n    var_38 = r26;\\n    decomp_var_30 = r25;\\n    var_28 = r24;\\n    decomp_var_20 = r23;\\n    var_18 = r21;\\n    decomp_var_10 = r19;\\n    saved_fp = r29 | 0x1000000000000000;\\n    decomp_var_m8 = r30;\\n    if (*qword_10149bfa0 != -0x1) {\\n            r1 = sub_10061143c;\\n            swift_once(qword_10149bfa0, sub_10061143c, r2);\\n    }\\n    r21 = r22[0xe];\\n    r24 = r22[0xb];\\n    r23 = r22[0xc];\\n    r19 = r22[0x10];\\n    r27 = r22[0x11];\\n    var_50 = *(int128_t *)(r22 + 0x78);\\n    r0 = sub_10014e07c();\\n    r0 = sub_10061411c(r0, r1, r24, r23, r21, 0x1);\\n    r26 = r0;\\n    r22[0x13] = r0;\\n    swift_bridgeObjectRelease(r1);\\n    r0 = swift_allocObject(0x1013849e0, 0x20, 0x7);\\n    r21 = r0;\\n    r22[0x14] = r0;\\n    r0[0x2] = 0x0;\\n    r0[0x3] = 0xe000000000000000;\\n    r0 = swift_allocObject(0x101384a08, 0x28, 0x7);\\n    r23 = r0;\\n    r22[0x15] = r0;\\n    r0[0x2] = r21;\\n    *(int128_t *)(r0 + 0x18) = var_50;\\n    r8 = *r27;\\n    r24 = *(r27 + 0x4);\\n    asm { sxtw       x8, w8 };\\n    var_50 = r8 + r27;\\n    swift_retain(r21);\\n    swift_retain(r19);\\n    r0 = swift_task_alloc(r24);\\n    r22[0x16] = r0;\\n    *r0 = r22;\\n    r0[0x1] = sub_1001985b0;\\n    r0 = (var_50)(r26, sub_100198b3c, r23, var_50);\\n    return r0;\\n\"},{\"address\":\"0x100207330\",\"status\":\"ok\",\"pseudocode\":\"    r31 = r31 - 0x70;\\n    var_30 = r25;\\n    var_28 = r24;\\n    decomp_var_20 = r23;\\n    var_18 = r21;\\n    decomp_var_10 = r19;\\n    saved_fp = r29 | 0x1000000000000000;\\n    decomp_var_m8 = r30;\\n    var_38 = **___stack_chk_guard;\\n    r8 = r22[0xd0];\\n    r9 = *objc_ivar_offset__TtC12superwhisper12WhisperState__modeManager;\\n    r22[0xd7] = r9;\\n    r21 = r8 + r9;\\n    r20 = r21[0x1];\\n    swift_retain(r20);\\n    r0 = sub_100150364();\\n    r19 = r0;\\n    r22[0x162] = r0 & 0x1;\\n    swift_release(r20);\\n    if ((r19 & 0x1) != 0x0) {\\n            r20 = r21[0x1];\\n            swift_retain(r20);\\n            sub_100150c58();\\n            swift_release(r20);\\n            if (*qword_10149bfa0 != -0x1) {\\n                    r1 = sub_10061143c;\\n                    swift_once(qword_10149bfa0, sub_10061143c, r2);\\n            }\\n            r21 = sub_10014e07c();\\n            sub_100046038(r22 + 0x4c0);\\n            r23 = swift_getKeyPath(0x10103c9f8, r1);\\n            r24 = swift_getKeyPath(0x10103ca20, r1);\\n            static Combine.Published.subscript.getter();\\n            swift_release(r24);\\n            swift_release(r23);\\n            memcpy(r22 + 0x10, r22 + 0x168, 0x151);\\n            r2 = 0xd000000000000016;\\n            r19 = sub_100614e68(r21, r1, 0xd000000000000016, \\\"{{SW_USER_TRANSCRIPT}}\\\" - 0x20 | 0x8000000000000000, r22 + 0x10, 0x1);\\n            r21 = r1;\\n            sub_100086784(r22 + 0x10);\\n            swift_bridgeObjectRelease(r1);\\n    }\\n    else {\\n            r19 = 0x0;\\n            r21 = 0xe000000000000000;\\n    }\\n    r22[0xd9] = r21;\\n    r22[0xd8] = r19;\\n    if ((r22[0x161] & 0x1) != 0x0) {\\n            r22[0xde] = 0xf000000000000000;\\n            r22[0xdd] = 0x0;\\n            r20 = *(r22[0xd0] + r22[0xd7] + 0x8);\\n            swift_retain(r20);\\n            sub_100150c58();\\n            swift_release(r20);\\n            r20 = r22[0x83];\\n            r19 = r22[0x84];\\n            r22[0xdf] = r19;\\n            swift_bridgeObjectRetain(r19);\\n            sub_100046038(r22 + 0x3c0);\\n            if (*qword_101476c78 != -0x1) {\\n                    swift_once(qword_101476c78, sub_10011158c, r2);\\n            }\\n            r21 = sub_100234670(0x1);\\n            r0 = swift_task_alloc(0x700);\\n            r22[0xe0] = r0;\\n            *r0 = r22;\\n            r0[0x1] = sub_1002077d0;\\n            r9 = r22[0xd9];\\n            r7 = r22[0xd8];\\n            r5 = r22[0x162];\\n            r4 = r22[0xcf];\\n            r1 = r22[0xce];\\n            if (**___stack_chk_guard != var_38) {\\n                    __stack_chk_fail();\\n            }\\n            r0 = sub_1001bf158(r22 + 0x5c0, r1, r20, r19, r4, r5, r21 & 0x1, r7, r9, 0x0, 0xf000000000000000);\\n    }\\n    else {\\n            r0 = swift_task_alloc(0x110);\\n            r22[0xda] = r0;\\n            *r0 = r22;\\n            r0[0x1] = sub_100207618;\\n            if (**___stack_chk_guard != var_38) {\\n                    __stack_chk_fail();\\n            }\\n            r0 = loc_100208088();\\n    }\\n    return r0;\\n\"}],\"total\":2,\"succeeded\":2,\"failed\":0},\"confidence\":\"derived\",\"authority\":\"shipped-artifact\",\"environment\":null,\"limitations\":[\"Derived by an REA workflow from one or more provider observations.\"],\"locations\":[],\"evidence_links\":[],\"analysis_profile\":{\"provider\":{\"id\":\"rea-workflow\",\"name\":\"REA composed investigation workflow\",\"version\":\"1\"},\"parameters\":{\"upstream_analysis_profile\":{\"provider\":{\"id\":\"hopper\",\"name\":\"Hopper Disassembler\",\"version\":\"launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0\"},\"parameters\":{\"target_kind\":\"executable\",\"target_format\":\"mach-o\",\"architecture\":\"arm64\",\"available_architectures\":[\"arm64\",\"x86_64\"],\"loader\":{\"source\":\"derived\",\"argument_count\":5,\"arguments_sha256\":\"3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5\"}},\"digest\":\"61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236\"}},\"digest\":\"c34d2a00474c98c73a41733eb6fc8a564b8e465445d8d77f32eb1278653adf93\"}}}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "items": [
+          {
+            "address": "0x100198464",
+            "status": "ok",
+            "pseudocode": "    r31 = r31 - 0x60;\n    var_40 = r27;\n    var_38 = r26;\n    decomp_var_30 = r25;\n    var_28 = r24;\n    decomp_var_20 = r23;\n    var_18 = r21;\n    decomp_var_10 = r19;\n    saved_fp = r29 | 0x1000000000000000;\n    decomp_var_m8 = r30;\n    if (*qword_10149bfa0 != -0x1) {\n            r1 = sub_10061143c;\n            swift_once(qword_10149bfa0, sub_10061143c, r2);\n    }\n    r21 = r22[0xe];\n    r24 = r22[0xb];\n    r23 = r22[0xc];\n    r19 = r22[0x10];\n    r27 = r22[0x11];\n    var_50 = *(int128_t *)(r22 + 0x78);\n    r0 = sub_10014e07c();\n    r0 = sub_10061411c(r0, r1, r24, r23, r21, 0x1);\n    r26 = r0;\n    r22[0x13] = r0;\n    swift_bridgeObjectRelease(r1);\n    r0 = swift_allocObject(0x1013849e0, 0x20, 0x7);\n    r21 = r0;\n    r22[0x14] = r0;\n    r0[0x2] = 0x0;\n    r0[0x3] = 0xe000000000000000;\n    r0 = swift_allocObject(0x101384a08, 0x28, 0x7);\n    r23 = r0;\n    r22[0x15] = r0;\n    r0[0x2] = r21;\n    *(int128_t *)(r0 + 0x18) = var_50;\n    r8 = *r27;\n    r24 = *(r27 + 0x4);\n    asm { sxtw       x8, w8 };\n    var_50 = r8 + r27;\n    swift_retain(r21);\n    swift_retain(r19);\n    r0 = swift_task_alloc(r24);\n    r22[0x16] = r0;\n    *r0 = r22;\n    r0[0x1] = sub_1001985b0;\n    r0 = (var_50)(r26, sub_100198b3c, r23, var_50);\n    return r0;\n"
+          },
+          {
+            "address": "0x100207330",
+            "status": "ok",
+            "pseudocode": "    r31 = r31 - 0x70;\n    var_30 = r25;\n    var_28 = r24;\n    decomp_var_20 = r23;\n    var_18 = r21;\n    decomp_var_10 = r19;\n    saved_fp = r29 | 0x1000000000000000;\n    decomp_var_m8 = r30;\n    var_38 = **___stack_chk_guard;\n    r8 = r22[0xd0];\n    r9 = *objc_ivar_offset__TtC12superwhisper12WhisperState__modeManager;\n    r22[0xd7] = r9;\n    r21 = r8 + r9;\n    r20 = r21[0x1];\n    swift_retain(r20);\n    r0 = sub_100150364();\n    r19 = r0;\n    r22[0x162] = r0 & 0x1;\n    swift_release(r20);\n    if ((r19 & 0x1) != 0x0) {\n            r20 = r21[0x1];\n            swift_retain(r20);\n            sub_100150c58();\n            swift_release(r20);\n            if (*qword_10149bfa0 != -0x1) {\n                    r1 = sub_10061143c;\n                    swift_once(qword_10149bfa0, sub_10061143c, r2);\n            }\n            r21 = sub_10014e07c();\n            sub_100046038(r22 + 0x4c0);\n            r23 = swift_getKeyPath(0x10103c9f8, r1);\n            r24 = swift_getKeyPath(0x10103ca20, r1);\n            static Combine.Published.subscript.getter();\n            swift_release(r24);\n            swift_release(r23);\n            memcpy(r22 + 0x10, r22 + 0x168, 0x151);\n            r2 = 0xd000000000000016;\n            r19 = sub_100614e68(r21, r1, 0xd000000000000016, \"{{SW_USER_TRANSCRIPT}}\" - 0x20 | 0x8000000000000000, r22 + 0x10, 0x1);\n            r21 = r1;\n            sub_100086784(r22 + 0x10);\n            swift_bridgeObjectRelease(r1);\n    }\n    else {\n            r19 = 0x0;\n            r21 = 0xe000000000000000;\n    }\n    r22[0xd9] = r21;\n    r22[0xd8] = r19;\n    if ((r22[0x161] & 0x1) != 0x0) {\n            r22[0xde] = 0xf000000000000000;\n            r22[0xdd] = 0x0;\n            r20 = *(r22[0xd0] + r22[0xd7] + 0x8);\n            swift_retain(r20);\n            sub_100150c58();\n            swift_release(r20);\n            r20 = r22[0x83];\n            r19 = r22[0x84];\n            r22[0xdf] = r19;\n            swift_bridgeObjectRetain(r19);\n            sub_100046038(r22 + 0x3c0);\n            if (*qword_101476c78 != -0x1) {\n                    swift_once(qword_101476c78, sub_10011158c, r2);\n            }\n            r21 = sub_100234670(0x1);\n            r0 = swift_task_alloc(0x700);\n            r22[0xe0] = r0;\n            *r0 = r22;\n            r0[0x1] = sub_1002077d0;\n            r9 = r22[0xd9];\n            r7 = r22[0xd8];\n            r5 = r22[0x162];\n            r4 = r22[0xcf];\n            r1 = r22[0xce];\n            if (**___stack_chk_guard != var_38) {\n                    __stack_chk_fail();\n            }\n            r0 = sub_1001bf158(r22 + 0x5c0, r1, r20, r19, r4, r5, r21 & 0x1, r7, r9, 0x0, 0xf000000000000000);\n    }\n    else {\n            r0 = swift_task_alloc(0x110);\n            r22[0xda] = r0;\n            *r0 = r22;\n            r0[0x1] = sub_100207618;\n            if (**___stack_chk_guard != var_38) {\n                    __stack_chk_fail();\n            }\n            r0 = loc_100208088();\n    }\n    return r0;\n"
+          }
+        ],
+        "total": 2,
+        "succeeded": 2,
+        "failed": 0
+      },
+      "evidence_id": "ev_0d25850a2755bcd4a33d68b0cb581a7f66f5e077eb966e198dc7a8883563cda7",
+      "evidence": {
+        "evidence_id": "ev_0d25850a2755bcd4a33d68b0cb581a7f66f5e077eb966e198dc7a8883563cda7",
+        "subject": {
+          "name": "superwhisper",
+          "digest": {
+            "sha256": "0e70c211e0c7a65e09af5d3565e6d5827b62a5247721fa61f8ec981c9e94fd5a"
+          },
+          "format": "mach-o",
+          "architecture": "arm64",
+          "local_path": "/private/tmp/rea-superwhisper-input/superwhisper.app/Contents/MacOS/superwhisper"
+        },
+        "provider": {
+          "id": "rea-workflow",
+          "name": "REA composed investigation workflow",
+          "version": "1"
+        },
+        "predicate_type": "rea.analysis",
+        "operation": "batch_decompile",
+        "parameters": {
+          "addresses": [
+            "0x100198464",
+            "0x100207330"
+          ]
+        },
+        "raw_result": null,
+        "normalized_result": {
+          "items": [
+            {
+              "address": "0x100198464",
+              "status": "ok",
+              "pseudocode": "    r31 = r31 - 0x60;\n    var_40 = r27;\n    var_38 = r26;\n    decomp_var_30 = r25;\n    var_28 = r24;\n    decomp_var_20 = r23;\n    var_18 = r21;\n    decomp_var_10 = r19;\n    saved_fp = r29 | 0x1000000000000000;\n    decomp_var_m8 = r30;\n    if (*qword_10149bfa0 != -0x1) {\n            r1 = sub_10061143c;\n            swift_once(qword_10149bfa0, sub_10061143c, r2);\n    }\n    r21 = r22[0xe];\n    r24 = r22[0xb];\n    r23 = r22[0xc];\n    r19 = r22[0x10];\n    r27 = r22[0x11];\n    var_50 = *(int128_t *)(r22 + 0x78);\n    r0 = sub_10014e07c();\n    r0 = sub_10061411c(r0, r1, r24, r23, r21, 0x1);\n    r26 = r0;\n    r22[0x13] = r0;\n    swift_bridgeObjectRelease(r1);\n    r0 = swift_allocObject(0x1013849e0, 0x20, 0x7);\n    r21 = r0;\n    r22[0x14] = r0;\n    r0[0x2] = 0x0;\n    r0[0x3] = 0xe000000000000000;\n    r0 = swift_allocObject(0x101384a08, 0x28, 0x7);\n    r23 = r0;\n    r22[0x15] = r0;\n    r0[0x2] = r21;\n    *(int128_t *)(r0 + 0x18) = var_50;\n    r8 = *r27;\n    r24 = *(r27 + 0x4);\n    asm { sxtw       x8, w8 };\n    var_50 = r8 + r27;\n    swift_retain(r21);\n    swift_retain(r19);\n    r0 = swift_task_alloc(r24);\n    r22[0x16] = r0;\n    *r0 = r22;\n    r0[0x1] = sub_1001985b0;\n    r0 = (var_50)(r26, sub_100198b3c, r23, var_50);\n    return r0;\n"
+            },
+            {
+              "address": "0x100207330",
+              "status": "ok",
+              "pseudocode": "    r31 = r31 - 0x70;\n    var_30 = r25;\n    var_28 = r24;\n    decomp_var_20 = r23;\n    var_18 = r21;\n    decomp_var_10 = r19;\n    saved_fp = r29 | 0x1000000000000000;\n    decomp_var_m8 = r30;\n    var_38 = **___stack_chk_guard;\n    r8 = r22[0xd0];\n    r9 = *objc_ivar_offset__TtC12superwhisper12WhisperState__modeManager;\n    r22[0xd7] = r9;\n    r21 = r8 + r9;\n    r20 = r21[0x1];\n    swift_retain(r20);\n    r0 = sub_100150364();\n    r19 = r0;\n    r22[0x162] = r0 & 0x1;\n    swift_release(r20);\n    if ((r19 & 0x1) != 0x0) {\n            r20 = r21[0x1];\n            swift_retain(r20);\n            sub_100150c58();\n            swift_release(r20);\n            if (*qword_10149bfa0 != -0x1) {\n                    r1 = sub_10061143c;\n                    swift_once(qword_10149bfa0, sub_10061143c, r2);\n            }\n            r21 = sub_10014e07c();\n            sub_100046038(r22 + 0x4c0);\n            r23 = swift_getKeyPath(0x10103c9f8, r1);\n            r24 = swift_getKeyPath(0x10103ca20, r1);\n            static Combine.Published.subscript.getter();\n            swift_release(r24);\n            swift_release(r23);\n            memcpy(r22 + 0x10, r22 + 0x168, 0x151);\n            r2 = 0xd000000000000016;\n            r19 = sub_100614e68(r21, r1, 0xd000000000000016, \"{{SW_USER_TRANSCRIPT}}\" - 0x20 | 0x8000000000000000, r22 + 0x10, 0x1);\n            r21 = r1;\n            sub_100086784(r22 + 0x10);\n            swift_bridgeObjectRelease(r1);\n    }\n    else {\n            r19 = 0x0;\n            r21 = 0xe000000000000000;\n    }\n    r22[0xd9] = r21;\n    r22[0xd8] = r19;\n    if ((r22[0x161] & 0x1) != 0x0) {\n            r22[0xde] = 0xf000000000000000;\n            r22[0xdd] = 0x0;\n            r20 = *(r22[0xd0] + r22[0xd7] + 0x8);\n            swift_retain(r20);\n            sub_100150c58();\n            swift_release(r20);\n            r20 = r22[0x83];\n            r19 = r22[0x84];\n            r22[0xdf] = r19;\n            swift_bridgeObjectRetain(r19);\n            sub_100046038(r22 + 0x3c0);\n            if (*qword_101476c78 != -0x1) {\n                    swift_once(qword_101476c78, sub_10011158c, r2);\n            }\n            r21 = sub_100234670(0x1);\n            r0 = swift_task_alloc(0x700);\n            r22[0xe0] = r0;\n            *r0 = r22;\n            r0[0x1] = sub_1002077d0;\n            r9 = r22[0xd9];\n            r7 = r22[0xd8];\n            r5 = r22[0x162];\n            r4 = r22[0xcf];\n            r1 = r22[0xce];\n            if (**___stack_chk_guard != var_38) {\n                    __stack_chk_fail();\n            }\n            r0 = sub_1001bf158(r22 + 0x5c0, r1, r20, r19, r4, r5, r21 & 0x1, r7, r9, 0x0, 0xf000000000000000);\n    }\n    else {\n            r0 = swift_task_alloc(0x110);\n            r22[0xda] = r0;\n            *r0 = r22;\n            r0[0x1] = sub_100207618;\n            if (**___stack_chk_guard != var_38) {\n                    __stack_chk_fail();\n            }\n            r0 = loc_100208088();\n    }\n    return r0;\n"
+            }
+          ],
+          "total": 2,
+          "succeeded": 2,
+          "failed": 0
+        },
+        "confidence": "derived",
+        "authority": "shipped-artifact",
+        "environment": null,
+        "limitations": [
+          "Derived by an REA workflow from one or more provider observations."
+        ],
+        "locations": [],
+        "evidence_links": [],
+        "analysis_profile": {
+          "provider": {
+            "id": "rea-workflow",
+            "name": "REA composed investigation workflow",
+            "version": "1"
+          },
+          "parameters": {
+            "upstream_analysis_profile": {
+              "provider": {
+                "id": "hopper",
+                "name": "Hopper Disassembler",
+                "version": "launcher-sha256:dad6f886261fad0d4cdd01aee6fcf57439c60d7b5c54e62fc97f0180116690e0"
+              },
+              "parameters": {
+                "target_kind": "executable",
+                "target_format": "mach-o",
+                "architecture": "arm64",
+                "available_architectures": [
+                  "arm64",
+                  "x86_64"
+                ],
+                "loader": {
+                  "source": "derived",
+                  "argument_count": 5,
+                  "arguments_sha256": "3d087b67854a940e6bde79429b91f25be2ce3da695d6d7c08ee2dde525b442d5"
+                }
+              },
+              "digest": "61ddc6c236806ee6021b9be7dfcc3c4dee01ea0380414c490b0a95125b80e236"
+            }
+          },
+          "digest": "c34d2a00474c98c73a41733eb6fc8a564b8e465445d8d77f32eb1278653adf93"
+        }
+      }
+    }
+  }
+}

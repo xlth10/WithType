@@ -1,0 +1,37 @@
+[package]
+name = "withtype_windows"
+version = "0.1.0"
+description = "WithType Windows voice typing client, inspired by Typefree"
+authors = ["Emergence Lab"]
+edition = "2021"
+
+[lib]
+name = "withtype_windows_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "withtype"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+arboard = "3.4"
+base64 = "0.22"
+# 必须显式开 windows-native：keyring 3.6 默认不含任何平台后端，
+# 漏掉它会静默退化成 mock（纯内存、零持久化），
+# 表现为 save_api_key 返回成功但 get_password 永远 NoEntry。
+keyring = { version = "3.6", features = ["windows-native"] }
+reqwest = { version = "0.12", features = ["json", "multipart", "rustls-tls", "stream"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+tokio = { version = "1", features = ["time", "macros", "sync"] }
+
+[target.'cfg(windows)'.dependencies]
+cpal = "0.18.2"
+windows = { version = "0.61.3", features = ["Win32_System_Com", "Win32_System_Ole", "Win32_System_Variant", "Win32_UI_Accessibility"] }
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_DataExchange", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading", "Win32_System_LibraryLoader", "Win32_System_RemoteDesktop", "Win32_UI_HiDpi", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }

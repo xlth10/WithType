@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Typefree Windows 非官方图标">
-  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#102a35"/><stop offset="1" stop-color="#0a171f"/></linearGradient></defs>
-  <rect width="128" height="128" rx="30" fill="url(#bg)"/>
-  <path d="M27 39c0-9 7-16 16-16h42c9 0 16 7 16 16v37c0 9-7 16-16 16H58L39 106V92C32 90 27 84 27 76Z" fill="#48d4bb"/>
-  <path d="M47 60v12m11-24v33m12-43v43m11-30v21" fill="none" stroke="#102a35" stroke-width="7" stroke-linecap="round"/>
-</svg>

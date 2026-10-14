@@ -15,6 +15,7 @@ import { splitText, stablePrefix, referenceTail, TEXT_CHUNK_LIMIT } from "../tex
 import { copyResult, normalizeDelivery } from "./delivery.js";
 
 export const INTENTS = ["dictation", "command", "ask", "translate", "skill"];
+export const SMART_DIRECT_OUTPUT_MAX_LENGTH = 15;
 
 /** 命令识别的最低置信度：低于它一律按普通口述处理，避免误拦用户的正常输入。 */
 export const AUTO_COMMAND_CONFIDENCE = 0.85;
@@ -524,7 +525,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         if (stage.ok && stage.text) finalText = stage.text;
         else textFailure = stage.error || "文字模型没有返回内容";
       }
-    } else if (intent === "skill" || snapshot.processingMode === "skill" || (snapshot.processingMode === "smart" && effectiveTextLength(corrected) > 10)) {
+    } else if (intent === "skill" || snapshot.processingMode === "skill" || (snapshot.processingMode === "smart" && effectiveTextLength(corrected) > SMART_DIRECT_OUTPUT_MAX_LENGTH)) {
       const skill = intent === "skill" || snapshot.processingMode === "skill" ? snapshot.skill : null;
       const modeReady = textReady(snapshot.settings);
       const skillReady = (intent !== "skill" && snapshot.processingMode !== "skill") || Boolean(skill);
@@ -547,7 +548,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         textFailure = modeReady ? "所选写法已不可用，请重新选择" : "尚未配置文字服务，已按原文处理";
         finalText = corrected;
       }
-    } else if (snapshot.processingMode === "smart" && effectiveTextLength(corrected) <= 10) {
+    } else if (snapshot.processingMode === "smart" && effectiveTextLength(corrected) <= SMART_DIRECT_OUTPUT_MAX_LENGTH) {
       // Typefree 短句路径：无需文字请求；去掉 ASR 附加的末尾句号。
       finalText = stripShortTrailingFullStop(corrected);
     } else if (snapshot.processingMode === "clean") {

@@ -40,6 +40,11 @@ test("three native windows keep design sizes, light theme and neutral zoom", asy
   assert.match(rust, /floating::main_geometry\(area, frame_width, frame_height\)/);
 });
 
+test("release executable uses the Windows GUI subsystem", async () => {
+  const main = await read("src-tauri/src/main.rs");
+  assert.match(main, /#!\[cfg_attr\(not\(debug_assertions\), windows_subsystem = "windows"\)\]/);
+});
+
 test("visible product identity matches the frontend and native windows while saved identity remains compatible", async () => {
   assert.equal(config.productName, BRAND.name);
   assert.equal(config.mainBinaryName, "withtype");
@@ -49,8 +54,54 @@ test("visible product identity matches the frontend and native windows while sav
   assert.ok((await read("index.html")).includes(`<title>${BRAND.name}</title>`));
   const app = await read("src/App.jsx");
   assert.match(app, /<strong>\{BRAND.name\}<\/strong>/);
+  assert.doesNotMatch(app, /非官方/);
   assert.ok((await read("src-tauri/src/lib.rs")).includes(`.tooltip("${BRAND.name}")`));
   assert.match(await read("src-tauri/src/lib.rs"), /const SERVICE_NAME: &str = "app\.typefree\.windows\.unofficial"/);
+});
+
+test("model settings keep only actionable guidance", async () => {
+  const app = await read("src/App.jsx");
+  const textSettings = await read("src/components/TextSettings.jsx");
+  for (const redundantCopy of [
+    "让声音与文字接上服务",
+    "在一页配置语音识别和文字处理",
+    "01 · 从声音到文字",
+    "语音输入、随便问和技能都先在这里转写录音",
+    "上传 16 kHz 单声道 PCM16 WAV",
+  ]) assert.ok(!app.includes(redundantCopy), `redundant copy remains: ${redundantCopy}`);
+  for (const redundantCopy of [
+    "02 · 从文字到成稿",
+    "智能整理、随便问、翻译和技能使用这里的服务",
+    "使用 /chat/completions",
+  ]) assert.ok(!textSettings.includes(redundantCopy), `redundant copy remains: ${redundantCopy}`);
+});
+
+test("recoverable recordings render after the active page content", async () => {
+  const app = await read("src/App.jsx");
+  const css = await read("src/styles.css");
+  const overview = app.slice(app.indexOf("function Overview("), app.indexOf("export function App()"));
+  const lastResult = overview.indexOf('className="last-result panel"');
+  const recoverableRecordings = overview.indexOf("{recoverableAudio.filter");
+  assert.ok(lastResult >= 0, "latest result section was not found");
+  assert.ok(recoverableRecordings > lastResult, "recoverable recordings must be the final overview section");
+  assert.match(css, /\.overview > \.failure-panel \{ margin-top: 12px; margin-bottom: 0; \}/);
+});
+
+test("voice HUD keeps status accessible while background phases remain visible", async () => {
+  const app = await read("src/App.jsx");
+  assert.doesNotMatch(app, /口述中/);
+  assert.doesNotMatch(app, /className="hud-status"/);
+  assert.match(app, /className="sr-only" role="status"/);
+  assert.match(app, /phase === "background-unavailable"/);
+  assert.match(app, /className="hud-badge"/);
+});
+
+test("Escape is registered only for an active voice task and reuses cancellation", async () => {
+  const rust = await read("src-tauri/src/lib.rs");
+  assert.match(rust, /fn set_interaction_active\(/);
+  assert.match(rust, /global_shortcut\(\)\.register\("Escape"\)/);
+  assert.match(rust, /matches_shortcut\(shortcut, "Escape"\)/);
+  assert.match(rust, /background::trigger\(app, "cancel-recording"\)/);
 });
 
 test("offline variable font ships intact with its license and preload", async () => {

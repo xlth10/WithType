@@ -107,6 +107,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid #56614b; outline-offs
 .panel { border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
 .last-result { margin-top: 12px; padding: 19px 20px; }
 .failure-panel { margin-bottom: 14px; padding: 17px 19px; border-color: rgba(224,120,47,.32); background: #fffaf5; }
+.overview > .failure-panel { margin-top: 12px; margin-bottom: 0; }
 .failure-panel .panel-title h2 { color: #a8551c; }
 .panel-title { display: flex; align-items: center; gap: 12px; margin-bottom: 21px; }
 .panel-title.slim { justify-content: space-between; margin-bottom: 11px; }

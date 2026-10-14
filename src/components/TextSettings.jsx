@@ -101,9 +101,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
     <section className="model-section" id="text-model" aria-labelledby="text-model-heading">
       <header className="model-section-heading">
         <div>
-          <span className="eyebrow">02 · 整理文字</span>
           <h2 id="text-model-heading">文字处理</h2>
-          <p>用于自动整理、提问、翻译和写法。仅保留原文或轻度整理时，可留空。</p>
         </div>
         <div className={`connection-badge ${result?.ok ? "success" : ""}`}>
           {result?.ok ? "测试通过" : result?.ok === false ? "测试未通过" : "尚未测试"}
@@ -114,8 +112,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
         <div className="panel-title">
           <div className="icon-tile"><BookOpenText size={22} weight="bold" /></div>
           <div>
-            <h2>文字服务接口</h2>
-            <p>支持流式预览；成稿完成后一次输入到目标应用。</p>
+            <h3>OpenAI 兼容文字接口</h3>
           </div>
         </div>
         <div className="form-grid">

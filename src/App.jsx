@@ -271,9 +271,9 @@ function SpeechSettings({ settings, setSettings, online, testing, testConnection
   };
   return (
     <section className="model-section" id="speech-model" aria-labelledby="speech-model-heading">
-      <header className="model-section-heading"><div><span className="eyebrow">01 · 识别录音</span><h2 id="speech-model-heading">语音识别</h2><p>将你的录音转换为文字，所有语音入口都会使用。</p></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{online ? "测试通过" : "尚未测试"}</div></header>
+      <header className="model-section-heading"><div><h2 id="speech-model-heading">语音识别</h2></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{online ? "语音测试通过" : "语音待测试"}</div></header>
       <div className="panel form-panel">
-        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h3>兼容 OpenAI 的语音服务</h3><p>需要支持 WAV 录音识别。</p></div></div>
+        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h3>OpenAI 兼容 WAV 接口</h3></div></div>
         <div className="form-grid">
           <Field label="服务地址" hint="通常填写到 /v1，具体以服务说明为准。"><input value={settings.asrEndpoint} onChange={(e) => setSettings((current) => ({ ...current, asrEndpoint: e.target.value }))} /></Field>
           <Field label="模型名称"><input value={settings.asrModel} onChange={(e) => setSettings((current) => ({ ...current, asrModel: e.target.value }))} /></Field>
@@ -290,7 +290,7 @@ function SpeechSettings({ settings, setSettings, online, testing, testConnection
 
 function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice, onSpeechKeySaved }) {
   return <section className="page-content models-page">
-    <header className="page-heading"><div><span className="eyebrow">连接服务</span><h1>服务设置</h1><p>语音服务负责识别，文字服务负责整理、提问和翻译。地址与密钥分别设置。</p></div></header>
+    <header className="page-heading"><div><h1>模型配置</h1></div></header>
     <nav className="model-jump-links" aria-label="模型分工">
       <a href="#speech-model"><Waveform size={22} /><span><strong>语音识别</strong><small>{settings.asrModel || "尚未设置模型"}</small></span><ArrowRight size={17} /></a>
       <a href="#text-model"><TextT size={22} /><span><strong>文字处理</strong><small>{settings.textModel || "自动整理 · 提问 · 翻译 · 写法"}</small></span><ArrowRight size={17} /></a>
@@ -549,7 +549,7 @@ function History({ onCopy, history, onClear, onTeach, onExport, onRetranscribe, 
   );
 }
 
-function Overview({ onCopy, settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level }) {
+function Overview({ onCopy, settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level, recoverableAudio, pendingAudioSessionId, onDiscardAudio, onRecoverAudio, taskBusy, retrying }) {
   const recording = state === "recording";
   const busy = state === "processing";
   const mode = MODE_META[settings.processingMode === "corrected" ? "original" : settings.processingMode] || MODE_META.original;
@@ -600,6 +600,15 @@ function Overview({ onCopy, settings, customSkills, online, setPage, state, inte
         </div>
         <p className={lastResult ? "result-text" : "empty-text"}>{lastResult?.text || (speechReady ? "你的下一段输入会显示在这里。" : "连接语音服务后，你的第一段输入会显示在这里。")}</p>
       </div>
+      {recoverableAudio.filter((item) => item.sessionId !== pendingAudioSessionId).map((item) => (
+        <div className="panel failure-panel" key={item.sessionId}>
+          <div className="panel-title slim"><div><h2>待处理录音</h2><p>{item.error || `约 ${Math.ceil(item.audioMs / 1000)} 秒，已由 Windows 加密保存在本机。`}</p></div></div>
+          <div className="form-actions">
+            <button className="button secondary" onClick={() => onDiscardAudio(item)} disabled={taskBusy || retrying}>丢弃录音</button>
+            <button className="button primary" onClick={() => onRecoverAudio(item)} disabled={taskBusy || retrying || Boolean(item.error)}>{retrying ? "正在识别" : "重新识别"}</button>
+          </div>
+        </div>
+      ))}
     </section>
   );
 }
@@ -1685,18 +1694,8 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
           </div>
         )}
 
-        {recoverableAudio.filter((item) => item.sessionId !== pendingFailure?.audioSessionId).map((item) => (
-          <div className="panel failure-panel" key={item.sessionId}>
-            <div className="panel-title slim"><div><h2>待处理录音</h2><p>{item.error || `约 ${Math.ceil(item.audioMs / 1000)} 秒，已由 Windows 加密保存在本机。`}</p></div></div>
-            <div className="form-actions">
-              <button className="button secondary" onClick={() => discardAudio(item)} disabled={busy || retrying}>丢弃录音</button>
-              <button className="button primary" onClick={() => recoverAudio(item)} disabled={busy || retrying || Boolean(item.error)}>{retrying ? "正在识别" : "重新识别"}</button>
-            </div>
-          </div>
-        ))}
-
         {page === "appearance" && <AppearanceSettings settings={settings} setSettings={setSettings} ready={hydrated} onReplayEntrance={onReplayEntrance} />}
-        {page === "home" && <Overview onCopy={copyOutput} settings={settings} customSkills={customSkills} online={online} setPage={setPage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} level={recorder.level} />}
+        {page === "home" && <Overview onCopy={copyOutput} settings={settings} customSkills={customSkills} online={online} setPage={setPage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} level={recorder.level} recoverableAudio={recoverableAudio} pendingAudioSessionId={pendingFailure?.audioSessionId} onDiscardAudio={discardAudio} onRecoverAudio={recoverAudio} taskBusy={busy} retrying={retrying} />}
         {page === "model" && <ModelSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={notify} onSpeechKeySaved={() => setOnline(false)} />}
         {page === "writing" && <WritingSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onSelectSkill={onSelectSkill} textReady={textReady} />}
         {page === "skills" && <SkillEditor customSkills={customSkills} selectedSkillId={settings.actionType === "skill" ? settings.actionSkillId : ""} dailySkillId={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onSelect={onSelectActionSkill} onSelectDaily={onSelectSkill} onRun={(id) => toggleTask("skill", id)} running={state === "recording" && currentTriggerRef.current === "skill"} onDeliveryChange={(value) => setSettings({ ...settingsRef.current, skillDelivery: value })} onSaveCustomSkills={saveCustomSkills} pipeline={pipeline} settings={settings} onNotice={notify} busy={busy} />}

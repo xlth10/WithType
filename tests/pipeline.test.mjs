@@ -456,7 +456,7 @@ test("insertRaw 对普通口述保留并复制原文，不误输入设置窗口"
 
 test("smart 模式缺少文字服务时保留原文并说明原因", async () => {
   const { pipeline, events, calls, pasted } = makePipeline({
-    transcribe_audio: async () => ({ text: "嗯那个明天上午我们在会议室开会", durationMs: 120 }),
+    transcribe_audio: async () => ({ text: "嗯那个明天上午我们在会议室开项目进度会", durationMs: 120 }),
   });
 
   const snapshot = pipeline.begin({ intent: "dictation", settings: { ...LOCAL_SETTINGS, processingMode: "smart" } });
@@ -464,7 +464,7 @@ test("smart 模式缺少文字服务时保留原文并说明原因", async () =>
 
   assert.equal(result.ok, true);
   assert.deepEqual(calls, ["transcribe_audio", "paste_text"]);
-  assert.deepEqual(pasted, ["嗯那个明天上午我们在会议室开会"]);
+  assert.deepEqual(pasted, ["嗯那个明天上午我们在会议室开项目进度会"]);
   assert.equal(findEvent(events, "done").warning, "尚未配置文字服务，已按原文处理");
 });
 
@@ -480,17 +480,17 @@ test("固定版 Typefree 短句不调用文字服务，并去掉末尾句号", a
 test("smart 模式发送专用的自然文字整理规则", async () => {
   let sent = null;
   const { pipeline, calls } = makePipeline({
-    transcribe_audio: async () => ({ text: "嗯，我说明天，不对，后天发报告。", durationMs: 120 }),
+    transcribe_audio: async () => ({ text: "嗯，我说明天，不对，后天上午十点发送项目报告。", durationMs: 120 }),
     process_text: async (payload) => {
       sent = payload.request;
-      return { text: "我后天发报告。", durationMs: 200 };
+      return { text: "我后天上午十点发送项目报告。", durationMs: 200 };
     },
   });
 
   const snapshot = pipeline.begin({ intent: "dictation", settings: { ...TEXT_SETTINGS, processingMode: "smart" } });
   const result = await pipeline.complete({ snapshot, audio: AUDIO });
 
-  assert.equal(result.text, "我后天发报告。");
+  assert.equal(result.text, "我后天上午十点发送项目报告。");
   assert.deepEqual(calls, ["transcribe_audio", "process_text", "paste_text"]);
   assert.equal(sent.task, "smart");
   assert.ok(sent.messages[0].content.includes("不添加用户没说过的内容"));
@@ -797,4 +797,37 @@ test("textReady 要求地址与模型名都填齐", () => {
 test("流水线暴露的内置 Skill 就是应用内置的那四个", () => {
   const { pipeline } = makePipeline({});
   assert.equal(pipeline.builtinSkills, BUILTIN_SKILLS);
+});
+
+test("smart mode directly outputs exactly 15 effective characters", async () => {
+  const { pipeline, calls, pasted } = makePipeline({
+    transcribe_audio: async () => ({ text: "123456789012345。。" }),
+  });
+  const settings = { ...TEXT_SETTINGS, processingMode: "smart" };
+
+  const result = await pipeline.complete({
+    snapshot: pipeline.begin({ intent: "dictation", settings }),
+    audio: AUDIO,
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls, ["transcribe_audio", "paste_text"]);
+  assert.deepEqual(pasted, ["123456789012345"]);
+});
+
+test("smart mode sends 16 effective characters to the text model", async () => {
+  const { pipeline, calls, pasted } = makePipeline({
+    transcribe_audio: async () => ({ text: "1234567890123456。" }),
+    process_text: async () => ({ text: "processed" }),
+  });
+  const settings = { ...TEXT_SETTINGS, processingMode: "smart" };
+
+  const result = await pipeline.complete({
+    snapshot: pipeline.begin({ intent: "dictation", settings }),
+    audio: AUDIO,
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls, ["transcribe_audio", "process_text", "paste_text"]);
+  assert.deepEqual(pasted, ["processed"]);
 });

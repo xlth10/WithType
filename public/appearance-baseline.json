@@ -73,7 +73,7 @@
     }
   ],
   "sourceSha256": {
-    "src/styles.css": "e83ec371f07ba9ed5c5fff8f20835873b0ee0ec8b446ed675e605709d0380fbc",
+    "src/styles.css": "ad4ded3ed6184e56efa8b7e75347e2eed67201f8408bb3fbfb2ebe656e304c67",
     "src/main.jsx": "45c8ab61adfeaf4c23484aa73d97b29ec3811aac4cbdb1aa4b3d0ab2b41afba0",
     "src/ui/AppEntrance.jsx": "c79e761b1742e11d0369c44554b073535eeaaf7f7f31fa60cb4d6f04e6599f4d",
     "src/ui/inkWelcome.js": "ec4bf9c546a8c0bda6f739d35d6ce362a06957b2633a19658d029a5c2bf0c429",

@@ -29,7 +29,7 @@ test("超长普通整理覆盖尾部，所有原文按顺序参与模型请求",
 });
 
 test("普通整理优先快速模型，复杂技能仍使用主模型", async () => {
-  const h = setup("这是一段足够长的普通整理文本。", async () => ({ text: "成稿" }));
+  const h = setup("这是一段超过直出边界且足够长的普通整理文本。", async () => ({ text: "成稿" }));
   await h.pipeline.complete({ snapshot: h.pipeline.begin({ intent: "dictation", settings: { ...settings, textFastModel: "fast" } }), audio });
   assert.equal(h.requests[0].model, "fast");
 });
@@ -113,7 +113,7 @@ test("流式预览取消后拒绝旧调用，也不将半篇粘贴到目标", as
   globalThis.window = { __TAURI_INTERNALS__: {} };
   try {
     let resolve;
-    const h = setup("这是足够长的正文，不能只输入半篇。", () => new Promise((r) => { resolve = r; }));
+    const h = setup("这是超过直出边界的完整正文，不能只输入半篇内容。", () => new Promise((r) => { resolve = r; }));
     const snapshot = h.pipeline.begin({ intent: "dictation", settings });
     const task = h.pipeline.complete({ snapshot, audio });
     await turn();
@@ -165,7 +165,7 @@ test("停止后的墙钟指标不累加录音中已完成的 ASR", async () => {
   time += 2000;
   pipeline.markStopped(snapshot);
   time += 150;
-  const result = await pipeline.complete({ snapshot, audio: { nativeSessionId: "fixture", transcript: "足够长的完整识别文字，保留原意。", asrMs: 9000 } });
+  const result = await pipeline.complete({ snapshot, audio: { nativeSessionId: "fixture", transcript: "这是一段超过直出边界的完整识别文字，必须保留原意。", asrMs: 9000 } });
   assert.equal(result.timings.asrMs, 9000);
   assert.equal(result.timings.stopToAsrMs, 150);
   assert.equal(result.timings.stopToReadyMs, 450);

@@ -1,0 +1,12 @@
+{
+  "asrEndpoint": "https://models.example.com/v1",
+  "asrModel": "your-asr-model",
+  "textEndpoint": "https://models.example.com/",
+  "textModel": "your-main-text-model",
+  "textFastModel": "",
+  "textFallbackModels": "",
+  "textTimeoutMs": 60000,
+  "textAuthMode": "bearer",
+  "asrApiKey": "replace-with-a-user-specific-key",
+  "textApiKey": "replace-with-a-user-specific-key"
+}

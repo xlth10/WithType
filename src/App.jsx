@@ -37,6 +37,7 @@ import {
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { emit, listen } from "@tauri-apps/api/event";
+import { connectOverlay } from "./voice/overlaySync.js";
 
 import { VocabularySettings } from "./components/VocabularySettings.jsx";
 import { HistoryCorrection } from "./components/HistoryCorrection.jsx";
@@ -672,7 +673,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
   const [countdown, setCountdown] = useState(null);
   const [answerCard, setAnswerCard] = useState(cardPreview ? previewParams.get("kind") === "delivery" ? {
     kind: "delivery", requestId: "preview-delivery", question: "", status: "copied",
-    message: "没有可用输入位置，已复制，可以粘贴",
+    message: "暂时无法确认输入框，已复制，可以粘贴",
     answer: "先完成本周的功能验证，再整理实际使用中发现的问题。周五前确定下周的安排，并同步给团队。",
   } : { question: "下周的工作怎么安排？", answer: "先列出必须完成的事项，再按截止时间排优先级。", streaming: previewParams.get("streaming") === "1" } : null);
   const answerCardRef = useRef(answerCard);
@@ -1417,15 +1418,19 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
 
   useEffect(() => {
     if (!isTauri() || windowLabel !== "overlay") return undefined;
-    const unlisten = listen("dictation-state", (event) => {
-      const payload = event.payload || {};
-      setState(payload.state || "idle");
-      setIntent(payload.intent || "");
-      setPhase(payload.phase || "idle");
-      setCountdown(payload.countdown ?? null);
+    const connection = connectOverlay({
+      listen,
+      invoke: desktopInvoke,
+      onState: (payload) => {
+        setState(payload.state || "idle");
+        setIntent(payload.intent || "");
+        setPhase(payload.phase || "idle");
+        setCountdown(payload.countdown ?? null);
+      },
+      onLevel: setAudioLevel,
     });
-    const unlistenLevel = listen("dictation-level", (event) => setAudioLevel(event.payload));
-    return () => { unlisten.then((fn) => fn()); unlistenLevel.then((fn) => fn()); };
+    connection.ready.catch((error) => console.error("WithType HUD sync:", error));
+    return () => connection.dispose();
   }, [windowLabel]);
 
   useEffect(() => {
@@ -1482,7 +1487,8 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     if (!isTauri() || windowLabel !== "main") return;
     // intent 与 phase 一起发给悬浮窗：只发状态串的话，用户分不清这次是口述还是命令、
     // 也分不清「正在识别」和「正在整理文字」。
-    desktopInvoke("set_overlay_state", { state, intent, phase, countdown }, true).catch(() => {});
+    desktopInvoke("set_overlay_state", { state, intent, phase, countdown }, true)
+      .catch((error) => notify(`录音浮窗显示失败：${describeError(error)}`, false));
   }, [state, intent, phase, countdown, windowLabel]);
 
   useEffect(() => {

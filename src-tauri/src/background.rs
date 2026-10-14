@@ -254,9 +254,7 @@ pub fn dispatch(app: &AppHandle, action: &str, text: Option<String>) -> Result<(
         let mut s = supervisor.state.lock().map_err(|e| e.to_string())?;
         if action == "cancel-recording" && s.phase != Phase::Ready {
             drop(s);
-            if let Some(window) = app.get_webview_window("overlay") {
-                let _ = window.hide();
-            }
+            let _ = crate::set_overlay_state(app.clone(), "idle".into(), None, None, None);
             return Ok(());
         }
         let generation = s.generation;
@@ -306,9 +304,7 @@ fn interrupt(app: &AppHandle, tasks: Vec<String>) {
         .0
         .store(false, std::sync::atomic::Ordering::SeqCst);
     let _ = crate::set_interaction_active(app.clone(), false);
-    if let Some(window) = app.get_webview_window("overlay") {
-        let _ = window.hide();
-    }
+    let _ = crate::set_overlay_state(app.clone(), "idle".into(), None, None, None);
 }
 fn notify_reset(app: &AppHandle, status: &Status) {
     publish(app, status);

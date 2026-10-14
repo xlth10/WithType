@@ -119,20 +119,32 @@ impl Target {
         }
     }
     fn valid(&self) -> bool {
-        self.focus.is_some()
-            && self.focus == focus()
-            && self.field.as_ref().is_some_and(|f| {
-                f.is_focused()
-                    && f.writable()
-                    && self
-                        .selection
-                        .as_ref()
-                        .map_or(true, |r| f.selection_matches(r))
-                    && self
-                        .before
-                        .as_ref()
-                        .map_or(true, |before| f.read().as_ref() == Some(before))
-            })
+        let reject = |reason: &str| {
+            crate::debug_log(&format!("input target rejected: {reason}"));
+            false
+        };
+        if self.focus.is_none() {
+            return reject("no captured foreground input");
+        }
+        if self.focus != focus() {
+            return reject("foreground window or native control changed");
+        }
+        let Some(field) = self.field.as_ref() else {
+            return reject("UI Automation target unavailable");
+        };
+        if !field.is_focused() {
+            return reject("UI Automation focus changed");
+        }
+        if !field.writable() {
+            return reject("focused control could not confirm writability");
+        }
+        if self.selection.as_ref().is_some_and(|r| !field.selection_matches(r)) {
+            return reject("selection changed or could not be read");
+        }
+        if self.before.as_ref().is_some_and(|before| field.read().as_ref() != Some(before)) {
+            return reject("text changed or could not be read");
+        }
+        true
     }
 }
 
@@ -185,6 +197,11 @@ fn worker() -> Result<&'static SyncSender<Request>, String> {
                             } => {
                                 let mut target = Target::capture(clipboard_seq, start);
                                 let expired = Instant::now() >= expires;
+                                crate::debug_log(&format!(
+                                    "input capture: native_focus={} uia={} readable={} selection={} expired={expired}",
+                                    target.focus.is_some(), target.field.is_some(),
+                                    target.before.is_some(), target.selection.is_some(),
+                                ));
                                 if !flag.load(Ordering::SeqCst) {
                                     if expired {
                                         // Keep the early clipboard baseline, but never
@@ -333,7 +350,7 @@ fn perform(
     } else if paste {
         ""
     } else {
-        "没有可用输入位置，已复制，可以粘贴"
+        "暂时无法确认输入框，已复制，可以粘贴"
     };
     let until = Instant::now() + Duration::from_millis(500);
     while paste && modifiers_pressed() {

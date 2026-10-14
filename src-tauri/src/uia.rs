@@ -10,13 +10,29 @@ use windows::{
             CUIAutomation8, IUIAutomation, IUIAutomation2, IUIAutomationElement,
             IUIAutomationTextPattern, IUIAutomationTextPattern2, IUIAutomationTextRange,
             IUIAutomationValuePattern, TextPatternRangeEndpoint_End,
-            TextPatternRangeEndpoint_Start, TextUnit_Character, UIA_IsReadOnlyAttributeId,
-            UIA_TextPattern2Id, UIA_TextPatternId, UIA_ValuePatternId,
+            TextPatternRangeEndpoint_Start, TextUnit_Character, UIA_EditControlTypeId,
+            UIA_IsReadOnlyAttributeId, UIA_TextPattern2Id, UIA_TextPatternId, UIA_ValuePatternId,
         },
     },
 };
 
 struct ComApartment;
+fn writable_from_patterns(
+    range_read_only: Option<bool>,
+    value_read_only: Option<bool>,
+    document_read_only: Option<bool>,
+    is_edit: bool,
+    has_active_caret: bool,
+) -> bool {
+    // Documents can retain an editable selection after blur. Only the active
+    // caret range (or a focused Edit control) can override document metadata.
+    range_read_only
+        .filter(|_| is_edit || has_active_caret)
+        .or(value_read_only)
+        .or(document_read_only)
+        .map_or(is_edit, |read_only| !read_only)
+}
+
 impl Drop for ComApartment {
     fn drop(&mut self) {
         unsafe { CoUninitialize() };
@@ -70,14 +86,16 @@ impl FocusedField {
             if self.element.CurrentIsPassword().ok()?.as_bool() {
                 return None;
             }
-            let text = if let Ok(pattern) = self
+            let value = self
                 .element
                 .GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId)
-            {
-                if pattern.CurrentIsReadOnly().ok()?.as_bool() {
-                    return None;
-                }
-                pattern.CurrentValue().ok()?.to_string()
+                .ok()
+                .filter(|pattern| {
+                    pattern.CurrentIsReadOnly().ok().is_some_and(|v| !v.as_bool())
+                })
+                .and_then(|pattern| pattern.CurrentValue().ok());
+            let text = if let Some(value) = value {
+                value.to_string()
             } else {
                 let pattern = self
                     .element
@@ -109,19 +127,39 @@ impl FocusedField {
             {
                 return false;
             }
-            if let Ok(p) = self
-                .element
-                .GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId)
-            {
-                return p.CurrentIsReadOnly().ok().is_some_and(|v| !v.as_bool());
-            }
-            self.element
-                .GetCurrentPatternAs::<IUIAutomationTextPattern>(UIA_TextPatternId)
-                .ok()
-                .and_then(|p| p.DocumentRange().ok())
+            let is_edit = self.element.CurrentControlType().ok() == Some(UIA_EditControlTypeId);
+            let caret = self.active_caret_range();
+            let has_active_caret = caret.is_some();
+            let range_read_only = caret
+                .or_else(|| if is_edit { self.selection_range() } else { None })
                 .and_then(|r| r.GetAttributeValue(UIA_IsReadOnlyAttributeId).ok())
-                .and_then(|v| bool::try_from(&v).ok())
-                .is_some_and(|read_only| !read_only)
+                .and_then(|v| bool::try_from(&v).ok());
+            let value_read_only = if range_read_only.is_none() {
+                self.element
+                    .GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId)
+                    .ok()
+                    .and_then(|p| p.CurrentIsReadOnly().ok())
+                    .map(|v| v.as_bool())
+            } else {
+                None
+            };
+            let document_read_only = if range_read_only.or(value_read_only).is_none() {
+                self.element
+                    .GetCurrentPatternAs::<IUIAutomationTextPattern>(UIA_TextPatternId)
+                    .ok()
+                    .and_then(|p| p.DocumentRange().ok())
+                    .and_then(|r| r.GetAttributeValue(UIA_IsReadOnlyAttributeId).ok())
+                    .and_then(|v| bool::try_from(&v).ok())
+            } else {
+                None
+            };
+            writable_from_patterns(
+                range_read_only,
+                value_read_only,
+                document_read_only,
+                is_edit,
+                has_active_caret,
+            )
         }
     }
 
@@ -161,7 +199,7 @@ impl FocusedField {
         }
     }
 
-    pub fn caret(&self) -> Option<crate::card_position::Rect> {
+    fn active_caret_range(&self) -> Option<IUIAutomationTextRange> {
         unsafe {
             let pattern = self
                 .element
@@ -169,9 +207,13 @@ impl FocusedField {
                 .ok()?;
             let mut active = windows::core::BOOL::default();
             let range = pattern.GetCaretRange(&mut active).ok()?;
-            if !active.as_bool() {
-                return None;
-            }
+            active.as_bool().then_some(range)
+        }
+    }
+
+    pub fn caret(&self) -> Option<crate::card_position::Rect> {
+        unsafe {
+            let range = self.active_caret_range()?;
             if let Some(rect) = range_rect(&range) {
                 return Some(rect);
             }
@@ -238,4 +280,32 @@ unsafe fn range_rect(range: &IUIAutomationTextRange) -> Option<crate::card_posit
     };
     let _ = SafeArrayUnaccessData(array.0);
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn active_editable_caret_in_a_read_only_document_accepts_input() {
+        assert!(writable_from_patterns(Some(false), Some(true), None, false, true));
+    }
+
+    #[test]
+    fn edit_control_with_unsupported_patterns_accepts_input() {
+        assert!(writable_from_patterns(None, None, None, true, false));
+    }
+
+    #[test]
+    fn read_only_controls_and_unknown_non_edit_controls_reject_input() {
+        assert!(!writable_from_patterns(Some(true), Some(false), Some(false), true, false));
+        assert!(!writable_from_patterns(None, Some(true), None, true, false));
+        assert!(!writable_from_patterns(None, None, Some(true), true, false));
+        assert!(!writable_from_patterns(None, None, None, false, false));
+    }
+
+    #[test]
+    fn a_retained_editable_selection_in_an_inactive_document_cannot_authorize_input() {
+        assert!(!writable_from_patterns(Some(false), Some(true), None, false, false));
+    }
 }

@@ -64,6 +64,7 @@ npm ci
 npm test
 cargo test --manifest-path src-tauri/Cargo.toml --target "$target" --lib
 npm run desktop:build -- --target "$target"
+cargo test --manifest-path src-tauri/Cargo.toml --target "$target" --release --features tauri/custom-protocol --lib production_assets_tests
 powershell.exe -NoProfile -File "$(cygpath -w "$project_root/scripts/package-windows.ps1")" \
   -ReleaseDir "$(cygpath -w "$project_root/src-tauri/target/$target/release")" \
   -OutputDir "$(cygpath -w "$project_root/dist/windows")"

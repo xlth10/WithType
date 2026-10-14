@@ -142,7 +142,7 @@ struct QuickPhraseState {
 #[derive(Default)]
 struct FloatingContext {
     monitor: Option<tauri::Monitor>,
-    overlay_state: String,
+    overlay_state: Option<OverlayState>,
 }
 #[derive(Default)]
 struct FloatingContextState(Mutex<FloatingContext>);
@@ -1121,13 +1121,23 @@ fn refresh_shortcuts(app: &AppHandle) -> Vec<String> {
 
 /// 悬浮窗状态。只发状态串不够用：用户需要一眼分清这次是普通口述还是语音命令，
 /// 以及「正在识别」「正在整理文字」「正在生成内容」这三件不同的事。
-#[derive(Clone, Serialize)]
+#[derive(Clone, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct OverlayState {
     state: String,
     intent: String,
     phase: String,
     countdown: Option<u32>,
+}
+
+#[tauri::command]
+fn get_overlay_state(app: AppHandle) -> Result<OverlayState, String> {
+    let context = app.state::<FloatingContextState>();
+    let context = context.0.lock().map_err(|e| e.to_string())?;
+    Ok(context.overlay_state.clone().unwrap_or_else(|| OverlayState {
+        state: "idle".into(),
+        ..Default::default()
+    }))
 }
 
 #[tauri::command]
@@ -1138,42 +1148,43 @@ fn set_overlay_state(
     phase: Option<String>,
     countdown: Option<u32>,
 ) -> Result<(), String> {
+    let payload = OverlayState {
+        state: state.clone(),
+        intent: intent.unwrap_or_default(),
+        phase: phase.unwrap_or_default(),
+        countdown,
+    };
+    let new_session = {
+        let context = app.state::<FloatingContextState>();
+        let mut context = context.0.lock().map_err(|e| e.to_string())?;
+        let fresh = context.overlay_state.as_ref().is_none_or(|previous| {
+            previous.state == "idle" || (state == "recording" && previous.state != "recording")
+        });
+        context.overlay_state = Some(payload.clone());
+        fresh
+    };
     if let Some(window) = app.get_webview_window("overlay") {
         window
-            .emit(
-                "dictation-state",
-                OverlayState {
-                    state: state.clone(),
-                    intent: intent.unwrap_or_default(),
-                    phase: phase.unwrap_or_default(),
-                    countdown,
-                },
-            )
+            .emit("dictation-state", payload)
             .map_err(|error| error.to_string())?;
         if state == "idle" {
-            if let Ok(mut context) = app.state::<FloatingContextState>().0.lock() {
-                context.overlay_state = state.clone();
-            }
             window.hide().map_err(|error| error.to_string())?;
         } else {
             #[cfg(target_os = "windows")]
             let foreground_before = foreground_window();
-            let new_session = {
-                let context = app.state::<FloatingContextState>();
-                let mut context = context.0.lock().map_err(|e| e.to_string())?;
-                let fresh = context.overlay_state.is_empty()
-                    || context.overlay_state == "idle"
-                    || (state == "recording" && context.overlay_state != "recording");
-                context.overlay_state = state.clone();
-                fresh
-            };
             if let Some(monitor) = floating_monitor(&app, &window, new_session) {
                 place_floating(&window, &monitor, floating::Surface::Hud)?;
             }
+            window
+                .set_always_on_top(true)
+                .map_err(|error| error.to_string())?;
+            window.unminimize().map_err(|error| error.to_string())?;
             window.show().map_err(|error| error.to_string())?;
             #[cfg(target_os = "windows")]
             restore_foreground(foreground_before, "set_overlay_state");
         }
+    } else if state != "idle" {
+        return Err("录音浮窗已关闭，请从托盘恢复语音输入".into());
     }
     Ok(())
 }
@@ -1322,6 +1333,10 @@ pub fn run() {
                         api.prevent_close();
                         let _ = window.emit("answer-window-close", ());
                         let _ = hide_answer_card(window.app_handle().clone(), None);
+                    }
+                    "overlay" => {
+                        api.prevent_close();
+                        background::trigger(window.app_handle(), "cancel-recording");
                     }
                     _ => {}
                 }
@@ -1487,6 +1502,7 @@ pub fn run() {
             set_interaction_active,
             get_phrase_shortcut_status,
             set_overlay_state,
+            get_overlay_state,
             text_api::save_text_api_key,
             text_api::test_text_connection,
             text_api::process_text,
@@ -1592,5 +1608,22 @@ mod recovered_shortcut_tests {
             available_copy_shortcut("Ctrl+Alt+K", &["Ctrl+Alt+V"]),
             "Ctrl+Alt+K"
         );
+    }
+}
+
+#[cfg(all(test, not(debug_assertions)))]
+mod production_assets_tests {
+    #[test]
+    fn release_frontend_is_embedded_and_does_not_require_a_dev_server() {
+        assert!(!tauri::is_dev(), "发布包不能使用开发服务器");
+        let context: tauri::Context<tauri::Wry> = tauri::generate_context!();
+        let html = context
+            .assets()
+            .get(&"index.html".into())
+            .expect("发布包必须内嵌 index.html");
+        let html = std::str::from_utf8(&html).expect("内嵌 HTML 必须是 UTF-8");
+        assert!(html.contains("<div id=\"root\"></div>"));
+        assert!(html.contains("/assets/"));
+        assert!(!html.contains("localhost:5173"));
     }
 }

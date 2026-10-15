@@ -13,18 +13,18 @@
   background: transparent;
   font-synthesis: none;
   --ink: #282c27;
-  --muted: #676b63;
-  --faint: #686e62;
-  --line: #e5e6de;
-  --line-strong: #d3d6cb;
-  --surface: #fcfcf9;
-  --sidebar: #efefe9;
-  --hover: #e7e9df;
-  --selected: #dfe3d7;
+  --muted: #656256;
+  --faint: #676459;
+  --line: #e4e0d4;
+  --line-strong: #cec7b7;
+  --surface: #fcfbf6;
+  --sidebar: #f2efe5;
+  --hover: #eeeadf;
+  --selected: #e8e2d5;
   --success: #2f7d55;
-  --workspace: #f8f9f4;
-  --card: #fcfcf8;
-  --hud-paper: #fafbf6;
+  --workspace: #f8f7ef;
+  --card: #fcfbf6;
+  --hud-paper: #faf8f1;
 }
 
 * { box-sizing: border-box; }

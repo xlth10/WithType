@@ -6,6 +6,7 @@ export default defineConfig({
     outDir: "dist/client",
   },
   optimizeDeps: {
+    entries: ["index.html"],
     include: ["react", "react-dom/client"],
   },
   server: {

@@ -22,9 +22,9 @@ for (const file of ["OFL-NotoSansSC.txt", "COPYRIGHT-NotoSansSC.txt"]) {
   if ((await read(`public/fonts/${file}`)).length < 100) fail(`Missing font attribution: ${file}`);
 }
 
-const inputs = ["src/styles.css", "src/main.jsx", "src/ui/AppEntrance.jsx", "src/ui/inkWelcome.js", "src/ui/inkWelcomeMotion.js", "src/ui/inkWelcomePlayer.js", "src/ui/ink-welcome.css", "src/ui/welcome.js", "index.html", "src/voice/motion.js", "src-tauri/tauri.conf.json"];
+const inputs = ["src/styles.css", "src/ui/paper-theme.css", "src/main.jsx", "src/ui/AppEntrance.jsx", "src/ui/inkWelcome.js", "src/ui/inkArrival.js", "src/ui/inkWelcomeMotion.js", "src/ui/inkWelcomePlayer.js", "src/ui/ink-welcome.css", "src/ui/welcome.js", "index.html", "src/voice/motion.js", "src-tauri/tauri.conf.json"];
 const sourceSha256 = Object.fromEntries(await Promise.all(inputs.map(async file => [file, hash(await read(file))])));
-const css = (await read("src/styles.css")).toString();
+const css = `${await read("src/styles.css")}\n${await read("src/ui/paper-theme.css")}`;
 const palette = Object.fromEntries([...css.matchAll(/(--[\w-]+)\s*:\s*(#[0-9a-f]{6})\s*;/gi)].map(([, key, color]) => [key, color.toLowerCase()]));
 const property = (selector, name) => {
   let value;
@@ -41,7 +41,7 @@ const motionColor = name => motion.match(new RegExp(`const ${name} = "(#[0-9a-f]
 const config = await json("src-tauri/tauri.conf.json");
 const baseline = {
   schemaVersion: 1,
-  reference: "User-selected local Type appearance, 2026-10-12",
+  reference: "WithType paper theme, approved direction 2026-10-14",
   colorSpace: "CSS sRGB",
   palette,
   componentColors: { hero: property(".hero-card", "background"), answerHeader: property(".answer-card header", "background"), answerQuestion: property(".answer-question", "background"), followup: property(".answer-followup", "background"), preview: property(".preview-box", "background"), hudInk: motionColor("INK"), hudSoftInk: motionColor("SOFT_INK"), hudMotionPaper: motionColor("PAPER") },
@@ -66,7 +66,7 @@ if (process.argv.includes("--write")) {
   if (!cssAssets.length) fail("Production CSS is missing.");
   const builtCss = (await Promise.all(cssAssets.map(file => read(`dist/client/assets/${file}`)))).join("\n");
   for (const [token, color] of Object.entries(palette)) {
-    const rendered = builtCss.match(new RegExp(`${token}:\\s*([^;}]+)`))?.[1];
+    const rendered = [...builtCss.matchAll(new RegExp(`${token}:\\s*([^;}]+)`, "g"))].at(-1)?.[1];
     if (!rendered || normalizeHex(rendered) !== normalizeHex(color)) fail(`Production palette differs: ${token}`);
   }
   if (!builtCss.includes(font.file) || !builtCss.includes("color-scheme:only light")) fail("Production font or fixed light scheme is missing.");

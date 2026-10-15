@@ -1,28 +1,31 @@
 {
   "schemaVersion": 1,
-  "reference": "User-selected local Type appearance, 2026-10-12",
+  "reference": "WithType paper theme, approved direction 2026-10-14",
   "colorSpace": "CSS sRGB",
   "palette": {
     "--ink": "#282c27",
-    "--muted": "#676b63",
-    "--faint": "#686e62",
-    "--line": "#e5e6de",
-    "--line-strong": "#d3d6cb",
-    "--surface": "#fcfcf9",
-    "--sidebar": "#efefe9",
-    "--hover": "#e7e9df",
-    "--selected": "#dfe3d7",
+    "--muted": "#656256",
+    "--faint": "#676459",
+    "--line": "#e4e0d4",
+    "--line-strong": "#cec7b7",
+    "--surface": "#fcfbf6",
+    "--sidebar": "#f2efe5",
+    "--hover": "#eeeadf",
+    "--selected": "#e8e2d5",
     "--success": "#2f7d55",
-    "--workspace": "#f8f9f4",
-    "--card": "#fcfcf8",
-    "--hud-paper": "#fafbf6"
+    "--workspace": "#f8f7ef",
+    "--card": "#fcfbf6",
+    "--hud-paper": "#faf8f1",
+    "--paper": "#f8f7ef",
+    "--paper-wash": "#f0ece0",
+    "--focus-ink": "#75684e"
   },
   "componentColors": {
-    "hero": "#f0f2e9",
-    "answerHeader": "#f1f4eb",
-    "answerQuestion": "#ecefe5",
-    "followup": "#f0f3e9",
-    "preview": "#f4f6ef",
+    "hero": "transparent",
+    "answerHeader": "#f2efe5",
+    "answerQuestion": "#f0ece0",
+    "followup": "#f2efe5",
+    "preview": "#fcfbf6",
     "hudInk": "#41433f",
     "hudSoftInk": "#777a74",
     "hudMotionPaper": "#fbfbfa"
@@ -50,7 +53,7 @@
     {
       "label": "main",
       "theme": "Light",
-      "backgroundColor": "#f8f9f4",
+      "backgroundColor": "#f8f7ef",
       "transparent": false,
       "width": 1060,
       "height": 720
@@ -73,16 +76,18 @@
     }
   ],
   "sourceSha256": {
-    "src/styles.css": "ad4ded3ed6184e56efa8b7e75347e2eed67201f8408bb3fbfb2ebe656e304c67",
-    "src/main.jsx": "45c8ab61adfeaf4c23484aa73d97b29ec3811aac4cbdb1aa4b3d0ab2b41afba0",
-    "src/ui/AppEntrance.jsx": "c79e761b1742e11d0369c44554b073535eeaaf7f7f31fa60cb4d6f04e6599f4d",
-    "src/ui/inkWelcome.js": "ec4bf9c546a8c0bda6f739d35d6ce362a06957b2633a19658d029a5c2bf0c429",
+    "src/styles.css": "b0d288a89cf0a40e69c318c79c9b49b8b4b8a302951c8096625807dd9a7123c0",
+    "src/ui/paper-theme.css": "24717c185980e33c67bfa680059ac11367cf2fa871f35e1614557a6993091265",
+    "src/main.jsx": "d0b5542b7e8af4a846384bbc39994455e0cfd13c9e3100f2ce212a46e34d983d",
+    "src/ui/AppEntrance.jsx": "334cc74af0195203a42e43a036e817d06ac1c2e6b65be8e2c309dbf1963d046f",
+    "src/ui/inkWelcome.js": "387cc4b45d4818e3e2f6ecc02cc1557cf3c298b32931a9e6c6cc52b29a2e1060",
+    "src/ui/inkArrival.js": "3d3d4fef53870df1e1ba5df1a2066a71019b839a5a2a3507f3a7adcae017aeea",
     "src/ui/inkWelcomeMotion.js": "7967c49800f7aee99241afb5bfa6fea0403365a8395934d260a6e84670ad5f93",
     "src/ui/inkWelcomePlayer.js": "99954980cd9a431c34a384821db7a38df7ce372f018f5663a77effbb56196395",
     "src/ui/ink-welcome.css": "2e018d7c7132763facd57c21cf7f94cb295a22971cf568ddec8aeab2268b7f64",
     "src/ui/welcome.js": "9e48c5da6de50d4845eeddd23943a0f88981ca9a8231ba2d84e5758f347a291b",
     "index.html": "eb8fc38a52d2b72814d843be9549469c2362753afbc093e16c81686b4ecfe6f9",
     "src/voice/motion.js": "f0fcef91c6e3838113fcd5ea4479e4fe8401b2d0db94dc99e2c9210b419411d4",
-    "src-tauri/tauri.conf.json": "285b1d632fdd91ac2e4a5f5cc27548e3f0c320100e6c7a88c7dbcb3f5b183d99"
+    "src-tauri/tauri.conf.json": "ea7dc69e93ac28d61aef23fc2bcaf60e89099bac77d7470589da22b3a4448f19"
   }
 }

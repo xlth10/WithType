@@ -1,0 +1,41 @@
+{
+  "integratedOn": "2026-10-15",
+  "approvedDesign": "2026-10-14 porous-paper ink pool, second draft",
+  "approvedSource": "withtype-latest working copy",
+  "files": {
+    "src/main.jsx": "d0b5542b7e8af4a846384bbc39994455e0cfd13c9e3100f2ce212a46e34d983d",
+    "src/styles.css": "b0d288a89cf0a40e69c318c79c9b49b8b4b8a302951c8096625807dd9a7123c0",
+    "src/ui/AppEntrance.jsx": "334cc74af0195203a42e43a036e817d06ac1c2e6b65be8e2c309dbf1963d046f",
+    "src/ui/inkWelcome.js": "387cc4b45d4818e3e2f6ecc02cc1557cf3c298b32931a9e6c6cc52b29a2e1060",
+    "src/ui/inkArrival.js": "3d3d4fef53870df1e1ba5df1a2066a71019b839a5a2a3507f3a7adcae017aeea",
+    "src/ui/paper-theme.css": "24717c185980e33c67bfa680059ac11367cf2fa871f35e1614557a6993091265",
+    "tests/ink-arrival.test.mjs": "3029293c29a9a7a22c4df9970199050a8a5417e0625d425caf4afa3bf3e57b77",
+    "scripts/appearance-baseline.mjs": "8ea8aa6b61029aa55990dc0404748f5ce5017ab7c3f74c4c1503446b677fe296",
+    "vite.config.mjs": "fb93fc08b2216766717b99069b18d2ce733c91538100d4903e1ce4d779f0a266",
+    "src-tauri/tauri.conf.json": "ea7dc69e93ac28d61aef23fc2bcaf60e89099bac77d7470589da22b3a4448f19"
+  },
+  "allSelectedSourcesIdentical": true,
+  "preservedInputSourceFiles": 28,
+  "tests": {
+    "total": 237,
+    "passed": 235,
+    "skippedWindowsOnly": 2,
+    "failed": 0
+  },
+  "frontendBuild": true,
+  "appearanceVerification": true,
+  "windowsRuntimeTested": false,
+  "browser": {
+    "origin": "http://127.0.0.1:5187",
+    "formalEntrySpreadFrameSeconds": 1.1,
+    "bundledFont": true,
+    "escapeRestoresInterface": true,
+    "replayStartsFromDrop": true,
+    "replayCompletedMilliseconds": 3612.1,
+    "replayFinalTimeSeconds": 3.6,
+    "previewLabel": "C · 墨滩第二稿 · 3.6 秒",
+    "reducedMotionFinished": true,
+    "reducedMotionInertRemoved": true,
+    "screenshot": "integrated-spread.jpg"
+  }
+}

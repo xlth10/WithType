@@ -81,9 +81,9 @@ export function AppEntrance({ children, welcomeText = BRAND.welcome, ready = tru
     document.addEventListener("visibilitychange", visibility);
     reduced.addEventListener("change", preferenceChanged);
     if (mode.reduced || reduced.matches) finish();
-    document.fonts.load('420 30px "WithType UI"').then(() => document.fonts.ready).then(() => {
+    document.fonts.load('420 30px "Typefree UI"').then(() => document.fonts.ready).then(() => {
       if (disposed) return;
-      world.dataset.fontStatus = document.fonts.check('420 30px "WithType UI"') ? "bundled" : "fallback";
+      world.dataset.fontStatus = document.fonts.check('420 30px "Typefree UI"') ? "bundled" : "fallback";
       fontsReady = true; synchronize();
     }).catch(() => {
       if (disposed) return;

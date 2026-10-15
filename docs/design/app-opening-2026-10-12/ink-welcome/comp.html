@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WithType · 落墨成字</title>
+<title>WithType · 墨滩第二稿</title>
 <link rel="preload" href="/fonts/noto-sans-sc-variable.woff2" as="font" type="font/woff2" crossorigin>
 <style>html,body { margin:0;width:100%;height:100%;overflow:hidden;background:#f8f7ef; }</style>
 </head>
@@ -25,6 +25,7 @@ import * as motion from '/src/ui/inkWelcomeMotion.js';
 import { normalizeWelcomeText } from '/src/ui/welcome.js';
 import '/src/styles.css';
 import '/src/ui/ink-welcome.css';
+import '/src/ui/paper-theme.css';
 
 document.documentElement.dataset.surface='main';
 const query=new URLSearchParams(location.search);
@@ -47,7 +48,7 @@ function start(){
 function receiveWelcome(value){welcomeText=normalizeWelcomeText(value);if(!ready)start();}
 const root=createRoot(ui);
 root.render(React.createElement(App,{onWelcomeChange:receiveWelcome,onReplayEntrance:replay,onEntranceUnavailable:finish}));
-document.fonts.load('420 30px "WithType UI"').then(()=>document.fonts.ready).then(()=>{fontsReady=true;start();}).catch(()=>{fontsReady=true;start();});
+document.fonts.load('420 30px "Typefree UI"').then(()=>document.fonts.ready).then(()=>{fontsReady=true;start();}).catch(()=>{fontsReady=true;start();});
 addEventListener('pointerdown',()=>{if(world.dataset.finished!=='true')finish();},{capture:true});
 addEventListener('keydown',event=>{
   if(query.has('frames')&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){
@@ -64,12 +65,14 @@ addEventListener('pagehide',()=>{player.dispose();renderer.destroy();root.unmoun
 window.__seek=t=>player.seek(t);
 window.__track=t=>renderer.track(t);
 window.__snapshot=()=>renderer.snapshot();
-window.__meta={dur:DURATION,fps:30,cuts:[],beats:[0,.14,.70,1.16,2,2.7,DURATION],inFrame:{drop:[0,.88,'whole'],ink:[.70,3.1,'whole']}};
+window.__meta={dur:DURATION,fps:30,cuts:[],beats:[0,.14,.70,1.24,2.12,2.7,DURATION],inFrame:{drop:[0,.82,'whole'],ink:[.70,3.1,'whole']}};
 window.__motion=(a,b)=>{
   const {width:W,height:H,dropHeight,textWidth,fontSize}=renderer.snapshot();
   const project=(t,p)=>{const m=motion.view(motion.cameraAt(t,W,H),{W,H});return[m[0]*(W/2+p.x)+m[4],m[3]*(H/2+p.y)+m[5]];};
   const A=project(a,motion.dropAt(a,dropHeight)),B=project(b,motion.dropAt(b,dropHeight));
-  return Math.max(Math.hypot(B[0]-A[0],B[1]-A[1]),Math.abs(motion.liquidAt(a,textWidth,fontSize).rx-motion.liquidAt(b,textWidth,fontSize).rx)*Math.max(motion.cameraAt(a,W,H).zoom,motion.cameraAt(b,W,H).zoom));
+  const penetration=t=>motion.clamp((Math.sqrt(Math.max(0,t-.70)+.025)-Math.sqrt(.025))/(Math.sqrt(.705)-Math.sqrt(.025)));
+  const budget=motion.clamp((textWidth*.50-9.6)*.30,20,52);
+  return Math.max(Math.hypot(B[0]-A[0],B[1]-A[1]),Math.abs(penetration(a)-penetration(b))*budget/.30*Math.max(motion.cameraAt(a,W,H).zoom,motion.cameraAt(b,W,H).zoom));
 };
 </script>
 </body>

@@ -17,7 +17,7 @@
 </style>
 <header>
   <div><strong>WithType · 进入动画</strong><br><small id="description">墨珠跃动，宣纸舒展</small></div>
-  <label>版本<select id="version" aria-label="动画版本"><option value="paper">A · 保留版 · 1.4 秒</option><option value="onetake">B · 随珠入纸 · OneTake · 2.4 秒</option><option value="ink-welcome">C · 当前正式版 · 3.6 秒</option></select></label>
+  <label>版本<select id="version" aria-label="动画版本"><option value="paper">A · 保留版 · 1.4 秒</option><option value="onetake">B · 随珠入纸 · OneTake · 2.4 秒</option><option value="ink-welcome">C · 墨滩第二稿 · 3.6 秒</option></select></label>
   <button id="play">重播</button><button id="reduce">减少动态</button>
   <label class="seek">查看时刻<input id="frame" aria-label="查看动画时刻" type="range" min="0" max="1400" step="10" value="0"><output id="time">播放中</output></label>
 </header>
@@ -30,7 +30,7 @@
     const variants={
       paper:{duration:1400,description:'墨珠跃动，宣纸舒展',base:'./preserved/history.html'},
       onetake:{duration:2400,description:'跟随落点，从纸纹拉远到界面',base:'./onetake/comp.html'},
-      'ink-welcome':{duration:3600,description:'高落差触纸，字从湿墨中显现',base:'./ink-welcome/comp.html'},
+      'ink-welcome':{duration:3600,description:'落点吸墨，沿纸面逐步渗开，再从墨中成字',base:'./ink-welcome/comp.html'},
     };
     const selected=variants[version.value];
     slider.max=String(selected.duration);

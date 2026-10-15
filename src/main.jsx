@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { App } from "./App.jsx";
 import { AppEntrance } from "./ui/AppEntrance.jsx";
 import "./styles.css";
+import "./ui/paper-theme.css";
 
 const preview = new URLSearchParams(window.location.search);
 const surface = window.__TAURI_INTERNALS__

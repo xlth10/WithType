@@ -1,0 +1,35 @@
+{
+  "open": {
+    "result": {
+      "path": "/private/tmp/typeless-windows-20261014/extracted/resources/lib/input-helper/build/windows/x64/InputHelper.dll",
+      "format": "pe",
+      "kind": "executable",
+      "loaderArgs": [
+        "-l",
+        "WinPE",
+        "--intel-64"
+      ],
+      "sha256": "a4ceed4368b274994ad23b82cf3e4e7733b1e04feb1ba21f2b5b82e0ecfab174",
+      "architecture": "x86_64"
+    }
+  },
+  "analyze_function": {
+    "error": {
+      "code": "provider_timeout",
+      "category": "timeout",
+      "message": "Hopper timed out during startup before it started. Check binary_session for provider health, then retry.",
+      "retryable": true,
+      "remediation": {
+        "action": "Check binary_session for Hopper health, then retry the operation."
+      },
+      "details": {
+        "stage": "startup",
+        "timeout_ms": 120000,
+        "provider_state": "not_started"
+      }
+    }
+  },
+  "inspection_evidence_id": "ev_d432cf5d91fcb9e9f92b426f2ca916dfd525b3a516fdf2a9dccb773879370a7c",
+  "exported_bundle": "rea-native-artifact-bundle.json",
+  "session_closed": true
+}

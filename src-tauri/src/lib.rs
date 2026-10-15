@@ -5,6 +5,8 @@ mod correction_monitor;
 mod delivery;
 mod floating;
 mod history;
+#[cfg(windows)]
+mod overlay_windows;
 mod quick_phrase;
 mod skills;
 mod startup;
@@ -67,29 +69,11 @@ fn debug_log(message: &str) {
         });
 }
 
-/// 悬浮窗的 show() 在第二次起走 SW_SHOW 会激活自己；粘贴键打到的是前台窗口，
-/// 所以显示前后都要看住前台，被抢走就还给用户正在打字的应用。
+/// Capture the foreground before asynchronous voice work begins.
 #[cfg(target_os = "windows")]
 fn foreground_window() -> windows_sys::Win32::Foundation::HWND {
     use windows_sys::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
     unsafe { GetForegroundWindow() }
-}
-
-#[cfg(target_os = "windows")]
-fn restore_foreground(window: windows_sys::Win32::Foundation::HWND, scenario: &str) {
-    use windows_sys::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, SetForegroundWindow};
-    if window.is_null() {
-        return;
-    }
-    let current = unsafe { GetForegroundWindow() };
-    if current != window {
-        debug_log(&format!(
-            "{scenario}: 前台 {:p} 被换成 {:p}，SetForegroundWindow 恢复 = {}",
-            window,
-            current,
-            unsafe { SetForegroundWindow(window) } != 0
-        ));
-    }
 }
 
 /// 与前端 src/text/settingsMigration.js 的默认值一致。
@@ -856,11 +840,25 @@ fn insert_quick_phrase(app: &AppHandle) {
 }
 
 #[tauri::command]
-async fn capture_input_target(app: AppHandle, session_id: String) -> Result<(), String> {
+async fn capture_input_target(
+    app: AppHandle,
+    session_id: String,
+    input_token: Option<String>,
+) -> Result<delivery::CaptureInfo, String> {
     background::require_task(&app, &session_id)?;
-    tauri::async_runtime::spawn_blocking(move || delivery::capture(&session_id))
+    tauri::async_runtime::spawn_blocking(move || delivery::capture_target(&session_id, input_token))
         .await
         .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+fn get_input_diagnostics(
+    window: tauri::WebviewWindow,
+) -> Result<Vec<delivery::Diagnostic>, String> {
+    if window.label() != "main" {
+        return Err("此窗口不能读取输入诊断".into());
+    }
+    Ok(delivery::diagnostics())
 }
 
 #[tauri::command]
@@ -1134,10 +1132,13 @@ struct OverlayState {
 fn get_overlay_state(app: AppHandle) -> Result<OverlayState, String> {
     let context = app.state::<FloatingContextState>();
     let context = context.0.lock().map_err(|e| e.to_string())?;
-    Ok(context.overlay_state.clone().unwrap_or_else(|| OverlayState {
-        state: "idle".into(),
-        ..Default::default()
-    }))
+    Ok(context
+        .overlay_state
+        .clone()
+        .unwrap_or_else(|| OverlayState {
+            state: "idle".into(),
+            ..Default::default()
+        }))
 }
 
 #[tauri::command]
@@ -1170,18 +1171,18 @@ fn set_overlay_state(
         if state == "idle" {
             window.hide().map_err(|error| error.to_string())?;
         } else {
-            #[cfg(target_os = "windows")]
-            let foreground_before = foreground_window();
             if let Some(monitor) = floating_monitor(&app, &window, new_session) {
                 place_floating(&window, &monitor, floating::Surface::Hud)?;
             }
             window
                 .set_always_on_top(true)
                 .map_err(|error| error.to_string())?;
+            #[cfg(windows)]
+            overlay_windows::show(window.hwnd().map_err(|e| e.to_string())?.0 as isize)?;
+            #[cfg(not(windows))]
             window.unminimize().map_err(|error| error.to_string())?;
+            #[cfg(not(windows))]
             window.show().map_err(|error| error.to_string())?;
-            #[cfg(target_os = "windows")]
-            restore_foreground(foreground_before, "set_overlay_state");
         }
     } else if state != "idle" {
         return Err("录音浮窗已关闭，请从托盘恢复语音输入".into());
@@ -1388,6 +1389,8 @@ pub fn run() {
             }
             if let Some(overlay) = app.get_webview_window("overlay") {
                 overlay.set_focusable(false)?;
+                #[cfg(windows)]
+                overlay_windows::configure(overlay.hwnd()?.0 as isize)?;
                 overlay.set_zoom(1.0)?;
             }
             if let Some(answer) = app.get_webview_window("answer") {
@@ -1496,6 +1499,7 @@ pub fn run() {
             paste_text,
             copy_text,
             capture_input_target,
+            get_input_diagnostics,
             cancel_paste,
             set_shortcut,
             set_shortcut_capture_active,

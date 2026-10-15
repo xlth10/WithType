@@ -759,6 +759,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     }
     if (generation !== startGenerationRef.current) return;
     setCountdown(null);
+    // The countdown explicitly permits choosing a new input field.
     try { await pipeline.insertResult({ text, settings: settingsRef.current }); }
     catch (error) { setState("error"); notify(describeError(error), false); }
   };
@@ -792,7 +793,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
   });
   const recorder = isTauri() ? nativeRecorder : webRecorder;
 
-  const startTask = async (trigger, skillId = "") => {
+  const startTask = async (trigger, skillId = "", inputToken = null) => {
     if (activeSnapshotRef.current || startingRef.current) return;
     if (stateRef.current === "recording" || stateRef.current === "processing") return;
     if (!hydrated || !historyReady) return;
@@ -827,10 +828,12 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
       settings: currentSettings,
       customSkills: customSkillsRef.current,
       windowContext,
+      inputToken,
     });
     activeSnapshotRef.current = snapshot;
     currentIntentRef.current = snapshot.intent;
     currentTriggerRef.current = trigger;
+    const targetReady = pipeline.captureTarget(snapshot);
     setPendingFailure(null);
     setTextPreview("");
     setIntent(snapshot.intent);
@@ -840,7 +843,6 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     try {
       if (!await pipeline.prepare(snapshot) || generation !== startGenerationRef.current) return;
       // UIA 提供方可能较慢，目标检查不阻塞麦克风开始采集。
-      const targetReady = desktopInvoke("capture_input_target", { sessionId: snapshot.requestId }, () => Promise.resolve()).catch(() => {});
       const recordingReady = recorder.start(snapshot.requestId, currentSettings.audioDeviceId, currentSettings.asrEndpoint, currentSettings.asrModel,
         snapshot.intent === "dictation" && snapshot.processingMode === "smart" && currentSettings.textIncremental && !currentSettings.autoIntent, snapshot.intent);
       await Promise.all([targetReady, recordingReady]);
@@ -904,7 +906,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     setPendingFailure(null);
   };
 
-  const toggleTaskLocal = (kind, skillId = "") => {
+  const toggleTaskLocal = (kind, skillId = "", inputToken = null) => {
     if (startingRef.current) {
       if (kind === "dictation" || currentTriggerRef.current === kind) pendingStopRef.current = true;
       return;
@@ -916,7 +918,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
       return;
     }
     if (current === "processing") return;
-    return startTask(kind, skillId);
+    return startTask(kind, skillId, inputToken);
   };
 
   const toggleTask = (kind, skillId = "") => {
@@ -1048,8 +1050,8 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         if (status.message) notify(status.message, false);
       },
       onInterrupt: () => { cancelRef.current({ preserveAudio: true }); refreshRecoverableAudio(); },
-      onAction: ({ action, text }) => {
-        if (action.startsWith("toggle-")) return toggleRef.current(action.slice(7));
+      onAction: ({ action, text, inputToken }) => {
+        if (action.startsWith("toggle-")) return toggleRef.current(action.slice(7), "", inputToken);
         if (action === "stop-recording") return stopRef.current();
         if (action === "cancel-recording") return cancelRef.current();
         if (action === "copy-last-result") return copyLastRef.current();

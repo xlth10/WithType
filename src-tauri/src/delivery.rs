@@ -1,4 +1,7 @@
 //! Owns target checks, cancellation and clipboard/input effects on one worker.
+#[path = "delivery/policy.rs"]
+pub(crate) mod policy;
+use policy::Reason;
 use serde::Serialize;
 use std::collections::{HashMap, VecDeque};
 use std::sync::{
@@ -13,6 +16,100 @@ pub struct Delivery {
     pub copied: bool,
     pub pasted: bool,
     pub message: String,
+    pub reason: Reason,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub diagnostics: Option<DeliveryDiagnostics>,
+}
+#[derive(Clone, Debug, Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DeliveryDiagnostics {
+    pub capture_ms: u64,
+    pub capture_queue_ms: u64,
+    pub verify_ms: u64,
+    pub sent_events: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub target: Option<TargetIdentity>,
+}
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TargetIdentity {
+    pub window: isize,
+    pub child: isize,
+    pub process_id: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub focus_source: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text_source: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hresult: Option<i32>,
+}
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CaptureInfo {
+    pub reason: Reason,
+    pub message: String,
+    pub elapsed_ms: u64,
+    pub queue_ms: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub target: Option<TargetIdentity>,
+}
+impl CaptureInfo {
+    fn new(reason: Reason, elapsed_ms: u64) -> Self {
+        Self {
+            reason,
+            message: reason.message().into(),
+            elapsed_ms,
+            queue_ms: 0,
+            target: None,
+        }
+    }
+}
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Diagnostic {
+    session_id: String,
+    stage: String,
+    reason: Reason,
+    elapsed_ms: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sent_events: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    target: Option<TargetIdentity>,
+}
+fn records() -> &'static Mutex<VecDeque<Diagnostic>> {
+    static RECORDS: OnceLock<Mutex<VecDeque<Diagnostic>>> = OnceLock::new();
+    RECORDS.get_or_init(Default::default)
+}
+fn record(id: &str, stage: &str, reason: Reason, elapsed_ms: u64, sent_events: u32) {
+    record_target(id, stage, reason, elapsed_ms, Some(sent_events), None);
+}
+fn record_target(
+    id: &str,
+    stage: &str,
+    reason: Reason,
+    elapsed_ms: u64,
+    sent_events: Option<u32>,
+    target: Option<TargetIdentity>,
+) {
+    if let Ok(mut records) = records().lock() {
+        if records.len() == 64 {
+            records.pop_front();
+        }
+        records.push_back(Diagnostic {
+            session_id: id.chars().take(100).collect(),
+            stage: stage.into(),
+            reason,
+            elapsed_ms,
+            sent_events,
+            target,
+        });
+    }
+}
+pub fn diagnostics() -> Vec<Diagnostic> {
+    records()
+        .lock()
+        .map(|v| v.iter().cloned().collect())
+        .unwrap_or_default()
 }
 impl Delivery {
     fn copied(message: impl Into<String>) -> Self {
@@ -21,6 +118,8 @@ impl Delivery {
             copied: true,
             pasted: false,
             message: message.into(),
+            reason: Reason::CopyRequested,
+            diagnostics: None,
         }
     }
     fn retained(message: impl Into<String>) -> Self {
@@ -29,6 +128,8 @@ impl Delivery {
             copied: false,
             pasted: false,
             message: message.into(),
+            reason: Reason::ClipboardFailed,
+            diagnostics: None,
         }
     }
 }
@@ -81,14 +182,30 @@ pub fn cancel(id: &str) {
 mod platform;
 
 pub fn capture(id: &str) -> Result<(), String> {
+    capture_target(id, None).map(|_| ())
+}
+
+// The native action queues this before its renderer event, without waiting for
+// UIA. The one-use token may only be adopted by a registered voice task.
+pub fn prime(id: &str) {
+    #[cfg(windows)]
+    platform::prime(id.to_owned(), token(id));
+    #[cfg(not(windows))]
+    let _ = id;
+}
+
+pub fn capture_target(id: &str, input_token: Option<String>) -> Result<CaptureInfo, String> {
     let flag = token(id);
     if flag.load(Ordering::SeqCst) {
         return Err("输入已取消".into());
     }
     #[cfg(windows)]
-    return platform::capture(id.to_owned(), flag);
+    return platform::capture(id.to_owned(), flag, input_token);
     #[cfg(not(windows))]
-    Ok(())
+    {
+        let _ = input_token;
+        Ok(CaptureInfo::new(Reason::PlatformUnsupported, 0))
+    }
 }
 
 pub fn deliver(
@@ -115,11 +232,15 @@ pub fn deliver(
         arboard::Clipboard::new()
             .and_then(|mut c| c.set_text(text))
             .map(|_| {
-                Delivery::copied(if auto_paste {
+                let mut result = Delivery::copied(if auto_paste {
                     "当前平台未启用自动输入，已复制"
                 } else {
                     "已复制，可以粘贴"
-                })
+                });
+                if auto_paste {
+                    result.reason = Reason::PlatformUnsupported;
+                }
+                result
             })
             .or_else(|e| Ok(Delivery::retained(format!("复制失败，结果已保留：{e}"))))
     }

@@ -1,0 +1,10 @@
+180005c69: 33 c9                       	xor	ecx, ecx
+180005c6b: ff 15 57 a4 03 00           	call	qword ptr [rip + 0x3a457] # 0x1800400c8
+180005c71: 4c 8b c0                    	mov	r8, rax
+180005c74: 45 33 c9                    	xor	r9d, r9d
+180005c77: 48 8d 15 b2 23 01 00        	lea	rdx, [rip + 0x123b2]    # 0x180018030 <getKeyboardLayoutInfo+0x3230>
+180005c7e: b9 0d 00 00 00              	mov	ecx, 0xd
+180005c83: ff 15 bf a7 03 00           	call	qword ptr [rip + 0x3a7bf] # 0x180040448
+180005c89: 48 89 05 10 27 05 00        	mov	qword ptr [rip + 0x52710], rax # 0x1800583a0
+180005c90: 48 85 c0                    	test	rax, rax
+180005c93: 75 3f                       	jne	0x180005cd4 <.text+0x4cd4>

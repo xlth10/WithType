@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-14",
+  "version": "2.8.2",
+  "build": "2.8.2.131",
+  "bundle_id": "now.typeless.desktop",
+  "target": "/Applications/Typeless.app",
+  "artifacts": [
+    {
+      "path": "/Applications/Typeless.app/Contents/Resources/app.asar",
+      "bytes": 292065720,
+      "sha256": "49ee4061c662c4284e1d79327e2b0c4389d2df1fc1de9004e252e6e6f8528ad9"
+    },
+    {
+      "path": "/Applications/Typeless.app/Contents/Resources/lib/input-helper/build/libInputHelper.dylib",
+      "bytes": 401808,
+      "sha256": "798a08c986b6d764e51f4d1d2cf858ac10d3864328efe2630247266b863d867c"
+    },
+    {
+      "path": "/Applications/Typeless.app/Contents/Resources/lib/context-helper/build/libContextHelper.dylib",
+      "bytes": 426208,
+      "sha256": "6c9c5fdba13f8cc5c9efe7483bc2248dc1aba93a2c9e511b3cfba31fac9d8abb"
+    }
+  ],
+  "signature_verify": "/Applications/Typeless.app: invalid signature (code or signature have been modified)\nIn architecture: arm64",
+  "signature_authenticity": "unverified",
+  "methods": [
+    "Read-only ASAR member extraction; 83 dist JavaScript members match their declared member hash",
+    "Inert Babel AST string-table rotation and substitution; no target code execution",
+    "nm and otool arm64; full disassembly matches saved 2.8.1 listing after input header",
+    "REA isolated syntax analysis and exact literal trace"
+  ],
+  "native_comparison": {
+    "input_assembly_identical_excluding_header": true,
+    "input_data_identical": true,
+    "input_cstrings_identical": true,
+    "context_assembly_identical_excluding_header": true,
+    "context_other_sections_compared": false
+  },
+  "temporary_evidence_dir": "/private/tmp/typeless-cursor-20261014",
+  "runtime_observed": false,
+  "windows_typeless_artifact_obtained": false,
+  "repository_head": "92bde40c0a8044ece033d983f5ada9867a7ba906"
+}

@@ -79,6 +79,86 @@ test("target capture failure still delivers a recoverable result", async () => {
   assert.equal(events.at(-1).text, "保留完整正文");
 });
 
+test("capture failure explains why automatic insertion was skipped without losing the transcript", async () => {
+  const { pipeline, events } = setup({
+    capture_input_target: () => { throw new Error("provider timeout"); },
+    paste_text: () => copied,
+  });
+  const result = await pipeline.insertResult({ text: "保留完整正文", settings });
+  assert.equal(result.delivery.status, "copied");
+  assert.equal(result.delivery.reason, "capture_failed");
+  assert.match(result.delivery.message, /输入位置检查失败/);
+  const capture = events.find(event => event.type === "input-target");
+  assert.equal(capture.capture.error, "provider timeout");
+  assert.equal(events.at(-1).text, "保留完整正文");
+});
+
+test("recording adopts its native target once and delivery waits for that capture", async () => {
+  let resolveCapture, markCaptured, captureArgs;
+  const captured = new Promise(resolve => { markCaptured = resolve; });
+  const { pipeline, calls, events } = setup({
+    capture_input_target: args => {
+      captureArgs = args;
+      markCaptured();
+      return new Promise(resolve => { resolveCapture = resolve; });
+    },
+    paste_text: () => copied,
+  });
+  const snapshot = pipeline.begin({ intent: "dictation", settings, inputToken: "input-4-7" });
+  const firstCapture = pipeline.captureTarget(snapshot);
+  assert.equal(pipeline.captureTarget(snapshot), firstCapture);
+  const running = pipeline.complete({ snapshot, audio });
+  await captured;
+  assert.deepEqual(captureArgs, { sessionId: snapshot.requestId, inputToken: "input-4-7" });
+  assert.equal(calls.includes("paste_text"), false);
+  resolveCapture({ reason: "compatibility", message: "已找到输入位置", elapsedMs: 25 });
+  const result = await running;
+  assert.equal(calls.filter(name => name === "capture_input_target").length, 1);
+  assert.equal(calls.filter(name => name === "paste_text").length, 1);
+  assert.equal(result.delivery.capture.reason, "compatibility");
+  assert.equal(events.at(-1).timings.captureMs, 25);
+});
+
+test("cancellation during target capture prevents late paste and late target events", async () => {
+  let resolveCapture, markCaptured;
+  const captured = new Promise(resolve => { markCaptured = resolve; });
+  const { pipeline, calls, events } = setup({
+    capture_input_target: () => {
+      markCaptured();
+      return new Promise(resolve => { resolveCapture = resolve; });
+    },
+    paste_text: () => copied,
+    cancel_paste: () => {}, cancel_audio_session: () => {}, cancel_text_request: () => {},
+  });
+  const snapshot = pipeline.begin({ intent: "dictation", settings });
+  pipeline.captureTarget(snapshot);
+  const running = pipeline.complete({ snapshot, audio });
+  await captured;
+  pipeline.cancel();
+  resolveCapture({ reason: "ready", elapsedMs: 30 });
+  assert.equal((await running).stale, true);
+  assert.equal(calls.includes("paste_text"), false);
+  assert.equal(events.some(event => ["input-target", "done", "paste-failed"].includes(event.type)), false);
+});
+
+test("manual insertion captures the newly chosen target instead of adopting a recording token", async () => {
+  let captureArgs;
+  const { pipeline } = setup({
+    capture_input_target: args => { captureArgs = args; return { reason: "ready", elapsedMs: 10 }; },
+    paste_text: () => copied,
+  });
+  await pipeline.insertResult({ text: "正文", settings, inputToken: "old-recording-target" });
+  assert.equal(Object.hasOwn(captureArgs, "inputToken"), false);
+});
+
+test("native rejection and verification diagnostics survive result normalization", () => {
+  const result = normalizeDelivery({ status: "sent", copied: true, pasted: false,
+    reason: "sent_unverified", diagnostics: { captureMs: 12, verifyMs: 680, sentEvents: 4 } });
+  assert.equal(result.reason, "sent_unverified");
+  assert.deepEqual(result.diagnostics, { captureMs: 12, verifyMs: 680, sentEvents: 4 });
+  assert.equal(result.pasted, false);
+});
+
 test("already committed result is archived after cancellation without done UI event", async () => {
   let resolve;
   const { pipeline, events } = setup({ paste_text: () => new Promise(r => { resolve = r; }), cancel_paste: () => {}, cancel_audio_session: () => {}, cancel_text_request: () => {} });

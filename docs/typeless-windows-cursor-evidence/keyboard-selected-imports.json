@@ -1,0 +1,32 @@
+[
+  {
+    "dll": "USER32.dll",
+    "name": "CallNextHookEx",
+    "iat_rva": 263072,
+    "iat_va": "0x1800403a0"
+  },
+  {
+    "dll": "USER32.dll",
+    "name": "SendInput",
+    "iat_rva": 263080,
+    "iat_va": "0x1800403a8"
+  },
+  {
+    "dll": "USER32.dll",
+    "name": "GetAsyncKeyState",
+    "iat_rva": 263160,
+    "iat_va": "0x1800403f8"
+  },
+  {
+    "dll": "USER32.dll",
+    "name": "SetWindowsHookExA",
+    "iat_rva": 263240,
+    "iat_va": "0x180040448"
+  },
+  {
+    "dll": "KERNEL32.dll",
+    "name": "GetTickCount64",
+    "iat_rva": 262336,
+    "iat_va": "0x1800400c0"
+  }
+]

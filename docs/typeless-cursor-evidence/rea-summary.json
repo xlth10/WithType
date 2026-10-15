@@ -1,0 +1,179 @@
+{
+  "analysis": {
+    "evidence_id": "ev_f23ac6e3ee55af3506c4981837ff8db51b3a56e8730289213c57cba19296f0a7",
+    "authority": "shipped-artifact",
+    "coverage": {
+      "status": "partial",
+      "truncated": false,
+      "omitted_count": null,
+      "limits": []
+    },
+    "summary": {
+      "browser_windows": 0,
+      "explicit_web_preferences": 0,
+      "preload_entrypoints": 0,
+      "context_bridge_apis": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "operations": 9,
+        "literal_channels": 1,
+        "dynamic_channel_operations": 8,
+        "renderer_transmissions": 9,
+        "renderer_listeners": 0,
+        "main_handlers": 0,
+        "paired_renderer_transmissions": 0,
+        "ambiguous_renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 1
+      },
+      "sender_validation_observations": 0,
+      "utility_processes": 0,
+      "resolved_utility_entrypoints": 0,
+      "native_addon_bindings": 0,
+      "resolved_native_addon_bindings": 0
+    },
+    "limitations": [
+      "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
+      "Dynamic IPC channel expressions remain unresolved and are never paired by textual similarity.",
+      "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
+      "Graph coverage is incomplete; unavailable facts remain explicit and must not be read as absence.",
+      "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
+      "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",
+      "Static paths and relationships may remain unresolved when expressions are dynamic or obfuscated.",
+      "Webpack/Rspack factories were recovered from AST literals; REA did not invoke push handlers or bundle bootstrap code."
+    ]
+  },
+  "trace": {
+    "result": {
+      "trace_id": "jatr_7f61c081b1e76c493690f0b606742dd7176ff31cbbc7ec317914c1f3120576df",
+      "source_evidence_id": "ev_f23ac6e3ee55af3506c4981837ff8db51b3a56e8730289213c57cba19296f0a7",
+      "source_graph_id": "jag_dbb17fc53554c7f513904b1bb7a9e845995fb4863fdb89990b319a146821578b",
+      "seed": {
+        "kind": "string",
+        "value": "is_editable",
+        "match": "exact",
+        "case_sensitive": false
+      },
+      "direction": "both",
+      "seed_matches": [],
+      "graph": null,
+      "paths": [],
+      "native_handoffs": [],
+      "summary": {
+        "matched_seeds": 0,
+        "traced_nodes": 0,
+        "traced_edges": 0,
+        "terminal_paths": 0,
+        "native_handoffs": 0,
+        "observed_facts": 0,
+        "inferred_facts": 0,
+        "unknown_facts": 0,
+        "unavailable_facts": 0
+      },
+      "coverage": {
+        "status": "no-match",
+        "source_graph_status": "partial",
+        "total_seed_matches": 0
+      },
+      "evidence_links": [
+        "ev_f23ac6e3ee55af3506c4981837ff8db51b3a56e8730289213c57cba19296f0a7"
+      ],
+      "limitations": [
+        "No graph entity matched the literal seed; this is not evidence that the feature is absent.",
+        "The source application graph is incomplete; unmatched seeds and frontiers remain unknown."
+      ]
+    },
+    "evidence_id": "ev_1f03224c70c2fbce0a38f1bf2d8ef2b92c5ed396bf73d2607ee2f44b503e1187",
+    "evidence": {
+      "evidence_id": "ev_1f03224c70c2fbce0a38f1bf2d8ef2b92c5ed396bf73d2607ee2f44b503e1187",
+      "subject": null,
+      "provider": {
+        "id": "rea-javascript-application-workflows",
+        "name": "REA JavaScript application workflows",
+        "version": "1"
+      },
+      "predicate_type": "rea.application-feature-trace",
+      "operation": "trace_application_feature",
+      "parameters": {
+        "application_evidence_id": "ev_f23ac6e3ee55af3506c4981837ff8db51b3a56e8730289213c57cba19296f0a7",
+        "native_evidence_ids": [],
+        "seed": {
+          "kind": "string",
+          "value": "is_editable",
+          "match": "exact",
+          "case_sensitive": false
+        },
+        "direction": "both"
+      },
+      "raw_result": null,
+      "normalized_result": {
+        "trace_id": "jatr_7f61c081b1e76c493690f0b606742dd7176ff31cbbc7ec317914c1f3120576df",
+        "source_evidence_id": "ev_f23ac6e3ee55af3506c4981837ff8db51b3a56e8730289213c57cba19296f0a7",
+        "source_graph_id": "jag_dbb17fc53554c7f513904b1bb7a9e845995fb4863fdb89990b319a146821578b",
+        "seed": {
+          "kind": "string",
+          "value": "is_editable",
+          "match": "exact",
+          "case_sensitive": false
+        },
+        "direction": "both",
+        "seed_matches": [],
+        "graph": null,
+        "paths": [],
+        "native_handoffs": [],
+        "summary": {
+          "matched_seeds": 0,
+          "traced_nodes": 0,
+          "traced_edges": 0,
+          "terminal_paths": 0,
+          "native_handoffs": 0,
+          "observed_facts": 0,
+          "inferred_facts": 0,
+          "unknown_facts": 0,
+          "unavailable_facts": 0
+        },
+        "coverage": {
+          "status": "no-match",
+          "source_graph_status": "partial",
+          "total_seed_matches": 0
+        },
+        "evidence_links": [
+          "ev_f23ac6e3ee55af3506c4981837ff8db51b3a56e8730289213c57cba19296f0a7"
+        ],
+        "limitations": [
+          "No graph entity matched the literal seed; this is not evidence that the feature is absent.",
+          "The source application graph is incomplete; unmatched seeds and frontiers remain unknown."
+        ]
+      },
+      "confidence": "inferred",
+      "authority": "analyst-inference",
+      "environment": null,
+      "limitations": [
+        "Artifact identity is unavailable for this observation.",
+        "No graph entity matched the literal seed; this is not evidence that the feature is absent.",
+        "The source application graph is incomplete; unmatched seeds and frontiers remain unknown."
+      ],
+      "locations": [],
+      "evidence_links": [
+        "ev_f23ac6e3ee55af3506c4981837ff8db51b3a56e8730289213c57cba19296f0a7"
+      ]
+    }
+  },
+  "native_search": {
+    "error": {
+      "code": "provider_timeout",
+      "category": "timeout",
+      "message": "Hopper timed out during startup before it started. Check binary_session for provider health, then retry.",
+      "retryable": true,
+      "remediation": {
+        "action": "Check binary_session for Hopper health, then retry the operation."
+      },
+      "details": {
+        "stage": "startup",
+        "timeout_ms": 120000,
+        "provider_state": "not_started"
+      }
+    }
+  },
+  "bundle_path": "/private/tmp/typeless-cursor-20261014/rea-evidence-bundle.json",
+  "closed": true
+}

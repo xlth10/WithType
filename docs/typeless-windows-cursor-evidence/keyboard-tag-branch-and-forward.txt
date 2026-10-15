@@ -1,0 +1,57 @@
+1800187e6: 8b 44 24 40                 	mov	eax, dword ptr [rsp + 0x40]
+1800187ea: 89 44 24 58                 	mov	dword ptr [rsp + 0x58], eax
+1800187ee: 48 8b 44 24 48              	mov	rax, qword ptr [rsp + 0x48]
+1800187f3: 48 8b 38                    	mov	rdi, qword ptr [rax]
+1800187f6: 4c 8d 40 50                 	lea	r8, [rax + 0x50]
+1800187fa: 4d 8b 08                    	mov	r9, qword ptr [r8]
+1800187fd: 49 8b 49 08                 	mov	rcx, qword ptr [r9 + 0x8]
+180018801: 49 8b d1                    	mov	rdx, r9
+180018804: 80 79 19 00                 	cmp	byte ptr [rcx + 0x19], 0x0
+180018808: 75 21                       	jne	0x18001882b <getKeyboardLayoutInfo+0x3a2b>
+18001880a: 66 0f 1f 44 00 00           	nop	word ptr [rax + rax]
+180018810: 8b 44 24 40                 	mov	eax, dword ptr [rsp + 0x40]
+180018814: 39 41 1c                    	cmp	dword ptr [rcx + 0x1c], eax
+180018817: 7d 06                       	jge	0x18001881f <getKeyboardLayoutInfo+0x3a1f>
+180018819: 48 83 c1 10                 	add	rcx, 0x10
+18001881d: eb 03                       	jmp	0x180018822 <getKeyboardLayoutInfo+0x3a22>
+18001881f: 48 8b d1                    	mov	rdx, rcx
+180018822: 48 8b 09                    	mov	rcx, qword ptr [rcx]
+180018825: 80 79 19 00                 	cmp	byte ptr [rcx + 0x19], 0x0
+180018829: 74 e5                       	je	0x180018810 <getKeyboardLayoutInfo+0x3a10>
+18001882b: 80 7a 19 00                 	cmp	byte ptr [rdx + 0x19], 0x0
+18001882f: 75 1f                       	jne	0x180018850 <getKeyboardLayoutInfo+0x3a50>
+180018831: 8b 42 1c                    	mov	eax, dword ptr [rdx + 0x1c]
+180018834: 39 44 24 40                 	cmp	dword ptr [rsp + 0x40], eax
+180018838: 7c 16                       	jl	0x180018850 <getKeyboardLayoutInfo+0x3a50>
+18001883a: 49 3b d1                    	cmp	rdx, r9
+18001883d: 74 11                       	je	0x180018850 <getKeyboardLayoutInfo+0x3a50>
+18001883f: 48 8d 54 24 58              	lea	rdx, [rsp + 0x58]
+180018844: 49 8b c8                    	mov	rcx, r8
+180018847: e8 f4 11 00 00              	call	0x180019a40 <getKeyboardLayoutInfo+0x4c40>
+18001884c: 84 db                       	test	bl, bl
+18001884e: 74 15                       	je	0x180018865 <getKeyboardLayoutInfo+0x3a65>
+180018850: 4c 8b ce                    	mov	r9, rsi
+180018853: 4d 8b c6                    	mov	r8, r14
+180018856: 41 8b d7                    	mov	edx, r15d
+180018859: 48 8b cf                    	mov	rcx, rdi
+18001885c: ff 15 3e 7b 02 00           	call	qword ptr [rip + 0x27b3e] # 0x1800403a0
+180018862: 4c 8b e0                    	mov	r12, rax
+180018865: 49 8b c4                    	mov	rax, r12
+180018868: eb 11                       	jmp	0x18001887b <getKeyboardLayoutInfo+0x3a7b>
+18001886a: 4c 8b ce                    	mov	r9, rsi
+18001886d: 4d 8b c6                    	mov	r8, r14
+180018870: 41 8b d7                    	mov	edx, r15d
+180018873: 33 c9                       	xor	ecx, ecx
+180018875: ff 15 25 7b 02 00           	call	qword ptr [rip + 0x27b25] # 0x1800403a0
+18001887b: 48 8b 8c 24 d8 00 00 00     	mov	rcx, qword ptr [rsp + 0xd8]
+180018883: 48 33 cc                    	xor	rcx, rsp
+180018886: e8 15 3d 00 00              	call	0x18001c5a0 <getKeyboardLayoutInfo+0x77a0>
+18001888b: 48 81 c4 e0 00 00 00        	add	rsp, 0xe0
+180018892: 41 5f                       	pop	r15
+180018894: 41 5e                       	pop	r14
+180018896: 41 5d                       	pop	r13
+180018898: 41 5c                       	pop	r12
+18001889a: 5f                          	pop	rdi
+18001889b: 5e                          	pop	rsi
+18001889c: 5b                          	pop	rbx
+18001889d: c3                          	ret

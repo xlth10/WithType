@@ -228,6 +228,7 @@ struct Action {
     generation: u64,
     action: String,
     text: Option<String>,
+    input_token: Option<String>,
 }
 pub fn dispatch(app: &AppHandle, action: &str, text: Option<String>) -> Result<(), String> {
     if ![
@@ -266,8 +267,22 @@ pub fn dispatch(app: &AppHandle, action: &str, text: Option<String>) -> Result<(
             generation,
             action: action.into(),
             text,
+            input_token: None,
         }
     };
+    let mut command = command;
+    // Explicit insertion lets the user choose a target during its countdown.
+    // Only recording binds the target at the native shortcut boundary.
+    if action.starts_with("toggle-")
+        && !app
+            .state::<crate::InteractionActiveState>()
+            .0
+            .load(std::sync::atomic::Ordering::SeqCst)
+    {
+        let input_token = format!("input-{}-{}", command.generation, command.id);
+        crate::delivery::prime(&input_token);
+        command.input_token = Some(input_token);
+    }
     app.emit_to("main", "voice-action", command)
         .map_err(|e| e.to_string())
 }

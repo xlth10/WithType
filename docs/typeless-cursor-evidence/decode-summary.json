@@ -1,0 +1,13 @@
+{
+  "sourcePath": "/private/tmp/typeless-cursor-20261014/dist/main/index.js",
+  "sourceSha256": "5e9eb074797bf06f5bb55a7a7b45aa5353484f0cd23c6b11a4c1555b5ee58e0b",
+  "derivedSha256": "da9cde84c60367ab349b0ea844f2ca4fd4c5242cf559a07b4507c394f4f504e8",
+  "base": 316,
+  "rotation": 334,
+  "aliases": 1262,
+  "replacements": 9608,
+  "method": "Inert Babel AST parsing; literal string table; bounded rotation arithmetic; literal call substitution; token-boundary line breaks. No source code execution.",
+  "limitations": [
+    "Analyst-derived inspection view, not original source. Runtime equivalence is not tested. Alias collection is name-based across the artifact."
+  ]
+}

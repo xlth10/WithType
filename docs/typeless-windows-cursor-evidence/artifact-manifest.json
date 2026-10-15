@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-14",
+  "platform": "windows",
+  "architecture": "x64",
+  "version": "2.8.2",
+  "download_entry": "https://www.typeless.com/desktop/windows/download",
+  "download_url": "https://typeless-static.com/desktop-release/Typeless-2.8.2-x64-Setup.exe",
+  "server_last_modified": "2026-10-10T15:10:03Z",
+  "content_length": 156427200,
+  "artifacts": [
+    {
+      "relative_path": "Typeless-2.8.2-x64-Setup.exe",
+      "bytes": 156427200,
+      "sha256": "2cae8354eb2557e64e36257ebdc6970e68af248218c4ddf324dfb5b463695c36"
+    },
+    {
+      "relative_path": "payload.7z",
+      "bytes": 155541394,
+      "sha256": "b5e80031cd8ad174c9acba6f8a1bfd0f9f1db2a1da873e6d009bd27d6dc107ef"
+    },
+    {
+      "relative_path": "extracted/Typeless.exe",
+      "bytes": 189118536,
+      "sha256": "5111eb9077b92c9f61e4212aea510de47e0d60c6cc4f6b2e497827d362bbb9ad"
+    },
+    {
+      "relative_path": "extracted/resources/app.asar",
+      "bytes": 306999609,
+      "sha256": "dc26918ff1e86816913f709767408d60ecf8b54c19d9acf63ad82632540ecd9f"
+    },
+    {
+      "relative_path": "extracted/resources/lib/input-helper/build/windows/x64/InputHelper.dll",
+      "bytes": 372296,
+      "sha256": "a4ceed4368b274994ad23b82cf3e4e7733b1e04feb1ba21f2b5b82e0ecfab174"
+    },
+    {
+      "relative_path": "extracted/resources/lib/context-helper/build/windows/x64/ContextHelper.dll",
+      "bytes": 538704,
+      "sha256": "ba812400599aa4457988756cf842ed1c4eb0b32528f53a259fa56c8b3b7b1869"
+    },
+    {
+      "relative_path": "extracted/resources/lib/keyboard-helper/build/windows/x64/KeyboardHelper.dll",
+      "bytes": 378440,
+      "sha256": "1112553a22909eb75e488c0134671706e90ab83fc764ad59b2126951d467d3a8"
+    },
+    {
+      "relative_path": "extracted/resources/lib/util-helper/build/windows/x64/UtilHelper.dll",
+      "bytes": 343112,
+      "sha256": "8e49c56910a804394f77b93234fb5ee15eb4d07000dc82040fb5216cafc3531a"
+    }
+  ],
+  "extraction_method": "Locate embedded 7z signature at installer offset 494033; verify start/next-header CRC32; carve exactly 155541394 bytes; libarchive 3.8.3 bsdtar extract only selected resources; no installer execution",
+  "source_authenticity": "Retrieved via HTTPS from the official download redirect; Windows Authenticode certificate chain and revocation not validated on this macOS host",
+  "methods": [
+    "REA focused JavaScript graph/trace and PE artifact inventory",
+    "Inert Babel AST substitution, never evaluated target code",
+    "Apple LLVM 21 PE x64 disassembly and standard-library PE import/export/pdata/RVA parsing",
+    "Microsoft UIAutomationClient.h used to map COM vtable slots",
+    "RT_MANIFEST resource parsed from main executable"
+  ],
+  "runtime_observed": false,
+  "native_provider_error": {
+    "code": "provider_timeout",
+    "provider": "hopper",
+    "stage": "startup",
+    "timeout_ms": 120000,
+    "provider_state": "not_started"
+  },
+  "native_decompiler_evidence": false,
+  "native_rea_session_closed": true,
+  "temporary_evidence_dir": "/private/tmp/typeless-windows-20261014",
+  "repo_head": "92bde40c0a8044ece033d983f5ada9867a7ba906"
+}

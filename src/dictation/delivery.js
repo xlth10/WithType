@@ -6,7 +6,9 @@ export function normalizeDelivery(value) {
   }
   return { status: value.status, copied: value.copied === true,
     pasted: value.status === "inserted" && value.pasted === true,
-    message: String(value.message || ({ inserted: "已输入", sent: "已发送粘贴，尚未确认输入", copied: "已复制，可以粘贴", retained: "结果已保留，请手动复制" }[value.status])) };
+    message: String(value.message || ({ inserted: "已输入", sent: "已发送粘贴，尚未确认输入", copied: "已复制，可以粘贴", retained: "结果已保留，请手动复制" }[value.status])),
+    ...(typeof value.reason === "string" ? { reason: value.reason } : {}),
+    ...(value.diagnostics && typeof value.diagnostics === "object" ? { diagnostics: value.diagnostics } : {}) };
 }
 
 export async function copyResult(invoke, text, sessionId) {

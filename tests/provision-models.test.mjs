@@ -10,6 +10,7 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const script = join(root, "scripts", "provision-withtype-models.ps1");
 const launcher = join(root, "scripts", "configure-withtype-models.bat");
 const powershell = join(process.env.SystemRoot || "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+const windowsIntegration = { skip: process.platform === "win32" ? false : "Requires Windows PowerShell and Windows Credential Manager" };
 
 test("double-click launcher imports its sibling private profile", async () => {
   const source = await readFile(launcher, "utf8");
@@ -18,7 +19,7 @@ test("double-click launcher imports its sibling private profile", async () => {
   assert.match(source, /powershell\.exe/i);
 });
 
-test("provisioning merges model settings without exposing keys or replacing preferences", async () => {
+test("provisioning merges model settings without exposing keys or replacing preferences", windowsIntegration, async () => {
   const directory = await mkdtemp(join(tmpdir(), "withtype-provision-"));
   const profilePath = join(directory, "profile.json");
   const settingsPath = join(directory, "settings.json");
@@ -73,7 +74,7 @@ test("provisioning merges model settings without exposing keys or replacing pref
   }
 });
 
-test("provisioning writes API keys to Windows Credential Manager without logging them", async () => {
+test("provisioning writes API keys to Windows Credential Manager without logging them", windowsIntegration, async () => {
   const directory = await mkdtemp(join(tmpdir(), "withtype-credential-"));
   const profilePath = join(directory, "profile.json");
   const settingsPath = join(directory, "settings.json");

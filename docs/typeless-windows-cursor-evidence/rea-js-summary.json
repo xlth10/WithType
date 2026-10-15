@@ -1,0 +1,209 @@
+[
+  {
+    "evidence_id": "ev_5669d61f04acfc438ec868c5890bcdb9ef70d2011d6929f91cc6ac8455c904f1",
+    "operation": "analyze_javascript_application",
+    "authority": "shipped-artifact",
+    "confidence": "derived",
+    "limitations": [
+      "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
+      "Dynamic IPC channel expressions remain unresolved and are never paired by textual similarity.",
+      "Electron relationships are derived from inert syntax; runtime registration, reachability, defaults, and enforcement remain unproven.",
+      "Graph coverage is incomplete; unavailable facts remain explicit and must not be read as absence.",
+      "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
+      "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",
+      "Static paths and relationships may remain unresolved when expressions are dynamic or obfuscated.",
+      "Webpack/Rspack factories were recovered from AST literals; REA did not invoke push handlers or bundle bootstrap code."
+    ],
+    "subject": {
+      "architecture": null,
+      "digest": {
+        "sha256": "b71076c2bc86d380c8091a6ebaddfecb472841827e6187a490739ca0ab73c618"
+      },
+      "format": "directory",
+      "local_path": "/private/tmp/typeless-windows-20261014/js-investigation/rea-fragments",
+      "name": "rea-fragments"
+    },
+    "summary": {
+      "browser_windows": 0,
+      "context_bridge_apis": 0,
+      "explicit_web_preferences": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "ambiguous_renderer_transmissions": 0,
+        "dynamic_channel_operations": 15,
+        "literal_channels": 1,
+        "main_handlers": 0,
+        "operations": 16,
+        "paired_renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "renderer_transmissions": 16,
+        "unpaired_literal_renderer_transmissions": 1
+      },
+      "native_addon_bindings": 0,
+      "preload_entrypoints": 0,
+      "resolved_native_addon_bindings": 0,
+      "resolved_utility_entrypoints": 0,
+      "sender_validation_observations": 0,
+      "utility_processes": 0
+    },
+    "coverage": {
+      "limits": [],
+      "omitted_count": null,
+      "status": "partial",
+      "truncated": false
+    }
+  },
+  {
+    "evidence_id": "ev_79dd501668ea08367ecaf487719033b007fec6509fe9d012028240af3ea31004",
+    "operation": "trace_javascript_semantics",
+    "authority": "analyst-inference",
+    "confidence": "inferred",
+    "limitations": [
+      "Artifact identity is unavailable for this observation.",
+      "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+      "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+      "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+      "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+      "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+      "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+      "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+      "Relevant dynamic, unsupported, incomplete, or ambiguous semantics remain unknown.",
+      "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+      "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+      "Semantic graph reachability is a static inference and does not prove runtime execution.",
+      "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+      "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation."
+    ],
+    "subject": null,
+    "summary": {
+      "relevant_unknowns": 2,
+      "total_seed_matches": 1,
+      "traversed_functions": 1,
+      "traversed_modules": 1,
+      "traversed_nodes": 1,
+      "traversed_relations": 0
+    },
+    "coverage": {
+      "status": "partial"
+    }
+  },
+  {
+    "evidence_id": "ev_b0b1450a29fed6ae0f103d55c23fe6596284b18f90d0bd4097b90e1f8caeb098",
+    "operation": "trace_javascript_semantics",
+    "authority": "analyst-inference",
+    "confidence": "inferred",
+    "limitations": [
+      "Artifact identity is unavailable for this observation.",
+      "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+      "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+      "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+      "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+      "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+      "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+      "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+      "Relevant dynamic, unsupported, incomplete, or ambiguous semantics remain unknown.",
+      "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+      "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+      "Semantic graph reachability is a static inference and does not prove runtime execution.",
+      "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+      "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation."
+    ],
+    "subject": null,
+    "summary": {
+      "relevant_unknowns": 2,
+      "total_seed_matches": 1,
+      "traversed_functions": 1,
+      "traversed_modules": 1,
+      "traversed_nodes": 2,
+      "traversed_relations": 1
+    },
+    "coverage": {
+      "status": "partial"
+    }
+  },
+  {
+    "evidence_id": "ev_fb925cdac6a824829010aaeda0700feefab57345d08c30296cf79cadb2d67698",
+    "operation": "trace_javascript_semantics",
+    "authority": "analyst-inference",
+    "confidence": "inferred",
+    "limitations": [
+      "Artifact identity is unavailable for this observation.",
+      "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+      "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+      "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+      "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+      "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+      "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+      "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+      "Relevant dynamic, unsupported, incomplete, or ambiguous semantics remain unknown.",
+      "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+      "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+      "Semantic graph reachability is a static inference and does not prove runtime execution.",
+      "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+      "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation."
+    ],
+    "subject": null,
+    "summary": {
+      "relevant_unknowns": 4,
+      "total_seed_matches": 1,
+      "traversed_functions": 1,
+      "traversed_modules": 1,
+      "traversed_nodes": 5,
+      "traversed_relations": 4
+    },
+    "coverage": {
+      "status": "partial"
+    }
+  },
+  {
+    "evidence_id": "ev_ff813742b41b11f0ab30752b4d846fee90f741c6e8f5f5a60b7d0ebd547d6b26",
+    "operation": "analyze_javascript_application",
+    "authority": "shipped-artifact",
+    "confidence": "derived",
+    "limitations": [
+      "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
+      "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
+      "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",
+      "Static paths and relationships may remain unresolved when expressions are dynamic or obfuscated.",
+      "Webpack/Rspack factories were recovered from AST literals; REA did not invoke push handlers or bundle bootstrap code."
+    ],
+    "subject": {
+      "architecture": null,
+      "digest": {
+        "sha256": "223cc365637015f0d3fc7d06f78ebf5cdb3125fd37f0d6823bb797f9ed41baec"
+      },
+      "format": "directory",
+      "local_path": "/private/tmp/typeless-windows-20261014/js-investigation/additional-fragments",
+      "name": "additional-fragments"
+    },
+    "summary": {
+      "browser_windows": 0,
+      "context_bridge_apis": 0,
+      "explicit_web_preferences": 0,
+      "exposed_api_members": 0,
+      "ipc": {
+        "ambiguous_renderer_transmissions": 0,
+        "dynamic_channel_operations": 0,
+        "literal_channels": 0,
+        "main_handlers": 0,
+        "operations": 0,
+        "paired_renderer_transmissions": 0,
+        "renderer_listeners": 0,
+        "renderer_transmissions": 0,
+        "unpaired_literal_renderer_transmissions": 0
+      },
+      "native_addon_bindings": 0,
+      "preload_entrypoints": 0,
+      "resolved_native_addon_bindings": 0,
+      "resolved_utility_entrypoints": 0,
+      "sender_validation_observations": 0,
+      "utility_processes": 0
+    },
+    "coverage": {
+      "limits": [],
+      "omitted_count": 0,
+      "status": "complete",
+      "truncated": false
+    }
+  }
+]

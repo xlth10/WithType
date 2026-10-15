@@ -1,0 +1,59 @@
+{
+  "method": "Focused Babel AST declaration and callback slices from exact Windows shipped members; main string substitutions from same inert decoder; wrappers synthetic; no target code execution",
+  "entries": [
+    {
+      "member": "dist/renderer/static/js/CeEfEbY4.js",
+      "symbol": "po",
+      "source_sha256": "9cab4ebc36cb3c9803e697bbfcb445f61f115cf57f3ae09bb422b525224bdf55",
+      "start_byte": 52459,
+      "end_byte": 53195,
+      "original_slice_sha256": "a144d86f5feb4914e9ca7419661df9e307ff51f4978ecd7ab374b05df4a9f23f",
+      "inspection_slice_sha256": "a144d86f5feb4914e9ca7419661df9e307ff51f4978ecd7ab374b05df4a9f23f"
+    },
+    {
+      "member": "dist/renderer/static/js/fSFyXeKS.mjs",
+      "symbol": "onRefineCompleted",
+      "source_sha256": "7af47c0f09a297db66adde48e603922c4cb40ef640ca10861ec2494011374cd9",
+      "start_byte": 145321,
+      "end_byte": 145608,
+      "original_slice_sha256": "263fa4c1b1b62e18c624f93596a01e001c513a01c5528f7c2f917b189331c311",
+      "inspection_slice_sha256": "263fa4c1b1b62e18c624f93596a01e001c513a01c5528f7c2f917b189331c311"
+    },
+    {
+      "member": "dist/renderer/static/js/fSFyXeKS.mjs",
+      "symbol": "_0x88e7ad",
+      "source_sha256": "7af47c0f09a297db66adde48e603922c4cb40ef640ca10861ec2494011374cd9",
+      "start_byte": 148842,
+      "end_byte": 150068,
+      "original_slice_sha256": "8cef2da78c493ec9581081c340c0474c2bc7a3d65be329757986a34635e7c707",
+      "inspection_slice_sha256": "8cef2da78c493ec9581081c340c0474c2bc7a3d65be329757986a34635e7c707"
+    },
+    {
+      "member": "dist/main/index.js",
+      "symbol": "Mm.normalizeText",
+      "source_sha256": "9b1a2a972721d24dec2dff4ae50789b37bee1df2ef737b9a7918924a091fef47",
+      "start_byte": 545067,
+      "end_byte": 545233,
+      "original_slice_sha256": "7582b8527d4843c4753efac756ca171330a537a868504e21f65a21c7525fda48",
+      "inspection_slice_sha256": "2e2a3518977076f7dc1e13f000076a75a7003f33408c95cd99b6fa1a17162e7f"
+    },
+    {
+      "member": "dist/main/index.js",
+      "symbol": "Mm.startTrack",
+      "source_sha256": "9b1a2a972721d24dec2dff4ae50789b37bee1df2ef737b9a7918924a091fef47",
+      "start_byte": 547007,
+      "end_byte": 550356,
+      "original_slice_sha256": "456ed47f550e893aca6c55ffd9c3db43d7a6731f90f1ca3541540d5a5f61ff35",
+      "inspection_slice_sha256": "2844878ecc1d997ce04043b1f5c447795977d560b24d9c1994b8947b11838b9d"
+    },
+    {
+      "member": "dist/main/index.js",
+      "symbol": "Mm.includesRefinedText",
+      "source_sha256": "9b1a2a972721d24dec2dff4ae50789b37bee1df2ef737b9a7918924a091fef47",
+      "start_byte": 553476,
+      "end_byte": 553680,
+      "original_slice_sha256": "d7a15de1dc6f472012fde5209faf06bbef1a76d3a048e17ffac4e7f0f54a3114",
+      "inspection_slice_sha256": "03e6fa0299eb9ba85f1738f2cbd4a7bcfefb5a6fec5da81365ceec7270a35efc"
+    }
+  ]
+}

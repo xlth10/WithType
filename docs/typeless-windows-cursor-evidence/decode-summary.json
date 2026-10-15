@@ -1,0 +1,13 @@
+{
+  "sourcePath": "/private/tmp/typeless-windows-20261014/javascript/dist/main/index.js",
+  "sourceSha256": "9b1a2a972721d24dec2dff4ae50789b37bee1df2ef737b9a7918924a091fef47",
+  "derivedSha256": "f381b201ceeafbfc5a1713fa28e0a656545a06c8965dfc28078db3cd32258932",
+  "base": 122,
+  "rotation": 266,
+  "aliases": 1243,
+  "replacements": 9484,
+  "method": "Inert Babel AST parsing; literal string table; bounded rotation arithmetic; literal call substitution; token-boundary line breaks. No source code execution.",
+  "limitations": [
+    "Analyst-derived inspection view, not original source. Runtime equivalence is not tested. Alias collection is name-based across the artifact."
+  ]
+}

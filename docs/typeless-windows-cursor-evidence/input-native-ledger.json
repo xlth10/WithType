@@ -1,0 +1,243 @@
+{
+  "artifact_sha256": "a4ceed4368b274994ad23b82cf3e4e7733b1e04feb1ba21f2b5b82e0ecfab174",
+  "image_base": "0x180000000",
+  "address_semantics": "preferred image virtual address, not live ASLR address; end exclusive",
+  "function_ranges": [
+    {
+      "start": 6442461952,
+      "end": 6442462306,
+      "rva": 11008,
+      "end_rva": 11362,
+      "unwind_rva": 324228
+    },
+    {
+      "start": 6442498704,
+      "end": 6442499003,
+      "rva": 47760,
+      "end_rva": 48059,
+      "unwind_rva": 321704
+    },
+    {
+      "start": 6442499040,
+      "end": 6442499274,
+      "rva": 48096,
+      "end_rva": 48330,
+      "unwind_rva": 321776
+    },
+    {
+      "start": 6442501040,
+      "end": 6442501093,
+      "rva": 50096,
+      "end_rva": 50149,
+      "unwind_rva": 325004
+    },
+    {
+      "start": 6442502848,
+      "end": 6442503764,
+      "rva": 51904,
+      "end_rva": 52820,
+      "unwind_rva": 326524
+    },
+    {
+      "start": 6442503840,
+      "end": 6442508078,
+      "rva": 52896,
+      "end_rva": 57134,
+      "unwind_rva": 326068
+    },
+    {
+      "start": 6442508080,
+      "end": 6442512639,
+      "rva": 57136,
+      "end_rva": 61695,
+      "unwind_rva": 325736
+    },
+    {
+      "start": 6442514112,
+      "end": 6442516475,
+      "rva": 63168,
+      "end_rva": 65531,
+      "unwind_rva": 327072
+    },
+    {
+      "start": 6442518368,
+      "end": 6442518400,
+      "rva": 67424,
+      "end_rva": 67456,
+      "unwind_rva": 320660
+    },
+    {
+      "start": 6442536464,
+      "end": 6442542499,
+      "rva": 85520,
+      "end_rva": 91555,
+      "unwind_rva": 328992
+    },
+    {
+      "start": 6442542512,
+      "end": 6442542832,
+      "rva": 91568,
+      "end_rva": 91888,
+      "unwind_rva": 328948
+    }
+  ],
+  "exports": [
+    {
+      "name": "deleteBackward",
+      "ordinal": 1,
+      "rva": 62512,
+      "va": "0x18000f430"
+    },
+    {
+      "name": "getCurrentInputState",
+      "ordinal": 2,
+      "rva": 62528,
+      "va": "0x18000f440"
+    },
+    {
+      "name": "getSelectedText",
+      "ordinal": 3,
+      "rva": 62544,
+      "va": "0x18000f450"
+    },
+    {
+      "name": "getSelectedTextBySimulateCopyAsync",
+      "ordinal": 4,
+      "rva": 62560,
+      "va": "0x18000f460"
+    },
+    {
+      "name": "insertRichText",
+      "ordinal": 5,
+      "rva": 62576,
+      "va": "0x18000f470"
+    },
+    {
+      "name": "insertText",
+      "ordinal": 6,
+      "rva": 62592,
+      "va": "0x18000f480"
+    }
+  ],
+  "relevant_imports": [
+    {
+      "dll": "USER32.dll",
+      "name": "SetClipboardData",
+      "iat_rva": 250672,
+      "iat_va": "0x18003d330"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "CloseClipboard",
+      "iat_rva": 250680,
+      "iat_va": "0x18003d338"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "RegisterClipboardFormatW",
+      "iat_rva": 250688,
+      "iat_va": "0x18003d340"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "EmptyClipboard",
+      "iat_rva": 250696,
+      "iat_va": "0x18003d348"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "SendInput",
+      "iat_rva": 250704,
+      "iat_va": "0x18003d350"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "EnumClipboardFormats",
+      "iat_rva": 250712,
+      "iat_va": "0x18003d358"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "IsClipboardFormatAvailable",
+      "iat_rva": 250720,
+      "iat_va": "0x18003d360"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "GetClipboardData",
+      "iat_rva": 250728,
+      "iat_va": "0x18003d368"
+    },
+    {
+      "dll": "USER32.dll",
+      "name": "OpenClipboard",
+      "iat_rva": 250736,
+      "iat_va": "0x18003d370"
+    },
+    {
+      "dll": "KERNEL32.dll",
+      "name": "GlobalAlloc",
+      "iat_rva": 249880,
+      "iat_va": "0x18003d018"
+    },
+    {
+      "dll": "KERNEL32.dll",
+      "name": "GlobalSize",
+      "iat_rva": 249888,
+      "iat_va": "0x18003d020"
+    },
+    {
+      "dll": "KERNEL32.dll",
+      "name": "GlobalUnlock",
+      "iat_rva": 249896,
+      "iat_va": "0x18003d028"
+    },
+    {
+      "dll": "KERNEL32.dll",
+      "name": "GlobalLock",
+      "iat_rva": 249904,
+      "iat_va": "0x18003d030"
+    },
+    {
+      "dll": "KERNEL32.dll",
+      "name": "GlobalFree",
+      "iat_rva": 249912,
+      "iat_va": "0x18003d038"
+    },
+    {
+      "dll": "KERNEL32.dll",
+      "name": "Sleep",
+      "iat_rva": 250184,
+      "iat_va": "0x18003d148"
+    },
+    {
+      "dll": "KERNEL32.dll",
+      "name": "SleepConditionVariableSRW",
+      "iat_rva": 250232,
+      "iat_va": "0x18003d178"
+    },
+    {
+      "dll": "ole32.dll",
+      "name": "OleSetClipboard",
+      "iat_rva": 250752,
+      "iat_va": "0x18003d380"
+    },
+    {
+      "dll": "ole32.dll",
+      "name": "OleFlushClipboard",
+      "iat_rva": 250760,
+      "iat_va": "0x18003d388"
+    },
+    {
+      "dll": "ole32.dll",
+      "name": "CoCreateInstance",
+      "iat_rva": 250768,
+      "iat_va": "0x18003d390"
+    }
+  ],
+  "own_probe_files": {
+    "pe_parser_sha256": "6b9ff254fd9ed6ef322e12ac40dacc91d53c76f6debbabc3de0c60ac12cf0ee7",
+    "disassembly_sha256": "1ba7dde7e0422ea2302a5d314f77a7f95bcff332d983404c2cfff1ea83141c7d"
+  },
+  "bounded_negative_search": "Native plaintext insertion and restore entrypoints and followed helpers show no destination readback or GetClipboardSequenceNumber guard; this is not whole-application absence."
+}

@@ -108,8 +108,32 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     return live(snapshot) && !snapshot.ended;
   }
 
+  function captureTarget(snapshot) {
+    if (snapshot.capturePending) return snapshot.capturePending;
+    snapshot.capturePending = (async () => {
+      if (!await prepare(snapshot)) return false;
+      const started = clock();
+      let capture;
+      try {
+        const value = await invoke("capture_input_target", {
+          sessionId: snapshot.requestId,
+          ...(snapshot.inputToken ? { inputToken: snapshot.inputToken } : {}),
+        }, () => Promise.resolve());
+        capture = value?.reason ? value : { reason: "ready", message: "", elapsedMs: elapsedSince(started) };
+      } catch (error) {
+        capture = { reason: "capture_failed", message: "输入位置检查失败", elapsedMs: elapsedSince(started), error: String(error?.message || error).slice(0, 256) };
+      }
+      if (!guard(snapshot)) return false;
+      snapshot.inputCapture = capture;
+      onEvent({ type: "input-target", requestId: snapshot.requestId, capture });
+      return true;
+    })();
+    snapshot.capturePending.catch(() => {}); // prepare() still reports lease failures.
+    return snapshot.capturePending;
+  }
+
   /** 把当前配置固化成快照。录音期间用户改模式、改词典、改 Skill 都不影响这一条任务。 */
-  const makeSnapshot = (requestId, { intent, settings, customSkills = [], windowContext = null, skillId = "" }) => {
+  const makeSnapshot = (requestId, { intent, settings, customSkills = [], windowContext = null, skillId = "", inputToken = null }) => {
     const selectedSkill = mergeSkill(skillId || (intent === "skill" ? settings.actionSkillId : settings.selectedSkillId), customSkills);
     return {
       requestId,
@@ -119,6 +143,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       translationLanguage: settings.defaultTranslationLanguage || "英文",
       skill: selectedSkill,
       windowContext,
+      inputToken,
       vocabulary: settings.vocabulary || "",
       learnedEntries: (settings.learnedEntries || []).map((entry) => ({ ...entry })),
       settings: {
@@ -619,6 +644,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
    */
   async function deliver(snapshot, { intent, finalText, rawText, timings, usedTextService, insertedRaw = false, warning = null }) {
     if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
+    if (snapshot.capturePending && !await snapshot.capturePending) return { ok: false, stage: "cancelled", stale: true };
+    if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
 
     timings.stopToReadyMs = elapsedSince(snapshot.stoppedAt ?? snapshot.startedAt);
     timings.textRequests = snapshot.textStats.requestCount;
@@ -642,6 +669,14 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       }
     } else {
       delivery = await copyResult(invoke, finalText, snapshot.requestId);
+    }
+    if (snapshot.inputCapture) {
+      delivery.capture = snapshot.inputCapture;
+      if (delivery.status === "copied" && !delivery.reason && !["ready", "compatibility"].includes(snapshot.inputCapture.reason)) {
+        delivery.reason = snapshot.inputCapture.reason;
+        delivery.message = `${snapshot.inputCapture.message || "输入位置检查失败"}，正文已复制，可以粘贴`;
+      }
+      timings.captureMs = snapshot.inputCapture.elapsedMs;
     }
     const pasted = delivery.pasted;
     timings.pasteMs = elapsedSince(pasteStarted);
@@ -691,7 +726,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     snapshot.translationLanguage = translationLanguage;
     try {
       if (!await prepare(snapshot)) return { ok: false, stale: true };
-      if (snapshot.intent !== "ask") await invoke("capture_input_target", { sessionId: snapshot.requestId }, () => Promise.resolve()).catch(() => {});
+      if (snapshot.intent !== "ask") await captureTarget(snapshot);
       return await finishTask(snapshot, {
         intent: snapshot.intent,
         corrected: String(rawText || ""),
@@ -708,7 +743,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     snapshot.preserveAudio = preserveAudio;
     try {
       if (!await prepare(snapshot)) return { ok: false, stale: true };
-      if (snapshot.intent !== "ask") await invoke("capture_input_target", { sessionId: snapshot.requestId }, () => Promise.resolve()).catch(() => {});
+      if (snapshot.intent !== "ask") await captureTarget(snapshot);
       return await complete({ snapshot, audio: { nativeSessionId: audioSessionId, audioMs, encodeMs: 0 } });
     } finally { release(snapshot.requestId); }
   }
@@ -730,7 +765,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     snapshot.copyOnly = true;
     try {
       if (!await prepare(snapshot)) return { ok: false, stale: true };
-      await invoke("capture_input_target", { sessionId: snapshot.requestId }, () => Promise.resolve()).catch(() => {});
+      await captureTarget(snapshot);
       return await deliver(snapshot, {
         intent: "dictation",
         finalText: text,
@@ -793,11 +828,11 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     const snapshot = begin({ intent: "dictation", settings: { ...settings, autoPaste: true, autoLearn: false } });
     try {
       if (!await prepare(snapshot)) return { ok: false, stale: true };
-      await invoke("capture_input_target", { sessionId: snapshot.requestId }, () => Promise.resolve()).catch(() => {});
+      await captureTarget(snapshot);
       return await deliver(snapshot, { intent: "dictation", finalText: text, rawText: text,
         timings: { encodeMs: 0, asrMs: 0, textMs: 0, audioMs: 0 }, usedTextService: false });
     } finally { release(snapshot.requestId); }
   }
 
-  return { begin, cancel, current, isCurrent, prepare, markStopped, acceptTranscript, acceptTextStream, complete, retry, retryAudio, insertRaw, insertResult, preview, textReady, builtinSkills: BUILTIN_SKILLS };
+  return { begin, cancel, current, isCurrent, prepare, captureTarget, markStopped, acceptTranscript, acceptTextStream, complete, retry, retryAudio, insertRaw, insertResult, preview, textReady, builtinSkills: BUILTIN_SKILLS };
 }

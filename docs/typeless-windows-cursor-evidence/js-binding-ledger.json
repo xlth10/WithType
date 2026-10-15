@@ -1,0 +1,77 @@
+{
+  "method": "Original Windows AST import/export binding syntax only; runtime registration unknown",
+  "entries": [
+    {
+      "member": "dist/renderer/static/js/D8qfkgmL.js",
+      "source_sha256": "fc9c6cbe7a759da8e5efd8b9ffa7b057f02c64f859a12be7ea67bb2733c48152",
+      "kind": "ExportNamedDeclaration",
+      "source": null,
+      "local": "o9",
+      "exported": "e",
+      "imported": null,
+      "start_byte": 917393,
+      "end_byte": 917400,
+      "literal": "o9 as e"
+    },
+    {
+      "member": "dist/renderer/static/js/D8qfkgmL.js",
+      "source_sha256": "fc9c6cbe7a759da8e5efd8b9ffa7b057f02c64f859a12be7ea67bb2733c48152",
+      "kind": "ExportNamedDeclaration",
+      "source": null,
+      "local": "l9",
+      "exported": "g",
+      "imported": null,
+      "start_byte": 917409,
+      "end_byte": 917416,
+      "literal": "l9 as g"
+    },
+    {
+      "member": "dist/renderer/static/js/CeEfEbY4.js",
+      "source_sha256": "9cab4ebc36cb3c9803e697bbfcb445f61f115cf57f3ae09bb422b525224bdf55",
+      "kind": "ExportNamedDeclaration",
+      "source": null,
+      "local": "po",
+      "exported": "bh",
+      "imported": null,
+      "start_byte": 404011,
+      "end_byte": 404019,
+      "literal": "po as bh"
+    },
+    {
+      "member": "dist/renderer/static/js/fSFyXeKS.mjs",
+      "source_sha256": "7af47c0f09a297db66adde48e603922c4cb40ef640ca10861ec2494011374cd9",
+      "kind": "ImportDeclaration",
+      "source": "./CeEfEbY4.js",
+      "local": "_0x25549a",
+      "exported": null,
+      "imported": "bh",
+      "start_byte": 1126,
+      "end_byte": 1141,
+      "literal": "bh as _0x25549a"
+    },
+    {
+      "member": "dist/renderer/static/js/fSFyXeKS.mjs",
+      "source_sha256": "7af47c0f09a297db66adde48e603922c4cb40ef640ca10861ec2494011374cd9",
+      "kind": "ImportDeclaration",
+      "source": "./D8qfkgmL.js",
+      "local": "_0x45db6f",
+      "exported": null,
+      "imported": "e",
+      "start_byte": 2003,
+      "end_byte": 2017,
+      "literal": "e as _0x45db6f"
+    },
+    {
+      "member": "dist/renderer/static/js/fSFyXeKS.mjs",
+      "source_sha256": "7af47c0f09a297db66adde48e603922c4cb40ef640ca10861ec2494011374cd9",
+      "kind": "ImportDeclaration",
+      "source": "./D8qfkgmL.js",
+      "local": "_0x5d7129",
+      "exported": null,
+      "imported": "g",
+      "start_byte": 2018,
+      "end_byte": 2032,
+      "literal": "g as _0x5d7129"
+    }
+  ]
+}

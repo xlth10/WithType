@@ -1,0 +1,165 @@
+{
+  "method": "AST slice of exact original declaration bytes; const prefix and semicolon added to isolated variable declarators; omitted imports and dependencies are unresolved; target code never executed",
+  "entries": [
+    {
+      "member": "dist/renderer/static/js/C_18RWmm.js",
+      "source_sha256": "71af96c6a45f106f963698ef1d3ce9ba1c91914f436a20a0243d36b39b38b0ac",
+      "symbol": "l0",
+      "start_utf16": 897904,
+      "end_utf16": 898511,
+      "start_byte": 912019,
+      "end_byte": 912626,
+      "fragment_sha256": "b1100b0be39defcc607a48c7370e21eb33fba5a0c2366036515e517096e6c5fb",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/C_18RWmm.js",
+      "source_sha256": "71af96c6a45f106f963698ef1d3ce9ba1c91914f436a20a0243d36b39b38b0ac",
+      "symbol": "$7",
+      "start_utf16": 898512,
+      "end_utf16": 899634,
+      "start_byte": 912627,
+      "end_byte": 913749,
+      "fragment_sha256": "0f051fe65c8e7ed562819911acb58cc21d6c07615adc9206380e4c288ac9d762",
+      "synthetic_variable_wrapper": false
+    },
+    {
+      "member": "dist/renderer/static/js/C_18RWmm.js",
+      "source_sha256": "71af96c6a45f106f963698ef1d3ce9ba1c91914f436a20a0243d36b39b38b0ac",
+      "symbol": "Tc",
+      "start_utf16": 899652,
+      "end_utf16": 899909,
+      "start_byte": 913767,
+      "end_byte": 914024,
+      "fragment_sha256": "aeb0f1f17e8bc5735e687d6ee4c54c88e0c875e85aa7722d5a8572456fba07ca",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/C_18RWmm.js",
+      "source_sha256": "71af96c6a45f106f963698ef1d3ce9ba1c91914f436a20a0243d36b39b38b0ac",
+      "symbol": "l9",
+      "start_utf16": 899910,
+      "end_utf16": 900092,
+      "start_byte": 914025,
+      "end_byte": 914207,
+      "fragment_sha256": "176de77abeaa181b8cd1223dee024f5d6ce6d413592dc9b99401adf7231debde",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/DFvLNtQv.mjs",
+      "source_sha256": "d2b3d3e331674fbda798e0766dc0234ae92ff8ca5319b72dd73d164f2c490f84",
+      "symbol": "dr",
+      "start_utf16": 138100,
+      "end_utf16": 138612,
+      "start_byte": 138100,
+      "end_byte": 138612,
+      "fragment_sha256": "2dbf62511ffaea3f0396a7a56f1dea956ab77d3b9eb37d7eb76e037c8d10d8d3",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/DFvLNtQv.mjs",
+      "source_sha256": "d2b3d3e331674fbda798e0766dc0234ae92ff8ca5319b72dd73d164f2c490f84",
+      "symbol": "ur",
+      "start_utf16": 139205,
+      "end_utf16": 140347,
+      "start_byte": 139205,
+      "end_byte": 140347,
+      "fragment_sha256": "7bb8f0d9bedeb19218f611d391c177165816886273d2143defcbda3dc490fbf4",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/DFvLNtQv.mjs",
+      "source_sha256": "d2b3d3e331674fbda798e0766dc0234ae92ff8ca5319b72dd73d164f2c490f84",
+      "symbol": "ta",
+      "start_utf16": 140348,
+      "end_utf16": 140831,
+      "start_byte": 140348,
+      "end_byte": 140831,
+      "fragment_sha256": "eaea32276f926f18457dd7c7096140b6504c0796f93f3698643b27a2ef9609b3",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/DFvLNtQv.mjs",
+      "source_sha256": "d2b3d3e331674fbda798e0766dc0234ae92ff8ca5319b72dd73d164f2c490f84",
+      "symbol": "na",
+      "start_utf16": 140832,
+      "end_utf16": 141454,
+      "start_byte": 140832,
+      "end_byte": 141454,
+      "fragment_sha256": "13fb381cf7a19758a9beb4417ae221c3374cdd909faf33a77c3137a693aab8ad",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/DFvLNtQv.mjs",
+      "source_sha256": "d2b3d3e331674fbda798e0766dc0234ae92ff8ca5319b72dd73d164f2c490f84",
+      "symbol": "fr",
+      "start_utf16": 141455,
+      "end_utf16": 141696,
+      "start_byte": 141455,
+      "end_byte": 141696,
+      "fragment_sha256": "60e50d030d890efc26fd5503a0309712859c03dd593d4e159d6d1efebc3fca6b",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/renderer/static/js/DFvLNtQv.mjs",
+      "source_sha256": "d2b3d3e331674fbda798e0766dc0234ae92ff8ca5319b72dd73d164f2c490f84",
+      "symbol": "hr",
+      "start_utf16": 141697,
+      "end_utf16": 141861,
+      "start_byte": 141697,
+      "end_byte": 141861,
+      "fragment_sha256": "8982aff8c426a36004878e49d64a7d4325c725bc51b6c039789e05920ac05cfc",
+      "synthetic_variable_wrapper": true
+    },
+    {
+      "member": "dist/main/index.js",
+      "source_sha256": "5e9eb074797bf06f5bb55a7a7b45aa5353484f0cd23c6b11a4c1555b5ee58e0b",
+      "symbol": "cg",
+      "start_utf16": 182395,
+      "end_utf16": 186491,
+      "start_byte": 182564,
+      "end_byte": 186660,
+      "fragment_sha256": "7716c14cb8cef948b26731274746a79a400460e198e9235ad0fd9ccf5dfefc69"
+    },
+    {
+      "member": "dist/main/index.js",
+      "source_sha256": "5e9eb074797bf06f5bb55a7a7b45aa5353484f0cd23c6b11a4c1555b5ee58e0b",
+      "symbol": "Ro",
+      "start_utf16": 281794,
+      "end_utf16": 283552,
+      "start_byte": 281963,
+      "end_byte": 283721,
+      "fragment_sha256": "d1f9156fa3db124083984ce5e5ba5cb60ca162bd91a2c3e49b2e6608cee9f578"
+    },
+    {
+      "member": "dist/main/index.js",
+      "source_sha256": "5e9eb074797bf06f5bb55a7a7b45aa5353484f0cd23c6b11a4c1555b5ee58e0b",
+      "symbol": "nt",
+      "start_utf16": 297024,
+      "end_utf16": 300674,
+      "start_byte": 297193,
+      "end_byte": 300843,
+      "fragment_sha256": "a2f656f75030b521388cfa54745d60dc2f99ebf5afb60b41fc820cda174dfce0"
+    },
+    {
+      "member": "dist/main/index.js",
+      "source_sha256": "5e9eb074797bf06f5bb55a7a7b45aa5353484f0cd23c6b11a4c1555b5ee58e0b",
+      "symbol": "ui",
+      "start_utf16": 308199,
+      "end_utf16": 308668,
+      "start_byte": 308368,
+      "end_byte": 308837,
+      "fragment_sha256": "7aad7c0173b401a65d889d77ea416e9d460c9fbe2efe332c8447f8e329d89b17"
+    },
+    {
+      "member": "dist/main/index.js",
+      "source_sha256": "5e9eb074797bf06f5bb55a7a7b45aa5353484f0cd23c6b11a4c1555b5ee58e0b",
+      "symbol": "hf",
+      "start_utf16": 308682,
+      "end_utf16": 321869,
+      "start_byte": 308851,
+      "end_byte": 322038,
+      "fragment_sha256": "f952eeafbc6eea6ba2444362ab576ec81cf86421647c5b5fdbd429860143556a"
+    }
+  ]
+}

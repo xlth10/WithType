@@ -1,6 +1,16 @@
 // Provider-specific readiness lives here so the UI and recording gate agree.
 export const ASR_PROVIDERS = ["openai", "apple"];
 export const DEFAULT_APPLE_SPEECH_LOCALE = "zh-CN";
+
+/** Defaults apply only when the user has not explicitly selected a provider. */
+export function defaultAsrProvider(nativePlatform) {
+  return nativePlatform === "macos" ? "apple" : "openai";
+}
+
+export function resolveAsrProvider(settings, nativePlatform) {
+  return ASR_PROVIDERS.includes(settings?.asrProvider)
+    ? settings.asrProvider : defaultAsrProvider(nativePlatform);
+}
 export const APPLE_SPEECH_LANGUAGES = [
   ["zh-CN", "普通话（中国大陆）"],
   ["zh-TW", "普通话（台湾）"],

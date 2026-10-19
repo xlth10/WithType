@@ -1,10 +1,24 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { appleSpeechIssue, normalizeAppleSpeechLocale, speechConfigured, speechModelLabel } from "../src/dictation/asrProvider.js";
+import { appleSpeechIssue, defaultAsrProvider, normalizeAppleSpeechLocale, resolveAsrProvider, speechConfigured, speechModelLabel } from "../src/dictation/asrProvider.js";
 import { DEFAULT_SETTINGS, normalizeSettings, toPersistedSettings } from "../src/text/settingsMigration.js";
 
 const apple = { ...DEFAULT_SETTINGS, asrProvider: "apple", asrEndpoint: "", asrModel: "" };
 const readyStatus = { platformSupported: true, authorization: "authorized", available: true, supportsOnDeviceRecognition: true };
+
+test("Mac 缺省使用 Apple，显式的兼容服务选择与配置不变", () => {
+  assert.equal(defaultAsrProvider("macos"), "apple");
+  for (const platform of ["windows", "linux", "browser", undefined]) {
+    assert.equal(defaultAsrProvider(platform), "openai");
+    assert.equal(resolveAsrProvider({}, platform), "openai");
+  }
+  assert.equal(resolveAsrProvider({}, "macos"), "apple");
+  assert.equal(resolveAsrProvider({ asrProvider: "invalid" }, "macos"), "apple");
+  const configured = { asrProvider: "openai", asrEndpoint: "https://speech.example.test/v1", asrModel: "private-asr" };
+  assert.equal(resolveAsrProvider(configured, "macos"), "openai");
+  assert.equal(configured.asrEndpoint, "https://speech.example.test/v1");
+  assert.equal(resolveAsrProvider({ asrProvider: "apple" }, "windows"), "apple", "平台不应静默重写用户选择");
+});
 
 test("旧语音配置仍使用 OpenAI，Apple 选择与语言独立持久化", () => {
   const existing = { asrEndpoint: "https://speech.example.test/v1", asrModel: "my-asr" };

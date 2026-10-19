@@ -1,0 +1,49 @@
+{
+  "os": "macOS",
+  "osVersion": "27.0.1",
+  "osBuild": "26A434",
+  "architecture": "arm64",
+  "cpu": "Apple M4",
+  "model": "Mac16,12",
+  "physicalCores": 10,
+  "logicalCores": 10,
+  "memoryBytes": 17179869184,
+  "node": "v25.2.1",
+  "rustc": "1.98.1 (48a229cea 2026-09-01)",
+  "synthesis": {
+    "executable": "/usr/bin/say",
+    "selectedVoiceName": "Tingting",
+    "rate": 185,
+    "sampleRate": 16000,
+    "channels": 1,
+    "sampleBits": 16,
+    "resolvedVoiceIdentifier": "com.apple.voice.compact.zh-CN.Tingting"
+  },
+  "speech": "Apple on-device Speech, zh-CN",
+  "textModel": "deepseek-flash",
+  "textFastModel": "deepseek-flash",
+  "temperature": 0.2,
+  "textStreaming": false,
+  "textIncremental": false,
+  "order": [
+    "baseline-r1",
+    "optimized-r1",
+    "baseline-r2",
+    "optimized-r2"
+  ],
+  "warmup": "Before formal round 1, health and two short ASR smoke cases plus one text-service smoke case were run. These are not cold-start samples.",
+  "windows": "Deferred by user: no Windows device and no real ASR service endpoint.",
+  "additionalRunOrder": [
+    "optimized-v2-text",
+    "optimized-v2-audio-r1",
+    "optimized-v2-audio-r2",
+    "optimized-v2-withdrawal",
+    "final-source-smoke"
+  ],
+  "nativeProbeSourceSha256": {
+    "scripts/benchmark/apple-speech-probe.sh": "13752fd510eea72e84dfa274d03b5269f71167475bae1a589632714aca1a9570",
+    "scripts/benchmark/apple-speech-probe.m": "f29b63609a003212e39889ee270c67bdc494404ffc00deeb8205822660b7138a",
+    "src-tauri/native/apple_speech.m": "35536586f54cf60cbe5196e93faef73ccde5077a7dba028babdf14847ce93ed5"
+  },
+  "providerControl": "Both baseline and optimized explicitly select Apple Speech, rather than comparing previous default cloud ASR against Apple."
+}

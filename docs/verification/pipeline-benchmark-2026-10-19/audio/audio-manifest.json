@@ -1,0 +1,125 @@
+{
+  "corpusId": "withtype-synthetic-zh-2026-10-19",
+  "material": "synthetic-speech",
+  "generator": "macOS say",
+  "voice": "Tingting",
+  "rate": 185,
+  "sampleRate": 16000,
+  "channels": 1,
+  "sampleBits": 16,
+  "generatedAt": "2026-10-19T13:33:11.682Z",
+  "audio": [
+    {
+      "id": "short-simple",
+      "filename": "short-simple.wav",
+      "sha256": "e20b7001441abd2900fa0d08833f73447dff9c8b268d5c53ce3a49ca0175f152",
+      "audioMs": 2071,
+      "bytes": 70378
+    },
+    {
+      "id": "short-correction",
+      "filename": "short-correction.wav",
+      "sha256": "e532e51f580bf4baab863c1aba10b631a1b386154f73891f989abbc67a01b832",
+      "audioMs": 3198,
+      "bytes": 106416
+    },
+    {
+      "id": "weekday-correction",
+      "filename": "weekday-correction.wav",
+      "sha256": "406dce4fa9be5746f56812117630540aed5aca64cf7676f79607f78ae0bc7e15",
+      "audioMs": 2379,
+      "bytes": 80230
+    },
+    {
+      "id": "negation-money",
+      "filename": "negation-money.wav",
+      "sha256": "f1f11acab3d6ceda6991521d83cda6fc8672ad22a1a643c29f83988882849a48",
+      "audioMs": 6605,
+      "bytes": 215470
+    },
+    {
+      "id": "number-correction",
+      "filename": "number-correction.wav",
+      "sha256": "d9ca2fdf0a30495d26949800671196ee736aa02690a04d6bc1332d83de3b9272",
+      "audioMs": 5471,
+      "bytes": 179174
+    },
+    {
+      "id": "negative-deadline",
+      "filename": "negative-deadline.wav",
+      "sha256": "914892445aebf3d1b28f441f839bf6907d365fb51eb76217684ca214e234f877",
+      "audioMs": 6889,
+      "bytes": 224556
+    },
+    {
+      "id": "proper-names",
+      "filename": "proper-names.wav",
+      "sha256": "7a79ff4826c83818e709aad212d804df82ff5987353e0d2d25340b341e27bf17",
+      "audioMs": 6461,
+      "bytes": 210850
+    },
+    {
+      "id": "mixed-identifiers",
+      "filename": "mixed-identifiers.wav",
+      "sha256": "5d8d507a8cecf7dd11b4cd5b080b5b7a45e56b489dd8998b9ab544bc559fbfa6",
+      "audioMs": 9188,
+      "bytes": 298108
+    },
+    {
+      "id": "emphasis",
+      "filename": "emphasis.wav",
+      "sha256": "aadf15903118fc971cc3daeed6c2b8f41ca019c536c78c06d6439ce8d4fb5073",
+      "audioMs": 7140,
+      "bytes": 232560
+    },
+    {
+      "id": "list",
+      "filename": "list.wav",
+      "sha256": "eeb9aa7af78a1063352065aad64138d0fea79078c49a8c9f406ca7128cc77b55",
+      "audioMs": 8899,
+      "bytes": 288868
+    },
+    {
+      "id": "question-is-text",
+      "filename": "question-is-text.wav",
+      "sha256": "f2dcc24f65e9cf19b8708dc17dd4e00a42675b589d66a45ae0f900cfff5aa125",
+      "audioMs": 6610,
+      "bytes": 215622
+    },
+    {
+      "id": "code-token",
+      "filename": "code-token.wav",
+      "sha256": "69b91ea21b5f901881b512e6dd93b35993ceb621848d2131db21d5623c054e1b",
+      "audioMs": 9266,
+      "bytes": 300614
+    },
+    {
+      "id": "conditional-promise",
+      "filename": "conditional-promise.wav",
+      "sha256": "28686ac55dbee633a1984b8232a899b85b65d573b51c451dcb5ac26507283634",
+      "audioMs": 7588,
+      "bytes": 246914
+    },
+    {
+      "id": "long-withdrawal",
+      "filename": "long-withdrawal.wav",
+      "sha256": "ca346811fed0463fc3f545b211cc3e0e2427c605491ef06c6dd8455e9c5052fc",
+      "audioMs": 27821,
+      "bytes": 894378
+    },
+    {
+      "id": "paragraph-fidelity",
+      "filename": "paragraph-fidelity.wav",
+      "sha256": "e5904fd4eeded331ed0c61982cc772079dab333c18aea5bff0465f418b568c7a",
+      "audioMs": 23480,
+      "bytes": 755456
+    },
+    {
+      "id": "polish-fidelity",
+      "filename": "polish-fidelity.wav",
+      "sha256": "1b35e715ea791437c4ea119ee2c1975f535388183f5ff53c71d13ad365da6057",
+      "audioMs": 10762,
+      "bytes": 348474
+    }
+  ]
+}

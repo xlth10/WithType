@@ -1,0 +1,1101 @@
+{
+  "schemaVersion": 1,
+  "material": "synthetic-speech",
+  "automaticChecksAreNotAccuracy": true,
+  "manualReviewRequired": true,
+  "manifestSha256": "3820953efe50b0dc67e1107a29a7d18a9a7f1d5dbd45fa9664a72b5da4e27876",
+  "rounds": {
+    "baseline-r1": {
+      "attempted": 16,
+      "completed": 16,
+      "automaticChecksPassed": 8,
+      "timings": {
+        "p50ReadyMs": 3489,
+        "p95ReadyMs": 11578
+      },
+      "sourceRevision": "534b3d7f067355934760190badc391f5b0baaa40",
+      "sourceFingerprints": {
+        "src/dictation/pipeline.js": "59ac3069d2b5583e8d878be873b265d6373e98d37e107fa999ab6976d3a62ad8",
+        "src/text/builtinSkills.js": "88a190715fe283835777fdabb05c2fa7e55289b052a2a0fdd839a8d15d4ceb76",
+        "src/vocabulary/rules.js": "0031719d61271ef1466dda37872b3ac02248098b9cfbfacbadce89ff1b321525"
+      },
+      "cases": {
+        "short-simple": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "time",
+              "pass": true
+            }
+          ]
+        },
+        "short-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-time",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-time",
+              "pass": false
+            }
+          ]
+        },
+        "weekday-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-day",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-day",
+              "pass": false
+            }
+          ]
+        },
+        "negation-money": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "no-payment",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "number-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "withdrawn",
+              "pass": false
+            }
+          ]
+        },
+        "negative-deadline": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "preview",
+              "pass": false
+            },
+            {
+              "id": "formal-deadline",
+              "pass": true
+            }
+          ]
+        },
+        "proper-names": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "person-one",
+              "pass": false
+            },
+            {
+              "id": "person-two",
+              "pass": false
+            },
+            {
+              "id": "product",
+              "pass": false
+            }
+          ]
+        },
+        "mixed-identifiers": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "brand",
+              "pass": false
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": false
+            },
+            {
+              "id": "same-text",
+              "pass": true
+            }
+          ]
+        },
+        "emphasis": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "no-autosend",
+              "pass": true
+            },
+            {
+              "id": "preview",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "list": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "audio",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": true
+            },
+            {
+              "id": "report",
+              "pass": true
+            }
+          ]
+        },
+        "question-is-text": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "question",
+              "pass": true
+            },
+            {
+              "id": "no-answer",
+              "pass": true
+            }
+          ]
+        },
+        "code-token": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "timeout",
+              "pass": true
+            },
+            {
+              "id": "status",
+              "pass": true
+            },
+            {
+              "id": "no-retry",
+              "pass": true
+            }
+          ]
+        },
+        "conditional-promise": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "condition",
+              "pass": true
+            },
+            {
+              "id": "uncertain",
+              "pass": true
+            },
+            {
+              "id": "not-approved",
+              "pass": true
+            }
+          ]
+        },
+        "long-withdrawal": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "department",
+              "pass": true
+            },
+            {
+              "id": "day",
+              "pass": true
+            },
+            {
+              "id": "time",
+              "pass": false
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "evidence",
+              "pass": false
+            }
+          ]
+        },
+        "paragraph-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "synthetic",
+              "pass": true
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "no-score",
+              "pass": true
+            }
+          ]
+        },
+        "polish-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "windows",
+              "pass": false
+            },
+            {
+              "id": "not-stable",
+              "pass": true
+            }
+          ]
+        }
+      }
+    },
+    "optimized-r1": {
+      "attempted": 16,
+      "completed": 16,
+      "automaticChecksPassed": 10,
+      "timings": {
+        "p50ReadyMs": 1513,
+        "p95ReadyMs": 9223
+      },
+      "sourceRevision": "534b3d7f067355934760190badc391f5b0baaa40",
+      "sourceFingerprints": {
+        "src/dictation/pipeline.js": "add52becce60053c16df3e6f69a6333a4c444e8f9e70eda5b8ca55b8e8e1b090",
+        "src/text/builtinSkills.js": "1a52cbf9b63a561c498e3ab318d6d6a0e232ee7c8f9929542929f70ebefd2c07",
+        "src/vocabulary/rules.js": "ea2f032aa124ba97638ff3026ce42e72f3edeab593e78527b7b2eff5a72a871c"
+      },
+      "cases": {
+        "short-simple": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "time",
+              "pass": true
+            }
+          ]
+        },
+        "short-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-time",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-time",
+              "pass": true
+            }
+          ]
+        },
+        "weekday-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-day",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-day",
+              "pass": false
+            }
+          ]
+        },
+        "negation-money": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "no-payment",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "number-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "withdrawn",
+              "pass": true
+            }
+          ]
+        },
+        "negative-deadline": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "preview",
+              "pass": false
+            },
+            {
+              "id": "formal-deadline",
+              "pass": true
+            }
+          ]
+        },
+        "proper-names": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "person-one",
+              "pass": false
+            },
+            {
+              "id": "person-two",
+              "pass": true
+            },
+            {
+              "id": "product",
+              "pass": true
+            }
+          ]
+        },
+        "mixed-identifiers": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "brand",
+              "pass": false
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": false
+            },
+            {
+              "id": "same-text",
+              "pass": true
+            }
+          ]
+        },
+        "emphasis": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "no-autosend",
+              "pass": true
+            },
+            {
+              "id": "preview",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "list": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "audio",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": true
+            },
+            {
+              "id": "report",
+              "pass": true
+            }
+          ]
+        },
+        "question-is-text": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "question",
+              "pass": true
+            },
+            {
+              "id": "no-answer",
+              "pass": true
+            }
+          ]
+        },
+        "code-token": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "timeout",
+              "pass": true
+            },
+            {
+              "id": "status",
+              "pass": true
+            },
+            {
+              "id": "no-retry",
+              "pass": true
+            }
+          ]
+        },
+        "conditional-promise": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "condition",
+              "pass": true
+            },
+            {
+              "id": "uncertain",
+              "pass": true
+            },
+            {
+              "id": "not-approved",
+              "pass": true
+            }
+          ]
+        },
+        "long-withdrawal": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "department",
+              "pass": true
+            },
+            {
+              "id": "day",
+              "pass": true
+            },
+            {
+              "id": "time",
+              "pass": false
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "evidence",
+              "pass": false
+            }
+          ]
+        },
+        "paragraph-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "synthetic",
+              "pass": true
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "no-score",
+              "pass": true
+            }
+          ]
+        },
+        "polish-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "windows",
+              "pass": false
+            },
+            {
+              "id": "not-stable",
+              "pass": true
+            }
+          ]
+        }
+      }
+    },
+    "baseline-r2": {
+      "attempted": 16,
+      "completed": 16,
+      "automaticChecksPassed": 8,
+      "timings": {
+        "p50ReadyMs": 1960,
+        "p95ReadyMs": 5566
+      },
+      "sourceRevision": "534b3d7f067355934760190badc391f5b0baaa40",
+      "sourceFingerprints": {
+        "src/dictation/pipeline.js": "59ac3069d2b5583e8d878be873b265d6373e98d37e107fa999ab6976d3a62ad8",
+        "src/text/builtinSkills.js": "88a190715fe283835777fdabb05c2fa7e55289b052a2a0fdd839a8d15d4ceb76",
+        "src/vocabulary/rules.js": "0031719d61271ef1466dda37872b3ac02248098b9cfbfacbadce89ff1b321525"
+      },
+      "cases": {
+        "short-simple": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "time",
+              "pass": true
+            }
+          ]
+        },
+        "short-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-time",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-time",
+              "pass": false
+            }
+          ]
+        },
+        "weekday-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-day",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-day",
+              "pass": false
+            }
+          ]
+        },
+        "negation-money": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "no-payment",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "number-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "withdrawn",
+              "pass": false
+            }
+          ]
+        },
+        "negative-deadline": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "preview",
+              "pass": false
+            },
+            {
+              "id": "formal-deadline",
+              "pass": true
+            }
+          ]
+        },
+        "proper-names": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "person-one",
+              "pass": false
+            },
+            {
+              "id": "person-two",
+              "pass": false
+            },
+            {
+              "id": "product",
+              "pass": false
+            }
+          ]
+        },
+        "mixed-identifiers": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "brand",
+              "pass": false
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": false
+            },
+            {
+              "id": "same-text",
+              "pass": true
+            }
+          ]
+        },
+        "emphasis": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "no-autosend",
+              "pass": true
+            },
+            {
+              "id": "preview",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "list": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "audio",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": true
+            },
+            {
+              "id": "report",
+              "pass": true
+            }
+          ]
+        },
+        "question-is-text": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "question",
+              "pass": true
+            },
+            {
+              "id": "no-answer",
+              "pass": true
+            }
+          ]
+        },
+        "code-token": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "timeout",
+              "pass": true
+            },
+            {
+              "id": "status",
+              "pass": true
+            },
+            {
+              "id": "no-retry",
+              "pass": true
+            }
+          ]
+        },
+        "conditional-promise": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "condition",
+              "pass": true
+            },
+            {
+              "id": "uncertain",
+              "pass": true
+            },
+            {
+              "id": "not-approved",
+              "pass": true
+            }
+          ]
+        },
+        "long-withdrawal": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "department",
+              "pass": true
+            },
+            {
+              "id": "day",
+              "pass": true
+            },
+            {
+              "id": "time",
+              "pass": false
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "evidence",
+              "pass": false
+            }
+          ]
+        },
+        "paragraph-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "synthetic",
+              "pass": true
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "no-score",
+              "pass": true
+            }
+          ]
+        },
+        "polish-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "windows",
+              "pass": false
+            },
+            {
+              "id": "not-stable",
+              "pass": true
+            }
+          ]
+        }
+      }
+    },
+    "optimized-r2": {
+      "attempted": 16,
+      "completed": 16,
+      "automaticChecksPassed": 9,
+      "timings": {
+        "p50ReadyMs": 1631,
+        "p95ReadyMs": 9668
+      },
+      "sourceRevision": "534b3d7f067355934760190badc391f5b0baaa40",
+      "sourceFingerprints": {
+        "src/dictation/pipeline.js": "add52becce60053c16df3e6f69a6333a4c444e8f9e70eda5b8ca55b8e8e1b090",
+        "src/text/builtinSkills.js": "1a52cbf9b63a561c498e3ab318d6d6a0e232ee7c8f9929542929f70ebefd2c07",
+        "src/vocabulary/rules.js": "62bb4f986ae0ab602e1f3cceeff6949b5fb2c3f85b25b0dd80229ceeeac96520"
+      },
+      "cases": {
+        "short-simple": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "time",
+              "pass": true
+            }
+          ]
+        },
+        "short-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-time",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-time",
+              "pass": true
+            }
+          ]
+        },
+        "weekday-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "final-day",
+              "pass": true
+            },
+            {
+              "id": "withdrawn-day",
+              "pass": false
+            }
+          ]
+        },
+        "negation-money": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "no-payment",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "number-correction": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "amount",
+              "pass": true
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "withdrawn",
+              "pass": false
+            }
+          ]
+        },
+        "negative-deadline": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "preview",
+              "pass": false
+            },
+            {
+              "id": "formal-deadline",
+              "pass": true
+            }
+          ]
+        },
+        "proper-names": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "person-one",
+              "pass": false
+            },
+            {
+              "id": "person-two",
+              "pass": true
+            },
+            {
+              "id": "product",
+              "pass": true
+            }
+          ]
+        },
+        "mixed-identifiers": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "brand",
+              "pass": false
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": false
+            },
+            {
+              "id": "same-text",
+              "pass": true
+            }
+          ]
+        },
+        "emphasis": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "no-autosend",
+              "pass": true
+            },
+            {
+              "id": "preview",
+              "pass": true
+            },
+            {
+              "id": "confirm",
+              "pass": true
+            }
+          ]
+        },
+        "list": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "audio",
+              "pass": true
+            },
+            {
+              "id": "apple",
+              "pass": true
+            },
+            {
+              "id": "report",
+              "pass": true
+            }
+          ]
+        },
+        "question-is-text": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "question",
+              "pass": true
+            },
+            {
+              "id": "no-answer",
+              "pass": true
+            }
+          ]
+        },
+        "code-token": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "timeout",
+              "pass": true
+            },
+            {
+              "id": "status",
+              "pass": true
+            },
+            {
+              "id": "no-retry",
+              "pass": true
+            }
+          ]
+        },
+        "conditional-promise": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "condition",
+              "pass": true
+            },
+            {
+              "id": "uncertain",
+              "pass": true
+            },
+            {
+              "id": "not-approved",
+              "pass": true
+            }
+          ]
+        },
+        "long-withdrawal": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "department",
+              "pass": true
+            },
+            {
+              "id": "day",
+              "pass": true
+            },
+            {
+              "id": "time",
+              "pass": false
+            },
+            {
+              "id": "quantity",
+              "pass": true
+            },
+            {
+              "id": "evidence",
+              "pass": false
+            }
+          ]
+        },
+        "paragraph-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "synthetic",
+              "pass": true
+            },
+            {
+              "id": "windows",
+              "pass": true
+            },
+            {
+              "id": "no-score",
+              "pass": true
+            }
+          ]
+        },
+        "polish-fidelity": {
+          "status": "completed",
+          "checks": [
+            {
+              "id": "windows",
+              "pass": false
+            },
+            {
+              "id": "not-stable",
+              "pass": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

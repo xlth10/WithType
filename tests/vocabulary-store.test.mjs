@@ -71,3 +71,61 @@ test("读取失败不清空已经成功载入的状态", async () => {
   await assert.rejects(store.load(), /读取失败/);
   assert.deepEqual((await store.update((state) => state)).entries, [FIRST]);
 });
+
+test("异步学习占住队列，后续修改读取已保存快照", async () => {
+  const started = defer(), finishLearning = defer(), changes = [], persisted = [];
+  const store = createVocabularyStore(async (command, payload) => {
+    if (command === "load_vocabulary") return null;
+    persisted.push(structuredClone(payload.vocabulary));
+  }, (state) => changes.push(state));
+  await store.load();
+  const learned = store.update(async (state) => {
+    started.resolve();
+    await finishLearning.promise;
+    state.entries.push(FIRST);
+    return state;
+  });
+  let secondStarted = false;
+  const manual = store.update((state) => {
+    secondStarted = true;
+    assert.deepEqual(state.entries, [FIRST]);
+    return { ...state, entries: [...state.entries, SECOND] };
+  });
+  await started.promise;
+  assert.equal(secondStarted, false);
+  assert.deepEqual(persisted, []);
+  assert.deepEqual(changes, [emptyVocabulary()]);
+  finishLearning.resolve();
+  await Promise.all([learned, manual]);
+  assert.deepEqual(persisted.map((state) => state.entries), [[FIRST], [FIRST, SECOND]]);
+  assert.deepEqual(changes.at(-1).entries, [FIRST, SECOND]);
+});
+
+test("异步学习失败不泄漏修改，后续队列仍可保存", async () => {
+  const changes = [], persisted = [];
+  const store = createVocabularyStore(async (command, payload) => {
+    if (command === "load_vocabulary") return { ...emptyVocabulary(), entries: [FIRST] };
+    persisted.push(payload.vocabulary);
+  }, (state) => changes.push(state));
+  await store.load();
+  const failed = store.update(async (state) => {
+    state.entries[0].target = "损坏快照";
+    await Promise.resolve();
+    throw new Error("学习模块载入失败");
+  });
+  const recovered = store.update(async (state) => {
+    await Promise.resolve();
+    return { ...state, entries: [...state.entries, SECOND] };
+  });
+  await assert.rejects(failed, /学习模块载入失败/);
+  assert.deepEqual((await recovered).entries, [FIRST, SECOND]);
+  assert.equal(persisted.length, 1);
+  assert.equal(changes.length, 2);
+});
+
+test("空词库仍保留归一化后的忽略记录", async () => {
+  const store = createVocabularyStore(async () => ({
+    entries: [], candidates: [], dismissed: ["徐向\u0000徐翔", null, "徐向\u0000徐翔", "x".repeat(101)],
+  }), () => {});
+  assert.deepEqual(await store.load(), { ...emptyVocabulary(), dismissed: ["徐向\u0000徐翔"] });
+});

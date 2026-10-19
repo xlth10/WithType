@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
-/** Windows desktop recording only. Audio bytes remain in the Rust service. */
+/** Desktop recording. Audio bytes remain in the Rust service. */
 export function useNativeRecorder({ onDeviceState } = {}) {
   const [recording, setRecording] = useState(false);
   const [level, setLevel] = useState(0);
@@ -34,12 +34,12 @@ export function useNativeRecorder({ onDeviceState } = {}) {
     };
   }, []);
 
-  const start = useCallback(async (sessionId, deviceId = "", endpoint = "", model = "", earlyText = false, intent = "") => {
+  const start = useCallback(async (sessionId, deviceId = "", endpoint = "", model = "", earlyText = false, intent = "", provider = "openai", locale = "zh-CN") => {
     if (!sessionId) throw new Error("录音会话缺少 ID");
     const generation = ++generationRef.current;
     sessionRef.current = sessionId;
     try {
-      await invoke("start_audio_session", { sessionId, deviceId, endpoint, model, earlyText, intent });
+      await invoke("start_audio_session", { sessionId, deviceId, endpoint, model, earlyText, intent, provider, locale });
       if (generation !== generationRef.current) {
         await invoke("cancel_audio_session", { sessionId }).catch(() => {});
         return;

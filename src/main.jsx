@@ -1,10 +1,11 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { App } from "./App.jsx";
-import { AppEntrance } from "./ui/AppEntrance.jsx";
 import "./styles.css";
 import "./ui/paper-theme.css";
+
+const MainSurface = React.lazy(() => import("./ui/MainSurface.jsx"));
+const App = React.lazy(() => import("./App.jsx").then(({ App }) => ({ default: App })));
 
 const preview = new URLSearchParams(window.location.search);
 const surface = window.__TAURI_INTERNALS__
@@ -13,18 +14,28 @@ const surface = window.__TAURI_INTERNALS__
 
 document.documentElement.dataset.surface = surface;
 
-function MainSurface() {
-  const [welcome, setWelcome] = React.useState(null);
-  const [replay, setReplay] = React.useState(0);
-  const [blocked, setBlocked] = React.useState(false);
-  const blockEntrance = React.useCallback(() => setBlocked(true), []);
-  return <AppEntrance welcomeText={welcome} ready={welcome !== null} replayToken={replay} disabled={blocked}>
-    <App onEntranceUnavailable={blockEntrance} onWelcomeChange={setWelcome} onReplayEntrance={() => setReplay((value) => value + 1)} />
-  </AppEntrance>;
+function SurfaceLoading() {
+  return <main className={surface === "overlay" ? "sr-only" : "page-content"} role="status" aria-live="polite">正在载入…</main>;
+}
+
+class SurfaceBoundary extends React.Component {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return <main className={surface === "overlay" ? "" : "page-content"} role="alert">
+      {surface !== "overlay" && <p>界面未能载入，请重新载入。</p>}
+      <button className="button secondary" onClick={() => window.location.reload()}>重新载入</button>
+    </main>;
+  }
 }
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    {surface === "main" ? <MainSurface /> : <App />}
+    <SurfaceBoundary>
+      <React.Suspense fallback={<SurfaceLoading />}>
+        {surface === "main" ? <MainSurface /> : <App />}
+      </React.Suspense>
+    </SurfaceBoundary>
   </React.StrictMode>,
 );

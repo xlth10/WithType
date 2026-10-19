@@ -27,6 +27,26 @@ test("新安装默认自动整理，旧配置仍按迁移规则保留", () => {
   assert.equal(normalizeSettings(null).settings.processingMode, "smart");
 });
 
+test("模板设置保留已有选择，也能保存新增润色，不改变默认处理方式", () => {
+  for (const id of ["builtin.email", "builtin.report", "builtin.polish", "custom.existing"]) {
+    const persisted = toPersistedSettings({
+      ...DEFAULT_SETTINGS,
+      processingMode: "skill",
+      selectedSkillId: id,
+      actionType: "skill",
+      actionSkillId: id,
+    });
+    const { settings, notices } = normalizeSettings(persisted);
+    assert.equal(settings.processingMode, "skill");
+    assert.equal(settings.selectedSkillId, id);
+    assert.equal(settings.actionSkillId, id);
+    assert.equal(settings.actionType, "skill");
+    assert.deepEqual(notices, []);
+  }
+  assert.equal(normalizeSettings({}).settings.processingMode, "smart");
+  assert.equal(normalizeSettings({}).settings.selectedSkillId, "");
+});
+
 test("旧版 mode 迁移到 processingMode", () => {
   assert.equal(normalizeSettings({ mode: "original" }).settings.processingMode, "original");
   assert.equal(normalizeSettings({ mode: "corrected" }).settings.processingMode, "corrected");

@@ -3,12 +3,19 @@
 pub const STARTUP_ARGUMENT: &str = "--background";
 pub fn should_launch_silently(args: &[String], settings: &serde_json::Value) -> bool {
     args.iter().any(|arg| arg == STARTUP_ARGUMENT)
-        && ["asrEndpoint", "asrModel"].iter().all(|key| {
-            settings
-                .get(key)
-                .and_then(|value| value.as_str())
-                .is_some_and(|value| !value.trim().is_empty())
-        })
+        && speech_configured_for_platform(settings, cfg!(target_os = "macos"))
+}
+
+fn speech_configured_for_platform(settings: &serde_json::Value, apple_supported: bool) -> bool {
+    if settings.get("asrProvider").and_then(|value| value.as_str()) == Some("apple") {
+        return apple_supported;
+    }
+    ["asrEndpoint", "asrModel"].iter().all(|key| {
+        settings
+            .get(key)
+            .and_then(|value| value.as_str())
+            .is_some_and(|value| !value.trim().is_empty())
+    })
 }
 // Mirrors the enabled forms used by Electron's Windows implementation; unknown forms are disabled.
 fn startup_approved(data: &[u8]) -> bool {
@@ -251,7 +258,50 @@ mod platform {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "macos")]
+mod platform {
+    use std::{fs, path::PathBuf};
+    fn path() -> Result<PathBuf, String> {
+        let home = std::env::var_os("HOME").ok_or("无法定位用户目录")?;
+        Ok(PathBuf::from(home).join("Library/LaunchAgents/app.withtype.desktop.plist"))
+    }
+    fn xml(value: &str) -> String {
+        value
+            .replace('&', "&amp;")
+            .replace('<', "&lt;")
+            .replace('>', "&gt;")
+            .replace('"', "&quot;")
+            .replace('\'', "&apos;")
+    }
+    #[tauri::command]
+    pub fn set_launch_at_login(enabled: bool) -> Result<(), String> {
+        let path = path()?;
+        if !enabled {
+            return match fs::remove_file(path) {
+                Ok(()) => Ok(()),
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+                Err(e) => Err(e.to_string()),
+            };
+        }
+        let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+        fs::create_dir_all(path.parent().ok_or("登录启动目录无效")?).map_err(|e| e.to_string())?;
+        let contents = format!(
+            r#"<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>Label</key><string>app.withtype.desktop</string><key>ProgramArguments</key><array><string>{}</string><string>--background</string></array><key>RunAtLoad</key><true/></dict></plist>"#,
+            xml(&exe.to_string_lossy())
+        );
+        let temp = path.with_extension("new");
+        fs::write(&temp, contents).map_err(|e| e.to_string())?;
+        fs::rename(temp, path).map_err(|e| e.to_string())
+    }
+    #[tauri::command]
+    pub fn get_launch_at_login() -> Result<bool, String> {
+        Ok(path()?.is_file())
+    }
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
 mod platform {
     #[tauri::command]
     pub fn set_launch_at_login(_enabled: bool) -> Result<(), String> {
@@ -281,6 +331,41 @@ mod tests {
             &["--background".into()],
             &serde_json::json!({})
         ));
+    }
+    #[test]
+    fn apple_silent_login_needs_macos_but_no_network_configuration() {
+        let settings = serde_json::json!({"asrProvider":"apple", "appleSpeechLocale":"zh-CN"});
+        assert!(speech_configured_for_platform(&settings, true));
+        assert!(!speech_configured_for_platform(&settings, false));
+        assert!(!should_launch_silently(&[], &settings));
+        assert_eq!(
+            should_launch_silently(&[STARTUP_ARGUMENT.into()], &settings),
+            cfg!(target_os = "macos")
+        );
+
+        // Saved remote-service values must not make an unsupported Apple provider ready.
+        let with_stale_remote_config = serde_json::json!({
+            "asrProvider":"apple", "asrEndpoint":"https://example.test", "asrModel":"asr"
+        });
+        assert!(!speech_configured_for_platform(
+            &with_stale_remote_config,
+            false
+        ));
+    }
+    #[test]
+    fn remote_silent_login_keeps_legacy_configuration_requirements() {
+        for provider in [None, Some("openai")] {
+            let mut settings =
+                serde_json::json!({"asrEndpoint":"https://example.test", "asrModel":"asr"});
+            if let Some(provider) = provider {
+                settings["asrProvider"] = provider.into();
+            }
+            assert!(speech_configured_for_platform(&settings, true));
+            assert!(speech_configured_for_platform(&settings, false));
+            settings["asrModel"] = "  ".into();
+            assert!(!speech_configured_for_platform(&settings, true));
+            assert!(!speech_configured_for_platform(&settings, false));
+        }
     }
     #[test]
     fn disabled_or_malformed_system_state_is_not_reported_as_enabled() {

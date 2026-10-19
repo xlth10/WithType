@@ -1,7 +1,8 @@
 import { BookOpenText, Trash } from "@phosphor-icons/react";
-import { correctionKey, MAX_RULES } from "../vocabulary/learning.js";
+import { correctionKey, MAX_RULES } from "../vocabulary/rules.js";
 
 export function VocabularySettings({ settings, setSettings, vocabulary, onDismiss, ready }) {
+  const automaticLearningAvailable = !globalThis.window?.__TAURI_INTERNALS__ || !/Mac/.test(globalThis.navigator?.platform || "");
   const rows = (items, pending) => items.map((item) => (
     <div className="vocabulary-row" key={correctionKey(item)}>
       <div><span className="vocabulary-variant">{item.variant}</span><span aria-hidden="true"> → </span><strong>{item.target}</strong></div>
@@ -12,9 +13,9 @@ export function VocabularySettings({ settings, setSettings, vocabulary, onDismis
   return <section className="page-content">
     <header className="page-heading"><div><span className="eyebrow">常用词</span><h1>个人词库</h1><p>收录你常用的名字和术语，在后续输入中纠正误识别。</p></div></header>
     <div className="panel settings-list">
-      <div><div><strong>自动学习词条</strong><span>同一短词在两次语音输入中被纠正后，加入词库。关闭后保留已有词条。</span></div><button className={`toggle ${settings.autoLearn ? "on" : ""}`} role="switch" aria-label="自动学习词条" aria-checked={settings.autoLearn} onClick={() => setSettings({ ...settings, autoLearn: !settings.autoLearn })}><i /></button></div>
+      <div><div><strong>自动学习词条</strong><span>{automaticLearningAvailable ? "同一短词在两次语音输入中被纠正后，加入词库。关闭后保留已有词条。" : "Mac 版请在历史记录中点击「纠正并记住」，或编辑下方手动规则。"}</span></div><button className={`toggle ${automaticLearningAvailable && settings.autoLearn ? "on" : ""}`} role="switch" aria-label="自动学习词条" aria-checked={automaticLearningAvailable && settings.autoLearn} disabled={!automaticLearningAvailable} onClick={() => setSettings({ ...settings, autoLearn: !settings.autoLearn })}><i /></button></div>
     </div>
-    <p className="vocabulary-help">自动输入后，在原输入框里改正文字并停留 4 秒。仅观察本次输入，最长 60 秒；切换输入框即停止。部分编辑器无法读取时，可在历史记录中点击「纠正并记住」。待确认词条 30 天内未再次纠正则移除；删除的词条不会再次自动加入。</p>
+    {automaticLearningAvailable && <p className="vocabulary-help">自动输入后，在原输入框里改正文字并停留 4 秒。仅观察本次输入，最长 60 秒；切换输入框即停止。部分编辑器无法读取时，可在历史记录中点击「纠正并记住」。待确认词条 30 天内未再次纠正则移除；删除的词条不会再次自动加入。</p>}
     {!ready && <p role="status" className="test-result">词库尚未就绪，请查看提示后重新打开应用。</p>}
     <div className="panel form-panel compact">
       <div className="panel-title"><div className="icon-tile"><BookOpenText size={22} /></div><div><h2>已保存词条 <small>{vocabulary.entries.length} / {MAX_RULES}</small></h2><p>自动学习和手动纠正都保存在这里，手动规则单独设置。</p></div></div>

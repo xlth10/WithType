@@ -84,10 +84,16 @@
 
 .field input, .field select, textarea {
   background-color: var(--surface);
-  border-color: var(--line-strong);
+  border-color: var(--control-border);
   border-radius: var(--radius-control);
 }
-.field input:disabled, .field select:disabled, textarea:disabled { background-color: var(--sidebar); }
+.field input:not(:disabled):hover, .field select:not(:disabled):hover, textarea:not(:disabled):hover {
+  border-color: var(--focus-ink);
+}
+.field input:disabled, .field select:disabled, textarea:disabled {
+  background-color: var(--sidebar);
+  border-color: var(--line-strong);
+}
 .field input:focus, .field select:focus, textarea:focus {
   border-color: var(--focus-ink);
   box-shadow: 0 0 0 3px #75684e14;
@@ -123,7 +129,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible,
 .answer-card { background: var(--card); border-color: var(--line-strong); border-radius: 18px; }
 .answer-card header { background: var(--sidebar); border-bottom-color: var(--line); }
 .answer-question { background: var(--paper-wash); border-radius: var(--radius-control); }
-.answer-followup { background: var(--sidebar); border-color: var(--line-strong); border-radius: 12px; }
+.answer-followup { background: var(--sidebar); border-color: var(--control-border); border-radius: 12px; }
+.answer-followup:hover { border-color: var(--focus-ink); }
 .answer-followup:focus-within { outline-color: var(--focus-ink); border-color: var(--focus-ink); }
 .answer-followup textarea { background: transparent; box-shadow: none; }
 .answer-card footer button { border-radius: 8px; border-color: var(--line); }
@@ -139,7 +146,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible,
 }
 @media (prefers-contrast: more) {
   .ink-entry-world[data-finished="true"] > .ink-entry-paper { visibility: hidden; }
-  .panel, .field input, .field select, textarea, .shortcut-record { border-color: #938875; }
+  .panel, .shortcut-record { border-color: #938875; }
+  .field input:not(:disabled), .field select:not(:disabled), textarea:not(:disabled), .answer-followup { border-color: var(--focus-ink); }
   .summary-grid, .summary-card + .summary-card, .model-jump-links, .model-jump-links a + a { border-color: #b7b0a0; }
 }
 @media (forced-colors: active) {

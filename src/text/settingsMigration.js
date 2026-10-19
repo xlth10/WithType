@@ -1,5 +1,6 @@
 import { BRAND } from "../ui/brand.js";
 import { normalizeWelcomeText } from "../ui/welcome.js";
+import { ASR_PROVIDERS, DEFAULT_APPLE_SPEECH_LOCALE, normalizeAppleSpeechLocale } from "../dictation/asrProvider.js";
 
 // 配置的默认值、归一化与旧版本迁移。
 // 只做纯函数变换，不读写任何存储；谁持久化由调用方决定。
@@ -42,6 +43,8 @@ export const ACTION_TYPES = ["translate", "skill", "command"];
 
 export const DEFAULT_SETTINGS = {
   welcomeText: BRAND.welcome,
+  asrProvider: "openai",
+  appleSpeechLocale: DEFAULT_APPLE_SPEECH_LOCALE,
   asrEndpoint: "",
   asrModel: "Qwen/Qwen3-ASR-1.7B",
   audioDeviceId: "",
@@ -151,7 +154,7 @@ export function normalizeSettings(raw) {
     notices.push("快捷短语与其他入口的快捷键冲突，已解除短语绑定，内容仍然保留。");
   }
   if (legacyCommand) {
-    notices.push("旧版语音指令已迁移为第三个快捷键的动作；可在快捷键页改为翻译或写法。");
+    notices.push("旧版语音指令已迁移为第三个快捷键的动作；可在快捷键页改为翻译或按模板整理。");
   }
 
   const used = [shortcut, askShortcut, actionShortcut].map(shortcutKey);
@@ -171,6 +174,8 @@ export function normalizeSettings(raw) {
   return {
     settings: {
       welcomeText: normalizeWelcomeText(source.welcomeText),
+      asrProvider: ASR_PROVIDERS.includes(source.asrProvider) ? source.asrProvider : DEFAULT_SETTINGS.asrProvider,
+      appleSpeechLocale: normalizeAppleSpeechLocale(source.appleSpeechLocale),
       asrEndpoint: asString(source.asrEndpoint, DEFAULT_SETTINGS.asrEndpoint).trim(),
       asrModel: asString(source.asrModel, DEFAULT_SETTINGS.asrModel).trim(),
       audioDeviceId: asString(source.audioDeviceId, DEFAULT_SETTINGS.audioDeviceId),

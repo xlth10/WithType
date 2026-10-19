@@ -8,7 +8,7 @@
 //    宁可什么都不输入，也不能把「帮我写封邮件」这种指令当正文打进别人的文档。
 
 import { ASK_INSTRUCTION, BUILTIN_SKILLS, COMMAND_INSTRUCTION, SMART_INSTRUCTION, buildMessages, findBuiltinSkill } from "../text/builtinSkills.js";
-import { applyLearnedVocabulary } from "../vocabulary/learning.js";
+import { applyLearnedVocabulary } from "../vocabulary/rules.js";
 import { applyVocabulary, effectiveTextLength, lightlyCleanText, stripShortTrailingFullStop } from "../text/localText.js";
 import { parseOutputLanguage, translationInstruction } from "../text/outputLanguage.js";
 import { splitText, stablePrefix, referenceTail, TEXT_CHUNK_LIMIT } from "../text/segments.js";
@@ -147,6 +147,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       vocabulary: settings.vocabulary || "",
       learnedEntries: (settings.learnedEntries || []).map((entry) => ({ ...entry })),
       settings: {
+        asrProvider: settings.asrProvider === "apple" ? "apple" : "openai",
+        appleSpeechLocale: settings.appleSpeechLocale || "zh-CN",
         asrEndpoint: settings.asrEndpoint,
         asrModel: settings.asrModel,
         textEndpoint: settings.textEndpoint,
@@ -266,6 +268,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         request: {
           sessionId: audio.nativeSessionId,
           requestId: snapshot.requestId,
+          provider: snapshot.settings.asrProvider,
+          locale: snapshot.settings.appleSpeechLocale,
           endpoint: snapshot.settings.asrEndpoint,
           model: snapshot.settings.asrModel,
         },
@@ -277,6 +281,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         request: {
           audioBase64: audio.audioBase64,
           filename: audio.filename,
+          provider: snapshot.settings.asrProvider,
+          locale: snapshot.settings.appleSpeechLocale,
           endpoint: snapshot.settings.asrEndpoint,
           model: snapshot.settings.asrModel,
         },
@@ -570,7 +576,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         else textFailure = stage.error || "文字模型没有返回内容";
       } else {
         // 没配文字服务或 Skill 已失效：退回原文，并明确告知，不静默改变用户预期。
-        textFailure = modeReady ? "所选写法已不可用，请重新选择" : "尚未配置文字服务，已按原文处理";
+        textFailure = modeReady ? "所选模板已不可用，请重新选择" : "尚未配置文字服务，已按原文处理";
         finalText = corrected;
       }
     } else if (snapshot.processingMode === "smart" && effectiveTextLength(corrected) <= SMART_DIRECT_OUTPUT_MAX_LENGTH) {
@@ -797,7 +803,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     if (!textReady(settings)) {
       return { ok: false, error: "尚未配置文字服务（地址与模型名称都要填）" };
     }
-    if (!skill) return { ok: false, error: "请先选择要试用的写法" };
+    if (!skill) return { ok: false, error: "请先选择要试用的模板" };
     if (sample) {
       // 样例预览不发请求：只确认 Skill 能被装配成合法请求，供编辑时快速自检。
       const messages = buildMessages({ instruction: skill.instruction, outputFormat: skill.outputFormat, rawText: trimmed || "（示例文本）" });

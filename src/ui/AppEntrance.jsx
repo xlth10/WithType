@@ -29,7 +29,7 @@ export function AppEntrance({ children, welcomeText = BRAND.welcome, ready = tru
     let lastReplay = preferences.current.replayToken, stopNativeListener;
     const player = createInkWelcomePlayer({
       renderer,
-      reducedMotion: () => mode.reduced || reduced.matches,
+      reducedMotion: () => mode.reduced || reduced.matches || document.hidden,
       onFinish: (elapsed) => { world.dataset.playbackMs = elapsed.toFixed(1); },
     });
     const finish = () => { skipped = true; queuedReplay = false; player.finish(); };

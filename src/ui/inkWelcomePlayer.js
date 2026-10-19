@@ -3,8 +3,8 @@ import { DURATION, clamp } from "./inkWelcomeMotion.js";
 /** Drive a deterministic renderer from elapsed wall time, with interruptible playback. */
 export function createInkWelcomePlayer({
   renderer,
-  requestFrame = requestAnimationFrame,
-  cancelFrame = cancelAnimationFrame,
+  requestFrame = callback => globalThis.requestAnimationFrame(callback),
+  cancelFrame = id => globalThis.cancelAnimationFrame(id),
   now = () => performance.now(),
   reducedMotion = () => false,
   onFinish = () => {},

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>WithType 使用麦克风录制你主动开始的语音，将识别结果输入当前应用。</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>WithType 使用 Apple 设备端语音识别，将你主动录制的语音转换为文字；此识别模式不会将音频发送到服务器。</string>
+  <key>NSHighResolutionCapable</key><true/>
+</dict></plist>

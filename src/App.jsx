@@ -4,9 +4,10 @@
 // 本地文字处理在 text/。App.jsx 自己不做 WAV 编码、不调 paste_text、不改写文本——
 // 一旦这里出现第二个上屏入口，取消竞态和「命令失败不落原文」这两条约定就会被绕过。
 
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowClockwise,
+  ArrowLeft,
   ArrowRight,
   BookOpenText,
   Check,
@@ -39,22 +40,18 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { emit, listen } from "@tauri-apps/api/event";
 import { connectOverlay } from "./voice/overlaySync.js";
 
-import { VocabularySettings } from "./components/VocabularySettings.jsx";
-import { HistoryCorrection } from "./components/HistoryCorrection.jsx";
 import { createVocabularyStore } from "./vocabulary/store.js";
-import { emptyVocabulary, learnCorrections, dismissCorrection } from "./vocabulary/learning.js";
+import { emptyVocabulary } from "./vocabulary/rules.js";
 import { VoiceMotion } from "./voice/VoiceMotion.jsx";
 import { scenarioFor } from "./text/skillScenarios.js";
-import { SkillEditor } from "./components/SkillEditor.jsx";
 import { AnswerCard } from "./components/AnswerCard.jsx";
 import { AppIcon } from "./components/AppIcon.jsx";
 import { BRAND } from "./ui/brand.js";
-import { AppearanceSettings } from "./components/AppearanceSettings.jsx";
 import { normalizeWelcomeText } from "./ui/welcome.js";
-import { TextSettings } from "./components/TextSettings.jsx";
 import { createPipeline } from "./dictation/pipeline.js";
 import { useWavRecorder } from "./dictation/useWavRecorder.js";
 import { useNativeRecorder } from "./dictation/useNativeRecorder.js";
+import { APPLE_SPEECH_LANGUAGES, appleSpeechIssue, isAppleAsr, speechConfigured, speechModelLabel } from "./dictation/asrProvider.js";
 import { createVoiceController } from "./dictation/controller.js";
 import { displayShortcut, shortcutFromKeydown } from "./shortcuts/capture.js";
 import { copyResult, normalizeDelivery, recentResult, needsResultCard } from "./dictation/delivery.js";
@@ -71,12 +68,30 @@ import {
   toPersistedSettings,
 } from "./text/settingsMigration.js";
 
+const VocabularySettings = lazy(() => import("./components/VocabularySettings.jsx").then((module) => ({ default: module.VocabularySettings })));
+const HistoryCorrection = lazy(() => import("./components/HistoryCorrection.jsx").then((module) => ({ default: module.HistoryCorrection })));
+const SkillEditor = lazy(() => import("./components/SkillEditor.jsx").then((module) => ({ default: module.SkillEditor })));
+const AppearanceSettings = lazy(() => import("./components/AppearanceSettings.jsx").then((module) => ({ default: module.AppearanceSettings })));
+const TextSettings = lazy(() => import("./components/TextSettings.jsx").then((module) => ({ default: module.TextSettings })));
+
+function PageLoading() {
+  return <div className="page-content" role="status" aria-live="polite">正在载入页面…</div>;
+}
+
+function NoticeToast({ notice, onClose }) {
+  return <div className={`toast ${notice.ok ? "success" : ""}`}>
+    {notice.ok ? <CheckCircle size={18} weight="fill" aria-hidden="true" /> : <WarningCircle size={18} weight="fill" aria-hidden="true" />}
+    <span>{notice.text}</span>
+    <button type="button" aria-label="关闭通知" title="关闭通知" onClick={onClose}><X size={15} aria-hidden="true" /></button>
+  </div>;
+}
+
 const MODE_META = {
   original: { label: "保留原文", detail: "保留句子与用词，仍按词库纠正", icon: Waveform },
   corrected: { label: "保留原文", detail: "保留句子与用词，仍按词库纠正", icon: BookOpenText },
   clean: { label: "轻度整理", detail: "去掉明显赘词，规范标点", icon: Sparkle },
   smart: { label: "自动整理", detail: "短句直接输出，长句整理成文", icon: MagicWand },
-  skill: { label: "按写法整理", detail: "按所选场景组织内容", icon: PuzzlePiece },
+  skill: { label: "按模板整理", detail: "按所选模板润色或组织内容", icon: PuzzlePiece },
 };
 
 const INTENT_META = {
@@ -84,7 +99,7 @@ const INTENT_META = {
   command: { label: "语音指令", icon: Command },
   ask: { label: "提问", icon: Command },
   translate: { label: "翻译", icon: TextT },
-  skill: { label: "写法", icon: PuzzlePiece },
+  skill: { label: "按模板整理", icon: PuzzlePiece },
 };
 
 /** 只在浏览器预览里作为初始历史；安装版首次运行必须是空历史。 */
@@ -166,7 +181,7 @@ function findSkill(id, customSkills) {
 }
 
 function actionName(settings, customSkills) {
-  if (settings.actionType === "skill") return findSkill(settings.actionSkillId, customSkills)?.name || "选择写法";
+  if (settings.actionType === "skill") return findSkill(settings.actionSkillId, customSkills)?.name || "选择模板";
   return settings.actionType === "command" ? "语音指令" : "翻译";
 }
 
@@ -204,13 +219,14 @@ function Overlay({ state, level, intent, phase, countdown, onStop, onCancel }) {
   );
 }
 
-function Sidebar({ page, setPage, online }) {
+function Sidebar({ page, setPage, online, settings }) {
+  const apple = isAppleAsr(settings);
   const items = [
     ["home", House, "开始"],
     ["model", GearSix, "服务设置"],
     ["writing", Sparkle, "文字整理"],
     ["vocabulary", BookOpenText, "个人词库"],
-    ["skills", PuzzlePiece, "写法"],
+    ["skills", PuzzlePiece, "整理模板"],
     ["shortcut", Keyboard, "快捷键"],
     ["history", ClockCounterClockwise, "历史记录"],
     ["appearance", PaintBrush, "外观"],
@@ -226,8 +242,8 @@ function Sidebar({ page, setPage, online }) {
         ))}
       </nav>
       <div className="sidebar-bottom">
-        <div className="privacy-line"><ShieldCheck size={17} weight="fill" /><span>录音发往所选语音服务</span></div>
-        <div className="server-line"><StatusDot online={online} /><span>{online ? "语音服务已通过测试" : "语音服务尚未测试"}</span></div>
+        <div className="privacy-line"><ShieldCheck size={17} weight="fill" /><span>{apple ? "音频由 Apple 在本机识别" : "录音发往所选语音服务"}</span></div>
+        <div className="server-line"><StatusDot online={online} /><span>{apple ? online ? "本机识别能力检查通过" : "本机识别能力待检查" : online ? "语音服务已通过测试" : "语音服务尚未测试"}</span></div>
       </div>
     </aside>
   );
@@ -241,7 +257,9 @@ function Toggle({ label, checked, onChange, disabled = false }) {
   return <button type="button" className={`toggle ${checked ? "on" : ""}`} onClick={() => onChange(!checked)} role="switch" aria-label={label} aria-checked={checked} disabled={disabled}><i /></button>;
 }
 
-function SpeechSettings({ settings, setSettings, online, testing, testConnection, onNotice, onKeySaved }) {
+function SpeechSettings({ settings, setSettings, online, testing, testConnection, onNotice, onKeySaved, nativePlatform, appleStatus }) {
+  const apple = isAppleAsr(settings);
+  const appleSupported = nativePlatform === "macos";
   const [key, setKey] = useState("");
   const [saving, setSaving] = useState(false);
   const [devices, setDevices] = useState([]);
@@ -263,7 +281,7 @@ function SpeechSettings({ settings, setSettings, online, testing, testConnection
       await desktopInvoke("save_api_key", { key });
       setKey("");
       onKeySaved();
-      onNotice({ text: "语音密钥已保存到 Windows 凭据库", ok: true });
+      onNotice({ text: "语音密钥已安全保存到本机", ok: true });
     } catch (error) {
       onNotice({ text: describeError(error), ok: false });
     } finally {
@@ -272,33 +290,48 @@ function SpeechSettings({ settings, setSettings, online, testing, testConnection
   };
   return (
     <section className="model-section" id="speech-model" aria-labelledby="speech-model-heading">
-      <header className="model-section-heading"><div><h2 id="speech-model-heading">语音识别</h2></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{online ? "语音测试通过" : "语音待测试"}</div></header>
+      <header className="model-section-heading"><div><h2 id="speech-model-heading">语音识别</h2></div><div className={`connection-badge ${online ? "success" : ""}`}><StatusDot online={online} />{apple ? online ? "本机识别可用" : "本机识别待检查" : online ? "语音测试通过" : "语音待测试"}</div></header>
       <div className="panel form-panel">
-        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h3>OpenAI 兼容 WAV 接口</h3></div></div>
+        <div className="panel-title"><div className="icon-tile"><Waveform size={22} weight="bold" /></div><div><h3>{apple ? "Apple 系统语音识别" : "OpenAI 兼容 WAV 接口"}</h3></div></div>
         <div className="form-grid">
+          <Field label="识别方式" hint={!appleSupported ? "Apple 系统语音识别仅支持 macOS 桌面应用。" : "可使用系统本机识别，或连接自己的语音服务。"}><select value={settings.asrProvider} onChange={(e) => setSettings((current) => ({ ...current, asrProvider: e.target.value }))}><option value="openai">OpenAI 兼容语音服务</option><option value="apple" disabled={!appleSupported}>Apple 系统语音识别{!appleSupported ? "（仅 macOS）" : ""}</option></select></Field>
+          {apple ? <Field label="识别语言" hint="语言与设备需支持本机识别；不会回退到在线识别。"><select value={settings.appleSpeechLocale} onChange={(e) => setSettings((current) => ({ ...current, appleSpeechLocale: e.target.value }))}>{!APPLE_SPEECH_LANGUAGES.some(([locale]) => locale === settings.appleSpeechLocale) && <option value={settings.appleSpeechLocale}>{settings.appleSpeechLocale}</option>}{APPLE_SPEECH_LANGUAGES.map(([locale, name]) => <option key={locale} value={locale}>{name}</option>)}</select></Field> : <>
           <Field label="服务地址" hint="通常填写到 /v1，具体以服务说明为准。"><input value={settings.asrEndpoint} onChange={(e) => setSettings((current) => ({ ...current, asrEndpoint: e.target.value }))} /></Field>
           <Field label="模型名称"><input value={settings.asrModel} onChange={(e) => setSettings((current) => ({ ...current, asrModel: e.target.value }))} /></Field>
-          <Field label="麦克风" hint="默认设备跟随 Windows 设置。设备断开时保留已录内容。"><select value={settings.audioDeviceId || ""} disabled={!isTauri()} onChange={(e) => setSettings((current) => ({ ...current, audioDeviceId: e.target.value }))}><option value="">Windows 默认麦克风</option>{devices.map((device) => <option key={device.id} value={device.id}>{device.name}{device.isDefault ? "（当前默认）" : ""}</option>)}</select></Field>
-          <Field label="API 密钥" hint="已有密钥时留空即可；替换密钥后点击保存。"><div className="input-with-icon"><Key size={18} /><input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="已有密钥可留空" /></div></Field>
+          </>}
+          <Field label="麦克风" hint="默认设备跟随系统设置。设备断开时保留已录内容。"><select value={settings.audioDeviceId || ""} disabled={!isTauri()} onChange={(e) => setSettings((current) => ({ ...current, audioDeviceId: e.target.value }))}><option value="">系统默认麦克风</option>{devices.map((device) => <option key={device.id} value={device.id}>{device.name}{device.isDefault ? "（当前默认）" : ""}</option>)}</select></Field>
+          {!apple && <Field label="API 密钥" hint="已有密钥时留空即可；替换密钥后点击保存。"><div className="input-with-icon"><Key size={18} /><input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="已有密钥可留空" /></div></Field>}
         </div>
-        <div className="form-actions"><button className="button secondary" onClick={testConnection} disabled={testing || saving || !settings.asrEndpoint.trim() || !settings.asrModel.trim()}>{testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}{testing ? "正在测试…" : "测试语音服务"}</button><button className="button primary" onClick={saveKey} disabled={saving || testing || !key.trim() || !isTauri()}><LockKey size={18} weight="fill" />{saving ? "正在保存…" : "保存语音密钥"}</button></div>
-        <p className="test-result">测试会发送 1 秒测试音频，确认服务能接收并返回识别结果。</p>
+        <div className="form-actions"><button className="button secondary" onClick={testConnection} disabled={testing || saving || (apple ? !appleSupported : !settings.asrEndpoint.trim() || !settings.asrModel.trim())}>{testing ? <ArrowClockwise className="spin" size={18} /> : <PaperPlaneTilt size={18} />}{testing ? apple ? "正在检查…" : "正在测试…" : apple ? "检查权限与本机识别能力" : "测试语音服务"}</button>{!apple && <button className="button primary" onClick={saveKey} disabled={saving || testing || !key.trim() || !isTauri()}><LockKey size={18} weight="fill" />{saving ? "正在保存…" : "保存语音密钥"}</button>}</div>
+        <p className="test-result" role={apple ? "status" : undefined}>{apple ? appleStatus ? appleSpeechIssue(appleStatus) || "语音识别已获授权，当前语言支持本机识别。可开始一次语音输入验证效果。" : "首次使用需允许语音识别和麦克风权限；检查不会录音。" : "测试会发送 1 秒测试音频，确认服务能接收并返回识别结果。"}</p>
       </div>
-      <div className="note-card"><ShieldCheck size={22} weight="fill" /><div><strong>音频去向</strong><p>录音会发送到你填写的语音服务。请使用 HTTPS 或可信的内网连接。</p></div></div>
+      <div className="note-card"><ShieldCheck size={22} weight="fill" /><div><strong>音频去向</strong><p>{apple ? "音频在本机识别；后续文字处理仍按文字服务设置，自动整理、提问、翻译和模板可能发送识别后的文字。" : "录音会发送到你填写的语音服务。请使用 HTTPS 或可信的内网连接。"}</p></div></div>
     </section>
   );
 }
 
-function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice, onSpeechKeySaved }) {
+function ModelSettings({ settings, setSettings, online, testing, testConnection, onNotice, onSpeechKeySaved, returnToTemplates, onReturnToTemplates, nativePlatform, appleStatus }) {
+  const textSetupRef = useRef(null);
+  useEffect(() => {
+    if (!returnToTemplates) return undefined;
+    const frame = requestAnimationFrame(() => {
+      textSetupRef.current?.scrollIntoView({ block: "start" });
+      textSetupRef.current?.querySelector("button")?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [returnToTemplates]);
   return <section className="page-content models-page">
     <header className="page-heading"><div><h1>模型配置</h1></div></header>
     <nav className="model-jump-links" aria-label="模型分工">
-      <a href="#speech-model"><Waveform size={22} /><span><strong>语音识别</strong><small>{settings.asrModel || "尚未设置模型"}</small></span><ArrowRight size={17} /></a>
-      <a href="#text-model"><TextT size={22} /><span><strong>文字处理</strong><small>{settings.textModel || "自动整理 · 提问 · 翻译 · 写法"}</small></span><ArrowRight size={17} /></a>
+      <a href="#speech-model"><Waveform size={22} /><span><strong>语音识别</strong><small>{speechModelLabel(settings)}</small></span><ArrowRight size={17} /></a>
+      <a href="#text-model"><TextT size={22} /><span><strong>文字处理</strong><small>{settings.textModel || "自动整理 · 提问 · 翻译 · 模板"}</small></span><ArrowRight size={17} /></a>
     </nav>
     {!isTauri() && <p className="model-preview-note">当前为浏览器预览。连接测试和密钥保存请在桌面应用中完成。</p>}
-    <SpeechSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={onNotice} onKeySaved={onSpeechKeySaved} />
-    <TextSettings settings={settings} setSettings={setSettings} invoke={desktopInvoke} onNotice={onNotice} previewMode={!isTauri()} />
+    <SpeechSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={onNotice} onKeySaved={onSpeechKeySaved} nativePlatform={nativePlatform} appleStatus={appleStatus} />
+    <div className="text-service-setup" ref={textSetupRef}>
+      {returnToTemplates && <div className="model-return-context"><button className="button secondary" type="button" onClick={onReturnToTemplates}><ArrowLeft size={17} />返回整理模板</button><span>当前模板和未保存内容已保留。</span></div>}
+      <TextSettings settings={settings} setSettings={setSettings} invoke={desktopInvoke} onNotice={onNotice} previewMode={!isTauri()} />
+    </div>
   </section>;
 }
 
@@ -319,9 +352,9 @@ function WritingSettings({ settings, setSettings, customSkills, onSelectSkill, t
 
       {(settings.processingMode === "skill" || settings.processingMode === "smart") && (
         <div className="panel form-panel compact">
-          <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={22} /></div><div><h2>默认写法</h2><p>自动整理长句、按写法整理需要文字服务；尚未设置时保留原文。</p></div></div>
+          <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={22} /></div><div><h2>默认模板</h2><p>自动整理长句、按模板整理需要文字服务；尚未设置时保留原文。</p></div></div>
           <div className="form-grid">
-            <Field label="所用写法" hint="选择“按写法整理”后，后续语音输入持续使用。">
+            <Field label="所用模板" hint="选择“按模板整理”后，后续语音输入持续使用。">
               <select value={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onChange={(event) => onSelectSkill(event.target.value)} disabled={settings.processingMode !== "skill"}>
                 <option value="">未选择（自动整理）</option>
                 {skills.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}{skill.source === "builtin" ? "（内置）" : ""}</option>)}
@@ -459,7 +492,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
   );
 
   const actionLabel = settings.actionType === "skill"
-    ? findSkill(settings.actionSkillId, customSkills)?.name || "写法未选择"
+    ? findSkill(settings.actionSkillId, customSkills)?.name || "模板未选择"
     : settings.actionType === "command" ? "语音指令" : `翻译成${settings.defaultTranslationLanguage}`;
   const rows = [
     ["dictation", "语音输入", "说完后按设置输入或复制文字。"],
@@ -494,19 +527,19 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
         <p className="phrase-status">{settings.phraseShortcut ? settings.phraseText.trim() ? `在输入框按 ${displayShortcut(settings.phraseShortcut)}，即可填入${settings.phraseName.trim() || "这段内容"}。` : "填写短语内容后，即可使用已绑定的快捷键。" : "填写内容并设置快捷键后即可使用。"}</p>
       </div>
       <div className="panel form-panel compact">
-        <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={20} /></div><div><h2>动作快捷键</h2><p>可用于翻译、按写法整理，或按口述要求生成文字。</p></div></div>
+        <div className="panel-title"><div className="icon-tile"><PuzzlePiece size={20} /></div><div><h2>动作快捷键</h2><p>可用于翻译、按模板整理，或按口述要求生成文字。</p></div></div>
         <div className="form-grid">
           <Field label="动作">
             <select value={settings.actionType} onChange={(event) => setSettings({ ...settings, actionType: event.target.value })}>
               <option value="translate">翻译</option>
-              <option value="skill">按写法整理</option>
+              <option value="skill">按模板整理</option>
               <option value="command">语音指令</option>
             </select>
           </Field>
           {settings.actionType === "translate" && <Field label="默认输出语言"><select value={settings.defaultTranslationLanguage} onChange={(event) => setSettings({ ...settings, defaultTranslationLanguage: event.target.value })}>{["英文", "日文", "韩文", "中文", "法文", "德文", "西班牙文"].map((language) => <option key={language} value={language}>{language}</option>)}</select></Field>}
-          {settings.actionType === "skill" && <Field label="写法" hint="只处理这次录音，不改变普通口述的设置">
+          {settings.actionType === "skill" && <Field label="模板" hint="只处理这次录音，不改变普通口述的设置">
             <select value={settings.actionSkillId} onChange={(event) => setSettings({ ...settings, actionSkillId: event.target.value })}>
-              <option value="">请选择写法</option>
+              <option value="">请选择模板</option>
               {skillOptions(customSkills).map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
             </select>
           </Field>}
@@ -515,7 +548,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
       <div className="panel settings-list">
         <div><div><strong>结果自动输入</strong><span>完成正文默认保留在剪贴板；关闭后只复制。随便问显示卡片，不改剪贴板。</span></div><Toggle label="自动输入结果" checked={settings.autoPaste} onChange={(value) => setSettings({ ...settings, autoPaste: value })} /></div>
         <div><div><strong>自动判断语音命令</strong><span>实验功能：会增加一次文字模型请求。关掉后仍可在第三个入口选择语音命令。</span></div><Toggle label="自动判断语音指令" checked={settings.autoIntent} onChange={(value) => setSettings({ ...settings, autoIntent: value })} disabled={!settings.textEndpoint || !settings.textModel} /></div>
-        <div><div><strong>登录 Windows 后启动</strong><span>已配置语音模型时进入托盘；需要配置时打开主界面。</span></div><Toggle label="登录后启动" checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
+        <div><div><strong>登录系统后启动</strong><span>已配置语音模型时进入托盘；需要配置时打开主界面。</span></div><Toggle label="登录后启动" checked={settings.launchAtLogin} disabled={!isTauri()} onChange={async (value) => {
           try {
             await desktopInvoke("set_launch_at_login", { enabled: value });
             setSettings((current) => ({ ...current, launchAtLogin: value }));
@@ -529,7 +562,7 @@ function ShortcutSettings({ settings, setSettings, customSkills, onNotice, busy 
 function History({ onCopy, history, onClear, onTeach, onExport, onRetranscribe, retentionDays, onRetentionChange, keepAudio, onKeepAudioChange, busy }) {
   return (
     <section className="page-content">
-      <header className="page-heading"><div><span className="eyebrow">本机记录</span><h1>历史记录</h1><p>最多保留最近 50 条记录。Windows 版在本机加密保存，应用与窗口名称不发送给模型。</p></div><div className="form-actions"><button className="button secondary" onClick={onExport}>导出历史</button>{history.length > 0 && <button className="button secondary" onClick={onClear}>清空历史</button>}</div></header>
+      <header className="page-heading"><div><span className="eyebrow">本机记录</span><h1>历史记录</h1><p>最多保留最近 50 条记录。桌面版在本机加密保存，应用与窗口名称不发送给模型。</p></div><div className="form-actions"><button className="button secondary" onClick={onExport}>导出历史</button>{history.length > 0 && <button className="button secondary" onClick={onClear}>清空历史</button>}</div></header>
       <div className="panel form-panel compact"><Field label="保留期限"><select value={retentionDays} onChange={(event) => onRetentionChange(Number(event.target.value))}><option value={7}>7 天</option><option value={30}>30 天</option><option value={90}>90 天</option><option value={365}>1 年</option><option value={0}>一直保留</option></select></Field><div className="history-recording-setting"><div><strong>保存录音</strong><span>开启后保存新的录音，可从历史重新识别。录音与记录一同到期。</span></div><Toggle label="保存录音" checked={keepAudio} onChange={onKeepAudioChange} disabled={!isTauri()} /></div></div>
       <div className="history-list">
         {history.length === 0 && <div className="panel form-panel"><p className="empty-text">完成语音输入后，你的记录会保存在这里。</p></div>}
@@ -550,12 +583,13 @@ function History({ onCopy, history, onClear, onTeach, onExport, onRetranscribe, 
   );
 }
 
-function Overview({ onCopy, settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level, recoverableAudio, pendingAudioSessionId, onDiscardAudio, onRecoverAudio, taskBusy, retrying }) {
+function Overview({ onCopy, settings, customSkills, online, setPage, state, intent, phase, activeTrigger, toggleTask, lastResult, textReady, level, recoverableAudio, pendingAudioSessionId, onDiscardAudio, onRecoverAudio, taskBusy, retrying, nativePlatform }) {
   const recording = state === "recording";
   const busy = state === "processing";
   const mode = MODE_META[settings.processingMode === "corrected" ? "original" : settings.processingMode] || MODE_META.original;
   const locked = (trigger) => recording && trigger !== "dictation" && activeTrigger !== trigger;
-  const speechReady = Boolean(settings.asrEndpoint.trim() && settings.asrModel.trim());
+  const apple = isAppleAsr(settings);
+  const speechReady = speechConfigured(settings, nativePlatform);
   const needsText = settings.processingMode === "smart" || settings.processingMode === "skill";
   const startOrConfigure = (trigger) => {
     if (!recording && (!speechReady || (trigger !== "dictation" && !textReady))) {
@@ -564,7 +598,7 @@ function Overview({ onCopy, settings, customSkills, online, setPage, state, inte
     }
     toggleTask(trigger);
   };
-  const readyLabel = !speechReady ? "待设置语音服务" : online ? "准备就绪" : "语音服务尚未测试";
+  const readyLabel = !speechReady ? "待设置语音识别" : online ? "准备就绪" : apple ? "本机识别能力待检查" : "语音服务尚未测试";
   return (
     <section className="page-content overview">
       <header className="page-heading"><div><span className="eyebrow">{BRAND.description}</span><h1>{BRAND.name}</h1><p>{BRAND.introduction}</p></div></header>
@@ -572,7 +606,7 @@ function Overview({ onCopy, settings, customSkills, online, setPage, state, inte
         <div className="hero-copy">
           <span className={`hero-status ${state}`}>{state === "idle" ? readyLabel : statusLabel(state, intent, phase)}</span>
           <h2>{recording ? "正在录音" : busy ? statusLabel(state, intent, phase) : !speechReady ? "连接语音服务" : "语音输入"}</h2>
-          <p>{recording ? "说完后，再按同一个快捷键或点击“结束录音”。" : !speechReady ? "填写服务地址、模型名称和 API 密钥后，即可开始语音输入。" : textReady ? "按一次快捷键录音，再按一次结束。文字会按你的设置输入到光标处，或复制到剪贴板。" : "按一次快捷键录音，再按一次结束。文字会按设置输入或复制；提问、翻译和按写法整理还需设置文字服务。"}</p>
+          <p>{recording ? "说完后，再按同一个快捷键或点击“结束录音”。" : !speechReady ? apple ? "Apple 系统语音识别仅支持 macOS 桌面应用，可在服务设置中选择其他语音服务。" : "填写服务地址、模型名称和 API 密钥后，即可开始语音输入。" : textReady ? "按一次快捷键录音，再按一次结束。文字会按你的设置输入到光标处，或复制到剪贴板。" : "按一次快捷键录音，再按一次结束。文字会按设置输入或复制；提问、翻译和按模板整理还需设置文字服务。"}</p>
           <div className="hero-actions">
             <button className="button dark" onClick={() => startOrConfigure("dictation")} disabled={busy || locked("dictation")}>
               {recording && intent === "dictation" ? <Stop size={17} weight="fill" /> : <Microphone size={17} weight="fill" />}
@@ -591,19 +625,19 @@ function Overview({ onCopy, settings, customSkills, online, setPage, state, inte
         <div className="hero-visual"><VoiceMotion state={state} level={level} width={164} height={56} /><span>{recording ? "说完后结束录音" : "按快捷键录音"}</span><small>{recording ? "使用同一个快捷键" : displayShortcut(settings.shortcut)}</small></div>
       </div>
       <div className="summary-grid">
-        <button className="summary-card" onClick={() => setPage("model")}><span><Waveform size={21} /></span><div><small>语音模型</small><strong>{settings.asrModel || "尚未设置"}</strong><p>{!speechReady ? "填写地址与模型名称" : online ? "测试通过" : "待测试连接"}</p></div><CheckCircle size={20} weight={online ? "fill" : "regular"} /></button>
+        <button className="summary-card" onClick={() => setPage("model")}><span><Waveform size={21} /></span><div><small>语音识别</small><strong>{speechModelLabel(settings)}</strong><p>{apple ? !speechReady ? "仅限 macOS 桌面应用" : online ? "本机识别能力检查通过" : "首次输入时检查系统权限" : !speechReady ? "填写地址与模型名称" : online ? "测试通过" : "待测试连接"}</p></div><CheckCircle size={20} weight={online ? "fill" : "regular"} /></button>
         <button className="summary-card" onClick={() => setPage("writing")}><span><mode.icon size={21} /></span><div><small>处理方式</small><strong>{mode.label}</strong><p>{textReady || !needsText ? mode.detail : `${mode.detail}（文字服务尚未设置）`}</p></div><GearSix size={20} /></button>
       </div>
       <div className="last-result panel">
         <div className="panel-title slim">
           <div><h2>最近一次</h2><p>{lastResult ? lastResult.breakdown : "还没有输入记录"}</p></div>
-          {lastResult && <button className="icon-button" onClick={() => onCopy(lastResult.text)}><Copy size={18} /></button>}
+          {lastResult && <button className="icon-button" type="button" aria-label="复制最近一次结果" title="复制最近一次结果" onClick={() => onCopy(lastResult.text)}><Copy size={18} aria-hidden="true" /></button>}
         </div>
         <p className={lastResult ? "result-text" : "empty-text"}>{lastResult?.text || (speechReady ? "你的下一段输入会显示在这里。" : "连接语音服务后，你的第一段输入会显示在这里。")}</p>
       </div>
       {recoverableAudio.filter((item) => item.sessionId !== pendingAudioSessionId).map((item) => (
         <div className="panel failure-panel" key={item.sessionId}>
-          <div className="panel-title slim"><div><h2>待处理录音</h2><p>{item.error || `约 ${Math.ceil(item.audioMs / 1000)} 秒，已由 Windows 加密保存在本机。`}</p></div></div>
+          <div className="panel-title slim"><div><h2>待处理录音</h2><p>{item.error || `约 ${Math.ceil(item.audioMs / 1000)} 秒，已加密保存在本机。`}</p></div></div>
           <div className="form-actions">
             <button className="button secondary" onClick={() => onDiscardAudio(item)} disabled={taskBusy || retrying}>丢弃录音</button>
             <button className="button primary" onClick={() => onRecoverAudio(item)} disabled={taskBusy || retrying || Boolean(item.error)}>{retrying ? "正在识别" : "重新识别"}</button>
@@ -634,6 +668,9 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     if (hydrated && windowLabel === "main") onWelcomeChange?.(welcomeText);
   }, [hydrated, windowLabel, welcomeText, onWelcomeChange]);
   const [customSkills, setCustomSkills] = useState([]);
+  const [editorSession, setEditorSession] = useState(null);
+  const [returnToTemplates, setReturnToTemplates] = useState(false);
+  const navigatePage = (nextPage) => { setReturnToTemplates(false); setPage(nextPage); };
   const [vocabulary, setVocabulary] = useState(emptyVocabulary);
   const [vocabularyReady, setVocabularyReady] = useState(false);
   const vocabularyRef = useRef(vocabulary);
@@ -659,12 +696,15 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
   const persistedHistoryRef = useRef([]);
   const [online, setOnline] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [nativePlatform, setNativePlatform] = useState(isTauri() ? "" : "browser");
+  const [appleStatus, setAppleStatus] = useState(null);
   const [state, setState] = useState(overlayPreview || "idle");
   const [intent, setIntent] = useState("");
   const [phase, setPhase] = useState("idle");
   const [textPreview, setTextPreview] = useState("");
   const [audioLevel, setAudioLevel] = useState(overlayPreview === "recording" ? Math.max(0, Math.min(1, Number(previewParams.get("level") ?? 0.55) || 0)) : 0);
   const [notice, setNotice] = useState(null);
+  const noticeSequence = useRef(0);
   const [lastResult, setLastResult] = useState(null);
   const lastResultRef = useRef(null);
   lastResultRef.current = lastResult;
@@ -710,12 +750,12 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     if (message && typeof message === "object") {
       const text = String(message.text || "");
       if (!text) { setNotice(null); return; }
-      setNotice({ text, ok: Boolean(message.ok) });
+      setNotice({ text, ok: Boolean(message.ok), id: ++noticeSequence.current });
       return;
     }
     const text = String(message || "");
     if (!text) { setNotice(null); return; }
-    setNotice({ text, ok });
+    setNotice({ text, ok, id: ++noticeSequence.current });
   };
 
   const pipelineRef = useRef(null);
@@ -799,13 +839,13 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     if (!hydrated || !historyReady) return;
     const currentSettings = { ...settingsRef.current, learnedEntries: vocabularyRef.current.entries,
       skillDelivery: trigger === "skill" ? "card" : settingsRef.current.skillDelivery };
-    if (!currentSettings.asrEndpoint || !currentSettings.asrModel) {
-      notify("请先在“服务设置”填写语音服务地址和模型名称", false);
+    if (!speechConfigured(currentSettings, nativePlatform)) {
+      notify(isAppleAsr(currentSettings) ? "Apple 系统语音识别仅支持 macOS 桌面应用，请在“服务设置”选择可用的识别方式" : "请先在“服务设置”填写语音服务地址和模型名称", false);
       return;
     }
     const nextIntent = trigger === "action" ? currentSettings.actionType : trigger;
     if (nextIntent === "skill" && !findSkill(skillId || currentSettings.actionSkillId, customSkillsRef.current)) {
-      notify("请先为第三个快捷键选择一个写法", false);
+      notify("请先为第三个快捷键选择一个模板", false);
       return;
     }
     if (nextIntent !== "dictation" && (!currentSettings.textEndpoint || !currentSettings.textModel)) {
@@ -816,35 +856,44 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     currentTriggerRef.current = trigger;
     pendingStopRef.current = false;
     const generation = ++startGenerationRef.current;
-    await desktopInvoke("stop_learning_monitor", {}, true).catch(() => {});
-    if (generation !== startGenerationRef.current) return;
-    // 在目标应用仍是前台窗口时取一次身份；只写本地历史，不发给模型。
-    const windowContext = await desktopInvoke("get_active_window_context", {}, () => null).catch(() => null);
-    if (generation !== startGenerationRef.current) return;
-    // 本次任务的写法与设置在录音开始前固定；不会改变后续口述的默认路径。
-    const snapshot = pipeline.begin({
-      intent: nextIntent,
-      skillId,
-      settings: currentSettings,
-      customSkills: customSkillsRef.current,
-      windowContext,
-      inputToken,
-    });
-    activeSnapshotRef.current = snapshot;
-    currentIntentRef.current = snapshot.intent;
-    currentTriggerRef.current = trigger;
-    const targetReady = pipeline.captureTarget(snapshot);
-    setPendingFailure(null);
-    setTextPreview("");
-    setIntent(snapshot.intent);
-    setPhase("record");
-    stateRef.current = "recording";
-    setState("recording");
     try {
+      await desktopInvoke("stop_learning_monitor", {}, true).catch(() => {});
+      if (generation !== startGenerationRef.current) return;
+      // 在目标应用仍是前台窗口时取一次身份；只写本地历史，不发给模型。
+      const windowContext = await desktopInvoke("get_active_window_context", {}, () => null).catch(() => null);
+      if (generation !== startGenerationRef.current) return;
+      // TCC authorization can wait for user input. Keep this in the start gate:
+      // no recording task or recording UI exists until the check succeeds.
+      if (isAppleAsr(currentSettings)) {
+        const status = await desktopInvoke("apple_speech_status", { locale: currentSettings.appleSpeechLocale, requestAuthorization: true });
+        if (generation !== startGenerationRef.current) return;
+        if (settingsRef.current.asrProvider === currentSettings.asrProvider && settingsRef.current.appleSpeechLocale === currentSettings.appleSpeechLocale) setAppleStatus(status);
+        const issue = appleSpeechIssue(status);
+        if (issue) throw new Error(issue);
+      }
+      // 本次任务的模板与设置在录音开始前固定；不会改变后续口述的默认路径。
+      const snapshot = pipeline.begin({
+        intent: nextIntent,
+        skillId,
+        settings: currentSettings,
+        customSkills: customSkillsRef.current,
+        windowContext,
+        inputToken,
+      });
+      activeSnapshotRef.current = snapshot;
+      currentIntentRef.current = snapshot.intent;
+      currentTriggerRef.current = trigger;
+      const targetReady = pipeline.captureTarget(snapshot);
+      setPendingFailure(null);
+      setTextPreview("");
+      setIntent(snapshot.intent);
+      setPhase("record");
+      stateRef.current = "recording";
+      setState("recording");
       if (!await pipeline.prepare(snapshot) || generation !== startGenerationRef.current) return;
       // UIA 提供方可能较慢，目标检查不阻塞麦克风开始采集。
       const recordingReady = recorder.start(snapshot.requestId, currentSettings.audioDeviceId, currentSettings.asrEndpoint, currentSettings.asrModel,
-        snapshot.intent === "dictation" && snapshot.processingMode === "smart" && currentSettings.textIncremental && !currentSettings.autoIntent, snapshot.intent);
+        snapshot.intent === "dictation" && snapshot.processingMode === "smart" && currentSettings.textIncremental && !currentSettings.autoIntent, snapshot.intent, currentSettings.asrProvider, currentSettings.appleSpeechLocale);
       await Promise.all([targetReady, recordingReady]);
       if (generation !== startGenerationRef.current) return;
       startingRef.current = false;
@@ -1043,6 +1092,15 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
   }, []);
 
   useEffect(() => {
+    if (!isTauri()) return undefined;
+    let disposed = false;
+    desktopInvoke("native_platform", {}).then((platform) => {
+      if (!disposed) setNativePlatform(platform);
+    }).catch((error) => { if (!disposed) notify(`无法确认系统平台：${describeError(error)}`, false); });
+    return () => { disposed = true; };
+  }, []);
+
+  useEffect(() => {
     if (!isTauri() || windowLabel !== "main") return undefined;
     const controller = createVoiceController({ invoke: desktopInvoke, listen,
       onStatus: (status) => {
@@ -1125,10 +1183,10 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
       try {
         const loaded = await skillStoreRef.current.load();
         skills = loaded.skills;
-        if (loaded.rejected) notices.push(`有 ${loaded.rejected} 个自定义写法未通过校验，已跳过。`);
+        if (loaded.rejected) notices.push(`有 ${loaded.rejected} 个自定义模板未通过校验，已跳过。`);
       } catch (error) {
         if (!disposed) {
-          const message = `技能载入失败，已暂停输入以保护已有设置：${describeError(error)}`;
+          const message = `模板载入失败，已暂停输入以保护已有设置：${describeError(error)}`;
             if (windowLabel === "main") onEntranceUnavailable?.();
           notify(message, false);
           if (windowLabel === "main") controllerRef.current?.fail(message).catch(() => {});
@@ -1140,7 +1198,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
       if (normalized.processingMode === "skill" && !findSkill(normalized.selectedSkillId, skills)) {
         // 选中的 Skill 不在了就回退自动整理，而不是把用户送进一条注定走不通的路径。
         next = { ...normalized, processingMode: "smart", selectedSkillId: "" };
-        notices.push("之前选择的写法已不存在，已恢复自动整理。");
+        notices.push("之前选择的模板已不存在，已恢复自动整理。");
       }
 
       if (isTauri()) {
@@ -1254,7 +1312,8 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     const listener = isTauri() ? listen("vocabulary-correction", (event) => {
       if (!settingsRef.current.autoLearn || !vocabularyReadyRef.current) return;
       let learned = [];
-      vocabularyStoreRef.current.update((current) => {
+      vocabularyStoreRef.current.update(async (current) => {
+        const { learnCorrections } = await import("./vocabulary/learning.js");
         if (!settingsRef.current.autoLearn) return current;
         const result = learnCorrections(current, { ...event.payload, vocabulary: settingsRef.current.vocabulary });
         learned = result.learned;
@@ -1272,7 +1331,10 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
 
   const dismissWord = async (pair) => {
     try {
-      await vocabularyStoreRef.current.update((current) => dismissCorrection(current, pair));
+      await vocabularyStoreRef.current.update(async (current) => {
+        const { dismissCorrection } = await import("./vocabulary/learning.js");
+        return dismissCorrection(current, pair);
+      });
       notify("词条已删除，不再自动学习这项纠正", true);
     } catch (error) { notify(describeError(error), false); }
   };
@@ -1280,7 +1342,8 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
   const teachCorrection = async (item, edited) => {
     if (!vocabularyReadyRef.current) throw new Error("词库尚未就绪，未保存纠正");
     let learned = [];
-    await vocabularyStoreRef.current.update((current) => {
+    await vocabularyStoreRef.current.update(async (current) => {
+      const { learnCorrections } = await import("./vocabulary/learning.js");
       const result = learnCorrections(current, { original: item.text, edited, sessionId: `manual-${item.id}`, manual: true, vocabulary: settingsRef.current.vocabulary });
       learned = result.learned;
       if (!learned.length) throw new Error("没有可记住的新短词：可能已存在、与手动词冲突、词库已满，或修改包含整句/数字。可在个人词库手动添加。");
@@ -1328,7 +1391,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         actionType: removedAction ? "translate" : current.actionType,
         actionSkillId: removedAction ? "" : current.actionSkillId,
       });
-      notify("所选写法已删除，相关入口已恢复默认设置。", false);
+      notify("所选模板已删除，相关入口已恢复默认设置。", false);
     }
     return normalized;
   };
@@ -1499,21 +1562,40 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     emit("dictation-level", recorder.level).catch(() => {});
   }, [recorder.level, state, windowLabel]);
 
-  useEffect(() => { setOnline(false); }, [settings.asrEndpoint, settings.asrModel]);
+  useEffect(() => {
+    setOnline(false);
+    setAppleStatus(null);
+  }, [settings.asrProvider, settings.appleSpeechLocale, settings.asrEndpoint, settings.asrModel]);
+
+  useEffect(() => {
+    if (!isAppleAsr(settings) || nativePlatform !== "macos" || windowLabel !== "main") return undefined;
+    let disposed = false;
+    // Reading capability must never open the system permission prompt.
+    desktopInvoke("apple_speech_status", { locale: settings.appleSpeechLocale, requestAuthorization: false })
+      .then((status) => { if (!disposed) setAppleStatus(status); })
+      .catch((error) => { if (!disposed) notify(`无法读取系统语音识别状态：${describeError(error)}`, false); });
+    return () => { disposed = true; };
+  }, [settings.asrProvider, settings.appleSpeechLocale, nativePlatform, windowLabel]);
 
   const testConnection = async () => {
     if (!isTauri()) {
       notify("浏览器预览没有发起连接请求。请在桌面应用中测试语音服务。", false);
       return;
     }
-    const endpoint = settingsRef.current.asrEndpoint;
-    const model = settingsRef.current.asrModel;
-    const stillCurrent = () => endpoint === settingsRef.current.asrEndpoint && model === settingsRef.current.asrModel;
+    const { asrProvider: provider, appleSpeechLocale: locale, asrEndpoint: endpoint, asrModel: model } = settingsRef.current;
+    const apple = provider === "apple";
+    const stillCurrent = () => provider === settingsRef.current.asrProvider && locale === settingsRef.current.appleSpeechLocale && endpoint === settingsRef.current.asrEndpoint && model === settingsRef.current.asrModel;
     setTesting(true);
     setNotice(null);
     try {
-      await desktopInvoke("test_connection", { endpoint, model });
-      if (stillCurrent()) { setOnline(true); notify("语音服务测试通过", true); }
+      if (apple) {
+        const status = await desktopInvoke("apple_speech_status", { locale, requestAuthorization: true });
+        if (!stillCurrent()) return;
+        setAppleStatus(status);
+        const issue = appleSpeechIssue(status);
+        if (issue) throw new Error(issue);
+      } else await desktopInvoke("test_connection", { endpoint, model, provider, locale });
+      if (stillCurrent()) { setOnline(true); notify(apple ? "Apple 语音权限与本机识别能力检查通过" : "语音服务测试通过", true); }
     } catch (error) {
       if (stillCurrent()) { setOnline(false); notify(describeError(error), false); }
     } finally {
@@ -1657,7 +1739,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
 
   return (
     <main className="app-shell">
-      <Sidebar page={page} setPage={setPage} online={online} />
+      <Sidebar page={page} setPage={navigatePage} online={online} settings={settings} />
       <section className="workspace" ref={workspaceRef}>
         <div className="topbar">
           <span><StatusDot online={online} />{online ? "语音服务在线" : "语音服务待连接"}</span>
@@ -1702,22 +1784,23 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
           </div>
         )}
 
+        <Suspense fallback={<PageLoading />}>
         {page === "appearance" && <AppearanceSettings settings={settings} setSettings={setSettings} ready={hydrated} onReplayEntrance={onReplayEntrance} />}
-        {page === "home" && <Overview onCopy={copyOutput} settings={settings} customSkills={customSkills} online={online} setPage={setPage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} level={recorder.level} recoverableAudio={recoverableAudio} pendingAudioSessionId={pendingFailure?.audioSessionId} onDiscardAudio={discardAudio} onRecoverAudio={recoverAudio} taskBusy={busy} retrying={retrying} />}
-        {page === "model" && <ModelSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={notify} onSpeechKeySaved={() => setOnline(false)} />}
+        {page === "home" && <Overview onCopy={copyOutput} settings={settings} customSkills={customSkills} online={online} setPage={navigatePage} state={state} intent={intent} phase={phase} activeTrigger={currentTriggerRef.current} toggleTask={toggleTask} lastResult={lastResult} textReady={textReady} level={recorder.level} recoverableAudio={recoverableAudio} pendingAudioSessionId={pendingFailure?.audioSessionId} onDiscardAudio={discardAudio} onRecoverAudio={recoverAudio} taskBusy={busy} retrying={retrying} nativePlatform={nativePlatform} />}
+        {page === "model" && <ModelSettings settings={settings} setSettings={setSettings} online={online} testing={testing} testConnection={testConnection} onNotice={notify} onSpeechKeySaved={() => setOnline(false)} returnToTemplates={returnToTemplates} onReturnToTemplates={() => { setReturnToTemplates(false); setPage("skills"); }} nativePlatform={nativePlatform} appleStatus={appleStatus} />}
         {page === "writing" && <WritingSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onSelectSkill={onSelectSkill} textReady={textReady} />}
-        {page === "skills" && <SkillEditor customSkills={customSkills} selectedSkillId={settings.actionType === "skill" ? settings.actionSkillId : ""} dailySkillId={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onSelect={onSelectActionSkill} onSelectDaily={onSelectSkill} onRun={(id) => toggleTask("skill", id)} running={state === "recording" && currentTriggerRef.current === "skill"} onDeliveryChange={(value) => setSettings({ ...settingsRef.current, skillDelivery: value })} onSaveCustomSkills={saveCustomSkills} pipeline={pipeline} settings={settings} onNotice={notify} busy={busy} />}
+        {page === "skills" && <SkillEditor editorSession={editorSession} setEditorSession={setEditorSession} onConfigureTextService={() => { setReturnToTemplates(true); setPage("model"); }} customSkills={customSkills} selectedSkillId={settings.actionType === "skill" ? settings.actionSkillId : ""} dailySkillId={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onSelect={onSelectActionSkill} onSelectDaily={onSelectSkill} onRun={(id) => toggleTask("skill", id)} running={state === "recording" && currentTriggerRef.current === "skill"} onDeliveryChange={(value) => setSettings({ ...settingsRef.current, skillDelivery: value })} onSaveCustomSkills={saveCustomSkills} pipeline={pipeline} settings={settings} onNotice={notify} busy={busy} />}
         {page === "shortcut" && <ShortcutSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onNotice={notify} busy={busy} />}
         {page === "vocabulary" && <VocabularySettings settings={settings} setSettings={setSettings} vocabulary={vocabulary} onDismiss={dismissWord} ready={vocabularyReady} />}
         {page === "history" && <History onCopy={copyOutput} history={history} onClear={clearHistory} onTeach={teachCorrection} onExport={exportHistory} onRetranscribe={retranscribeHistory} retentionDays={settings.historyRetentionDays} onRetentionChange={changeHistoryRetention} keepAudio={settings.keepHistoryAudio} onKeepAudioChange={(value) => setSettings({ ...settingsRef.current, keepHistoryAudio: value })} busy={busy || retrying} />}
+        </Suspense>
       </section>
-      {notice && (
-        <div className={`toast ${notice.ok ? "success" : ""}`}>
-          {notice.ok ? <CheckCircle size={18} weight="fill" /> : <WarningCircle size={18} weight="fill" />}
-          {notice.text}
-          <button onClick={() => setNotice(null)}><X size={15} /></button>
-        </div>
-      )}
+      <div role="status" aria-live="polite" aria-atomic="true">
+        {notice?.ok && <NoticeToast key={notice.id} notice={notice} onClose={() => setNotice(null)} />}
+      </div>
+      <div role="alert" aria-live="assertive" aria-atomic="true">
+        {notice && !notice.ok && <NoticeToast key={notice.id} notice={notice} onClose={() => setNotice(null)} />}
+      </div>
       {!isTauri() && answerCard && <div className="answer-preview"><AnswerCard card={answerCard} onClose={closeAnswer} onFollowup={followupAnswer} onCopy={copyOutput} onInsert={requestInsert} /></div>}
     </main>
   );

@@ -1,7 +1,7 @@
 //! Encrypted history on Windows. Existing WebView localStorage is migrated by
 //! the frontend only after this store has been read successfully.
 
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "macos"))]
 mod platform {
     use serde::{Deserialize, Serialize};
     use std::{
@@ -11,12 +11,16 @@ mod platform {
         time::{SystemTime, UNIX_EPOCH},
     };
     use tauri::{AppHandle, Manager};
+    #[cfg(windows)]
     use windows_sys::Win32::{
         Foundation::LocalFree,
         Security::Cryptography::{
             CryptProtectData, CryptUnprotectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB,
         },
     };
+
+    #[cfg(target_os = "macos")]
+    pub(crate) use crate::macos_crypto::{protect_data, unprotect_data};
 
     const MAGIC: &[u8; 4] = b"TFH1";
     const MAX_FILE_BYTES: usize = 5 * 1024 * 1024;
@@ -27,6 +31,7 @@ mod platform {
         entries: Vec<serde_json::Value>,
     }
 
+    #[cfg(windows)]
     pub(crate) fn protect_data(plain: &[u8]) -> Result<Vec<u8>, String> {
         let input = CRYPT_INTEGER_BLOB {
             cbData: u32::try_from(plain.len()).map_err(|_| "数据过长")?,
@@ -61,6 +66,7 @@ mod platform {
         Ok(bytes)
     }
 
+    #[cfg(windows)]
     pub(crate) fn unprotect_data(cipher: &[u8]) -> Result<Vec<u8>, String> {
         let input = CRYPT_INTEGER_BLOB {
             cbData: u32::try_from(cipher.len()).map_err(|_| "数据过长")?,
@@ -216,7 +222,7 @@ mod platform {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "macos")))]
 mod platform {
     use tauri::AppHandle;
     #[tauri::command]
@@ -238,5 +244,5 @@ mod platform {
 }
 
 pub use platform::*;
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "macos"))]
 pub(crate) use platform::{protect_data, unprotect_data};

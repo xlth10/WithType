@@ -62,7 +62,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
       await invoke("save_text_api_key", { key });
       setKey("");
       setResult(null);
-      onNotice({ text: "文字密钥已保存到 Windows 凭据库", ok: true });
+      onNotice({ text: "文字密钥已安全保存到本机", ok: true });
     } catch (error) {
       onNotice({ text: String(error && error.message ? error.message : error), ok: false });
     } finally {
@@ -129,7 +129,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
               onChange={(event) => patch({ textModel: event.target.value })}
             />
           </Field>
-          <Field label="快速模型（可选）" hint="普通智能整理、翻译与意图判断优先使用；技能使用主模型。留空时使用主模型。">
+          <Field label="快速模型（可选）" hint="普通智能整理、翻译与意图判断优先使用；模板整理使用主模型。留空时使用主模型。">
             <input value={settings.textFastModel || ""} onChange={(event) => patch({ textFastModel: event.target.value })} />
           </Field>
           <Field label="备用模型（可选）" hint="用逗号分隔。失败时按顺序尝试，共享本次整理的总等待预算。">
@@ -210,7 +210,7 @@ export function TextSettings({ settings, setSettings, invoke, onNotice, previewM
         <div>
           <strong>密钥保存</strong>
           <p>
-            语音与文字密钥分别存入 Windows 凭据库，不写入配置文件。选择“无需密钥”后不会读取已存密钥；
+            语音与文字密钥分别存入系统凭据库（macOS 使用钥匙串），不写入配置文件。选择“无需密钥”后不会读取已存密钥；
             服务地址或模型名称留空时，不启用文字服务。
           </p>
         </div>

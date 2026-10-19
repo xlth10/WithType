@@ -6,7 +6,7 @@ set -euo pipefail
 
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) ;;
-  *) echo '此脚本需要 Windows 的 MSYS2 / Git Bash；Mac 请使用 Windows 虚拟机或 Windows CI。' >&2; exit 1 ;;
+  *) echo '此脚本需要 Windows 的 MSYS2 / Git Bash；Mac APP 请运行 bash build-macos.sh。' >&2; exit 1 ;;
 esac
 
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

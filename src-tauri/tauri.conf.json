@@ -12,9 +12,11 @@
   },
   "app": {
     "withGlobalTauri": false,
+    "macOSPrivateApi": true,
     "windows": [
       {
         "label": "main",
+        "backgroundThrottling": "disabled",
         "title": "WithType",
         "width": 1060,
         "height": 720,

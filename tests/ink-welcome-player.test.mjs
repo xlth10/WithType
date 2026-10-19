@@ -157,3 +157,36 @@ test("a backwards test clock never produces a negative animation time or elapsed
   f.player.finish();
   assert.deepEqual(f.finished, [0]);
 });
+
+test("default animation APIs retain their Window receiver through playback and cancellation", () => {
+  const originalRequest = Object.getOwnPropertyDescriptor(globalThis, "requestAnimationFrame");
+  const originalCancel = Object.getOwnPropertyDescriptor(globalThis, "cancelAnimationFrame");
+  let callback, clock = 1000, cancelled = false;
+  const rendered = [];
+  Object.defineProperty(globalThis, "requestAnimationFrame", { configurable: true, value: function (fn) {
+    assert.equal(this, globalThis, "WebKit requires the Window receiver");
+    callback = fn;
+    return 1;
+  } });
+  Object.defineProperty(globalThis, "cancelAnimationFrame", { configurable: true, value: function () {
+    assert.equal(this, globalThis, "WebKit requires the Window receiver");
+    cancelled = true;
+  } });
+  try {
+    const player = createInkWelcomePlayer({ renderer: { seek: t => rendered.push(t) }, now: () => clock });
+    player.play();
+    assert.deepEqual(rendered, [0]);
+    clock = 4600;
+    callback();
+    assert.equal(rendered.at(-1), DURATION);
+    assert.equal(player.isPlaying(), false);
+    player.play();
+    player.dispose();
+    assert.equal(cancelled, true);
+  } finally {
+    for (const [name, descriptor] of [["requestAnimationFrame", originalRequest], ["cancelAnimationFrame", originalCancel]]) {
+      if (descriptor) Object.defineProperty(globalThis, name, descriptor);
+      else delete globalThis[name];
+    }
+  }
+});

@@ -14,7 +14,8 @@ test("desktop bundles the same Vite frontend used by browser preview", async () 
   assert.equal(config.build.frontendDist, "../dist/client");
   assert.match(await read("vite.config.mjs"), /outDir:\s*["']dist\/client["']/);
   const main = await read("src/main.jsx");
-  assert.match(main, /import\s+\{\s*App\s*\}\s+from\s+["']\.\/App\.jsx["']/);
+  assert.match(main, /import\(["']\.\/App\.jsx["']\)/);
+  assert.match(await read("src/ui/MainSurface.jsx"), /import\s+\{\s*App\s*\}\s+from\s+["']\.\.\/App\.jsx["']/);
   assert.match(main, /import\s+["']\.\/styles\.css["']/);
   assert.match(main, /document\.documentElement\.dataset\.surface\s*=\s*surface/);
 });

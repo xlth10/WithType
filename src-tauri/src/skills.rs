@@ -1,11 +1,11 @@
-// 自定义写法的校验与持久化。
+// 自定义模板的校验与持久化。
 //
 // Skill 是纯声明式的文字处理配置，不是脚本：校验只保证「它是一段能安全拼进提示词的文字」，
 // 不解析、不执行、也不允许它携带任何可执行内容。真正的边界（只能影响输出组织方式、
 // 不能拿密钥/活动窗口/执行工具）由提示词组装与命令面来保证。
 //
 // 写入一律走「临时文件 + 原子替换」：直接 fs::write 在进程被杀或断电时会留下
-// 半截 JSON，下次启动读到损坏文件就把用户所有自定义写法弄丢了。
+// 半截 JSON，下次启动读到损坏文件就把用户所有自定义模板弄丢了。
 
 use std::{
     fs,
@@ -63,7 +63,7 @@ fn char_count(value: &str) -> usize {
     value.chars().count()
 }
 
-/// 校验一条自定义写法。返回归一化后的值或第一条错误。
+/// 校验一条自定义模板。返回归一化后的值或第一条错误。
 ///
 /// 这里只做「能不能安全保存」的判断；按钮文案、错误展示归前端。
 fn validate(skill: &Skill, existing: &[Skill], is_new: bool) -> Result<Skill, String> {
@@ -72,10 +72,10 @@ fn validate(skill: &Skill, existing: &[Skill], is_new: bool) -> Result<Skill, St
     let description = skill.description.trim();
 
     if !skill.id.starts_with("custom.") {
-        return Err("写法标识无效，请重新创建".into());
+        return Err("模板标识无效，请重新创建".into());
     }
     if name.is_empty() {
-        return Err("请填写写法名称".into());
+        return Err("请填写模板名称".into());
     }
     if char_count(name) > MAX_NAME_CHARS {
         return Err(format!("名称不能超过 {MAX_NAME_CHARS} 个字符"));
@@ -93,10 +93,10 @@ fn validate(skill: &Skill, existing: &[Skill], is_new: bool) -> Result<Skill, St
         .iter()
         .any(|item| item.id != skill.id && item.name.trim() == name)
     {
-        return Err("已有同名写法，请换一个名称".into());
+        return Err("已有同名模板，请换一个名称".into());
     }
     if is_new && existing.len() >= MAX_CUSTOM_SKILLS {
-        return Err(format!("自定义写法最多 {MAX_CUSTOM_SKILLS} 个"));
+        return Err(format!("自定义模板最多 {MAX_CUSTOM_SKILLS} 个"));
     }
 
     let output_format = if skill.output_format == "markdown" {
@@ -204,7 +204,7 @@ pub fn save_custom_skills(app: AppHandle, skills: Vec<Skill>) -> Result<Vec<Skil
         }
     }
     if accepted.len() > MAX_CUSTOM_SKILLS {
-        problems.push(format!("自定义写法最多 {MAX_CUSTOM_SKILLS} 个"));
+        problems.push(format!("自定义模板最多 {MAX_CUSTOM_SKILLS} 个"));
     }
     if !problems.is_empty() {
         // 整批拒绝，磁盘上的旧文件保持不动——宁可让用户重来一次，

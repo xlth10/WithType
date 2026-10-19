@@ -1,0 +1,20 @@
+{
+  "identifier": "app.withtype.desktop",
+  "app": { "macOSPrivateApi": true },
+  "bundle": {
+    "targets": ["app"],
+    "shortDescription": "WithType 语音输入",
+    "icon": ["icons/ink-v3/icon.icns", "icons/ink-v3/256x256.png"],
+    "resources": [
+      "../THIRD_PARTY_NOTICES.md",
+      "../LICENSES/Typefree-GPL-3.0.txt",
+      "../public/fonts/OFL-NotoSansSC.txt",
+      "../public/fonts/COPYRIGHT-NotoSansSC.txt"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "14.0",
+      "entitlements": "Entitlements.plist",
+      "signingIdentity": "-"
+    }
+  }
+}

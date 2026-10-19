@@ -225,10 +225,28 @@ fn join_transcripts(parts: &[String]) -> String {
     result
 }
 
-#[cfg(windows)]
+/// Bound every Apple job, including a backlog accumulated while a previous
+/// segment was recognizing. The outer worker deadline then covers one task.
+fn recognition_end(samples: &[f32], start: usize, apple: bool, finishing: bool) -> Option<usize> {
+    if start >= samples.len() {
+        return None;
+    }
+    let limit = if apple {
+        samples.len().min(start + OUTPUT_RATE as usize * 45)
+    } else {
+        samples.len()
+    };
+    if finishing {
+        return Some(limit);
+    }
+    pause_end(&samples[..limit], start)
+        .or_else(|| (apple && limit - start == OUTPUT_RATE as usize * 45).then_some(limit))
+}
+
+#[cfg(any(windows, target_os = "macos"))]
 mod platform {
     use super::{
-        has_voice, is_silent, join_transcripts, pause_end, wav_bytes, Resampler, OUTPUT_RATE,
+        has_voice, is_silent, join_transcripts, recognition_end, wav_bytes, Resampler, OUTPUT_RATE,
     };
     use cpal::{
         traits::{DeviceTrait, HostTrait, StreamTrait},
@@ -790,6 +808,56 @@ mod platform {
             .map_err(|e| format!("无法启动麦克风：{e}"))
     }
 
+    async fn run_asr_job<F>(
+        future: F,
+        session_cancelled: &Arc<AtomicBool>,
+        recognition_cancelled: &Arc<AtomicBool>,
+    ) -> Result<crate::TranscribeResponse, String>
+    where
+        F: std::future::Future<Output = Result<crate::TranscribeResponse, String>>,
+    {
+        if session_cancelled.load(Ordering::Relaxed) {
+            recognition_cancelled.store(true, Ordering::Relaxed);
+            return Err("录音已取消".into());
+        }
+        tokio::select! {
+            result = future => result,
+            _ = async {
+                while !session_cancelled.load(Ordering::Relaxed) {
+                    tokio::time::sleep(Duration::from_millis(40)).await;
+                }
+            } => {
+                recognition_cancelled.store(true, Ordering::Relaxed);
+                Err("录音已取消".into())
+            }
+        }
+    }
+
+    #[cfg(test)]
+    mod asr_cancellation_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn session_cancel_reaches_the_recognizer_without_polling_more_audio() {
+            let session = Arc::new(AtomicBool::new(true));
+            let recognizer = Arc::new(AtomicBool::new(false));
+            let result = run_asr_job(std::future::pending(), &session, &recognizer).await;
+            assert_eq!(result.unwrap_err(), "录音已取消");
+            assert!(recognizer.load(Ordering::Relaxed));
+        }
+
+        #[tokio::test]
+        async fn aborted_recognizer_does_not_mark_audio_as_discarded() {
+            let session = Arc::new(AtomicBool::new(false));
+            let recognizer = Arc::new(AtomicBool::new(true));
+            let result = run_asr_job(async { Err("识别超时".into()) }, &session, &recognizer).await;
+            assert_eq!(result.unwrap_err(), "识别超时");
+            // This is the session flag used by stop_audio_session to decide
+            // whether the encrypted audio spool may be deleted.
+            assert!(!session.load(Ordering::Relaxed));
+        }
+    }
+
     fn capture_loop(
         rx: mpsc::Receiver<Vec<f32>>,
         app: AppHandle,
@@ -798,36 +866,45 @@ mod platform {
         channels: usize,
         fault: Arc<Mutex<Option<String>>>,
         cancelled: Arc<AtomicBool>,
-        endpoint: String,
-        model: String,
+        asr: crate::AsrConfig,
         early_text: bool,
         probe: Arc<CaptureProbeAtoms>,
     ) -> Result<CaptureResult, String> {
         let (job_tx, job_rx) = mpsc::channel::<AsrJob>();
         let (outcome_tx, outcome_rx) = mpsc::channel::<AsrOutcome>();
         let uploader_cancelled = cancelled.clone();
+        // Recognition timeouts must not mark the recording as user-cancelled:
+        // stop_audio_session deletes the audio spool only for a session cancellation.
+        let recognition_cancelled = Arc::new(AtomicBool::new(false));
+        let uploader_recognition_cancelled = recognition_cancelled.clone();
+        let uploader_asr = asr.clone();
         let uploader = thread::spawn(move || {
             while let Ok(job) = job_rx.recv() {
-                if uploader_cancelled.load(Ordering::Relaxed) {
+                if uploader_cancelled.load(Ordering::Relaxed)
+                    || uploader_recognition_cancelled.load(Ordering::Relaxed)
+                {
                     break;
                 }
                 let result = match wav_bytes(&job.samples) {
                     Ok(wav) => {
                         let mut result = Err("识别未执行".into());
                         for attempt in 0..2 {
-                            if uploader_cancelled.load(Ordering::Relaxed) {
+                            if uploader_cancelled.load(Ordering::Relaxed)
+                                || uploader_recognition_cancelled.load(Ordering::Relaxed)
+                            {
                                 break;
                             }
-                            result = tauri::async_runtime::block_on(
-                                crate::transcribe_bytes_with_cancel(
+                            result = tauri::async_runtime::block_on(run_asr_job(
+                                crate::transcribe_with_config(
                                     wav.clone(),
                                     "dictation.wav".into(),
                                     "audio/wav",
-                                    endpoint.clone(),
-                                    model.clone(),
-                                    Some(uploader_cancelled.clone()),
+                                    uploader_asr.clone(),
+                                    Some(uploader_recognition_cancelled.clone()),
                                 ),
-                            );
+                                &uploader_cancelled,
+                                &uploader_recognition_cancelled,
+                            ));
                             let transient = result.as_ref().err().is_some_and(|error| {
                                 error.contains("语音识别请求失败")
                                     || ["HTTP 429", "HTTP 502", "HTTP 503", "HTTP 504"]
@@ -941,7 +1018,11 @@ mod platform {
                 && total.saturating_sub(last_evaluation) >= OUTPUT_RATE as usize * 2
             {
                 last_evaluation = total;
-                if let Some(end) = pause_end(&converter.output, progress.committed) {
+                // Apple file recognition has a per-request duration limit. Even continuous
+                // speech must be submitted while recording, rather than growing one huge tail.
+                let end =
+                    recognition_end(&converter.output, progress.committed, asr.is_apple(), false);
+                if let Some(end) = end {
                     if job_tx
                         .send(AsrJob {
                             end,
@@ -955,6 +1036,7 @@ mod platform {
             }
         }
         if cancelled.load(Ordering::Relaxed) {
+            recognition_cancelled.store(true, Ordering::Relaxed);
             // A lifecycle interruption preserves the tail as well as already-spooled chunks.
             if store()
                 .lock()
@@ -999,14 +1081,20 @@ mod platform {
                 Err(_) => {
                     progress.last_error = Some("录音中提交的识别段未能完成".into());
                     timed_out = true;
+                    recognition_cancelled.store(true, Ordering::Relaxed);
                 }
             }
         }
-        if !timed_out && progress.failures < 2 && has_voice(&samples[progress.committed..]) {
+        while !timed_out && progress.failures < 2 && has_voice(&samples[progress.committed..]) {
+            let end = recognition_end(&samples, progress.committed, asr.is_apple(), true).unwrap();
+            if asr.is_apple() && !has_voice(&samples[progress.committed..end]) {
+                progress.committed = end;
+                continue;
+            }
             if job_tx
                 .send(AsrJob {
-                    end: samples.len(),
-                    samples: samples[progress.committed..].to_vec(),
+                    end,
+                    samples: samples[progress.committed..end].to_vec(),
                 })
                 .is_ok()
             {
@@ -1015,8 +1103,15 @@ mod platform {
                     Err(_) => {
                         progress.last_error = Some("尾段识别未能完成".into());
                         timed_out = true;
+                        recognition_cancelled.store(true, Ordering::Relaxed);
                     }
                 }
+            } else {
+                progress.last_error = Some("识别任务已停止，请重试保留的录音".into());
+                break;
+            }
+            if !asr.is_apple() {
+                break;
             }
         }
         drop(job_tx);
@@ -1028,7 +1123,8 @@ mod platform {
         // 把已确认的几段一并丢掉只会让用户整句重说。
         // transcription_error 必须同时清空：前端 pipeline 先检查它就会整条报错，
         // 拿不到降级后的 transcript。
-        let degraded = progress.last_error.is_some() && !progress.partials.is_empty();
+        let degraded =
+            !asr.is_apple() && progress.last_error.is_some() && !progress.partials.is_empty();
         Ok(CaptureResult {
             samples,
             transcript: if progress.last_error.is_none() || degraded {
@@ -1051,13 +1147,16 @@ mod platform {
         model: String,
         early_text: Option<bool>,
         intent: Option<String>,
+        provider: Option<String>,
+        locale: Option<String>,
     ) -> Result<SessionInfo, String> {
+        crate::background::require_task(&app, &session_id)?;
+        let asr = crate::AsrConfig::new(endpoint, model, provider, locale)?;
+        asr.prepare().await?;
         // 设备探测、spool 创建、流构建都会做 COM/IO，放阻塞线程，避免主线程被
         // 蓝牙麦克风的冷启动（重连、格式协商）拖住几秒。
         tauri::async_runtime::spawn_blocking(move || {
-            start_audio_session_inner(
-                app, session_id, device_id, endpoint, model, early_text, intent,
-            )
+            start_audio_session_inner(app, session_id, device_id, asr, early_text, intent)
         })
         .await
         .map_err(|error| format!("录音启动线程失败：{error}"))?
@@ -1067,8 +1166,7 @@ mod platform {
         app: AppHandle,
         session_id: String,
         device_id: Option<String>,
-        endpoint: String,
-        model: String,
+        asr: crate::AsrConfig,
         early_text: Option<bool>,
         intent: Option<String>,
     ) -> Result<SessionInfo, String> {
@@ -1136,8 +1234,7 @@ mod platform {
                 channels,
                 worker_fault,
                 worker_cancelled,
-                endpoint,
-                model,
+                asr,
                 early_text.unwrap_or(false),
                 worker_probe,
             )
@@ -1445,8 +1542,12 @@ mod platform {
     pub struct NativeTranscribeRequest {
         session_id: String,
         request_id: String,
+        #[serde(default)]
         endpoint: String,
+        #[serde(default)]
         model: String,
+        provider: Option<String>,
+        locale: Option<String>,
     }
 
     #[tauri::command]
@@ -1454,6 +1555,12 @@ mod platform {
         app: AppHandle,
         request: NativeTranscribeRequest,
     ) -> Result<crate::TranscribeResponse, String> {
+        let asr = crate::AsrConfig::new(
+            request.endpoint,
+            request.model,
+            request.provider,
+            request.locale,
+        )?;
         let cancelled = Arc::new(AtomicBool::new(false));
         {
             let mut retries = retry_cancel().lock().map_err(|e| e.to_string())?;
@@ -1474,12 +1581,11 @@ mod platform {
                 return Err("录音已取消".into());
             }
             let wav = wav_bytes(&samples)?;
-            crate::transcribe_bytes_with_cancel(
+            crate::transcribe_with_config(
                 wav,
                 "dictation.wav".into(),
                 "audio/wav",
-                request.endpoint,
-                request.model,
+                asr,
                 Some(cancelled),
             )
             .await
@@ -1493,7 +1599,7 @@ mod platform {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(windows, target_os = "macos")))]
 mod platform {
     use serde::Serialize;
     use tauri::AppHandle;
@@ -1520,8 +1626,13 @@ mod platform {
     #[serde(rename_all = "camelCase")]
     pub struct NativeTranscribeRequest {
         session_id: String,
+        request_id: String,
+        #[serde(default)]
         endpoint: String,
+        #[serde(default)]
         model: String,
+        provider: Option<String>,
+        locale: Option<String>,
     }
     #[derive(Serialize)]
     #[serde(rename_all = "camelCase")]
@@ -1548,6 +1659,8 @@ mod platform {
         _model: String,
         _early_text: Option<bool>,
         _intent: Option<String>,
+        _provider: Option<String>,
+        _locale: Option<String>,
     ) -> Result<SessionInfo, String> {
         Err("原生录音仅支持 Windows".into())
     }
@@ -1585,6 +1698,27 @@ pub use platform::*;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn apple_live_and_drain_jobs_stay_bounded_when_recognition_falls_behind() {
+        let rate = OUTPUT_RATE as usize;
+        let mut backlog = vec![0.08; rate * 123];
+        // A late pause must not expand the live job beyond Apple's time budget.
+        backlog[rate * 112..rate * 114].fill(0.0);
+        assert_eq!(recognition_end(&backlog, 0, true, false), Some(rate * 45));
+        let mut start = 0;
+        let mut lengths = Vec::new();
+        while let Some(end) = recognition_end(&backlog, start, true, true) {
+            lengths.push(end - start);
+            start = end;
+        }
+        assert_eq!(lengths, vec![rate * 45, rate * 45, rate * 33]);
+        assert_eq!(start, backlog.len());
+        assert_eq!(
+            recognition_end(&backlog, 0, false, true),
+            Some(backlog.len())
+        );
+    }
 
     #[test]
     fn resampling_is_independent_of_callback_boundaries() {

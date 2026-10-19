@@ -1,3 +1,4 @@
+mod apple_speech;
 mod audio;
 mod background;
 mod card_position;
@@ -5,6 +6,8 @@ mod correction_monitor;
 mod delivery;
 mod floating;
 mod history;
+#[cfg(target_os = "macos")]
+mod macos_crypto;
 #[cfg(windows)]
 mod overlay_windows;
 mod quick_phrase;
@@ -260,8 +263,12 @@ fn matches_shortcut(shortcut: &Shortcut, value: &str) -> bool {
 struct TranscribeRequest {
     audio_base64: String,
     filename: String,
+    #[serde(default)]
     endpoint: String,
+    #[serde(default)]
     model: String,
+    provider: Option<String>,
+    locale: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -269,6 +276,61 @@ struct TranscribeRequest {
 pub(crate) struct TranscribeResponse {
     text: String,
     duration_ms: u128,
+}
+
+/// A task keeps the recognizer selection it started with, including during retries.
+#[derive(Clone, Debug)]
+pub(crate) struct AsrConfig {
+    provider: AsrProvider,
+    endpoint: String,
+    model: String,
+    locale: String,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum AsrProvider {
+    OpenAi,
+    Apple,
+}
+
+impl AsrConfig {
+    pub(crate) fn new(
+        endpoint: String,
+        model: String,
+        provider: Option<String>,
+        locale: Option<String>,
+    ) -> Result<Self, String> {
+        let provider = match provider.as_deref().unwrap_or("openai") {
+            "" | "openai" => AsrProvider::OpenAi,
+            "apple" if cfg!(target_os = "macos") => AsrProvider::Apple,
+            "apple" => return Err("Apple 系统语音识别仅支持 macOS 客户端".into()),
+            _ => return Err("未知的语音识别服务，请重新选择".into()),
+        };
+        if provider == AsrProvider::OpenAi
+            && (endpoint.trim().is_empty() || model.trim().is_empty())
+        {
+            return Err("请先填写语音服务地址与模型名称".into());
+        }
+        Ok(Self {
+            provider,
+            endpoint,
+            model,
+            locale: locale
+                .filter(|value| !value.trim().is_empty())
+                .unwrap_or_else(|| "zh-CN".into()),
+        })
+    }
+
+    pub(crate) fn is_apple(&self) -> bool {
+        self.provider == AsrProvider::Apple
+    }
+
+    pub(crate) async fn prepare(&self) -> Result<(), String> {
+        if self.is_apple() {
+            require_apple_speech_ready(&apple_speech::status(self.locale.clone(), true).await?)?;
+        }
+        Ok(())
+    }
 }
 
 /// 只保存在本机历史中；不随音频或文字请求发送到模型服务。
@@ -531,10 +593,59 @@ fn probe_wav() -> Result<Vec<u8>, String> {
 }
 
 #[tauri::command]
-async fn test_connection(endpoint: String, model: String) -> Result<(), String> {
-    if endpoint.trim().is_empty() || model.trim().is_empty() {
-        return Err("请先填写语音服务地址与模型名称".into());
+fn native_platform() -> &'static str {
+    std::env::consts::OS
+}
+
+#[tauri::command]
+async fn apple_speech_status(
+    locale: String,
+    request_authorization: Option<bool>,
+) -> Result<apple_speech::AppleSpeechStatus, String> {
+    apple_speech::status(locale, request_authorization.unwrap_or(false)).await
+}
+
+fn require_apple_speech_ready(status: &apple_speech::AppleSpeechStatus) -> Result<(), String> {
+    if !status.platform_supported {
+        return Err("Apple 系统语音识别仅支持 macOS 客户端".into());
     }
+    match status.authorization.as_str() {
+        "authorized" => {}
+        "denied" => {
+            return Err(
+                "语音识别权限已被拒绝，请在系统设置 → 隐私与安全性 → 语音识别中允许 WithType"
+                    .into(),
+            )
+        }
+        "restricted" => return Err("系统限制了语音识别权限，请检查设备管理或家长控制设置".into()),
+        _ => return Err("尚未获得语音识别权限，请在系统授权窗口中允许 WithType".into()),
+    }
+    if !status.supports_on_device_recognition {
+        return Err(format!(
+            "当前设备或语言（{}）不支持本机语音识别，请更换语言或使用在线语音服务",
+            status.locale
+        ));
+    }
+    if !status.available {
+        return Err("Apple 系统语音识别暂不可用，请检查系统听写语言资源后重试".into());
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn test_connection(
+    endpoint: String,
+    model: String,
+    provider: Option<String>,
+    locale: Option<String>,
+) -> Result<(), String> {
+    let config = AsrConfig::new(endpoint, model, provider, locale)?;
+    if config.is_apple() {
+        return config.prepare().await;
+    }
+    let AsrConfig {
+        endpoint, model, ..
+    } = config;
     // 通用转录服务不一定暴露 GET /models，所以用一次真实的 audio/transcriptions
     // 调用验证协议。载荷必须是有内容的音频：整段数字静音在该上游会被判成
     // 「没有解码出文字」而稳定返回 HTTP 500。
@@ -584,27 +695,45 @@ async fn test_connection(endpoint: String, model: String) -> Result<(), String> 
 
 #[tauri::command]
 async fn transcribe_audio(request: TranscribeRequest) -> Result<TranscribeResponse, String> {
+    let config = AsrConfig::new(
+        request.endpoint,
+        request.model,
+        request.provider,
+        request.locale,
+    )?;
     let audio = STANDARD
         .decode(request.audio_base64)
         .map_err(|error| format!("录音数据无效：{error}"))?;
-    transcribe_bytes(
-        audio,
-        request.filename,
-        "audio/wav",
-        request.endpoint,
-        request.model,
-    )
-    .await
+    transcribe_with_config(audio, request.filename, "audio/wav", config, None).await
 }
 
-pub(crate) async fn transcribe_bytes(
+pub(crate) async fn transcribe_with_config(
     audio: Vec<u8>,
     filename: String,
     mime: &str,
-    endpoint: String,
-    model: String,
+    config: AsrConfig,
+    cancelled: Option<Arc<AtomicBool>>,
 ) -> Result<TranscribeResponse, String> {
-    transcribe_bytes_with_cancel(audio, filename, mime, endpoint, model, None).await
+    if cancelled
+        .as_ref()
+        .is_some_and(|flag| flag.load(Ordering::Relaxed))
+    {
+        return Err("录音已取消".into());
+    }
+    match config.provider {
+        AsrProvider::Apple => apple_speech::transcribe(audio, config.locale, cancelled).await,
+        AsrProvider::OpenAi => {
+            transcribe_bytes_with_cancel(
+                audio,
+                filename,
+                mime,
+                config.endpoint,
+                config.model,
+                cancelled,
+            )
+            .await
+        }
+    }
 }
 
 async fn cancellable_request<T, F>(
@@ -806,10 +935,11 @@ fn insert_quick_phrase(app: &AppHandle) {
         let result = (|| -> Result<String, String> {
             let phrase = phrase?;
             phrase.ready()?;
-            #[cfg(windows)]
+            #[cfg(any(windows, target_os = "macos"))]
             {
                 let id = format!("phrase-{:?}", Instant::now());
                 delivery::capture(&id)?;
+                #[cfg(windows)]
                 wait_for_phrase_keys(target)?;
                 correction_monitor::stop_learning_monitor();
                 let result = delivery::deliver(phrase.text, id, true, app.clone(), false)?;
@@ -825,7 +955,7 @@ fn insert_quick_phrase(app: &AppHandle) {
                     }
                 ))
             }
-            #[cfg(not(windows))]
+            #[cfg(not(any(windows, target_os = "macos")))]
             Err("快捷短语的全局输入需要 Windows 桌面版".into())
         })();
         let payload = match result {
@@ -1487,6 +1617,8 @@ pub fn run() {
             vocabulary::load_vocabulary,
             vocabulary::save_vocabulary,
             save_api_key,
+            native_platform,
+            apple_speech_status,
             test_connection,
             transcribe_audio,
             save_settings,
@@ -1520,6 +1652,11 @@ pub fn run() {
         .expect("failed to build WithType")
         .run(|app, event| {
             match event {
+                #[cfg(target_os = "macos")]
+                tauri::RunEvent::Reopen {
+                    has_visible_windows: false,
+                    ..
+                } => show_main(app),
                 // Recovery temporarily destroys every webview. Keep native tray ownership alive.
                 tauri::RunEvent::ExitRequested {
                     code: None, api, ..
@@ -1557,6 +1694,70 @@ mod entrance_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn old_asr_requests_keep_the_openai_provider() {
+        let request: TranscribeRequest = serde_json::from_value(serde_json::json!({
+            "audioBase64": "", "filename": "test.wav", "endpoint": "https://asr.example/v1", "model": "test"
+        })).unwrap();
+        let config = AsrConfig::new(
+            request.endpoint,
+            request.model,
+            request.provider,
+            request.locale,
+        )
+        .unwrap();
+        assert!(!config.is_apple());
+        assert_eq!(config.locale, "zh-CN");
+        assert!(AsrConfig::new(String::new(), "test".into(), None, None).is_err());
+        assert!(
+            AsrConfig::new("https://asr.example/v1".into(), String::new(), None, None).is_err()
+        );
+    }
+
+    #[test]
+    fn apple_requests_need_no_remote_credentials_and_unknown_providers_fail_closed() {
+        let request: TranscribeRequest = serde_json::from_value(serde_json::json!({
+            "audioBase64": "", "filename": "test.wav", "provider": "apple", "locale": "en-US"
+        }))
+        .unwrap();
+        let config = AsrConfig::new(
+            request.endpoint,
+            request.model,
+            request.provider,
+            request.locale,
+        );
+        if cfg!(target_os = "macos") {
+            let config = config.unwrap();
+            assert!(config.is_apple());
+            assert_eq!(config.locale, "en-US");
+            assert!(config.endpoint.is_empty() && config.model.is_empty());
+        } else {
+            assert!(config.unwrap_err().contains("macOS"));
+        }
+        assert!(AsrConfig::new(
+            "https://asr.example/v1".into(),
+            "test".into(),
+            Some("other".into()),
+            None
+        )
+        .is_err());
+    }
+
+    #[tokio::test]
+    async fn cancelled_transcription_does_not_reach_a_service() {
+        let config =
+            AsrConfig::new("https://asr.example/v1".into(), "test".into(), None, None).unwrap();
+        let result = transcribe_with_config(
+            Vec::new(),
+            "test.wav".into(),
+            "audio/wav",
+            config,
+            Some(Arc::new(AtomicBool::new(true))),
+        )
+        .await;
+        assert_eq!(result.unwrap_err(), "录音已取消");
+    }
 
     /// 这条断言守着两件事：图标别退化成 16×16（模糊的根因），
     /// 以及本机 DLP 加密 .png 之后，内嵌的 .ico 仍是可解码的真字节。

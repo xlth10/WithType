@@ -79,7 +79,7 @@ export function AnswerCard({ card, onClose, onFollowup, onCopy, onInsert }) {
   };
 
   return <main className="answer-shell">
-    <section className="answer-card" aria-label={isDelivery ? "语音结果" : isSkill ? "写法整理结果" : "提问回答"}>
+    <section className="answer-card" aria-label={isDelivery ? "语音结果" : isSkill ? "按模板整理的结果" : "提问回答"}>
       <header data-tauri-drag-region>
         <div className="answer-heading" data-tauri-drag-region><AppIcon size={34} className="answer-app-icon" /><div data-tauri-drag-region><strong data-tauri-drag-region>{card.title || (isDelivery ? "语音结果" : isSkill ? "整理结果" : "提问")}</strong><small data-tauri-drag-region>{streaming ? progressLabel : isDelivery ? card.message : isSkill ? "整理完成 · 可复制使用" : "可以继续追问"}</small></div></div>
         <button className="icon-button" onClick={close} aria-label="关闭回答" title="关闭 · Esc"><X size={18} /></button>

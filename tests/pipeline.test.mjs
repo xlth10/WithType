@@ -41,7 +41,7 @@ test("本地拦下的静音录音归到 silence，而不是设备故障", () => 
   assert.equal(classifyAsrError("录音太短，请多说几个字后再结束"), "silence");
   assert.equal(classifyAsrError("麦克风返回了无效声道数"), "device");
 });
-import { BUILTIN_SKILLS } from "../src/text/builtinSkills.js";
+import { BUILTIN_SKILLS, copyBuiltinAsCustom, findBuiltinSkill } from "../src/text/builtinSkills.js";
 import { DEFAULT_SETTINGS } from "../src/text/settingsMigration.js";
 
 test("自动词库在开始录音时冻结，只影响后续任务", async () => {
@@ -149,6 +149,48 @@ function tick() {
 function findEvent(events, type) {
   return events.find((event) => event.type === type) || null;
 }
+
+test("Apple 转写使用录音开始时的识别方式与语言快照，不要求网络服务配置", async () => {
+  for (const native of [false, true]) {
+    let request;
+    const command = native ? "transcribe_native_audio" : "transcribe_audio";
+    const { pipeline, pasted, calls } = makePipeline({
+      [command]: async (payload) => { request = payload.request; return { text: "这是本机识别结果", durationMs: 42 }; },
+      release_native_audio: async () => {},
+    });
+    const settings = { ...LOCAL_SETTINGS, asrProvider: "apple", appleSpeechLocale: "zh-CN", asrEndpoint: "", asrModel: "" };
+    const snapshot = pipeline.begin({ intent: "dictation", settings });
+    settings.asrProvider = "openai";
+    settings.appleSpeechLocale = "en-US";
+    const result = await pipeline.complete({ snapshot, audio: native ? { nativeSessionId: "apple-session", audioMs: 1000 } : AUDIO });
+    assert.equal(result.ok, true);
+    assert.equal(request.provider, "apple");
+    assert.equal(request.locale, "zh-CN");
+    assert.equal(request.endpoint, "");
+    assert.equal(request.model, "");
+    assert.deepEqual(pasted, ["这是本机识别结果"]);
+    assert.ok(calls.includes(command));
+    if (native) assert.equal(request.sessionId, "apple-session");
+  }
+});
+
+test("Apple 识别取消后迟到的文本不得输入或写历史", async () => {
+  let finish, started;
+  const didStart = new Promise((resolve) => { started = resolve; });
+  const { pipeline, pasted, events } = makePipeline({
+    transcribe_native_audio: async () => { started(); return new Promise((resolve) => { finish = resolve; }); },
+    cancel_paste: async () => {}, cancel_audio_session: async () => {}, cancel_text_request: async () => {},
+  });
+  const snapshot = pipeline.begin({ intent: "dictation", settings: { ...LOCAL_SETTINGS, asrProvider: "apple", appleSpeechLocale: "zh-CN" } });
+  const completion = pipeline.complete({ snapshot, audio: { nativeSessionId: "apple-cancel", audioMs: 1000 } });
+  await didStart;
+  pipeline.cancel();
+  finish({ text: "这段不该出现", durationMs: 50 });
+  const result = await completion;
+  assert.equal(result.stale, true);
+  assert.deepEqual(pasted, []);
+  assert.ok(!events.some((event) => event.type === "result" || event.type === "archived-result"));
+});
 
 test("粘贴失败保留最终结果并退出处理中，命令原句不会被当成正文", async () => {
   const events = [];
@@ -558,7 +600,7 @@ test("skill 模式的选中项已丢失时提示重新选择", async () => {
   assert.equal(result.ok, true);
   assert.deepEqual(calls, ["transcribe_audio", "paste_text"], "Skill 失效时退回原文并提示");
   assert.deepEqual(pasted, ["整理一下这段"]);
-  assert.equal(findEvent(events, "done").warning, "所选写法已不可用，请重新选择");
+  assert.equal(findEvent(events, "done").warning, "所选模板已不可用，请重新选择");
 });
 
 test("skill 模式选中内置 Skill 时把它的说明发给文字模型", async () => {
@@ -585,6 +627,35 @@ test("skill 模式选中内置 Skill 时把它的说明发给文字模型", asyn
   assert.equal(sent.messages.length, 2);
   assert.ok(sent.messages[0].content.includes(BUILTIN_SKILLS[1].instruction));
   assert.ok(!sent.messages[0].content.includes("嗯那个月底要交付"), "原文不能进 system 消息");
+});
+
+test("润色与其自定义副本在普通输入中处理短句，保留问句正文和原有配置", async () => {
+  const polish = findBuiltinSkill("builtin.polish");
+  const copied = copyBuiltinAsCustom(polish, "custom.polish");
+  const rawText = "嗯，李明周五能给2版报价吗，不是要取消。";
+  const output = "李明周五能给2版报价吗？并不是要取消。";
+  for (const skill of [polish, copied]) {
+    let sent;
+    const { pipeline, calls, pasted } = makePipeline({
+      transcribe_audio: async () => ({ text: rawText, durationMs: 120 }),
+      process_text: async (payload) => {
+        sent = payload.request;
+        return { text: output, durationMs: 200 };
+      },
+    });
+    const settings = { ...TEXT_SETTINGS, processingMode: "skill", selectedSkillId: skill.id };
+    const before = { ...settings };
+    const snapshot = pipeline.begin({ intent: "dictation", settings, customSkills: [copied] });
+    const result = await pipeline.complete({ snapshot, audio: AUDIO });
+    assert.deepEqual(calls, ["transcribe_audio", "process_text", "paste_text"]);
+    assert.equal(sent.task, "skill");
+    assert.equal(sent.skillId, skill.id);
+    assert.ok(sent.messages[0].content.includes(polish.instruction));
+    assert.ok(sent.messages[1].content.includes(rawText));
+    assert.equal(result.text, output);
+    assert.deepEqual(pasted, [output]);
+    assert.deepEqual(settings, before);
+  }
 });
 
 test("clean 模式在本地清理，不访问文字服务", async () => {
@@ -745,7 +816,7 @@ test("没选 Skill 时预览提示先选 Skill", async () => {
 
   const result = await pipeline.preview({ settings: TEXT_SETTINGS, skill: null, rawText: "文本" });
 
-  assert.deepEqual(result, { ok: false, error: "请先选择要试用的写法" });
+  assert.deepEqual(result, { ok: false, error: "请先选择要试用的模板" });
   assert.deepEqual(calls, []);
 });
 
@@ -794,7 +865,7 @@ test("textReady 要求地址与模型名都填齐", () => {
   assert.equal(pipeline.textReady({ ...TEXT_SETTINGS, textModel: "" }), false);
 });
 
-test("流水线暴露的内置 Skill 就是应用内置的那四个", () => {
+test("流水线暴露应用完整的内置模板列表", () => {
   const { pipeline } = makePipeline({});
   assert.equal(pipeline.builtinSkills, BUILTIN_SKILLS);
 });

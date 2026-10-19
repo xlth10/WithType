@@ -17,6 +17,7 @@
   --faint: #676459;
   --line: #e4e0d4;
   --line-strong: #cec7b7;
+  --control-border: #8e8572;
   --surface: #fcfbf6;
   --sidebar: #f2efe5;
   --hover: #eeeadf;
@@ -123,10 +124,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid #56614b; outline-offs
 .field { display: grid; gap: 7px; }
 .field:first-child, .field.full-width { grid-column: 1 / -1; }
 .field > span, .setting-label { font-size: 13px; font-weight: 620; }
-.field input, .field select, textarea { width: 100%; min-height: 44px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); outline: none; color: var(--ink); font-size: 14px; }
+.field input, .field select, textarea { width: 100%; min-height: 44px; padding: 0 10px; border: 1px solid var(--control-border); border-radius: 12px; background: var(--surface); outline: none; color: var(--ink); font-size: 14px; }
 .field select { padding-right: 26px; cursor: pointer; appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 15px) 17px, calc(100% - 10px) 17px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
 .field input:focus, .field select:focus, textarea:focus { border-color: #8f8e89; box-shadow: 0 0 0 2px rgba(32,32,32,.08); }
-.field input:disabled, .field select:disabled, textarea:disabled { background: var(--sidebar); color: var(--faint); cursor: not-allowed; }
+.field input:disabled, .field select:disabled, textarea:disabled { border-color: var(--line-strong); background: var(--sidebar); color: var(--faint); cursor: not-allowed; }
 .field small { color: var(--faint); font-size: 12px; }
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
 .test-result { margin: 14px 0 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--sidebar); color: var(--muted); font-size: 13px; line-height: 1.6; word-break: break-word; }
@@ -425,6 +426,10 @@ html[data-surface=overlay] #root, html[data-surface=answer] #root { width: 100%;
 .model-jump-links a > svg { flex-shrink: 0; }
 .model-section { scroll-margin-top: 84px; }
 .model-section + .model-section { margin-top: 38px; padding-top: 34px; border-top: 1px solid var(--line-strong); }
+.model-section + .text-service-setup { margin-top: 38px; padding-top: 34px; border-top: 1px solid var(--line-strong); }
+.text-service-setup { scroll-margin-top: 84px; }
+.model-return-context { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 20px; }
+.model-return-context > span { font-size: 13px; color: var(--muted); }
 .model-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
 .model-section-heading h2 { font-size: 24px; font-weight: 600; line-height: 1.4; margin: 5px 0 7px; }
 .model-section-heading p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.75; }

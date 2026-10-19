@@ -8,6 +8,7 @@
     "--faint": "#676459",
     "--line": "#e4e0d4",
     "--line-strong": "#cec7b7",
+    "--control-border": "#8e8572",
     "--surface": "#fcfbf6",
     "--sidebar": "#f2efe5",
     "--hover": "#eeeadf",
@@ -76,18 +77,18 @@
     }
   ],
   "sourceSha256": {
-    "src/styles.css": "b0d288a89cf0a40e69c318c79c9b49b8b4b8a302951c8096625807dd9a7123c0",
-    "src/ui/paper-theme.css": "24717c185980e33c67bfa680059ac11367cf2fa871f35e1614557a6993091265",
-    "src/main.jsx": "d0b5542b7e8af4a846384bbc39994455e0cfd13c9e3100f2ce212a46e34d983d",
-    "src/ui/AppEntrance.jsx": "334cc74af0195203a42e43a036e817d06ac1c2e6b65be8e2c309dbf1963d046f",
+    "src/styles.css": "3aff210e27941fdbcbea08d79053c6fc8706ee1cf5ef595015e534129a2c24d1",
+    "src/ui/paper-theme.css": "e660810a9fa671a8aa7a94e6b3261eb5fe19da6c915a28a5bd75faa6682c704f",
+    "src/main.jsx": "1fbff49d42a8a5672b33d00831107508c11e68e6c67919a7f6eb70ad44af6b15",
+    "src/ui/AppEntrance.jsx": "20191687659d9d7a6a4c0e4ea6fd879ed4d759c6c6990a5d29e7118e433d42c6",
     "src/ui/inkWelcome.js": "387cc4b45d4818e3e2f6ecc02cc1557cf3c298b32931a9e6c6cc52b29a2e1060",
     "src/ui/inkArrival.js": "3d3d4fef53870df1e1ba5df1a2066a71019b839a5a2a3507f3a7adcae017aeea",
     "src/ui/inkWelcomeMotion.js": "7967c49800f7aee99241afb5bfa6fea0403365a8395934d260a6e84670ad5f93",
-    "src/ui/inkWelcomePlayer.js": "99954980cd9a431c34a384821db7a38df7ce372f018f5663a77effbb56196395",
+    "src/ui/inkWelcomePlayer.js": "020c2de0d97fcd0934d60ee7ee13da1eeb6576e7318cc54eeb8d319ecaeb16e0",
     "src/ui/ink-welcome.css": "2e018d7c7132763facd57c21cf7f94cb295a22971cf568ddec8aeab2268b7f64",
     "src/ui/welcome.js": "9e48c5da6de50d4845eeddd23943a0f88981ca9a8231ba2d84e5758f347a291b",
     "index.html": "eb8fc38a52d2b72814d843be9549469c2362753afbc093e16c81686b4ecfe6f9",
     "src/voice/motion.js": "f0fcef91c6e3838113fcd5ea4479e4fe8401b2d0db94dc99e2c9210b419411d4",
-    "src-tauri/tauri.conf.json": "ea7dc69e93ac28d61aef23fc2bcaf60e89099bac77d7470589da22b3a4448f19"
+    "src-tauri/tauri.conf.json": "ea780146a05917d7055787f04e1981083467ad32f8563b3527c01b0cde90d481"
   }
 }

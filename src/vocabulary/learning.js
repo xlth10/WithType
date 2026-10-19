@@ -3,15 +3,14 @@
 // Upstream 9d16762c52906f054285b630935017a431e9e627. See THIRD_PARTY_NOTICES.md.
 import { pinyin } from "pinyin-pro";
 import { parseCorrections } from "../text/localText.js";
+import { MAX_RULES, normalizeWord as normalize, correctionKey, validCorrectionStructure, emptyVocabulary, normalizeDismissed, conflicts } from "./rules.js";
+export { MAX_RULES, correctionKey, emptyVocabulary, applyLearnedVocabulary } from "./rules.js";
 
 const han = /^[\u3400-\u9fff\uf900-\ufaff]$/u;
 const meaningful = ["他她它牠", "的得地", "在再", "那哪", "做作", "已以", "像象", "须需", "即既"];
 const similar = [["zh", "z"], ["ch", "c"], ["sh", "s"], ["n", "l"], ["f", "h"], ["r", "l"]];
 const initials = ["zh", "ch", "sh", ..."bpmfdtnlgkhjqxrzcs yw".replace(/ /g, "")];
 const DAY = 86400000;
-export const MAX_RULES = 60;
-const normalize = (value) => value.trim().toLowerCase();
-export const correctionKey = ({ variant, target }) => `${normalize(variant)}\u0000${normalize(target)}`;
 
 function soundUnits(text) {
   return (text.match(/[A-Za-z0-9]+|[\u3400-\u9fff\uf900-\ufaff]/gu) || []).map((char) => ({
@@ -48,14 +47,7 @@ export function soundsLike(variant, target) {
   return s !== t && editDistance(s, t) / Math.max(s.length, t.length) <= 0.5;
 }
 export function validCorrection({ variant, target }, soundCheck = true) {
-  if (typeof variant !== "string" || typeof target !== "string") return false;
-  const lengths = [Array.from(variant).length, Array.from(target).length];
-  if (normalize(variant) === normalize(target) || Math.min(...lengths) < 1 || Math.max(...lengths) > 12 || Math.max(...lengths) / Math.min(...lengths) > 5) return false;
-  for (const text of [variant, target]) {
-    if (/[。！？!?；;\n\r=|\u0000]/u.test(text) || (text.match(/[，,、：:]/g) || []).length >= 2) return false;
-    if (!/[\p{L}]/u.test(text) || /^[A-Za-z0-9]$/.test(text)) return false;
-  }
-  if (han.test(variant) && han.test(target)) return false;
+  if (!validCorrectionStructure({ variant, target })) return false;
   return !soundCheck || soundsLike(variant, target);
 }
 
@@ -101,18 +93,13 @@ export function extractCorrections(original, edited, { manual = false } = {}) {
   return [...result.values()];
 }
 
-export function emptyVocabulary() { return { version: 1, entries: [], candidates: [], dismissed: [] }; }
 export function normalizeVocabulary(raw, now = Date.now()) {
   if (!raw || typeof raw !== "object") return emptyVocabulary();
   const unique = (values) => [...new Map(values.map((x) => [correctionKey(x), x])).values()];
   const entries = unique((Array.isArray(raw.entries) ? raw.entries : []).filter((x) => x && validCorrection(x, x.source !== "manual"))).slice(0, MAX_RULES);
   const candidates = unique((Array.isArray(raw.candidates) ? raw.candidates : []).filter((x) => x && validCorrection(x) && x.lastSeen >= now - 30 * DAY && x.lastSeen <= now && x.count === 1)).slice(-200);
-  const dismissed = [...new Set((Array.isArray(raw.dismissed) ? raw.dismissed : []).filter((s) => typeof s === "string" && s.length <= 100))].slice(0, 5000);
+  const dismissed = normalizeDismissed(raw.dismissed);
   return { version: 1, entries, candidates, dismissed };
-}
-function conflicts(pair, rules) {
-  const variant = normalize(pair.variant), target = normalize(pair.target);
-  return rules.some((r) => (normalize(r.target) === variant && normalize(r.target) !== target) || (normalize(r.variant) === variant && normalize(r.target) !== target) || normalize(r.variant) === target);
 }
 export function learnCorrections(state, { original, edited, sessionId, manual = false, vocabulary = "", now = Date.now() }) {
   const next = normalizeVocabulary(state, now);
@@ -144,13 +131,4 @@ export function dismissCorrection(state, pair) {
   next.candidates = next.candidates.filter((x) => correctionKey(x) !== key);
   next.dismissed = [...new Set([...next.dismissed, key])];
   return next;
-}
-/** Manual rules win; one-pass replacements prevent cascades and respect Latin word boundaries. */
-export function applyLearnedVocabulary(text, entries = [], manualVocabulary = "") {
-  const manual = parseCorrections(manualVocabulary);
-  const rules = entries.filter((r) => validCorrection(r, false) && !conflicts(r, manual) && !manual.some((m) => normalize(m.variant) === normalize(r.variant))).sort((a, b) => b.variant.length - a.variant.length);
-  if (!rules.length) return text;
-  const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(rules.map((r) => `${/^[A-Za-z0-9]/.test(r.variant) ? "(?<![A-Za-z0-9_])" : ""}${escape(r.variant)}${/[A-Za-z0-9]$/.test(r.variant) ? "(?![A-Za-z0-9_])" : ""}`).join("|"), "giu");
-  return text.replace(pattern, (match) => rules.find((r) => normalize(r.variant) === normalize(match))?.target || match);
 }

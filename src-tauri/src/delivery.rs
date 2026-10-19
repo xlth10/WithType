@@ -180,6 +180,9 @@ pub fn cancel(id: &str) {
 #[cfg(windows)]
 #[path = "delivery/platform.rs"]
 mod platform;
+#[cfg(target_os = "macos")]
+#[path = "delivery/macos.rs"]
+mod platform;
 
 pub fn capture(id: &str) -> Result<(), String> {
     capture_target(id, None).map(|_| ())
@@ -188,9 +191,9 @@ pub fn capture(id: &str) -> Result<(), String> {
 // The native action queues this before its renderer event, without waiting for
 // UIA. The one-use token may only be adopted by a registered voice task.
 pub fn prime(id: &str) {
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "macos"))]
     platform::prime(id.to_owned(), token(id));
-    #[cfg(not(windows))]
+    #[cfg(not(any(windows, target_os = "macos")))]
     let _ = id;
 }
 
@@ -199,9 +202,9 @@ pub fn capture_target(id: &str, input_token: Option<String>) -> Result<CaptureIn
     if flag.load(Ordering::SeqCst) {
         return Err("输入已取消".into());
     }
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "macos"))]
     return platform::capture(id.to_owned(), flag, input_token);
-    #[cfg(not(windows))]
+    #[cfg(not(any(windows, target_os = "macos")))]
     {
         let _ = input_token;
         Ok(CaptureInfo::new(Reason::PlatformUnsupported, 0))
@@ -219,9 +222,9 @@ pub fn deliver(
     if flag.load(Ordering::SeqCst) {
         return Err("输入已取消".into());
     }
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "macos"))]
     return platform::deliver(text, id, auto_paste, flag, app, learn);
-    #[cfg(not(windows))]
+    #[cfg(not(any(windows, target_os = "macos")))]
     {
         let _ = (app, learn);
         static SERIAL: Mutex<()> = Mutex::new(());
@@ -247,9 +250,9 @@ pub fn deliver(
 }
 
 pub fn caret() -> Option<crate::card_position::Rect> {
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "macos"))]
     return platform::caret();
-    #[cfg(not(windows))]
+    #[cfg(not(any(windows, target_os = "macos")))]
     None
 }
 

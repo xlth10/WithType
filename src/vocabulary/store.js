@@ -1,4 +1,4 @@
-import { emptyVocabulary, normalizeVocabulary } from "./learning.js";
+import { emptyVocabulary, normalizeDismissed } from "./rules.js";
 const KEY = "typefree-windows.vocabulary";
 const copy = (value) => structuredClone(value);
 
@@ -14,12 +14,18 @@ export function createVocabularyStore(invoke, onChange) {
   return {
     load: () => serial(async () => {
       const raw = await invoke("load_vocabulary", {}, () => JSON.parse(localStorage.getItem(KEY) || "null"));
-      current = copy(normalizeVocabulary(raw));
+      // First-run windows do not need the phonetic dictionary. Existing saved
+      // rules still pass the full validation before dictation becomes ready.
+      const hasRules = [raw?.entries, raw?.candidates].some((items) => Array.isArray(items) && items.length);
+      current = hasRules ? copy((await import("./learning.js")).normalizeVocabulary(raw))
+        : { ...emptyVocabulary(), dismissed: normalizeDismissed(raw?.dismissed) };
       onChange(copy(current));
       return copy(current);
     }),
     update: (transform) => serial(async () => {
-      const next = copy(normalizeVocabulary(transform(copy(current))));
+      const transformed = await transform(copy(current));
+      const { normalizeVocabulary } = await import("./learning.js");
+      const next = copy(normalizeVocabulary(transformed));
       await invoke("save_vocabulary", { vocabulary: next }, () => localStorage.setItem(KEY, JSON.stringify(next)));
       current = next;
       onChange(copy(current));

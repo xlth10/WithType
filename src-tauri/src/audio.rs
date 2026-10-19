@@ -4,6 +4,31 @@
 const OUTPUT_RATE: u32 = 16_000;
 const MAX_SECONDS: usize = 15 * 60;
 
+struct TranscriptionCompletion {
+    transcript: Option<String>,
+    error: Option<String>,
+    status: &'static str,
+}
+
+fn finish_transcription(partials: &[String], error: Option<String>) -> TranscriptionCompletion {
+    let status = if error.is_none() {
+        "complete"
+    } else if partials.is_empty() {
+        "failed"
+    } else {
+        "partial"
+    };
+    TranscriptionCompletion {
+        transcript: if status == "failed" {
+            None
+        } else {
+            Some(join_transcripts(partials))
+        },
+        error,
+        status,
+    }
+}
+
 /// Streaming, band-limited resampling. `position` and `base` carry across
 /// device callbacks, so a callback boundary cannot create a click or gap.
 struct Resampler {
@@ -246,7 +271,8 @@ fn recognition_end(samples: &[f32], start: usize, apple: bool, finishing: bool) 
 #[cfg(any(windows, target_os = "macos"))]
 mod platform {
     use super::{
-        has_voice, is_silent, join_transcripts, recognition_end, wav_bytes, Resampler, OUTPUT_RATE,
+        finish_transcription, has_voice, is_silent, join_transcripts, recognition_end, wav_bytes,
+        Resampler, OUTPUT_RATE,
     };
     use cpal::{
         traits::{DeviceTrait, HostTrait, StreamTrait},
@@ -603,6 +629,7 @@ mod platform {
         device_error: Option<String>,
         transcript: Option<String>,
         transcription_error: Option<String>,
+        transcription_status: &'static str,
         asr_ms: u128,
     }
 
@@ -640,6 +667,7 @@ mod platform {
         samples: Vec<f32>,
         transcript: Option<String>,
         transcription_error: Option<String>,
+        transcription_status: &'static str,
         asr_ms: u128,
         /// 采集侧现场读数：样本为 0（或异常少）时，它是唯一能说明「为什么」的东西。
         diagnostics: Option<String>,
@@ -1118,21 +1146,13 @@ mod platform {
         if !timed_out {
             let _ = uploader.join();
         }
-        // 尾段识别失败时，只要录音中已经攒到部分结果，就降级返回它们：
-        // 主循环里的失败预算（failures < 2）意味着走到这里时大概率已重试过，
-        // 把已确认的几段一并丢掉只会让用户整句重说。
-        // transcription_error 必须同时清空：前端 pipeline 先检查它就会整条报错，
-        // 拿不到降级后的 transcript。
-        let degraded =
-            !asr.is_apple() && progress.last_error.is_some() && !progress.partials.is_empty();
+        // Partial text is useful for recovery, but never claims complete success.
+        let completion = finish_transcription(&progress.partials, progress.last_error);
         Ok(CaptureResult {
             samples,
-            transcript: if progress.last_error.is_none() || degraded {
-                Some(join_transcripts(&progress.partials))
-            } else {
-                None
-            },
-            transcription_error: if degraded { None } else { progress.last_error },
+            transcript: completion.transcript,
+            transcription_error: completion.error,
+            transcription_status: completion.status,
             asr_ms: progress.asr_ms,
             diagnostics,
         })
@@ -1149,9 +1169,11 @@ mod platform {
         intent: Option<String>,
         provider: Option<String>,
         locale: Option<String>,
+        hot_words: Option<Vec<String>>,
     ) -> Result<SessionInfo, String> {
         crate::background::require_task(&app, &session_id)?;
-        let asr = crate::AsrConfig::new(endpoint, model, provider, locale)?;
+        let asr = crate::AsrConfig::new(endpoint, model, provider, locale)?
+            .with_hot_words(hot_words.unwrap_or_default());
         asr.prepare().await?;
         // 设备探测、spool 创建、流构建都会做 COM/IO，放阻塞线程，避免主线程被
         // 蓝牙麦克风的冷启动（重连、格式协商）拖住几秒。
@@ -1261,6 +1283,7 @@ mod platform {
             device_error: None,
             transcript: None,
             transcription_error: None,
+            transcription_status: "pending",
             asr_ms: 0,
         })
     }
@@ -1313,6 +1336,7 @@ mod platform {
             samples,
             transcript,
             transcription_error,
+            transcription_status,
             asr_ms,
             diagnostics,
         } = outcome?;
@@ -1348,6 +1372,7 @@ mod platform {
             device_error,
             transcript,
             transcription_error,
+            transcription_status,
             asr_ms,
         })
     }
@@ -1548,6 +1573,8 @@ mod platform {
         model: String,
         provider: Option<String>,
         locale: Option<String>,
+        #[serde(default)]
+        hot_words: Vec<String>,
     }
 
     #[tauri::command]
@@ -1560,7 +1587,8 @@ mod platform {
             request.model,
             request.provider,
             request.locale,
-        )?;
+        )?
+        .with_hot_words(request.hot_words);
         let cancelled = Arc::new(AtomicBool::new(false));
         {
             let mut retries = retry_cancel().lock().map_err(|e| e.to_string())?;
@@ -1620,6 +1648,7 @@ mod platform {
         device_error: Option<String>,
         transcript: Option<String>,
         transcription_error: Option<String>,
+        transcription_status: &'static str,
         asr_ms: u128,
     }
     #[derive(serde::Deserialize)]
@@ -1661,6 +1690,7 @@ mod platform {
         _intent: Option<String>,
         _provider: Option<String>,
         _locale: Option<String>,
+        _hot_words: Option<Vec<String>>,
     ) -> Result<SessionInfo, String> {
         Err("原生录音仅支持 Windows".into())
     }
@@ -1698,6 +1728,21 @@ pub use platform::*;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn partial_transcription_keeps_error_and_never_claims_complete() {
+        let result = finish_transcription(&["前段已识别".into()], Some("尾段超时".into()));
+        assert_eq!(result.status, "partial");
+        assert_eq!(result.transcript.as_deref(), Some("前段已识别"));
+        assert_eq!(result.error.as_deref(), Some("尾段超时"));
+        let failed = finish_transcription(&[], Some("识别失败".into()));
+        assert_eq!(failed.status, "failed");
+        assert!(failed.transcript.is_none());
+        assert_eq!(
+            finish_transcription(&["完整正文".into()], None).status,
+            "complete"
+        );
+    }
 
     #[test]
     fn apple_live_and_drain_jobs_stay_bounded_when_recognition_falls_behind() {

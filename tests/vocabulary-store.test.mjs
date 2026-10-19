@@ -129,3 +129,21 @@ test("空词库仍保留归一化后的忽略记录", async () => {
   }), () => {});
   assert.deepEqual(await store.load(), { ...emptyVocabulary(), dismissed: ["徐向\u0000徐翔"] });
 });
+
+test("重启载入及保存保留热词类型、旧替换和旧候选，不隐式迁移含义", async () => {
+  const hotword = { ...SECOND, kind: "hotword" };
+  const candidate = { variant: "张伟", target: "张炜", count: 1, lastSeen: Date.now(), sessionId: "old-candidate" };
+  const raw = { ...emptyVocabulary(), entries: [FIRST, hotword], candidates: [candidate] };
+  const persisted = [];
+  const store = createVocabularyStore(async (command, payload) => {
+    if (command === "load_vocabulary") return structuredClone(raw);
+    persisted.push(payload.vocabulary);
+  }, () => {});
+  assert.deepEqual(await store.load(), raw);
+  const saved = await store.update((state) => state);
+  assert.deepEqual(saved, raw);
+  assert.deepEqual(persisted, [raw]);
+  assert.equal(saved.entries[0].kind, undefined, "旧版缺kind的规则继续作为替换规则保存");
+  assert.equal(saved.entries[1].kind, "hotword");
+  assert.equal(saved.candidates.length, 1, "单纯重启和保存不会激活旧候选");
+});

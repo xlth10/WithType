@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "withtype-synthetic-zh-2026-10-19",
+  "material": "synthetic-speech",
+  "voice": "Tingting",
+  "rate": 185,
+  "limitations": [
+    "合成语音不能代替真人口音、噪声和麦克风测试。",
+    "自动断言只检查局部事实和格式，需人工复核语义。",
+    "文件识别计时不代表录音中预识别后的松手延迟。"
+  ],
+  "cases": [
+    {
+      "id": "short-simple",
+      "category": "短句直出",
+      "spoken": "明天上午十点开会。",
+      "checks": [
+        {
+          "id": "time",
+          "any": [
+            "十点",
+            "10点",
+            "10:00"
+          ]
+        }
+      ],
+      "review": "保留明天上午十点，不扩写。"
+    },
+    {
+      "id": "short-correction",
+      "category": "短句改口",
+      "spoken": "明天三点，不对，四点开会。",
+      "checks": [
+        {
+          "id": "final-time",
+          "any": [
+            "四点",
+            "4点",
+            "4:00"
+          ]
+        },
+        {
+          "id": "withdrawn-time",
+          "none": [
+            "三点",
+            "3点",
+            "3:00"
+          ]
+        }
+      ],
+      "review": "只保留最终四点。"
+    },
+    {
+      "id": "weekday-correction",
+      "category": "日期改口",
+      "spoken": "周三发版，改成周四。",
+      "checks": [
+        {
+          "id": "final-day",
+          "any": [
+            "周四",
+            "星期四"
+          ]
+        },
+        {
+          "id": "withdrawn-day",
+          "none": [
+            "周三",
+            "星期三"
+          ]
+        }
+      ],
+      "review": "发版日期最终为周四。"
+    },
+    {
+      "id": "negation-money",
+      "category": "否定与金额",
+      "spoken": "这笔款不是一万五，是一千五百元，不要自动付款，先等我确认。",
+      "checks": [
+        {
+          "id": "amount",
+          "any": [
+            "一千五百",
+            "1500",
+            "1,500"
+          ]
+        },
+        {
+          "id": "no-payment",
+          "regex": "(不要|不得|别|不).{0,6}(自动)?付款"
+        },
+        {
+          "id": "confirm",
+          "any": [
+            "确认"
+          ]
+        }
+      ],
+      "review": "金额1500元，没有付款授权，等待本人确认。"
+    },
+    {
+      "id": "number-correction",
+      "category": "数字改口",
+      "spoken": "预算是一万二，不对，是一万零二百元，数量二十个。",
+      "checks": [
+        {
+          "id": "amount",
+          "any": [
+            "一万零二百",
+            "10200",
+            "10,200"
+          ]
+        },
+        {
+          "id": "quantity",
+          "regex": "(二十|20).{0,2}个"
+        },
+        {
+          "id": "withdrawn",
+          "none": [
+            "一万二",
+            "12000",
+            "12,000"
+          ]
+        }
+      ],
+      "review": "预算10200元，数量20个。"
+    },
+    {
+      "id": "negative-deadline",
+      "category": "否定与截止时间",
+      "spoken": "我不是说今天必须交付，我说的是今天先给预览，正式版本周五再交。",
+      "checks": [
+        {
+          "id": "preview",
+          "any": [
+            "预览"
+          ]
+        },
+        {
+          "id": "formal-deadline",
+          "any": [
+            "周五",
+            "星期五"
+          ]
+        }
+      ],
+      "review": "今天给预览，正式版周五；不能变成今天正式交付。"
+    },
+    {
+      "id": "proper-names",
+      "category": "中文专名",
+      "spoken": "请把纪要发给岑溪和翟昀，项目名称叫声笺，别写成生煎。",
+      "checks": [
+        {
+          "id": "person-one",
+          "any": [
+            "岑溪"
+          ]
+        },
+        {
+          "id": "person-two",
+          "any": [
+            "翟昀"
+          ]
+        },
+        {
+          "id": "product",
+          "any": [
+            "声笺"
+          ]
+        }
+      ],
+      "review": "专名正确；不能改项目名。",
+      "vocabulary": "岑溪\n翟昀\n声笺"
+    },
+    {
+      "id": "mixed-identifiers",
+      "category": "中英混说",
+      "spoken": "WithType 的 Windows 版本继续使用 Qwen ASR，Mac 版本默认使用 Apple Speech，文字整理模型不变。",
+      "checks": [
+        {
+          "id": "brand",
+          "regex": "WithType",
+          "flags": "i"
+        },
+        {
+          "id": "windows",
+          "regex": "Windows",
+          "flags": "i"
+        },
+        {
+          "id": "apple",
+          "regex": "Apple\\s*Speech",
+          "flags": "i"
+        },
+        {
+          "id": "same-text",
+          "regex": "(文字整理模型|整理模型|文字模型).{0,6}(不变|保持|沿用)"
+        }
+      ],
+      "review": "两个平台ASR选择准确，整理模型不变。",
+      "vocabulary": "WithType\nQwen ASR\nApple Speech\nWindows\nMac"
+    },
+    {
+      "id": "emphasis",
+      "category": "强调与重复",
+      "spoken": "这个版本一定不要自动发送，一定不要自动发送。先让我预览，再由我确认。",
+      "checks": [
+        {
+          "id": "no-autosend",
+          "regex": "(不要|不得|不|禁止).{0,4}自动发送"
+        },
+        {
+          "id": "preview",
+          "any": [
+            "预览"
+          ]
+        },
+        {
+          "id": "confirm",
+          "any": [
+            "确认"
+          ]
+        }
+      ],
+      "review": "去机械重复后仍保留强烈禁止自动发送、人工确认。"
+    },
+    {
+      "id": "list",
+      "category": "列表",
+      "spoken": "今天有三件事，第一修复录音丢失，第二验证苹果识别，第三整理测试报告。没有第四项。",
+      "checks": [
+        {
+          "id": "audio",
+          "regex": "(录音|音频).{0,4}(丢失|遗失)"
+        },
+        {
+          "id": "apple",
+          "regex": "苹果.{0,4}识别"
+        },
+        {
+          "id": "report",
+          "any": [
+            "测试报告"
+          ]
+        }
+      ],
+      "review": "三项清单，不新增第四项。"
+    },
+    {
+      "id": "question-is-text",
+      "category": "问题句保真",
+      "spoken": "为什么这个服务总是超时？我想把这个问题发给同事，请保留我的问法。",
+      "checks": [
+        {
+          "id": "question",
+          "regex": "为什么.{0,14}(超时|超時)"
+        },
+        {
+          "id": "no-answer",
+          "none": [
+            "原因可能是",
+            "解决方法如下",
+            "建议您"
+          ]
+        }
+      ],
+      "review": "整理口述，不能替用户回答问题。"
+    },
+    {
+      "id": "code-token",
+      "category": "代码与数字",
+      "spoken": "把配置里的 text timeout 改成六万毫秒，HTTP 四百零一只提示认证失败，不要重试。",
+      "checks": [
+        {
+          "id": "timeout",
+          "any": [
+            "六万",
+            "60000",
+            "60,000"
+          ]
+        },
+        {
+          "id": "status",
+          "any": [
+            "四百零一",
+            "401"
+          ]
+        },
+        {
+          "id": "no-retry",
+          "regex": "(不要|不|禁止).{0,3}重试"
+        }
+      ],
+      "review": "保留60000毫秒和401不重试，不生成代码或新增步骤。",
+      "vocabulary": "textTimeoutMs\nHTTP"
+    },
+    {
+      "id": "conditional-promise",
+      "category": "条件与承诺",
+      "spoken": "如果测试全部通过，我们争取周五发布。现在不能保证日期，也没有批准上线。",
+      "checks": [
+        {
+          "id": "condition",
+          "regex": "(如果|若|在).{0,10}测试.{0,8}通过"
+        },
+        {
+          "id": "uncertain",
+          "regex": "(争取|力争|尽量|计划|不能保证)"
+        },
+        {
+          "id": "not-approved",
+          "regex": "(没有|未|尚未).{0,4}(批准|获批).{0,2}上线"
+        }
+      ],
+      "review": "有条件且未批准，不能变成确定周五上线。"
+    },
+    {
+      "id": "long-withdrawal",
+      "category": "长段跨段撤回",
+      "spoken": "先记一下这次的安排。第一批先给市场部，周三上午九点发出，数量是三十份。研发部的反馈由我收集，下午统一整理。测试报告要保留失败样例，不能只展示成功结果。前面说的市场部安排作废，第一批改给研发部，时间改成周四下午两点，数量改成二十份。其他安排保持不变。",
+      "checks": [
+        {
+          "id": "department",
+          "regex": "第一批.{0,10}研发部"
+        },
+        {
+          "id": "day",
+          "any": [
+            "周四",
+            "星期四"
+          ]
+        },
+        {
+          "id": "time",
+          "any": [
+            "两点",
+            "2点"
+          ]
+        },
+        {
+          "id": "quantity",
+          "regex": "(二十|20).{0,2}份"
+        },
+        {
+          "id": "evidence",
+          "any": [
+            "失败样例"
+          ]
+        }
+      ],
+      "review": "最终第一批给研发部、周四14点、20份；旧安排不再有效；保留其他要求。"
+    },
+    {
+      "id": "paragraph-fidelity",
+      "category": "长段事实保真",
+      "spoken": "我们今天只讨论测试方案。Mac 先验证本机识别和专名提示，Windows 等有真实设备后再验收。现在手里没有用户录音，所以先用合成语音测服务链路，报告必须说明这个限制。不要把单元测试通过写成实际体验已经提升，也不要添加准确率数字。",
+      "checks": [
+        {
+          "id": "synthetic",
+          "any": [
+            "合成语音"
+          ]
+        },
+        {
+          "id": "windows",
+          "regex": "Windows.{0,18}(真实设备|实机|验收)",
+          "flags": "i"
+        },
+        {
+          "id": "no-score",
+          "regex": "(不要|不得|不).{0,6}(添加|编造|虚构).{0,5}准确率"
+        }
+      ],
+      "review": "保留材料来源、Windows待实机和不编准确率的限制。",
+      "vocabulary": "Mac\nWindows"
+    },
+    {
+      "id": "polish-fidelity",
+      "category": "润色事实保真",
+      "spoken": "这个功能我觉得现在能试用，但是还没有测过 Windows，也不能说已经完全稳定。希望大家先试一下，有问题告诉我。",
+      "checks": [
+        {
+          "id": "windows",
+          "regex": "(还|尚)?(没有|未).{0,5}(测|验证).{0,5}Windows",
+          "flags": "i"
+        },
+        {
+          "id": "not-stable",
+          "regex": "(不能|尚未|无法|还未|不).{0,10}(完全)?稳定"
+        }
+      ],
+      "review": "润色措辞，保留未测Windows和不能宣称完全稳定。",
+      "mode": "polish"
+    }
+  ]
+}

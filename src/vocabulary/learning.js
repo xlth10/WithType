@@ -3,8 +3,8 @@
 // Upstream 9d16762c52906f054285b630935017a431e9e627. See THIRD_PARTY_NOTICES.md.
 import { pinyin } from "pinyin-pro";
 import { parseCorrections } from "../text/localText.js";
-import { MAX_RULES, normalizeWord as normalize, correctionKey, validCorrectionStructure, emptyVocabulary, normalizeDismissed, conflicts } from "./rules.js";
-export { MAX_RULES, correctionKey, emptyVocabulary, applyLearnedVocabulary } from "./rules.js";
+import { MAX_RULES, MAX_AUTO_HOTWORDS, normalizeWord as normalize, correctionKey, validCorrectionStructure, emptyVocabulary, normalizeDismissed, conflicts } from "./rules.js";
+export { MAX_RULES, MAX_AUTO_HOTWORDS, correctionKey, emptyVocabulary, applyLearnedVocabulary, collectAsrHotWords } from "./rules.js";
 
 const han = /^[\u3400-\u9fff\uf900-\ufaff]$/u;
 const meaningful = ["他她它牠", "的得地", "在再", "那哪", "做作", "已以", "像象", "须需", "即既"];
@@ -93,10 +93,21 @@ export function extractCorrections(original, edited, { manual = false } = {}) {
   return [...result.values()];
 }
 
+const targetKey = (target) => `hotword\u0000${normalize(target)}`;
+
 export function normalizeVocabulary(raw, now = Date.now()) {
   if (!raw || typeof raw !== "object") return emptyVocabulary();
-  const unique = (values) => [...new Map(values.map((x) => [correctionKey(x), x])).values()];
-  const entries = unique((Array.isArray(raw.entries) ? raw.entries : []).filter((x) => x && validCorrection(x, x.source !== "manual"))).slice(0, MAX_RULES);
+  const unique = (values, key = correctionKey) => [...new Map(values.map((x) => [key(x), x])).values()];
+  const valid = (Array.isArray(raw.entries) ? raw.entries : []).filter((x) => x && validCorrection(x, x.source !== "manual"));
+  // Preserve all pre-existing replacement semantics. Hotwords are separately
+  // deduplicated by their correct target, and never displace a legacy rule.
+  const replacements = unique(valid.filter((x) => x.kind !== "hotword")).slice(0, MAX_RULES);
+  const replacementTargets = new Set(replacements.map((x) => normalize(x.target)));
+  const hotwords = unique(valid.filter((x) => x.kind === "hotword" && !replacementTargets.has(normalize(x.target))), (x) => normalize(x.target))
+    .slice(0, Math.min(MAX_AUTO_HOTWORDS, MAX_RULES - replacements.length));
+  const entries = [...replacements, ...hotwords];
+  // Legacy candidates remain visible until expiry or a new explicit correction.
+  // Loading alone never promotes an old candidate or a deleted word.
   const candidates = unique((Array.isArray(raw.candidates) ? raw.candidates : []).filter((x) => x && validCorrection(x) && x.lastSeen >= now - 30 * DAY && x.lastSeen <= now && x.count === 1)).slice(-200);
   const dismissed = normalizeDismissed(raw.dismissed);
   return { version: 1, entries, candidates, dismissed };
@@ -107,28 +118,31 @@ export function learnCorrections(state, { original, edited, sessionId, manual = 
   const manualRules = parseCorrections(vocabulary);
   for (const pair of extractCorrections(original, edited, { manual })) {
     const key = correctionKey(pair);
-    if ((!manual && next.dismissed.includes(key)) || [...manualRules, ...next.entries].some((e) => correctionKey(e) === key) || conflicts(pair, [...manualRules, ...next.entries])) continue;
-    const candidate = next.candidates.find((c) => correctionKey(c) === key);
-    if (!manual && candidate?.sessionId === sessionId) continue;
-    if (!manual && !candidate) {
-      next.candidates.push({ ...pair, count: 1, lastSeen: now, sessionId });
-      continue;
-    }
-    if (next.entries.length >= MAX_RULES) continue;
-    next.entries.push({ ...pair, source: manual ? "manual" : "auto", learnedAt: now });
-    next.candidates = next.candidates.filter((c) => correctionKey(c) !== key);
-    next.dismissed = next.dismissed.filter((k) => k !== key);
+    const wordKey = targetKey(pair.target);
+    const replacements = [...manualRules, ...next.entries.filter((entry) => entry.kind !== "hotword")];
+    if (replacements.some((entry) => correctionKey(entry) === key) || conflicts(pair, replacements)) continue;
+    if (!manual && (next.dismissed.includes(key) || next.dismissed.includes(wordKey)
+      || [...manualRules, ...next.entries].some((entry) => normalize(entry.target) === normalize(pair.target)))) continue;
+    const retained = manual ? next.entries.filter((entry) => entry.kind !== "hotword" || normalize(entry.target) !== normalize(pair.target)) : next.entries;
+    if (retained.length >= MAX_RULES || (!manual && retained.filter((entry) => entry.kind === "hotword").length >= MAX_AUTO_HOTWORDS)) continue;
+    next.entries = [...retained, { ...pair, ...(!manual ? { kind: "hotword" } : {}), source: manual ? "manual" : "auto", learnedAt: now }];
+    next.candidates = next.candidates.filter((candidate) => correctionKey(candidate) !== key);
+    next.dismissed = next.dismissed.filter((dismissed) => dismissed !== key && dismissed !== wordKey);
     learned.push(pair);
   }
-  next.candidates = next.candidates.slice(-200);
   return { state: next, learned };
 }
 export function dismissCorrection(state, pair) {
   const key = correctionKey(pair);
   const next = normalizeVocabulary(state);
-  if (!next.dismissed.includes(key) && next.dismissed.length >= 5000) throw new Error("忽略记录已满，请先导出并整理词库");
-  next.entries = next.entries.filter((x) => correctionKey(x) !== key);
-  next.candidates = next.candidates.filter((x) => correctionKey(x) !== key);
-  next.dismissed = [...new Set([...next.dismissed, key])];
+  // A deleted hotword stays disabled even if a future recognizer mishears the
+  // same target differently. Legacy dismissals retain their existing pair scope.
+  const isHotword = pair.kind === "hotword" || next.entries.some((entry) => entry.kind === "hotword" && correctionKey(entry) === key);
+  const keys = [key, ...(isHotword ? [targetKey(pair.target)] : [])];
+  const dismissed = [...new Set([...next.dismissed, ...keys])];
+  if (dismissed.length > 5000) throw new Error("忽略记录已满，请先导出并整理词库");
+  next.entries = next.entries.filter((entry) => correctionKey(entry) !== key && !(isHotword && entry.kind === "hotword" && normalize(entry.target) === normalize(pair.target)));
+  next.candidates = next.candidates.filter((entry) => correctionKey(entry) !== key);
+  next.dismissed = dismissed;
   return next;
 }

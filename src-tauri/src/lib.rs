@@ -1,6 +1,8 @@
 mod apple_speech;
 mod audio;
 mod background;
+#[cfg(feature = "benchmark")]
+pub mod benchmark;
 mod card_position;
 mod correction_monitor;
 mod delivery;
@@ -269,6 +271,8 @@ struct TranscribeRequest {
     model: String,
     provider: Option<String>,
     locale: Option<String>,
+    #[serde(default)]
+    hot_words: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -285,6 +289,7 @@ pub(crate) struct AsrConfig {
     endpoint: String,
     model: String,
     locale: String,
+    hot_words: Vec<String>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -318,7 +323,30 @@ impl AsrConfig {
             locale: locale
                 .filter(|value| !value.trim().is_empty())
                 .unwrap_or_else(|| "zh-CN".into()),
+            hot_words: Vec::new(),
         })
+    }
+
+    pub(crate) fn with_hot_words(mut self, words: Vec<String>) -> Self {
+        let mut seen = std::collections::HashSet::new();
+        self.hot_words = words
+            .into_iter()
+            .take(1000)
+            .filter_map(|word| {
+                let word = word.trim();
+                if word.is_empty()
+                    || word.chars().count() > 40
+                    || word.chars().any(char::is_control)
+                    || !seen.insert(word.to_lowercase())
+                {
+                    None
+                } else {
+                    Some(word.to_owned())
+                }
+            })
+            .take(100)
+            .collect();
+        self
     }
 
     pub(crate) fn is_apple(&self) -> bool {
@@ -700,7 +728,8 @@ async fn transcribe_audio(request: TranscribeRequest) -> Result<TranscribeRespon
         request.model,
         request.provider,
         request.locale,
-    )?;
+    )?
+    .with_hot_words(request.hot_words);
     let audio = STANDARD
         .decode(request.audio_base64)
         .map_err(|error| format!("录音数据无效：{error}"))?;
@@ -721,7 +750,9 @@ pub(crate) async fn transcribe_with_config(
         return Err("录音已取消".into());
     }
     match config.provider {
-        AsrProvider::Apple => apple_speech::transcribe(audio, config.locale, cancelled).await,
+        AsrProvider::Apple => {
+            apple_speech::transcribe(audio, config.locale, &config.hot_words, cancelled).await
+        }
         AsrProvider::OpenAi => {
             transcribe_bytes_with_cancel(
                 audio,

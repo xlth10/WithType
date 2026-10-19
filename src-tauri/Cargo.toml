@@ -13,8 +13,16 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 name = "withtype"
 path = "src/main.rs"
 
+[[bin]]
+name = "pipeline-benchmark"
+path = "src/bin/pipeline-benchmark.rs"
+required-features = ["benchmark"]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
+
+[features]
+benchmark = []
 
 [dependencies]
 arboard = "3.4"

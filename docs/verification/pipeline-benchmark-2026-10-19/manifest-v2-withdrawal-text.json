@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "withtype-reference-withdrawal-v2-2026-10-19",
+  "material": "fixed-reference-text",
+  "limitations": [
+    "固定参考文字，不执行ASR。",
+    "调用真实现有文字模型，不代表录音中增量缓存已完成实机验收。",
+    "局部语义断言之外仍需人工复核。"
+  ],
+  "cases": [
+    {
+      "id": "discard-earlier",
+      "category": "前面不要了",
+      "spoken": "安排周三发版，上午九点开始。前面不要了，明天暂停发版。",
+      "checks": [
+        {
+          "id": "tomorrow",
+          "any": [
+            "明天"
+          ]
+        },
+        {
+          "id": "pause",
+          "any": [
+            "暂停发版"
+          ]
+        },
+        {
+          "id": "old-schedule",
+          "none": [
+            "周三",
+            "九点",
+            "9点",
+            "9:00"
+          ]
+        }
+      ],
+      "review": "只保留明天暂停发版，旧安排已撤回。"
+    },
+    {
+      "id": "previous-unused",
+      "category": "刚才不用了",
+      "spoken": "把公告发到群里，并通知客户。刚才不用了，只保留最后：明天暂停发版。",
+      "checks": [
+        {
+          "id": "tomorrow",
+          "any": [
+            "明天"
+          ]
+        },
+        {
+          "id": "pause",
+          "any": [
+            "暂停发版"
+          ]
+        },
+        {
+          "id": "old-actions",
+          "none": [
+            "群里",
+            "客户"
+          ]
+        }
+      ],
+      "review": "保留明天暂停发版，不能继续发送公告或通知客户。"
+    },
+    {
+      "id": "all-withdrawn",
+      "category": "以上撤回",
+      "spoken": "我们原计划周五上线，周四开始通知。以上撤回，只保留最后一句，明天暂停发版。",
+      "checks": [
+        {
+          "id": "tomorrow",
+          "any": [
+            "明天"
+          ]
+        },
+        {
+          "id": "pause",
+          "any": [
+            "暂停发版"
+          ]
+        },
+        {
+          "id": "old-dates",
+          "none": [
+            "周五",
+            "周四"
+          ]
+        }
+      ],
+      "review": "保留明天暂停发版，删除被撤回的周四、周五安排。"
+    }
+  ]
+}

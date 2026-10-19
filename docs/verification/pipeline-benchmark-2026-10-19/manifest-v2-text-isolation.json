@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "withtype-reference-text-v2-2026-10-19",
+  "material": "fixed-reference-text",
+  "voice": "Tingting",
+  "rate": 185,
+  "limitations": [
+    "Reference text supplied directly; ASR is not executed in this run.",
+    "Real existing text model and actual source-tree pipeline route are executed.",
+    "Checks are partial facts; human semantic review is required."
+  ],
+  "cases": [
+    {
+      "id": "short-correction",
+      "category": "短句改口",
+      "spoken": "明天三点，不对，四点开会。",
+      "checks": [
+        {
+          "id": "final-time",
+          "any": [
+            "四点",
+            "4点",
+            "4:00"
+          ]
+        },
+        {
+          "id": "withdrawn-time",
+          "none": [
+            "三点",
+            "3点",
+            "3:00"
+          ]
+        }
+      ],
+      "review": "只保留最终四点。"
+    },
+    {
+      "id": "weekday-correction",
+      "category": "日期改口",
+      "spoken": "周三发版，改成周四。",
+      "checks": [
+        {
+          "id": "final-day",
+          "any": [
+            "周四",
+            "星期四"
+          ]
+        },
+        {
+          "id": "withdrawn-day",
+          "none": [
+            "周三",
+            "星期三"
+          ]
+        }
+      ],
+      "review": "发版日期最终为周四。"
+    },
+    {
+      "id": "negation-money",
+      "category": "否定与金额",
+      "spoken": "这笔款不是一万五，是一千五百元，不要自动付款，先等我确认。",
+      "checks": [
+        {
+          "id": "amount",
+          "any": [
+            "一千五百",
+            "1500",
+            "1,500"
+          ]
+        },
+        {
+          "id": "no-payment",
+          "regex": "(不要|不得|别|不).{0,6}(自动)?付款"
+        },
+        {
+          "id": "confirm",
+          "any": [
+            "确认"
+          ]
+        }
+      ],
+      "review": "金额1500元，没有付款授权，等待本人确认。"
+    },
+    {
+      "id": "number-correction",
+      "category": "数字改口",
+      "spoken": "预算是一万二，不对，是一万零二百元，数量二十个。",
+      "checks": [
+        {
+          "id": "amount",
+          "any": [
+            "一万零二百",
+            "10200",
+            "10,200"
+          ]
+        },
+        {
+          "id": "quantity",
+          "regex": "(二十|20).{0,2}个"
+        },
+        {
+          "id": "withdrawn",
+          "none": [
+            "一万二",
+            "12000",
+            "12,000"
+          ]
+        }
+      ],
+      "review": "预算10200元，数量20个。"
+    },
+    {
+      "id": "negative-deadline",
+      "category": "否定与截止时间",
+      "spoken": "我不是说今天必须交付，我说的是今天先给预览，正式版本周五再交。",
+      "checks": [
+        {
+          "id": "preview",
+          "any": [
+            "预览"
+          ]
+        },
+        {
+          "id": "formal-deadline",
+          "any": [
+            "周五",
+            "星期五"
+          ]
+        }
+      ],
+      "review": "今天给预览，正式版周五；不能变成今天正式交付。"
+    },
+    {
+      "id": "emphasis",
+      "category": "强调与重复",
+      "spoken": "这个版本一定不要自动发送，一定不要自动发送。先让我预览，再由我确认。",
+      "checks": [
+        {
+          "id": "no-autosend",
+          "regex": "(不要|不得|不|禁止).{0,4}自动发送"
+        },
+        {
+          "id": "preview",
+          "any": [
+            "预览"
+          ]
+        },
+        {
+          "id": "confirm",
+          "any": [
+            "确认"
+          ]
+        }
+      ],
+      "review": "去机械重复后仍保留强烈禁止自动发送、人工确认。"
+    },
+    {
+      "id": "conditional-promise",
+      "category": "条件与承诺",
+      "spoken": "如果测试全部通过，我们争取周五发布。现在不能保证日期，也没有批准上线。",
+      "checks": [
+        {
+          "id": "condition",
+          "regex": "(如果|若|在).{0,10}测试.{0,8}通过"
+        },
+        {
+          "id": "uncertain",
+          "regex": "(争取|力争|尽量|计划|不能保证)"
+        },
+        {
+          "id": "not-approved",
+          "regex": "(没有|未|尚未).{0,4}(批准|获批).{0,2}上线"
+        }
+      ],
+      "review": "有条件且未批准，不能变成确定周五上线。"
+    },
+    {
+      "id": "quoted-retraction",
+      "category": "quoted correction preservation",
+      "spoken": "Keep the exact quote: “Wednesday release, change it to Thursday.” This was a past statement, not a new schedule.",
+      "checks": [
+        {
+          "id": "quote-wednesday",
+          "regex": "Wednesday",
+          "flags": "i"
+        },
+        {
+          "id": "quote-thursday",
+          "regex": "Thursday",
+          "flags": "i"
+        }
+      ],
+      "review": "Preserve both dates within the quoted past statement; do not resolve it into a new schedule."
+    }
+  ]
+}

@@ -8,7 +8,8 @@
 //    宁可什么都不输入，也不能把「帮我写封邮件」这种指令当正文打进别人的文档。
 
 import { ASK_INSTRUCTION, BUILTIN_SKILLS, COMMAND_INSTRUCTION, SMART_INSTRUCTION, buildMessages, findBuiltinSkill } from "../text/builtinSkills.js";
-import { applyLearnedVocabulary } from "../vocabulary/rules.js";
+import { applyLearnedVocabulary, collectAsrHotWords } from "../vocabulary/rules.js";
+import { hasExplicitCorrection, needsSmartEditing } from "../text/dictationRouting.js";
 import { applyVocabulary, effectiveTextLength, lightlyCleanText, stripShortTrailingFullStop } from "../text/localText.js";
 import { parseOutputLanguage, translationInstruction } from "../text/outputLanguage.js";
 import { splitText, stablePrefix, referenceTail, TEXT_CHUNK_LIMIT } from "../text/segments.js";
@@ -146,6 +147,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       inputToken,
       vocabulary: settings.vocabulary || "",
       learnedEntries: (settings.learnedEntries || []).map((entry) => ({ ...entry })),
+      hotWords: collectAsrHotWords(settings.vocabulary, settings.learnedEntries),
       settings: {
         asrProvider: settings.asrProvider === "apple" ? "apple" : "openai",
         appleSpeechLocale: settings.appleSpeechLocale || "zh-CN",
@@ -225,7 +227,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       || snapshot.settings.autoIntent || !snapshot.settings.textIncremental || !textReady(snapshot.settings)) return false;
     text = String(text || "").trim();
     const state = snapshot.incremental ||= { rawPrefix: "", correctedPrefix: "", segments: [], queue: Promise.resolve(), closed: false };
-    if (state.closed || state.invalid || state.failed || parseOutputLanguage(text)) return false;
+    if (state.closed || state.invalid || state.failed || parseOutputLanguage(text) || hasExplicitCorrection(text)) return false;
     if (!text.startsWith(state.rawPrefix)) {
       state.invalid = true;
       for (const id of snapshot.activeTextIds) void invoke("cancel_text_request", { requestId: id }, () => Promise.resolve()).catch(() => {});
@@ -259,6 +261,9 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
 
   async function callTranscribe(snapshot, audio) {
     if (audio.nativeSessionId) {
+      if (audio.transcriptionStatus === "partial" || (audio.deviceError && audio.transcript)) {
+        return { text: audio.transcript || "", durationMs: audio.asrMs || 0, status: "partial", warning: [audio.deviceError, audio.transcriptionError].filter(Boolean).join("；") };
+      }
       if (audio.deviceError) throw new Error(audio.deviceError);
       if (audio.transcriptionError) throw new Error(audio.transcriptionError);
       if (audio.transcript !== null && audio.transcript !== undefined) {
@@ -272,6 +277,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
           locale: snapshot.settings.appleSpeechLocale,
           endpoint: snapshot.settings.asrEndpoint,
           model: snapshot.settings.asrModel,
+          hotWords: snapshot.hotWords,
         },
       });
     }
@@ -285,6 +291,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
           locale: snapshot.settings.appleSpeechLocale,
           endpoint: snapshot.settings.asrEndpoint,
           model: snapshot.settings.asrModel,
+          hotWords: snapshot.hotWords,
         },
       },
       // 浏览器预览没有桌面后端，给一段固定文本以便走通界面流程。
@@ -354,10 +361,11 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     try {
       const budget = stageBudget(snapshot);
       if (request.rawText.length > MAX_TEXT_CHARS && !["smart", "translate"].includes(request.task)) throw new Error("这项任务需要完整上下文，文本超过单次处理上限；原文已保留，请分段运行");
+      if (request.task === "smart" && hasExplicitCorrection(request.rawText) && request.rawText.length > MAX_TEXT_CHARS) throw new Error("这段长口述含有改口，需要全文确认；已保留完整原文，请缩短单次口述后重试");
       const state = snapshot.incremental;
       let reused = [];
       if (state) state.closed = true;
-      if (request.task === "smart" && state && !state.invalid && request.rawText.startsWith(state.correctedPrefix)) {
+      if (request.task === "smart" && state && !state.invalid && !hasExplicitCorrection(request.rawText) && request.rawText.startsWith(state.correctedPrefix)) {
         state.closed = true;
         state.finishBudget = budget;
         await Promise.race([state.queue, new Promise((resolve) => { const timer = setTimeout(resolve, remaining(budget)); state.waitTimer = timer; })]);
@@ -442,6 +450,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     try {
       if (!await prepare(args.snapshot)) return { ok: false, stage: "cancelled", stale: true };
       const result = await runTask(args);
+      // Failed/partial recordings stay in the recovery spool. Marking them as
+      // history audio would hide them without a successful history entry.
       if ((result.ok || ["paste", "copy"].includes(result.stage)) && args.audio?.nativeSessionId) {
         if (args.snapshot.settings.keepHistoryAudio || args.snapshot.preserveAudio) {
           await invoke("retain_native_audio", { sessionId: args.audio.nativeSessionId }, () => Promise.resolve()).catch((error) => {
@@ -495,10 +505,22 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
 
     const asrMs = Number(asr.durationMs) || elapsedSince(asrStarted);
-    const rawText = String(asr.text || "").trim();
+    snapshot.asrText = String(asr.text || "");
+    const rawText = snapshot.asrText.trim();
+    if (asr.status === "partial") {
+      snapshot.preserveAudio = true;
+      const message = `语音识别未完成，已保留录音和识别到的部分文字。${asr.warning ? ` ${asr.warning}` : ""}`;
+      onEvent({ type: "error", requestId: snapshot.requestId, stage: "asr", errorKind: "partial",
+        recognitionStatus: "partial", message, partialText: rawText, asrText: snapshot.asrText,
+        audioSessionId: audio.nativeSessionId, audioMs: audio.audioMs, intent: snapshot.intent,
+        skillId: snapshot.skill?.id, skillDelivery: snapshot.settings.skillDelivery, windowContext: snapshot.windowContext });
+      return { ok: false, stage: "asr", recognitionStatus: "partial", text: rawText, message };
+    }
     const timings = { encodeMs: audio.encodeMs || 0, asrMs, stopToAsrMs: elapsedSince(snapshot.stoppedAt), classifyMs: 0, textMs: 0, pasteMs: 0, audioMs: audio.audioMs, inputChars: rawText.length };
     if (!rawText) {
-      onEvent({ type: "error", requestId: snapshot.requestId, stage: "asr", message: "识别结果为空，请再说一次" });
+      onEvent({ type: "error", requestId: snapshot.requestId, stage: "asr", message: audio.nativeSessionId ? "识别结果为空，录音已保留，可重新识别" : "识别结果为空，请再说一次", errorKind: "empty",
+        audioSessionId: audio.nativeSessionId || null, audioMs: audio.audioMs, intent: snapshot.intent,
+        skillId: snapshot.skill?.id, skillDelivery: snapshot.settings.skillDelivery, windowContext: snapshot.windowContext });
       return { ok: false, stage: "asr" };
     }
 
@@ -522,6 +544,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
 
     // 命令模式下不做词典替换，避免把用户的指令词改掉。
     const corrected = intent === "command" ? sourceText : applyVocabulary(applyLearnedVocabulary(sourceText, snapshot.learnedEntries, snapshot.vocabulary), snapshot.vocabulary);
+    snapshot.correctedText = corrected;
 
     return finishTask(snapshot, { intent, corrected, timings });
   }
@@ -556,7 +579,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         if (stage.ok && stage.text) finalText = stage.text;
         else textFailure = stage.error || "文字模型没有返回内容";
       }
-    } else if (intent === "skill" || snapshot.processingMode === "skill" || (snapshot.processingMode === "smart" && effectiveTextLength(corrected) > SMART_DIRECT_OUTPUT_MAX_LENGTH)) {
+    } else if (intent === "skill" || snapshot.processingMode === "skill" || (snapshot.processingMode === "smart" && needsSmartEditing(corrected, SMART_DIRECT_OUTPUT_MAX_LENGTH))) {
       const skill = intent === "skill" || snapshot.processingMode === "skill" ? snapshot.skill : null;
       const modeReady = textReady(snapshot.settings);
       const skillReady = (intent !== "skill" && snapshot.processingMode !== "skill") || Boolean(skill);
@@ -608,6 +631,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       return { ok: false, stage: "text", intent, rawText: corrected, timings };
     }
 
+    snapshot.polishedText = finalText;
     if (intent === "ask") {
       if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
       timings.stopToReadyMs = elapsedSince(snapshot.stoppedAt ?? snapshot.startedAt);
@@ -620,6 +644,9 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         requestId: snapshot.requestId,
         intent,
         question: corrected,
+        asrText: snapshot.asrText ?? null,
+        correctedText: corrected,
+        polishedText: finalText,
         text: finalText,
         timings,
         windowContext: snapshot.windowContext,
@@ -636,7 +663,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     if (intent === "skill" && snapshot.settings.skillDelivery === "card") {
       if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
       onEvent({ type: "answer", requestId: snapshot.requestId, intent, skillId: snapshot.skill?.id, title: snapshot.skill?.name || "整理结果",
-        question: corrected, text: finalText, timings, windowContext: snapshot.windowContext,
+        question: corrected, text: finalText, asrText: snapshot.asrText ?? null, correctedText: corrected,
+        polishedText: snapshot.polishedText, timings, windowContext: snapshot.windowContext,
         audioSessionId: snapshot.settings.keepHistoryAudio || snapshot.preserveAudio ? snapshot.nativeAudioSessionId : null });
       return { ok: true, text: finalText, intent, timings, pasted: false };
     }
@@ -692,7 +720,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       // Keep that result recoverable without changing a newer task's UI state.
       if (delivery.copied || delivery.pasted) {
         onEvent({ type: "archived-result", requestId: snapshot.requestId, intent, text: finalText,
-          rawText, delivery, timings, windowContext: snapshot.windowContext });
+          rawText, asrText: snapshot.asrText ?? null, correctedText: snapshot.correctedText ?? rawText,
+          polishedText: snapshot.polishedText ?? finalText, delivery, timings, windowContext: snapshot.windowContext });
       }
       return { ok: false, stage: "cancelled", stale: true };
     }
@@ -704,6 +733,9 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       intent,
       text: finalText,
       rawText,
+      asrText: snapshot.asrText ?? null,
+      correctedText: snapshot.correctedText ?? rawText,
+      polishedText: snapshot.polishedText ?? finalText,
       pasted,
       delivery,
       timings,

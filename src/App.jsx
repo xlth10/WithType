@@ -570,6 +570,11 @@ function History({ onCopy, history, onClear, onTeach, onExport, onRetranscribe, 
           <article key={item.id}>
             <div className="history-main">
               <p>{item.text}</p>
+              {typeof item.asrText === "string" && item.asrText !== item.text && <details className="history-stages">
+                <summary>查看处理前后</summary>
+                <p><strong>识别原文</strong><br />{item.asrText}</p>
+                {item.correctedText !== item.asrText && <p><strong>词库处理后</strong><br />{item.correctedText}</p>}
+              </details>}
               {item.intent === "dictation" && <HistoryCorrection item={item} onTeach={onTeach} />}
               {item.intent === "ask" && item.rawText && <span>问题：{item.rawText}</span>}
               <span className="history-meta">{item.time} · {(INTENT_META[item.intent] || INTENT_META.dictation).label}{windowName(item.windowContext) ? ` · ${windowName(item.windowContext)}` : ""} · {item.ms} ms{item.breakdown ? ` · ${item.breakdown}` : ""}</span>
@@ -893,7 +898,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
       if (!await pipeline.prepare(snapshot) || generation !== startGenerationRef.current) return;
       // UIA 提供方可能较慢，目标检查不阻塞麦克风开始采集。
       const recordingReady = recorder.start(snapshot.requestId, currentSettings.audioDeviceId, currentSettings.asrEndpoint, currentSettings.asrModel,
-        snapshot.intent === "dictation" && snapshot.processingMode === "smart" && currentSettings.textIncremental && !currentSettings.autoIntent, snapshot.intent, currentSettings.asrProvider, currentSettings.appleSpeechLocale);
+        snapshot.intent === "dictation" && snapshot.processingMode === "smart" && currentSettings.textIncremental && !currentSettings.autoIntent, snapshot.intent, currentSettings.asrProvider, currentSettings.appleSpeechLocale, snapshot.hotWords);
       await Promise.all([targetReady, recordingReady]);
       if (generation !== startGenerationRef.current) return;
       startingRef.current = false;
@@ -993,7 +998,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
       setState("error");
       notify(event.message, false);
       if (event.stage === "asr" && event.audioSessionId) {
-        setPendingFailure({ kind: "asr", errorKind: event.errorKind, audioSessionId: event.audioSessionId, audioMs: event.audioMs, intent: event.intent, skillId: event.skillId, skillDelivery: event.skillDelivery, windowContext: event.windowContext, message: event.message });
+        setPendingFailure({ kind: "asr", errorKind: event.errorKind, partialText: event.partialText || "", audioSessionId: event.audioSessionId, audioMs: event.audioMs, intent: event.intent, skillId: event.skillId, skillDelivery: event.skillDelivery, windowContext: event.windowContext, message: event.message });
         refreshRecoverableAudio();
       }
       return;
@@ -1028,6 +1033,9 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         savedAt: Date.now(),
         text: event.text,
         rawText: event.question,
+        asrText: event.asrText ?? null,
+        correctedText: event.correctedText,
+        polishedText: event.polishedText,
         time: historyTime(),
         intent: event.intent || "ask",
         skillId: event.skillId,
@@ -1058,6 +1066,9 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         breakdown,
         timings,
         rawText: event.rawText,
+        asrText: event.asrText ?? null,
+        correctedText: event.correctedText,
+        polishedText: event.polishedText,
         warning: event.warning || null,
         delivery: event.delivery,
         archived: event.type === "archived-result",
@@ -1152,8 +1163,10 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     const hydrate = async () => {
       const notices = [];
       let raw = null;
+      let platform = "browser";
       if (isTauri()) {
         try {
+          platform = await desktopInvoke("native_platform", {});
           raw = await desktopInvoke("load_settings", {}, () => ({}));
         } catch (error) {
           if (!disposed) {
@@ -1174,7 +1187,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         }
         if (hasStoredSettings(legacy)) raw = legacy;
       }
-      const { settings: normalized, notices: migrationNotices } = normalizeSettings(raw);
+      const { settings: normalized, notices: migrationNotices } = normalizeSettings(raw, platform);
       notices.push(...migrationNotices);
       // The greeting is ready independently of skills; resource failures must remain visible.
       if (!disposed && windowLabel === "main") onWelcomeChange?.(normalized.welcomeText);
@@ -1319,7 +1332,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         learned = result.learned;
         return result.state;
       }).then(() => {
-        if (learned.length) notify(`已记住：${learned.map((x) => `${x.variant} → ${x.target}`).join("、")}。可在个人词库删除。`, true);
+        if (learned.length) notify(`已记住正确词：${learned.map((x) => x.target).join("、")}。可在个人词库删除。`, true);
       }).catch((error) => notify(`词汇未保存：${describeError(error)}`, false));
     }) : null;
     return () => { disposed = true; if (listener) listener.then((off) => off()); };
@@ -1771,7 +1784,9 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
               <span className="preview-label">{pendingFailure.intent === "ask" ? "识别到的问题" : pendingFailure.intent === "command" ? "识别到的命令" : "识别到的原文"}</span>
               <p>{pendingFailure.rawText}</p>
             </div>}
+            {pendingFailure.partialText && <div className="preview-box"><span className="preview-label">已识别的部分（尚未完整）</span><p>{pendingFailure.partialText}</p></div>}
             <div className="form-actions">
+              {pendingFailure.partialText && <button className="button secondary" onClick={() => copyOutput(pendingFailure.partialText)}><ClipboardText size={17} />复制已识别部分</button>}
               {pendingFailure.kind !== "asr" && !["command", "ask"].includes(pendingFailure.intent) && (
                 <button className="button secondary" onClick={insertRawText} disabled={busy}><TextT size={17} />保留原文</button>
               )}

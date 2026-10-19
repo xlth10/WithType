@@ -1,5 +1,5 @@
 # Node / Vite output and caches
-node_modules/
+node_modules
 dist/
 build/
 coverage/

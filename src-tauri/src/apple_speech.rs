@@ -58,20 +58,50 @@ pub async fn status(
 pub async fn transcribe(
     audio: Vec<u8>,
     locale: String,
+    contextual_strings: &[String],
     cancelled: Option<Arc<AtomicBool>>,
 ) -> Result<crate::TranscribeResponse, String> {
     let locale = normalize_locale(locale)?;
+    let contextual_strings = normalize_contextual_strings(contextual_strings);
     #[cfg(target_os = "macos")]
     {
-        tauri::async_runtime::spawn_blocking(move || native::transcribe(audio, locale, cancelled))
-            .await
-            .map_err(|error| format!("Apple 语音识别任务失败：{error}"))?
+        tauri::async_runtime::spawn_blocking(move || {
+            native::transcribe(audio, locale, contextual_strings, cancelled)
+        })
+        .await
+        .map_err(|error| format!("Apple 语音识别任务失败：{error}"))?
     }
     #[cfg(not(target_os = "macos"))]
     {
-        let _ = (audio, locale, cancelled);
+        let _ = (audio, locale, contextual_strings, cancelled);
         Err("Apple 设备端语音识别仅支持 macOS，请切换到兼容服务".into())
     }
+}
+
+const MAX_CONTEXTUAL_STRINGS: usize = 100;
+const MAX_CONTEXTUAL_STRING_CHARS: usize = 40;
+
+/// Context is a bounded list of names/short phrases, never arbitrary document
+/// text. Drop malformed entries rather than truncating a name into a new word.
+fn normalize_contextual_strings(values: &[String]) -> Vec<String> {
+    let mut seen = std::collections::HashSet::new();
+    let mut output = Vec::new();
+    for value in values.iter().take(1_000) {
+        if value.len() > MAX_CONTEXTUAL_STRING_CHARS * 4 || value.chars().any(char::is_control) {
+            continue;
+        }
+        let value = value.split_whitespace().collect::<Vec<_>>().join(" ");
+        if value.is_empty() || value.chars().count() > MAX_CONTEXTUAL_STRING_CHARS {
+            continue;
+        }
+        if seen.insert(value.to_lowercase()) {
+            output.push(value);
+            if output.len() == MAX_CONTEXTUAL_STRINGS {
+                break;
+            }
+        }
+    }
+    output
 }
 
 const RATE: usize = 16_000;
@@ -215,7 +245,11 @@ mod native {
             locale: *const c_char,
             request_authorization: bool,
         ) -> *mut c_char;
-        fn withtype_apple_speech_start(path: *const c_char, locale: *const c_char) -> *mut c_void;
+        fn withtype_apple_speech_start(
+            path: *const c_char,
+            locale: *const c_char,
+            contextual_strings_json: *const c_char,
+        ) -> *mut c_void;
         fn withtype_apple_speech_poll(handle: *mut c_void) -> *mut c_char;
         fn withtype_apple_speech_cancel(handle: *mut c_void);
         fn withtype_apple_speech_release(handle: *mut c_void);
@@ -314,6 +348,7 @@ mod native {
     pub(super) fn transcribe(
         audio: Vec<u8>,
         locale: String,
+        contextual_strings: Vec<String>,
         cancelled: Option<Arc<AtomicBool>>,
     ) -> Result<crate::TranscribeResponse, String> {
         let started = Instant::now();
@@ -343,13 +378,20 @@ mod native {
             return Err("Apple 语音识别当前不可用，请稍后重试".into());
         }
         let locale = CString::new(locale).map_err(|_| "Apple 语音识别语言无效".to_string())?;
+        let context = CString::new(
+            serde_json::to_string(&contextual_strings)
+                .map_err(|_| "Apple 语音识别词库格式无效".to_string())?,
+        )
+        .map_err(|_| "Apple 语音识别词库格式无效".to_string())?;
         let mut text = String::new();
         for segment in segments {
             check_cancelled(&cancelled)?;
             let recording = RecordingFile::create(&segment)?;
             let path = CString::new(recording.0.to_string_lossy().as_bytes())
                 .map_err(|_| "Apple 识别临时录音路径无效".to_string())?;
-            let pointer = unsafe { withtype_apple_speech_start(path.as_ptr(), locale.as_ptr()) };
+            let pointer = unsafe {
+                withtype_apple_speech_start(path.as_ptr(), locale.as_ptr(), context.as_ptr())
+            };
             if pointer.is_null() {
                 return Err("无法启动 Apple 语音识别".into());
             }
@@ -402,7 +444,7 @@ mod native {
         #[test]
         fn pre_cancelled_transcription_never_calls_speech_or_requests_permission() {
             let cancelled = Arc::new(AtomicBool::new(true));
-            let result = transcribe(Vec::new(), "zh-CN".into(), Some(cancelled));
+            let result = transcribe(Vec::new(), "zh-CN".into(), Vec::new(), Some(cancelled));
             assert_eq!(result.unwrap_err(), "录音已取消");
         }
     }
@@ -411,6 +453,39 @@ mod native {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn contextual_strings_are_short_deduplicated_and_bounded() {
+        let mut words = vec![
+            " WithType ".into(),
+            "withtype".into(),
+            "  Xiao   Ming ".into(),
+            "肖雄".into(),
+            "".into(),
+            "\n多行\n文字".into(),
+            "含\0空值".into(),
+            "长".repeat(41),
+        ];
+        words.extend((0..150).map(|i| format!("专名{i}")));
+        let normalized = normalize_contextual_strings(&words);
+        assert_eq!(&normalized[..3], &["WithType", "Xiao Ming", "肖雄"]);
+        assert_eq!(normalized.len(), 100);
+        assert!(!normalized
+            .iter()
+            .any(|word| word.contains('\n') || word.contains('\0')));
+        assert_eq!(normalized.last().unwrap(), "专名96");
+    }
+
+    #[test]
+    fn contextual_strings_preserve_whole_unicode_names_and_bound_invalid_input() {
+        assert_eq!(
+            normalize_contextual_strings(&["𠮷".repeat(40)]),
+            vec!["𠮷".repeat(40)]
+        );
+        let mut invalid = vec!["".into(); 1_000];
+        invalid.push("不要扫描无界列表".into());
+        assert!(normalize_contextual_strings(&invalid).is_empty());
+    }
 
     #[test]
     fn segments_long_recording_without_losing_or_repeating_samples() {

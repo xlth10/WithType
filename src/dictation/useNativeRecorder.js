@@ -34,12 +34,12 @@ export function useNativeRecorder({ onDeviceState } = {}) {
     };
   }, []);
 
-  const start = useCallback(async (sessionId, deviceId = "", endpoint = "", model = "", earlyText = false, intent = "", provider = "openai", locale = "zh-CN") => {
+  const start = useCallback(async (sessionId, deviceId = "", endpoint = "", model = "", earlyText = false, intent = "", provider = "openai", locale = "zh-CN", hotWords = []) => {
     if (!sessionId) throw new Error("录音会话缺少 ID");
     const generation = ++generationRef.current;
     sessionRef.current = sessionId;
     try {
-      await invoke("start_audio_session", { sessionId, deviceId, endpoint, model, earlyText, intent, provider, locale });
+      await invoke("start_audio_session", { sessionId, deviceId, endpoint, model, earlyText, intent, provider, locale, hotWords });
       if (generation !== generationRef.current) {
         await invoke("cancel_audio_session", { sessionId }).catch(() => {});
         return;
@@ -60,7 +60,7 @@ export function useNativeRecorder({ onDeviceState } = {}) {
     setRecording(false);
     const info = await invoke("stop_audio_session", { sessionId });
     callbackRef.current?.({ phase: "stopped", message: info.deviceError });
-    return { nativeSessionId: sessionId, filename: "dictation.wav", audioMs: info.audioMs, sampleRate: info.sampleRate, sourceSampleRate: info.sourceSampleRate, deviceError: info.deviceError, transcript: info.transcript, transcriptionError: info.transcriptionError, asrMs: info.asrMs };
+    return { nativeSessionId: sessionId, filename: "dictation.wav", audioMs: info.audioMs, sampleRate: info.sampleRate, sourceSampleRate: info.sourceSampleRate, deviceError: info.deviceError, transcript: info.transcript, transcriptionError: info.transcriptionError, transcriptionStatus: info.transcriptionStatus, asrMs: info.asrMs };
   }, []);
 
   const abandon = useCallback(({ preserveAudio = false } = {}) => {

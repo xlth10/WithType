@@ -50,6 +50,35 @@ static NSArray<NSString *> *WTSupportedLocales(void) {
     return [locales sortedArrayUsingSelector:@selector(compare:)];
 }
 
+// The bridge is also used by the opt-in diagnostics probe. Validate its FFI
+// input independently of Rust so no caller can inject full documents/unbounded
+// arrays into Speech's short-phrase bias list.
+static NSArray<NSString *> *WTContextualStrings(const char *jsonValue) {
+    if (!jsonValue || strlen(jsonValue) > 256 * 1024) return @[];
+    NSData *data = [[NSString stringWithUTF8String:jsonValue] dataUsingEncoding:NSUTF8StringEncoding];
+    id decoded = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+    if (![decoded isKindOfClass:NSArray.class]) return @[];
+    NSMutableArray<NSString *> *words = [NSMutableArray array];
+    NSMutableSet<NSString *> *seen = [NSMutableSet set];
+    NSUInteger inspected = 0;
+    for (id item in decoded) {
+        if (++inspected > 1000 || words.count == 100) break;
+        if (![item isKindOfClass:NSString.class]) continue;
+        NSString *word = item;
+        if ([word rangeOfCharacterFromSet:NSCharacterSet.controlCharacterSet].location != NSNotFound) continue;
+        NSArray<NSString *> *parts = [word componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
+        word = [[parts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"length > 0"]] componentsJoinedByString:@" "];
+        // UTF-32 counts Unicode scalars consistently with the Rust boundary.
+        NSUInteger scalarCount = [word lengthOfBytesUsingEncoding:NSUTF32LittleEndianStringEncoding] / 4;
+        if (!scalarCount || scalarCount > 40) continue;
+        NSString *key = word.lowercaseString;
+        if ([seen containsObject:key]) continue;
+        [seen addObject:key];
+        [words addObject:word];
+    }
+    return words;
+}
+
 char *withtype_apple_speech_status(const char *localeValue, bool requestAuthorization) {
     @autoreleasepool {
         SFSpeechRecognizerAuthorizationStatus auth = SFSpeechRecognizer.authorizationStatus;
@@ -86,7 +115,7 @@ char *withtype_apple_speech_status(const char *localeValue, bool requestAuthoriz
     }
 }
 
-void *withtype_apple_speech_start(const char *pathValue, const char *localeValue) {
+void *withtype_apple_speech_start(const char *pathValue, const char *localeValue, const char *contextualStringsJSON) {
     @autoreleasepool {
         WTAppleSpeechHandle *handle = [WTAppleSpeechHandle new];
         WTAppleSpeechState *state = [WTAppleSpeechState new];
@@ -120,6 +149,7 @@ void *withtype_apple_speech_start(const char *pathValue, const char *localeValue
         request.shouldReportPartialResults = NO;
         request.addsPunctuation = YES;
         request.taskHint = SFSpeechRecognitionTaskHintDictation;
+        request.contextualStrings = WTContextualStrings(contextualStringsJSON);
         // Rust waits on a blocking worker, while the app's main run loop remains
         // available for Speech's callbacks and system permission panels.
         handle.task = [recognizer recognitionTaskWithRequest:request resultHandler:^(SFSpeechRecognitionResult *result, NSError *error) {

@@ -1,6 +1,6 @@
 import { BRAND } from "../ui/brand.js";
 import { normalizeWelcomeText } from "../ui/welcome.js";
-import { ASR_PROVIDERS, DEFAULT_APPLE_SPEECH_LOCALE, normalizeAppleSpeechLocale } from "../dictation/asrProvider.js";
+import { DEFAULT_APPLE_SPEECH_LOCALE, normalizeAppleSpeechLocale, resolveAsrProvider } from "../dictation/asrProvider.js";
 
 // 配置的默认值、归一化与旧版本迁移。
 // 只做纯函数变换，不读写任何存储；谁持久化由调用方决定。
@@ -111,7 +111,7 @@ function asBoolean(value, fallback) {
  *
  * 返回 { settings, notices }：notices 是需要展示给用户的迁移提示。
  */
-export function normalizeSettings(raw) {
+export function normalizeSettings(raw, nativePlatform = "") {
   const source = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
   const notices = [];
 
@@ -170,11 +170,19 @@ export function normalizeSettings(raw) {
   }
 
   const textAuthMode = source.textAuthMode === "none" ? "none" : "bearer";
+  let asrProvider = resolveAsrProvider(source, nativePlatform);
+  if (nativePlatform === "macos" && asrProvider === "openai" && !asString(source.asrEndpoint, "").trim()) {
+    asrProvider = "apple";
+  }
+  if (nativePlatform === "windows" && asrProvider === "apple") {
+    asrProvider = "openai";
+    notices.push("Windows 已使用原有语音服务配置，Apple 系统识别仅在 Mac 可用。");
+  }
 
   return {
     settings: {
       welcomeText: normalizeWelcomeText(source.welcomeText),
-      asrProvider: ASR_PROVIDERS.includes(source.asrProvider) ? source.asrProvider : DEFAULT_SETTINGS.asrProvider,
+      asrProvider,
       appleSpeechLocale: normalizeAppleSpeechLocale(source.appleSpeechLocale),
       asrEndpoint: asString(source.asrEndpoint, DEFAULT_SETTINGS.asrEndpoint).trim(),
       asrModel: asString(source.asrModel, DEFAULT_SETTINGS.asrModel).trim(),

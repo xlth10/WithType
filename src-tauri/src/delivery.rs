@@ -180,6 +180,9 @@ pub fn cancel(id: &str) {
 #[cfg(windows)]
 #[path = "delivery/platform.rs"]
 mod platform;
+
+#[cfg(target_os = "macos")]
+pub(crate) use platform::{learning_permission_granted, FocusedCorrectionField};
 #[cfg(target_os = "macos")]
 #[path = "delivery/macos.rs"]
 mod platform;

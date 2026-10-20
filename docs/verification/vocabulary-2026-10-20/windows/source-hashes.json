@@ -1,0 +1,9 @@
+{
+  "src-tauri/src/correction_monitor.rs": "5bb0c8aee5ffdeb16c5ac82f86950647eb13671a1ee740c3a2fed273784952ff",
+  "src-tauri/src/vocabulary.rs": "7986b870805b9726c3ca546cc73fccdd838452cea253918b6ebf30bdd8dd5c5c",
+  "src-tauri/src/delivery.rs": "7bdab282fe9cc98065593af83846c49ee6d3b95dad3988e99c985d53b5f97826",
+  "src-tauri/src/delivery/platform.rs": "bdf4e35c72e2f1278d2e4e939330467d2e19caa68409f596b4d44ac44325289a",
+  "src-tauri/src/delivery/policy.rs": "2788d2d4c6a489645554cfb49698d41eaf187bbbaa1bb615fe93a5bcc4b065ca",
+  "src-tauri/src/uia.rs": "97e3c7674cc4d0dca7b210843f1b9373cc8fccd2be5b6060567946d34da479be",
+  "src-tauri/src/card_position.rs": "08675252ed98959f698970029bb6b2c05a1d123f90c83ade8bf2ca39c9672899"
+}

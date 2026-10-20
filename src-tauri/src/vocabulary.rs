@@ -1,4 +1,10 @@
-use std::{fs, path::PathBuf, sync::Mutex};
+use std::{
+    fs,
+    io::Write,
+    path::PathBuf,
+    sync::Mutex,
+    time::{SystemTime, UNIX_EPOCH},
+};
 use tauri::Manager;
 static LOCK: Mutex<()> = Mutex::new(());
 const LIMIT: u64 = 1024 * 1024;
@@ -26,7 +32,7 @@ pub fn save_vocabulary(app: tauri::AppHandle, vocabulary: serde_json::Value) -> 
     if vocabulary.get("version").and_then(|v| v.as_u64()) != Some(1) {
         return Err("未知词库格式".into());
     }
-    for (field, limit) in [("entries", 60), ("candidates", 200), ("dismissed", 5000)] {
+    for (field, limit) in [("entries", 500), ("candidates", 200), ("dismissed", 5000)] {
         if !vocabulary
             .get(field)
             .and_then(|v| v.as_array())
@@ -40,4 +46,41 @@ pub fn save_vocabulary(app: tauri::AppHandle, vocabulary: serde_json::Value) -> 
         return Err("词库文件过大".into());
     }
     crate::skills::write_atomic(&path(&app)?, &data)
+}
+
+#[tauri::command]
+pub fn export_vocabulary_csv(app: tauri::AppHandle, csv: String) -> Result<String, String> {
+    if csv.len() as u64 > LIMIT {
+        return Err("导出词库不能超过 1 MB".into());
+    }
+    let directory = app.path().download_dir().map_err(|e| e.to_string())?;
+    fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|e| e.to_string())?
+        .as_millis();
+    for suffix in 0..100 {
+        let name = if suffix == 0 {
+            format!("withtype-vocabulary-{stamp}.csv")
+        } else {
+            format!("withtype-vocabulary-{stamp}-{suffix}.csv")
+        };
+        let path = directory.join(name);
+        match fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+        {
+            Ok(mut file) => {
+                if let Err(error) = file.write_all(csv.as_bytes()).and_then(|_| file.sync_all()) {
+                    let _ = fs::remove_file(&path);
+                    return Err(format!("导出词库失败：{error}"));
+                }
+                return Ok(path.to_string_lossy().into_owned());
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(error) => return Err(format!("导出词库失败：{error}")),
+        }
+    }
+    Err("导出文件名重复，请稍后重试".into())
 }

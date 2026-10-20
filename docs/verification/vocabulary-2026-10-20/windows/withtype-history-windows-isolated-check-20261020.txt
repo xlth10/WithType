@@ -1,0 +1,15 @@
+     Locking 1 package to latest compatible version
+      Adding tokio-macros v2.7.2
+    Checking tokio v1.53.1
+    Checking tauri v2.11.6
+    Checking withtype-windows-vocabulary-check v0.0.0 (/private/tmp/withtype-vocabulary-windows-isolated-20261020)
+warning: unused imports: `protect_data` and `unprotect_data`
+   --> /Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/src/history.rs:492:27
+    |
+492 | pub(crate) use platform::{protect_data, unprotect_data};
+    |                           ^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `withtype-windows-vocabulary-check` (lib) generated 1 warning (run `cargo fix --lib -p withtype-windows-vocabulary-check` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.87s

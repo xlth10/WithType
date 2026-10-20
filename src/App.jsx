@@ -79,9 +79,14 @@ function PageLoading() {
 }
 
 function NoticeToast({ notice, onClose }) {
+  const [acting, setActing] = useState(false);
   return <div className={`toast ${notice.ok ? "success" : ""}`}>
     {notice.ok ? <CheckCircle size={18} weight="fill" aria-hidden="true" /> : <WarningCircle size={18} weight="fill" aria-hidden="true" />}
     <span>{notice.text}</span>
+    {notice.action && <button type="button" disabled={acting} onClick={async () => {
+      setActing(true);
+      try { await notice.action.run(); } finally { setActing(false); }
+    }}>{acting ? "正在撤销…" : notice.action.label}</button>}
     <button type="button" aria-label="关闭通知" title="关闭通知" onClick={onClose}><X size={15} aria-hidden="true" /></button>
   </div>;
 }
@@ -697,12 +702,14 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     return isTauri() ? [] : SAMPLE_HISTORY;
   });
   const [historyReady, setHistoryReady] = useState(() => !isTauri());
+  const [historyLoadError, setHistoryLoadError] = useState("");
   const historyWriteRef = useRef(Promise.resolve());
   const persistedHistoryRef = useRef([]);
   const [online, setOnline] = useState(false);
   const [testing, setTesting] = useState(false);
   const [nativePlatform, setNativePlatform] = useState(isTauri() ? "" : "browser");
   const [appleStatus, setAppleStatus] = useState(null);
+  const [learningCapability, setLearningCapability] = useState({ available: false, permissionGranted: false, reason: isTauri() ? "正在读取系统能力" : "浏览器预览无法观察外部输入框" });
   const [state, setState] = useState(overlayPreview || "idle");
   const [intent, setIntent] = useState("");
   const [phase, setPhase] = useState("idle");
@@ -751,7 +758,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
   customSkillsRef.current = customSkills;
 
 
-  const notify = (message, ok = false) => {
+  const notify = (message, ok = false, action = null) => {
     if (message && typeof message === "object") {
       const text = String(message.text || "");
       if (!text) { setNotice(null); return; }
@@ -760,7 +767,23 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     }
     const text = String(message || "");
     if (!text) { setNotice(null); return; }
-    setNotice({ text, ok, id: ++noticeSequence.current });
+    setNotice({ text, ok, action, id: ++noticeSequence.current });
+  };
+
+  const notifyLearnedWords = (learned, undoToken) => {
+    const action = undoToken ? { label: "撤销本次学习", run: async () => {
+      try {
+        let removed = 0;
+        await vocabularyStoreRef.current.update(async (current) => {
+          const { undoAutoLearned } = await import("./vocabulary/learning.js");
+          const next = undoAutoLearned(current, undoToken);
+          removed = current.entries.length - next.entries.length;
+          return next;
+        });
+        notify(removed ? "已撤销本次学习；以后再次纠正仍可学习" : "词条已被修改或删除，本次撤销未改变词库", true);
+      } catch (error) { notify(`撤销未保存：${describeError(error)}`, false); }
+    } } : null;
+    notify(`已记住正确词：${learned.map((entry) => entry.target).join("、")}`, true, action);
   };
 
   const pipelineRef = useRef(null);
@@ -1113,6 +1136,19 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
 
   useEffect(() => {
     if (!isTauri() || windowLabel !== "main") return undefined;
+    let disposed = false;
+    const refresh = () => desktopInvoke("get_vocabulary_learning_capability", {}).then((capability) => {
+      if (!disposed) setLearningCapability(capability);
+    }).catch(() => {
+      if (!disposed) setLearningCapability({ available: false, permissionGranted: false, reason: "无法读取自动学习能力，请重新打开应用后重试" });
+    });
+    refresh();
+    window.addEventListener("focus", refresh);
+    return () => { disposed = true; window.removeEventListener("focus", refresh); };
+  }, [windowLabel, page]);
+
+  useEffect(() => {
+    if (!isTauri() || windowLabel !== "main") return undefined;
     const controller = createVoiceController({ invoke: desktopInvoke, listen,
       onStatus: (status) => {
         setControllerStatus(status);
@@ -1279,10 +1315,11 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         const days = settingsRef.current.historyRetentionDays;
         const cutoff = Date.now() - days * 86_400_000;
         entries = days === 0 ? entries : entries.filter((item) => Number(item.savedAt || String(item.id).split("-")[0]) >= cutoff);
-        if (!disposed) { setHistory(entries); setLastResult(recentResult(entries)); setHistoryReady(true); }
+        if (!disposed) { setHistoryLoadError(""); setHistory(entries); setLastResult(recentResult(entries)); setHistoryReady(true); }
       } catch (error) {
         if (!disposed) {
           const message = `历史载入失败，已暂停录音以保护旧记录：${describeError(error)}`;
+          setHistoryLoadError(describeError(error));
           notify(message, false); controllerRef.current?.fail(message).catch(() => {});
         }
       }
@@ -1325,14 +1362,16 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     const listener = isTauri() ? listen("vocabulary-correction", (event) => {
       if (!settingsRef.current.autoLearn || !vocabularyReadyRef.current) return;
       let learned = [];
+      let undoToken = null;
       vocabularyStoreRef.current.update(async (current) => {
         const { learnCorrections } = await import("./vocabulary/learning.js");
         if (!settingsRef.current.autoLearn) return current;
         const result = learnCorrections(current, { ...event.payload, vocabulary: settingsRef.current.vocabulary });
         learned = result.learned;
+        undoToken = result.undoToken;
         return result.state;
       }).then(() => {
-        if (learned.length) notify(`已记住正确词：${learned.map((x) => x.target).join("、")}。可在个人词库删除。`, true);
+        if (learned.length) notifyLearnedWords(learned, undoToken);
       }).catch((error) => notify(`词汇未保存：${describeError(error)}`, false));
     }) : null;
     return () => { disposed = true; if (listener) listener.then((off) => off()); };
@@ -1343,13 +1382,51 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
   }, [settings.autoLearn, hydrated, windowLabel]);
 
   const dismissWord = async (pair) => {
-    try {
-      await vocabularyStoreRef.current.update(async (current) => {
-        const { dismissCorrection } = await import("./vocabulary/learning.js");
-        return dismissCorrection(current, pair);
-      });
-      notify("词条已删除，不再自动学习这项纠正", true);
-    } catch (error) { notify(describeError(error), false); }
+    if (!vocabularyReadyRef.current) throw new Error("词库尚未就绪");
+    await vocabularyStoreRef.current.update(async (current) => {
+      const { dismissCorrection } = await import("./vocabulary/learning.js");
+      return dismissCorrection(current, pair);
+    });
+    notify("词条已删除，不再自动学习；仍可手动添加", true);
+  };
+
+  const saveVocabularyWord = async (target, entry) => {
+    if (!vocabularyReadyRef.current) throw new Error("词库尚未就绪");
+    await vocabularyStoreRef.current.update(async (current) => {
+      const { upsertVocabularyWord } = await import("./vocabulary/management.js");
+      return upsertVocabularyWord(current, target, { entry, source: "manual" });
+    });
+  };
+
+  const importVocabularyWords = async (entries) => {
+    if (!vocabularyReadyRef.current) throw new Error("词库尚未就绪");
+    let added = 0;
+    await vocabularyStoreRef.current.update(async (current) => {
+      const { importVocabularyEntries } = await import("./vocabulary/management.js");
+      const next = importVocabularyEntries(current, entries, { manualVocabulary: settingsRef.current.vocabulary });
+      const existingIds = new Set(current.entries.map((entry) => entry.id).filter(Boolean));
+      added = next.entries.filter((entry) => entry.id && !existingIds.has(entry.id)).length;
+      return next;
+    });
+    notify(`已导入 ${added} 条词汇`, true);
+    return { added };
+  };
+
+  const exportVocabularyWords = async (csv) => {
+    if (isTauri()) {
+      const path = await desktopInvoke("export_vocabulary_csv", { csv });
+      notify(`词库已导出至：${path}`, true);
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `WithType-vocabulary-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    notify("词库 CSV 已交给浏览器下载", true);
   };
 
   const teachCorrection = async (item, edited) => {
@@ -1357,13 +1434,13 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
     let learned = [];
     await vocabularyStoreRef.current.update(async (current) => {
       const { learnCorrections } = await import("./vocabulary/learning.js");
-      const result = learnCorrections(current, { original: item.text, edited, sessionId: `manual-${item.id}`, manual: true, vocabulary: settingsRef.current.vocabulary });
+      const result = learnCorrections(current, { original: item.text, edited, sessionId: `manual-${item.id}`, manual: true, asHotword: true, vocabulary: settingsRef.current.vocabulary });
       learned = result.learned;
       if (!learned.length) throw new Error("没有可记住的新短词：可能已存在、与手动词冲突、词库已满，或修改包含整句/数字。可在个人词库手动添加。");
       return result.state;
     });
     setHistory((current) => current.map((entry) => entry.id === item.id ? { ...entry, text: edited } : entry));
-    notify(`已记住 ${learned.length} 条纠正，下次口述生效`, true);
+    notify(`已保存 ${learned.length} 个正确词，可在个人词库查看`, true);
   };
 
   const onSelectSkill = (id) => {
@@ -1765,6 +1842,11 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
           <button className="mini-shortcut" title={actionName(settings, customSkills)} onClick={() => toggleTask("action")} disabled={state === "processing" || (state === "recording" && currentTriggerRef.current !== "action")}><PuzzlePiece size={16} />{displayShortcut(settings.actionShortcut)}</button>
         </div>
 
+        {historyLoadError && <section className="panel failure-panel" role="status" aria-label="历史记录尚未读取">
+          <div className="panel-title"><div><h2>历史记录尚未读取</h2><p>{historyLoadError}。录音已暂停，原记录保留；词库和设置仍可使用。</p></div></div>
+          <button type="button" className="button secondary" onClick={() => window.location.reload()}>重新载入应用</button>
+        </section>}
+
         {textPreview && (state === "recording" || state === "processing") && (
           <section className="panel text-preview-panel" aria-label="文字整理预览">
             <div className="panel-title slim"><div><h2>整理预览</h2><p>已生成 {textPreview.length} 字 · 完成后统一输入</p></div></div>
@@ -1806,7 +1888,7 @@ export function App({ onWelcomeChange, onReplayEntrance, onEntranceUnavailable }
         {page === "writing" && <WritingSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onSelectSkill={onSelectSkill} textReady={textReady} />}
         {page === "skills" && <SkillEditor editorSession={editorSession} setEditorSession={setEditorSession} onConfigureTextService={() => { setReturnToTemplates(true); setPage("model"); }} customSkills={customSkills} selectedSkillId={settings.actionType === "skill" ? settings.actionSkillId : ""} dailySkillId={settings.processingMode === "skill" ? settings.selectedSkillId : ""} onSelect={onSelectActionSkill} onSelectDaily={onSelectSkill} onRun={(id) => toggleTask("skill", id)} running={state === "recording" && currentTriggerRef.current === "skill"} onDeliveryChange={(value) => setSettings({ ...settingsRef.current, skillDelivery: value })} onSaveCustomSkills={saveCustomSkills} pipeline={pipeline} settings={settings} onNotice={notify} busy={busy} />}
         {page === "shortcut" && <ShortcutSettings settings={settings} setSettings={setSettings} customSkills={customSkills} onNotice={notify} busy={busy} />}
-        {page === "vocabulary" && <VocabularySettings settings={settings} setSettings={setSettings} vocabulary={vocabulary} onDismiss={dismissWord} ready={vocabularyReady} />}
+        {page === "vocabulary" && <VocabularySettings settings={settings} setSettings={setSettings} vocabulary={vocabulary} onDismiss={dismissWord} onAddWord={(target) => saveVocabularyWord(target)} onEditWord={(item, target) => saveVocabularyWord(target, item)} onImportWords={importVocabularyWords} onExportWords={exportVocabularyWords} ready={vocabularyReady} capability={{ automaticLearningAvailable: learningCapability.available, learningPermissionGranted: learningCapability.permissionGranted, learningReason: learningCapability.reason, asrHintsAvailable: nativePlatform === "macos" && isAppleAsr(settings), asrLabel: isAppleAsr(settings) ? "Apple 系统语音识别" : "当前语音服务" }} />}
         {page === "history" && <History onCopy={copyOutput} history={history} onClear={clearHistory} onTeach={teachCorrection} onExport={exportHistory} onRetranscribe={retranscribeHistory} retentionDays={settings.historyRetentionDays} onRetentionChange={changeHistoryRetention} keepAudio={settings.keepHistoryAudio} onKeepAudioChange={(value) => setSettings({ ...settingsRef.current, keepHistoryAudio: value })} busy={busy || retrying} />}
         </Suspense>
       </section>

@@ -3,7 +3,7 @@
 // Upstream 9d16762c52906f054285b630935017a431e9e627. See THIRD_PARTY_NOTICES.md.
 import { pinyin } from "pinyin-pro";
 import { parseCorrections } from "../text/localText.js";
-import { MAX_RULES, MAX_AUTO_HOTWORDS, normalizeWord as normalize, correctionKey, validCorrectionStructure, emptyVocabulary, normalizeDismissed, conflicts } from "./rules.js";
+import { MAX_RULES, MAX_AUTO_HOTWORDS, normalizeWord as normalize, correctionKey, hotwordKey as targetKey, createVocabularyEntryId, validCorrectionStructure, validateVocabularyWord, emptyVocabulary, normalizeDismissed, conflicts } from "./rules.js";
 export { MAX_RULES, MAX_AUTO_HOTWORDS, correctionKey, emptyVocabulary, applyLearnedVocabulary, collectAsrHotWords } from "./rules.js";
 
 const han = /^[\u3400-\u9fff\uf900-\ufaff]$/u;
@@ -93,18 +93,27 @@ export function extractCorrections(original, edited, { manual = false } = {}) {
   return [...result.values()];
 }
 
-const targetKey = (target) => `hotword\u0000${normalize(target)}`;
-
 export function normalizeVocabulary(raw, now = Date.now()) {
   if (!raw || typeof raw !== "object") return emptyVocabulary();
   const unique = (values, key = correctionKey) => [...new Map(values.map((x) => [key(x), x])).values()];
-  const valid = (Array.isArray(raw.entries) ? raw.entries : []).filter((x) => x && validCorrection(x, x.source !== "manual"));
+  const valid = (Array.isArray(raw.entries) ? raw.entries : []).filter((x) => x && (
+    x.kind === "hotword"
+      ? validateVocabularyWord(x.target).valid && (x.source !== "auto" || validCorrection(x))
+      : validCorrection(x, x.source !== "manual" && x.source !== "import")
+  ));
   // Preserve all pre-existing replacement semantics. Hotwords are separately
   // deduplicated by their correct target, and never displace a legacy rule.
   const replacements = unique(valid.filter((x) => x.kind !== "hotword")).slice(0, MAX_RULES);
   const replacementTargets = new Set(replacements.map((x) => normalize(x.target)));
-  const hotwords = unique(valid.filter((x) => x.kind === "hotword" && !replacementTargets.has(normalize(x.target))), (x) => normalize(x.target))
-    .slice(0, Math.min(MAX_AUTO_HOTWORDS, MAX_RULES - replacements.length));
+  const wordMap = new Map();
+  for (const word of valid.filter((x) => x.kind === "hotword" && (x.source !== "auto" || !replacementTargets.has(normalize(x.target))))) {
+    const key = normalize(word.target), previous = wordMap.get(key);
+    if (!previous || (previous.source === "auto" && word.source !== "auto")) wordMap.set(key, word);
+  }
+  const allHotwords = [...wordMap.values()];
+  const explicit = allHotwords.filter((x) => x.source !== "auto");
+  const automatic = allHotwords.filter((x) => x.source === "auto").slice(0, MAX_AUTO_HOTWORDS);
+  const hotwords = [...explicit, ...automatic].slice(0, MAX_RULES - replacements.length);
   const entries = [...replacements, ...hotwords];
   // Legacy candidates remain visible until expiry or a new explicit correction.
   // Loading alone never promotes an old candidate or a deleted word.
@@ -112,25 +121,51 @@ export function normalizeVocabulary(raw, now = Date.now()) {
   const dismissed = normalizeDismissed(raw.dismissed);
   return { version: 1, entries, candidates, dismissed };
 }
-export function learnCorrections(state, { original, edited, sessionId, manual = false, vocabulary = "", now = Date.now() }) {
+// Explicit history teaching may skip the phonetic check, but changing a number,
+// date or grammatical homophone is still content editing, not a lexical hint.
+function safeExplicitHint(pair) {
+  const digits = (s) => (s.match(/[\p{N}]/gu) || []).join("");
+  if (digits(pair.variant) !== digits(pair.target)) return false;
+  if (/(?:周|星期|礼拜)[一二三四五六日天]|[零〇一二两三四五六七八九十百千万亿]+[年月日号点时分秒元块次个]/u.test(pair.variant + pair.target)) return false;
+  if (Array.from(pair.variant).length === Array.from(pair.target).length && Array.from(pair.variant).some((c, i) => c !== Array.from(pair.target)[i] && meaningful.some((group) => group.includes(c) && group.includes(Array.from(pair.target)[i])))) return false;
+  return validateVocabularyWord(pair.target).valid;
+}
+
+export function learnCorrections(state, { original, edited, sessionId, manual = false, asHotword = false, vocabulary = "", now = Date.now() }) {
   const next = normalizeVocabulary(state, now);
-  const learned = [];
+  const learned = [], added = [];
   const manualRules = parseCorrections(vocabulary);
   for (const pair of extractCorrections(original, edited, { manual })) {
+    if ((asHotword || !manual) && !safeExplicitHint(pair)) continue;
     const key = correctionKey(pair);
     const wordKey = targetKey(pair.target);
     const replacements = [...manualRules, ...next.entries.filter((entry) => entry.kind !== "hotword")];
     if (replacements.some((entry) => correctionKey(entry) === key) || conflicts(pair, replacements)) continue;
     if (!manual && (next.dismissed.includes(key) || next.dismissed.includes(wordKey)
       || [...manualRules, ...next.entries].some((entry) => normalize(entry.target) === normalize(pair.target)))) continue;
-    const retained = manual ? next.entries.filter((entry) => entry.kind !== "hotword" || normalize(entry.target) !== normalize(pair.target)) : next.entries;
-    if (retained.length >= MAX_RULES || (!manual && retained.filter((entry) => entry.kind === "hotword").length >= MAX_AUTO_HOTWORDS)) continue;
-    next.entries = [...retained, { ...pair, ...(!manual ? { kind: "hotword" } : {}), source: manual ? "manual" : "auto", learnedAt: now }];
+    // Teaching an existing correct word is idempotent. It must never downgrade
+    // a user-managed entry or rewrite an explicit replacement rule.
+    if (asHotword && [...manualRules, ...next.entries].some((entry) => normalize(entry.target) === normalize(pair.target))) continue;
+    const retained = manual && !asHotword ? next.entries.filter((entry) => entry.kind !== "hotword" || normalize(entry.target) !== normalize(pair.target)) : next.entries;
+    if (retained.length >= MAX_RULES || (!manual && retained.filter((entry) => entry.kind === "hotword" && entry.source === "auto").length >= MAX_AUTO_HOTWORDS)) continue;
+    const entry = { ...pair, ...(!manual || asHotword ? { kind: "hotword" } : {}), source: manual ? "manual" : "auto", learnedAt: now,
+      ...(!manual ? { id: createVocabularyEntryId() } : {}) };
+    next.entries = [...retained, entry];
+    if (!manual) added.push(structuredClone(entry));
     next.candidates = next.candidates.filter((candidate) => correctionKey(candidate) !== key);
     next.dismissed = next.dismissed.filter((dismissed) => dismissed !== key && dismissed !== wordKey);
     learned.push(pair);
   }
-  return { state: next, learned };
+  return { state: next, learned, ...(added.length ? { undoToken: { entries: added } } : {}) };
+}
+
+/** Undo only the exact records created by this notification. A later edit wins. */
+export function undoAutoLearned(state, token) {
+  const next = normalizeVocabulary(state);
+  if (!Array.isArray(token?.entries)) return next;
+  const snapshots = new Map(token.entries.filter((entry) => entry?.id && entry.source === "auto" && entry.kind === "hotword").map((entry) => [entry.id, JSON.stringify(entry)]));
+  next.entries = next.entries.filter((entry) => !snapshots.has(entry.id) || snapshots.get(entry.id) !== JSON.stringify(entry));
+  return next;
 }
 export function dismissCorrection(state, pair) {
   const key = correctionKey(pair);

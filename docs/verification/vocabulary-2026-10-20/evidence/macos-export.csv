@@ -1,0 +1,4 @@
+﻿target,variant,kind,source,originSource
+"Qwen3","快问三","replacement","manual",""
+"Qwen3","千问三","replacement","manual",""
+"WithType","","hotword","manual",""

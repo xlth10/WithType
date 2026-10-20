@@ -16,7 +16,9 @@ test("一次有效纠正积累正确热词，重复任务和重复事件都幂�
   const initial = emptyVocabulary();
   const first = observe(initial, "session-1");
   assert.deepEqual(first.learned, [PAIR]);
-  assert.deepEqual(first.state.entries, [{ ...PAIR, kind: "hotword", source: "auto", learnedAt: NOW }]);
+  assert.match(first.state.entries[0].id, /^[\da-f-]{36}$/i);
+  assert.deepEqual(first.state.entries.map(({ id, ...entry }) => entry), [{ ...PAIR, kind: "hotword", source: "auto", learnedAt: NOW }]);
+  assert.deepEqual(first.undoToken.entries, first.state.entries);
   assert.deepEqual(first.state.candidates, []);
   assert.deepEqual(observe(first.state, "session-1"), { state: first.state, learned: [] });
   assert.deepEqual(observe(first.state, "session-2"), { state: first.state, learned: [] });
@@ -162,16 +164,19 @@ test("显式历史纠正把现有热词升级为替换，载入不改变旧规�
   assert.equal(applyLearnedVocabulary("徐向", old.entries), "徐翔");
 });
 
-test("自动正确词最多30，整体60且优先保留旧替换，不驱逐已有词", () => {
+test("自动正确词最多30，整体500且优先保留旧替换，不驱逐已有词", () => {
   const hotwords = Array.from({ length: MAX_AUTO_HOTWORDS + 1 }, (_, i) => ({ variant: `term${i}x`, target: `term${i}`, kind: "hotword", source: "auto" }));
   const normalized = normalizeVocabulary({ ...emptyVocabulary(), entries: hotwords }, NOW);
   assert.equal(normalized.entries.length, MAX_AUTO_HOTWORDS);
   assert.deepEqual(observe(normalized, "new").learned, []);
   const replacements = Array.from({ length: 40 }, (_, i) => ({ variant: `old${i}`, target: `keep${i}`, source: "manual" }));
   const mixed = normalizeVocabulary({ ...emptyVocabulary(), entries: [...hotwords, ...replacements] }, NOW);
-  assert.equal(mixed.entries.length, MAX_RULES);
+  assert.equal(mixed.entries.length, 70);
   assert.deepEqual(mixed.entries.slice(0, 40), replacements);
-  assert.equal(mixed.entries.filter((entry) => entry.kind === "hotword").length, 20);
+  assert.equal(mixed.entries.filter((entry) => entry.kind === "hotword").length, 30);
+  const full = normalizeVocabulary({ ...emptyVocabulary(), entries: [...Array.from({ length: MAX_RULES }, (_, i) => ({ target: `Manual${i}`, source: "manual", kind: "hotword" })), ...hotwords] }, NOW);
+  assert.equal(full.entries.length, MAX_RULES);
+  assert.ok(full.entries.every((entry) => entry.source === "manual"));
 });
 
 test("ASR提示只收正确词、大小写去重、控制符拒绝且每项最多40个字符", () => {

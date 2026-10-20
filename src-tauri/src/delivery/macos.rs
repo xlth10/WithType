@@ -125,6 +125,34 @@ fn focused() -> Option<Object> {
     }
     Some(field)
 }
+
+pub(crate) fn learning_permission_granted() -> bool {
+    unsafe { AXIsProcessTrusted() != 0 }
+}
+
+/// Retains exactly the verified target. It is moved to one observation worker,
+/// never shared with delivery and never used to modify the external field.
+pub(crate) struct FocusedCorrectionField {
+    element: Object,
+}
+impl FocusedCorrectionField {
+    pub(crate) fn is_focused(&self) -> bool {
+        if !learning_permission_granted() {
+            return false;
+        }
+        let Some(now) = focused() else {
+            return false;
+        };
+        (unsafe { CFEqual(self.element.0, now.0) != 0 }) && field_reason(&now) == Reason::Ready
+    }
+    pub(crate) fn read(&self) -> Option<String> {
+        if !learning_permission_granted() {
+            return None;
+        }
+        self.element.attr("AXValue")?.text()
+    }
+}
+
 fn selection(field: &Object) -> Option<Range> {
     let value = field.attr("AXSelectedTextRange")?;
     let mut range = Range {
@@ -302,9 +330,10 @@ pub(super) fn deliver(
     id: String,
     auto: bool,
     flag: Arc<AtomicBool>,
-    _app: tauri::AppHandle,
-    _learn: bool,
+    app: tauri::AppHandle,
+    learn: bool,
 ) -> Result<Delivery, String> {
+    crate::correction_monitor::stop_learning_monitor();
     let _serial = SERIAL.lock().map_err(|e| e.to_string())?;
     let target = targets().lock().map_err(|e| e.to_string())?.remove(&id);
     if flag.load(Ordering::SeqCst) {
@@ -412,6 +441,31 @@ pub(super) fn deliver(
                 result.reason = Reason::Inserted;
                 break;
             }
+        }
+    }
+    // Only a witnessed paste at the captured UTF-16 selection can begin
+    // learning. Failed/unverified sends and copy-only actions never observe.
+    if result.pasted && learn && crate::correction_monitor::is_enabled() {
+        let anchors = target
+            .before
+            .as_ref()
+            .zip(target.selection)
+            .and_then(|(before, range)| {
+                crate::correction_monitor::Anchors::from_utf16_range(
+                    before,
+                    usize::try_from(range.location).ok()?,
+                    usize::try_from(range.length).ok()?,
+                )
+            });
+        if let (Some(field), Some(anchors)) = (target.field, anchors) {
+            crate::correction_monitor::start_confirmed(
+                app,
+                text,
+                id,
+                FocusedCorrectionField { element: field },
+                anchors,
+                flag,
+            );
         }
     }
     result.message = result.reason.message().into();

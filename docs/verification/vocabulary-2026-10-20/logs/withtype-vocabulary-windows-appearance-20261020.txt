@@ -1,0 +1,25 @@
+
+> withtype-windows@0.1.0 verify:appearance
+> node scripts/appearance-baseline.mjs --built
+
+{
+  "ok": true,
+  "fontSha256": "a5822f9d6ef83d113dd94741221c16ba7a321f63033a02bd164968188995d547",
+  "paletteTokens": 17,
+  "artifactSha256": {
+    "App-D1ZLkbXj.js": "dfc6249ebfd6e8070e9eca9f9ef3ebcce4fc2694c5195cdfedc6deb66598c8b1",
+    "AppearanceSettings-lNXK7BP-.js": "9510e0297c10c2dbefb53f1e8dcb2c293f2ea0a323bd6fd157f09bcb1069bb34",
+    "HistoryCorrection-C9zx7Kn8.js": "ad78570c7f26c74a1348b10397e6072ec0384bda964938583696f8ba3a1e6e3e",
+    "MainSurface-B34TO8np.css": "20e345879b5e9abb4b1db3a0a3665d95170a6ad801fc77adafcf89e84025a2ed",
+    "MainSurface-DPtEPXMK.js": "6b43f465350b9c0824af33e116525e197dd7167bdb15783428199b7724f5b861",
+    "SkillEditor-C-pgsjSs.js": "c9ab7395a92c0b1811fefae95fae55885398532ba5e657110271f54c4e0e9bd2",
+    "TextSettings-CM5gmiHX.js": "a5646d23e4f948ae6d2d06ad4d3cac9ee8f4026094db1e9d9522922aa9c2f10f",
+    "Trash.es-JhWMMoTw.js": "8faa58d4f141a24d4b501782af1a09f3152075948f6d50f1d8a8751cc8d31406",
+    "VocabularySettings-BgbxTK1o.css": "4102422d1b2106589c4d29f123b99a0cf6115c98c96ba75150b61c6a84d036c6",
+    "VocabularySettings-D0rjItLz.js": "ccce07a429aef34d5f11c46c17d9f55ac4022a93a260b335cef82ed22e839af4",
+    "index-CM0Z83oN.js": "43205be6a7799c4a176688396f9faefe2cec994c7544f7096c721ec81c056ceb",
+    "index-cKbQeW8B.css": "f16201fd47a79af2f9a983bda3805218bf0130da5d7dc7b1822903d1b65401a3",
+    "learning-ueVFu2Ju.js": "fc47dcdde99b2cb40abb8b9ad0ebdd03d02ff3bbbf3991e6a80ff0158b71fbe1",
+    "management-C7KvRhHo.js": "d18fdc54eb0fd54b75b38a67c84c67460408de11985a0b9e7e64023595e0d8ee"
+  }
+}

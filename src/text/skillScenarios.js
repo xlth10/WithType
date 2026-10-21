@@ -1,5 +1,11 @@
 // Usage guidance and static examples, separate from the model instructions.
 export const SKILL_SCENARIOS = {
+  "builtin.polish": {
+    category: "表达", when: "保留原意和语气，让口述表达更自然、通顺。",
+    cue: "适合聊天、说明和日常文字。可以调整措辞与语序，短句保持简短，不添加标题或栏目。",
+    input: "嗯，这个方案我觉得可以再看一下，主要是上线时间现在还没定，不是说不做。李明那边周五前会给两版报价，我们拿到以后再一起比较。",
+    output: "我觉得这个方案可以再看看，主要是上线时间还没定，并不是不做。李明会在周五前给出两版报价，我们拿到后再一起比较。",
+  },
   "builtin.email": {
     category: "沟通", when: "把口述要点整理成邮件。",
     cue: "可以说明收件人、目的、主要内容和下一步。",
@@ -28,7 +34,7 @@ export const SKILL_SCENARIOS = {
 
 export function scenarioFor(skill) {
   return SKILL_SCENARIOS[skill?.id] || {
-    category: "自定义", when: skill?.description || "用你自己的要求，把口述整理成常用写法。",
+    category: "自定义", when: skill?.description || "按照你保存的模板要求整理口述。",
     cue: "先试一段自己的文字，确认合适后，再用于语音输入。",
     input: "昨天已经完成登录和导出流程。性能测试还没结束，下一步继续测试，具体完成时间待确认。",
     output: "",

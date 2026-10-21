@@ -41,7 +41,7 @@ test("本地拦下的静音录音归到 silence，而不是设备故障", () => 
   assert.equal(classifyAsrError("录音太短，请多说几个字后再结束"), "silence");
   assert.equal(classifyAsrError("麦克风返回了无效声道数"), "device");
 });
-import { BUILTIN_SKILLS } from "../src/text/builtinSkills.js";
+import { BUILTIN_SKILLS, copyBuiltinAsCustom, findBuiltinSkill } from "../src/text/builtinSkills.js";
 import { DEFAULT_SETTINGS } from "../src/text/settingsMigration.js";
 
 test("自动词库在开始录音时冻结，只影响后续任务", async () => {
@@ -558,7 +558,7 @@ test("skill 模式的选中项已丢失时提示重新选择", async () => {
   assert.equal(result.ok, true);
   assert.deepEqual(calls, ["transcribe_audio", "paste_text"], "Skill 失效时退回原文并提示");
   assert.deepEqual(pasted, ["整理一下这段"]);
-  assert.equal(findEvent(events, "done").warning, "所选写法已不可用，请重新选择");
+  assert.equal(findEvent(events, "done").warning, "所选模板已不可用，请重新选择");
 });
 
 test("skill 模式选中内置 Skill 时把它的说明发给文字模型", async () => {
@@ -582,9 +582,38 @@ test("skill 模式选中内置 Skill 时把它的说明发给文字模型", asyn
   assert.deepEqual(pasted, ["已完成：月底交付准备"]);
   assert.equal(sent.task, "skill");
   assert.equal(sent.skillId, "builtin.report");
-  assert.equal(sent.messages.length, 2);
+  assert.equal(sent.messages.length, 4);
   assert.ok(sent.messages[0].content.includes(BUILTIN_SKILLS[1].instruction));
   assert.ok(!sent.messages[0].content.includes("嗯那个月底要交付"), "原文不能进 system 消息");
+});
+
+test("润色与其自定义副本在普通输入中处理短句，保留问句正文和原有配置", async () => {
+  const polish = findBuiltinSkill("builtin.polish");
+  const copied = copyBuiltinAsCustom(polish, "custom.polish");
+  const rawText = "嗯，李明周五能给2版报价吗，不是要取消。";
+  const output = "李明周五能给2版报价吗？并不是要取消。";
+  for (const skill of [polish, copied]) {
+    let sent;
+    const { pipeline, calls, pasted } = makePipeline({
+      transcribe_audio: async () => ({ text: rawText, durationMs: 120 }),
+      process_text: async (payload) => {
+        sent = payload.request;
+        return { text: output, durationMs: 200 };
+      },
+    });
+    const settings = { ...TEXT_SETTINGS, processingMode: "skill", selectedSkillId: skill.id };
+    const before = { ...settings };
+    const snapshot = pipeline.begin({ intent: "dictation", settings, customSkills: [copied] });
+    const result = await pipeline.complete({ snapshot, audio: AUDIO });
+    assert.deepEqual(calls, ["transcribe_audio", "process_text", "paste_text"]);
+    assert.equal(sent.task, "skill");
+    assert.equal(sent.skillId, skill.id);
+    assert.ok(sent.messages[0].content.includes(polish.instruction));
+    assert.ok(sent.messages.at(-1).content.includes(rawText));
+    assert.equal(result.text, output);
+    assert.deepEqual(pasted, [output]);
+    assert.deepEqual(settings, before);
+  }
 });
 
 test("clean 模式在本地清理，不访问文字服务", async () => {
@@ -722,8 +751,8 @@ test("sample 预览只装配消息，完全不发请求", async () => {
 
   assert.equal(result.ok, true);
   assert.equal(result.sample, true);
-  assert.equal(result.messages.length, 2);
-  assert.deepEqual(result.messages.map((message) => message.role), ["system", "user"]);
+  assert.equal(result.messages.length, 4);
+  assert.deepEqual(result.messages.map((message) => message.role), ["system", "user", "assistant", "user"]);
   assert.deepEqual(calls, [], "样例预览不产生任何后端调用");
 });
 
@@ -745,7 +774,7 @@ test("没选 Skill 时预览提示先选 Skill", async () => {
 
   const result = await pipeline.preview({ settings: TEXT_SETTINGS, skill: null, rawText: "文本" });
 
-  assert.deepEqual(result, { ok: false, error: "请先选择要试用的写法" });
+  assert.deepEqual(result, { ok: false, error: "请先选择要试用的模板" });
   assert.deepEqual(calls, []);
 });
 
@@ -794,7 +823,7 @@ test("textReady 要求地址与模型名都填齐", () => {
   assert.equal(pipeline.textReady({ ...TEXT_SETTINGS, textModel: "" }), false);
 });
 
-test("流水线暴露的内置 Skill 就是应用内置的那四个", () => {
+test("流水线暴露应用完整的内置模板列表", () => {
   const { pipeline } = makePipeline({});
   assert.equal(pipeline.builtinSkills, BUILTIN_SKILLS);
 });

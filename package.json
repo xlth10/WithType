@@ -13,7 +13,9 @@
     "desktop:build": "tauri build",
     "preview": "vite preview",
     "test": "npm run test:unit",
-    "test:unit": "node scripts/run-unit-tests.mjs"
+    "test:unit": "node scripts/run-unit-tests.mjs",
+    "test:skills": "node --test tests/skill-schema.test.mjs tests/skill-v2.test.mjs tests/skill-editor-session.test.mjs",
+    "test:skills:model": "node scripts/test-skill-models.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

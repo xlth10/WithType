@@ -1,3 +1,4 @@
+import { cloneSkill } from "../text/skillContract.js";
 // 任务流水线：任务快照、ASR、文字路由、Skill、上屏与耗时统计。
 //
 // 三条硬规则，改这个文件时必须保持：
@@ -141,7 +142,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
       processingMode: settings.processingMode,
       selectedSkillId: selectedSkill ? selectedSkill.id : "",
       translationLanguage: settings.defaultTranslationLanguage || "英文",
-      skill: selectedSkill,
+      skill: cloneSkill(selectedSkill),
       windowContext,
       inputToken,
       vocabulary: settings.vocabulary || "",
@@ -289,8 +290,8 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     );
   }
 
-  async function callProcessText(snapshot, { task, rawText, instruction, outputFormat, skillId, context = "", prefix = "", budget = stageBudget(snapshot) }) {
-    const messages = buildMessages({ instruction, outputFormat, rawText, task });
+  async function callProcessText(snapshot, { task, rawText, instruction, outputFormat, skillId, template, context = "", prefix = "", budget = stageBudget(snapshot) }) {
+    const messages = buildMessages({ ...template, instruction, outputFormat, rawText, task });
     if (context) messages[1].content = `前文仅作衔接参考，不得复述或增加当前段没有的事实：\n<<<CONTEXT>>>\n${referenceTail(context)}\n<<<END CONTEXT>>>\n\n${messages[1].content}`;
     const fast = ["intent", "translate", "smart"].includes(task) ? snapshot.settings.textFastModel : "";
     const fallback = String(snapshot.settings.textFallbackModels || "").split(/[\n,，]/).map((name) => name.trim()).filter(Boolean).slice(0, 5);
@@ -563,6 +564,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
           instruction: skill ? skill.instruction : SMART_INSTRUCTION,
           outputFormat: skill ? skill.outputFormat : "plain",
           skillId: skill ? skill.id : undefined,
+          template: skill,
         });
         if (!guard(snapshot)) return { ok: false, stage: "cancelled", stale: true };
         timings.textMs = stage.textMs;
@@ -570,7 +572,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         else textFailure = stage.error || "文字模型没有返回内容";
       } else {
         // 没配文字服务或 Skill 已失效：退回原文，并明确告知，不静默改变用户预期。
-        textFailure = modeReady ? "所选写法已不可用，请重新选择" : "尚未配置文字服务，已按原文处理";
+        textFailure = modeReady ? "所选模板已不可用，请重新选择" : "尚未配置文字服务，已按原文处理";
         finalText = corrected;
       }
     } else if (snapshot.processingMode === "smart" && effectiveTextLength(corrected) <= SMART_DIRECT_OUTPUT_MAX_LENGTH) {
@@ -790,6 +792,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     cancelPreview();
     previewId = `preview-${nextRequestId()}`;
     const snapshot = makeSnapshot(previewId, { intent: "dictation", settings });
+    skill = cloneSkill(skill);
     const stillWanted = () => previewId === snapshot.requestId;
 
     const corrected = applyVocabulary(rawText.trim(), snapshot.vocabulary);
@@ -797,10 +800,10 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
     if (!textReady(settings)) {
       return { ok: false, error: "尚未配置文字服务（地址与模型名称都要填）" };
     }
-    if (!skill) return { ok: false, error: "请先选择要试用的写法" };
+    if (!skill) return { ok: false, error: "请先选择要试用的模板" };
     if (sample) {
       // 样例预览不发请求：只确认 Skill 能被装配成合法请求，供编辑时快速自检。
-      const messages = buildMessages({ instruction: skill.instruction, outputFormat: skill.outputFormat, rawText: trimmed || "（示例文本）" });
+      const messages = buildMessages({ ...skill, rawText: trimmed || "（示例文本）", task: "preview" });
       return { ok: true, sample: true, messages };
     }
     previewSnapshot = snapshot;
@@ -813,6 +816,7 @@ export function createPipeline({ invoke, onEvent = () => {}, clock = now, onTask
         instruction: skill.instruction,
         outputFormat: skill.outputFormat,
         skillId: skill.id,
+        template: skill,
       });
       if (!stillWanted()) return { ok: false, stale: true };
       if (!stage.ok) return { ok: false, error: stage.error };

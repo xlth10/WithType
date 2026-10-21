@@ -1,0 +1,181 @@
+   Compiling withtype_windows v0.1.0 (/private/tmp/withtype-skill-push-aaohuq4v/src-tauri)
+warning: function `refresh_shortcuts` is never used
+    --> src/lib.rs:1084:4
+     |
+1084 | fn refresh_shortcuts(app: &AppHandle) -> Vec<String> {
+     |    ^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `join_transcripts` is never used
+   --> src/audio.rs:205:4
+    |
+205 | fn join_transcripts(parts: &[String]) -> String {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: fields `session_id`, `endpoint`, and `model` are never read
+    --> src/audio.rs:1522:9
+     |
+1521 |     pub struct NativeTranscribeRequest {
+     |                ----------------------- fields in this struct
+1522 |         session_id: String,
+     |         ^^^^^^^^^^
+1523 |         endpoint: String,
+     |         ^^^^^^^^
+1524 |         model: String,
+     |         ^^^^^
+
+warning: function `system_pause` is never used
+   --> src/background.rs:454:8
+    |
+454 | pub fn system_pause(app: &AppHandle, sleep: bool, paused: bool) {
+    |        ^^^^^^^^^^^^
+
+warning: function `insertion_confirmed` is never used
+  --> src/correction_monitor.rs:31:15
+   |
+31 | pub(crate) fn insertion_confirmed(before: &str, after: &str, delivered: &str) -> bool {
+   |               ^^^^^^^^^^^^^^^^^^^
+
+warning: function `record` is never used
+  --> src/delivery.rs:83:4
+   |
+83 | fn record(id: &str, stage: &str, reason: Reason, elapsed_ms: u64, sent_events: u32) {
+   |    ^^^^^^
+
+warning: function `record_target` is never used
+  --> src/delivery.rs:86:4
+   |
+86 | fn record_target(
+   |    ^^^^^^^^^^^^^
+
+warning: function `capture` is never used
+   --> src/delivery.rs:184:8
+    |
+184 | pub fn capture(id: &str) -> Result<(), String> {
+    |        ^^^^^^^
+
+warning: multiple variants are never constructed
+  --> src/delivery/policy.rs:56:5
+   |
+55 | pub enum Reason {
+   |          ------ variants in this enum
+56 |     Ready,
+   |     ^^^^^
+57 |     Compatibility,
+   |     ^^^^^^^^^^^^^
+58 |     CopyRequested,
+59 |     NoFocus,
+   |     ^^^^^^^
+60 |     OwnProcess,
+   |     ^^^^^^^^^^
+61 |     Password,
+   |     ^^^^^^^^
+62 |     ProviderUnsupported,
+   |     ^^^^^^^^^^^^^^^^^^^
+63 |     TargetDisabled,
+   |     ^^^^^^^^^^^^^^
+64 |     ReadOnly,
+   |     ^^^^^^^^
+65 |     CaptureBusy,
+   |     ^^^^^^^^^^^
+66 |     CaptureTimeout,
+   |     ^^^^^^^^^^^^^^
+67 |     CaptureMissing,
+   |     ^^^^^^^^^^^^^^
+68 |     FocusChanged,
+   |     ^^^^^^^^^^^^
+69 |     SelectionChanged,
+   |     ^^^^^^^^^^^^^^^^
+70 |     ContentChanged,
+   |     ^^^^^^^^^^^^^^
+71 |     ModifiersHeld,
+   |     ^^^^^^^^^^^^^
+72 |     ClipboardChanged,
+   |     ^^^^^^^^^^^^^^^^
+73 |     ClipboardFailed,
+74 |     Cancelled,
+   |     ^^^^^^^^^
+75 |     SendFailed,
+   |     ^^^^^^^^^^
+76 |     SentUnverified,
+   |     ^^^^^^^^^^^^^^
+77 |     Inserted,
+   |     ^^^^^^^^
+78 |     DeliveryTimeout,
+   |     ^^^^^^^^^^^^^^^
+   |
+   = note: `Reason` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: `withtype_windows` (lib test) generated 9 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.62s
+     Running unittests src/lib.rs (/Users/outsider/codex_projects/emergence-lab/projects/15-withtype/src-tauri/target/debug/deps/withtype_windows_lib-a16f28f8c7d0be7d)
+
+running 65 tests
+test background::state::tests::exit_is_final_even_when_late_messages_arrive ... ok
+test background::state::tests::failures_are_bounded_and_explicit_repair_resets_the_budget ... ok
+test audio::tests::wav_header_describes_actual_pcm_payload ... ok
+test background::state::tests::confirmation_dialog_has_a_bounded_hold_and_accepts_no_voice_actions ... ok
+test background::state::tests::responding_page_with_failed_initialization_does_not_wait_forever ... ok
+test background::state::tests::old_page_cannot_reactivate_or_replay_after_recovery ... ok
+test background::state::tests::sleep_and_lock_are_independent_and_resume_is_not_a_dead_heartbeat ... ok
+test background::state::tests::startup_is_not_ready_and_claim_is_once_only ... ok
+test background::state::tests::unclaimed_command_expires_even_with_healthy_heartbeats ... ok
+test audio::tests::silence_gate_never_trips_on_real_speech_levels ... ok
+test card_position::tests::fallback_centres_at_bottom_and_clamps_negative_origin_with_dpi ... ok
+test card_position::tests::keeps_window_inside_small_work_area_and_right_edge ... ok
+test card_position::tests::prefers_below_caret_and_moves_above_near_bottom ... ok
+test correction_monitor::tests::allows_selection_replacement_but_not_missing_or_ambiguous_insertion ... ok
+test audio::tests::silence_gate_trips_on_what_the_service_would_misread ... ok
+test correction_monitor::tests::only_inserted_range_is_observed ... ok
+test correction_monitor::tests::paste_result_and_cancellation_share_interruptible_channel ... ok
+test delivery::policy::tests::active_editable_caret_in_a_read_only_document_accepts_input ... ok
+test delivery::policy::tests::edit_control_with_unsupported_patterns_needs_compatibility_evidence ... ok
+test delivery::policy::tests::retained_selection_in_an_inactive_document_cannot_authorize_input ... ok
+test delivery::policy::tests::scoped_caret_cannot_override_an_explicitly_read_only_edit_control ... ok
+test delivery::policy::tests::unsupported_read_only_is_unknown_and_explicit_read_only_always_wins ... ok
+test delivery::policy::tests::verifies_local_insertion_and_replacement_in_large_documents ... ok
+test delivery::policy::tests::windows_line_endings_do_not_hide_a_confirmed_multiline_paste ... ok
+test correction_monitor::tests::next_delivery_wakes_and_replaces_previous_worker ... ok
+test entrance_tests::only_hidden_or_minimized_main_windows_replay_the_entrance ... ok
+test entrance_tests::unknown_window_state_does_not_spuriously_replay ... ok
+test floating::tests::borderless_surfaces_keep_their_css_sizes_and_work_area_placement ... ok
+test floating::tests::main_preserves_the_design_content_viewport_at_each_dpi ... ok
+test floating::tests::small_scaled_work_area_clamps_the_entire_main_window ... ok
+test quick_phrase::tests::early_return_releases_the_clipboard_lease ... ok
+test quick_phrase::tests::empty_is_storable_but_cannot_be_inserted ... ok
+test quick_phrase::tests::overlapping_inputs_are_rejected_until_the_clipboard_lease_ends ... ok
+test quick_phrase::tests::preserves_leading_zeroes_spaces_and_line_breaks ... ok
+test quick_phrase::tests::rejects_invalid_or_oversized_text_without_silent_truncation ... ok
+test recovered_shortcut_tests::copy_default_does_not_displace_an_existing_phrase_binding ... ok
+test skills::tests::invalid_examples_and_future_versions_fail_validation ... ok
+test skills::tests::legacy_migration_keeps_instructions_and_missing_policy ... ok
+test skills::tests::unicode_counts_match_frontend_and_content_changes_are_detected ... ok
+test startup::tests::disabled_or_malformed_system_state_is_not_reported_as_enabled ... ok
+test delivery::tests::cancel_before_registration_does_not_revive_and_active_token_survives_eviction ... ok
+test startup::tests::silent_login_needs_explicit_argument_and_configuration ... ok
+test audio::tests::silence_gate_lets_a_brief_real_sound_through ... ok
+test text_api::tests::build_chat_request_pins_temperature_and_stream ... ok
+test text_api::tests::clamp_timeout_holds_the_configured_range ... ok
+test text_api::tests::chat_endpoint_accepts_every_shape_users_type ... ok
+test audio::tests::segments_only_at_a_pause ... ok
+test tests::probe_wav_is_a_real_tone_not_digital_silence ... ok
+test text_api::tests::excerpt_masks_a_key_that_sits_inside_the_first_200_chars ... ok
+test text_api::tests::excerpt_never_leaks_a_key_shaped_string_whole ... ok
+test text_api::tests::incomplete_nonstream_output_is_not_a_success ... ok
+test text_api::tests::input_limits_are_rejected_without_mutating_messages ... ok
+test text_api::tests::parse_content_reads_the_openai_shape ... ok
+test text_api::tests::excerpt_strips_control_characters_and_truncates ... ok
+test text_api::tests::parse_content_rejects_empty_and_malformed_bodies ... ok
+test text_stream::tests::complete_unicode_stream_requires_a_completion_marker ... ok
+test text_stream::tests::length_filter_error_and_malformed_streams_are_not_success ... ok
+test text_api::tests::parse_content_caps_absurdly_long_output ... ok
+test text_api::tests::task_cancellation_stops_active_children_and_rejects_late_children ... ok
+test text_stream::tests::stop_reason_allows_gateways_without_done_and_output_limit_is_not_silent ... ok
+test text_api::tests::invocation_deadline_covers_all_work_and_releases_cancellation_state ... ok
+test skills::tests::examples_and_policy_survive_disk_roundtrip ... ok
+test tests::app_icon_decodes_to_the_largest_frame ... ok
+test correction_monitor::tests::stalled_provider_cannot_spawn_extra_workers_or_block_forever ... ok
+test audio::tests::resampling_is_independent_of_callback_boundaries ... ok
+
+test result: ok. 65 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s

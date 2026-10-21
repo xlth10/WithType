@@ -1,0 +1,28 @@
+Final frontend build from build-macos.sh:
+> withtype-windows@0.1.0 prebuild
+> node scripts/appearance-baseline.mjs --write
+
+Recorded appearance-baseline.json; bundled font checksum verified.
+
+> withtype-windows@0.1.0 build
+> vite build
+
+vite v6.4.2 building for production...
+transforming...
+✓ 4648 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/index.html                               0.64 kB │ gzip:   0.36 kB
+dist/client/assets/MainSurface-B34TO8np.css          0.80 kB │ gzip:   0.30 kB
+dist/client/assets/index-DrK-DUFI.css               47.17 kB │ gzip:   9.58 kB
+dist/client/assets/HistoryCorrection-DakJRyOi.js     0.99 kB │ gzip:   0.60 kB
+dist/client/assets/AppearanceSettings-pFB1qwpS.js    1.58 kB │ gzip:   0.82 kB
+dist/client/assets/Trash.es-DSgPVqNX.js              2.57 kB │ gzip:   0.79 kB
+dist/client/assets/VocabularySettings-D9LLT-i0.js    4.01 kB │ gzip:   1.78 kB
+dist/client/assets/TextSettings-Bn9fVPTZ.js          6.24 kB │ gzip:   2.58 kB
+dist/client/assets/MainSurface-hW-8_iPx.js          12.48 kB │ gzip:   5.74 kB
+dist/client/assets/SkillEditor-ET3CJ2Df.js          19.13 kB │ gzip:   6.33 kB
+dist/client/assets/index-DLoutLOn.js               212.52 kB │ gzip:  65.78 kB
+dist/client/assets/App-BaQ8q7_Y.js                 217.05 kB │ gzip:  66.98 kB
+dist/client/assets/learning-7zl2FlZR.js            306.66 kB │ gzip: 141.08 kB
+✓ built in 3.49s

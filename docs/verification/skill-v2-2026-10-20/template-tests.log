@@ -1,0 +1,52 @@
+
+> withtype-windows@0.1.0 test:skills
+> node --test tests/skill-schema.test.mjs tests/skill-v2.test.mjs tests/skill-editor-session.test.mjs
+
+✔ 编辑会话从已选模板初始化，自定义模板标识也不会被首个内置模板覆盖 (1.158ms)
+✔ 同一会话中的草稿与试用文字相互独立，后续输入保留离开页面前已编辑的信息 (0.433292ms)
+✔ 保存草稿后选中已保存模板并保留试用文字；显式换模板才换参考输入 (0.154166ms)
+✔ 明确取消编辑只清除草稿，保留当前查看的模板与试用文字 (0.102209ms)
+✔ 旧草稿 A 保存返回时不能清除用户后来新建的草稿 B (0.133042ms)
+✔ 保存中继续修改同一草稿，旧响应只结束保存锁而不丢弃新版输入 (0.105625ms)
+✔ 旧删除请求完成不能覆盖请求中修改的试用文字或切换后的模板 (0.112708ms)
+✔ 没有后续编辑的删除完成后仍回到首个内置模板 (0.089708ms)
+✔ 提交锁属于窗口会话，拒绝重叠操作且旧清理不能释放后一个操作的锁 (0.101583ms)
+✔ 合法草稿归一化为完整的自定义模板 (2.50525ms)
+✔ 名称、说明、整理要求的长度上限各报一条错 (0.503875ms)
+✔ 长度上限处的边界值通过 (0.258167ms)
+✔ id 必须以 custom. 开头 (0.14925ms)
+✔ 没有 id 时自动生成 custom. 前缀的 id (2.936291ms)
+✔ 输出格式非法时不报错，只归一为纯文本 (0.246458ms)
+✔ 同名不同 id 报错，同 id 同名视为自身豁免 (0.206208ms)
+✔ 自定义模板数量到上限后只能编辑已有条目 (0.194792ms)
+✔ enabled 只有显式 false 才关掉 (0.182625ms)
+✔ validateStoredSkills 逐条丢弃坏数据并保留其余 (1.156833ms)
+✔ validateStoredSkills 保留原文件的 updatedAt，非法日期才回退当前时间 (0.199375ms)
+✔ validateStoredSkills 对非数组输入返回空列表 (0.20275ms)
+✔ 五个内置模板的 id 与名称固定，保留已有模板顺序 (0.18925ms)
+✔ 结构化内置模板要求的栏目逐条写在 instruction 里 (0.117667ms)
+✔ 润色及其保存后的自定义副本使用相同的自然正文规则 (0.373416ms)
+✔ copyBuiltinAsCustom 产出的是一份可编辑副本 (0.174167ms)
+✔ buildMessages 把固定边界放在 system 的第一段 (0.149416ms)
+✔ ASR 原文只出现在 user 消息里，并被明确标记为数据 (0.113625ms)
+✔ 输出格式决定 system 里的格式规则 (0.091125ms)
+✔ 智能整理使用自然正文规则，不混入 Skill 的栏目约束 (0.142916ms)
+✔ 原文与整理要求两侧的空白会被裁掉 (0.060833ms)
+✔ 随便问按问题回答，不套用文字整理的事实边界 (0.069042ms)
+✔ 翻译不把原文中的问题当作提问 (0.056708ms)
+✔ trial freshness compares normalized drafts and invalidates real instruction changes (2.928791ms)
+✔ v1 migration preserves facts, instructions, timestamps and mark policy; new templates omit (2.992125ms)
+✔ examples and policy survive JSON save/load; schema copying does not alias examples (0.933917ms)
+✔ incomplete, excessive and oversized examples are refused; Unicode boundary agrees with Rust (0.698208ms)
+✔ revision increments only when persisted template content changes (0.3805ms)
+✔ runtime examples are role pairs; current material remains last and missing policy is independent (0.471875ms)
+✔ trial and actual task send identical template messages; trial has no delivery side effects (3.547291ms)
+✔ recording freezes nested examples and instructions before later edits (1.105875ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.799375

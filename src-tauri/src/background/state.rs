@@ -123,6 +123,18 @@ impl Machine {
         self.dialog_until = None;
         self.tasks.drain().collect()
     }
+    pub fn page_loading(&mut self, now: u64) -> Option<Vec<String>> {
+        // An explicit page reload retries failed resource initialization. It
+        // starts a new generation, never skips the frontend readiness handshake.
+        if self.sleeping || self.locked || !matches!(self.phase, Phase::Ready | Phase::Failed) {
+            return None;
+        }
+        Some(self.invalidate(
+            Phase::Starting,
+            now,
+            "语音页面已重新载入，中断的录音可重新转写".into(),
+        ))
+    }
     pub fn recover(&mut self, now: u64, manual: bool) -> Option<Vec<String>> {
         if self.phase == Phase::Stopped || self.sleeping || self.locked {
             return None;
@@ -223,6 +235,64 @@ impl Machine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn page_reload_recovers_a_failed_controller_only_after_a_new_resource_handshake() {
+        let mut s = Machine::default();
+        let old_generation = s.generation;
+        assert!(s.ready(old_generation, 0));
+        let old_command = s.issue(1).unwrap();
+        assert!(s.track(old_generation, "old-recording".into()));
+        assert_eq!(
+            s.invalidate(Phase::Failed, 2, "历史载入失败：钥匙串超时".into()),
+            vec!["old-recording"]
+        );
+        let failed_generation = s.generation;
+        assert!(!s.ready(failed_generation, 3));
+
+        assert!(s.page_loading(4).is_some());
+        let reloaded_generation = s.generation;
+        assert!(reloaded_generation > failed_generation);
+        assert_eq!(s.phase, Phase::Starting);
+        assert!(!s.message.contains("历史载入失败"));
+        assert!(!s.message.contains("超时"));
+        assert!(!s.track(reloaded_generation, "not-ready-yet".into()));
+        assert!(!s.ready(old_generation, 5));
+        assert!(!s.ready(failed_generation, 5));
+        assert!(!s.track(old_generation, "revived-recording".into()));
+        assert!(!s.claim(old_generation, old_command, 5));
+        assert!(!s.claim(reloaded_generation, old_command, 5));
+
+        assert!(s.ready(reloaded_generation, 6));
+        assert!(s.track(reloaded_generation, "new-recording".into()));
+        assert_eq!(s.tasks.len(), 1);
+        assert!(s.tasks.contains("new-recording"));
+    }
+    #[test]
+    fn page_reload_cannot_unlock_a_suspended_or_stopped_controller() {
+        for sleep in [true, false] {
+            let mut suspended = Machine::default();
+            assert!(suspended.ready(1, 0));
+            suspended.pause(sleep, true, 1).unwrap();
+            let suspended_generation = suspended.generation;
+            assert!(suspended.page_loading(2).is_none());
+            assert_eq!(suspended.generation, suspended_generation);
+            assert_eq!(suspended.phase, Phase::Suspended);
+            assert!(if sleep {
+                suspended.sleeping
+            } else {
+                suspended.locked
+            });
+            assert!(!suspended.ready(suspended_generation, 3));
+        }
+
+        let mut stopped = Machine::default();
+        stopped.invalidate(Phase::Stopped, 1, String::new());
+        let stopped_generation = stopped.generation;
+        assert!(stopped.page_loading(2).is_none());
+        assert_eq!(stopped.generation, stopped_generation);
+        assert_eq!(stopped.phase, Phase::Stopped);
+        assert!(!stopped.ready(stopped_generation, 3));
+    }
     #[test]
     fn startup_is_not_ready_and_claim_is_once_only() {
         let mut s = Machine::default();

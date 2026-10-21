@@ -1,0 +1,67 @@
+   Compiling withtype_windows v0.1.0 (/Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri)
+warning: function `refresh_shortcuts` is never used
+    --> src/lib.rs:1245:4
+     |
+1245 | fn refresh_shortcuts(app: &AppHandle) -> Vec<String> {
+     |    ^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `system_pause` is never used
+   --> src/background.rs:449:8
+    |
+449 | pub fn system_pause(app: &AppHandle, sleep: bool, paused: bool) {
+    |        ^^^^^^^^^^^^
+
+warning: function `insertion_confirmed` is never used
+  --> src/correction_monitor.rs:73:15
+   |
+73 | pub(crate) fn insertion_confirmed(before: &str, after: &str, delivered: &str) -> bool {
+   |               ^^^^^^^^^^^^^^^^^^^
+
+warning: function `record` is never used
+  --> src/delivery.rs:83:4
+   |
+83 | fn record(id: &str, stage: &str, reason: Reason, elapsed_ms: u64, sent_events: u32) {
+   |    ^^^^^^
+
+warning: function `record_target` is never used
+  --> src/delivery.rs:86:4
+   |
+86 | fn record_target(
+   |    ^^^^^^^^^^^^^
+
+warning: variants `Compatibility`, `CaptureBusy`, `CaptureTimeout`, `Cancelled`, `DeliveryTimeout`, and `PlatformUnsupported` are never constructed
+  --> src/delivery/policy.rs:57:5
+   |
+55 | pub enum Reason {
+   |          ------ variants in this enum
+56 |     Ready,
+57 |     Compatibility,
+   |     ^^^^^^^^^^^^^
+...
+65 |     CaptureBusy,
+   |     ^^^^^^^^^^^
+66 |     CaptureTimeout,
+   |     ^^^^^^^^^^^^^^
+...
+74 |     Cancelled,
+   |     ^^^^^^^^^
+...
+78 |     DeliveryTimeout,
+   |     ^^^^^^^^^^^^^^^
+79 |     PlatformUnsupported,
+   |     ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `Reason` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: `withtype_windows` (lib test) generated 6 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.05s
+     Running unittests src/lib.rs (src-tauri/target/debug/deps/withtype_windows_lib-9c6b65dfcc5c920a)
+
+running 2 tests
+test background::state::tests::page_reload_cannot_unlock_a_suspended_or_stopped_controller ... ok
+test background::state::tests::page_reload_recovers_a_failed_controller_only_after_a_new_resource_handshake ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 89 filtered out; finished in 0.00s
+

@@ -1,0 +1,127 @@
+{
+  "sources": {
+    "scripts/benchmark/vocabulary-ab.mjs": {
+      "expected": "e8056f30a3d1994a40c79a4798c24f112db0556622ff1b0e27238c5ac56b69d4",
+      "mac": "e8056f30a3d1994a40c79a4798c24f112db0556622ff1b0e27238c5ac56b69d4",
+      "windows": "e8056f30a3d1994a40c79a4798c24f112db0556622ff1b0e27238c5ac56b69d4",
+      "pass": true
+    },
+    "src-tauri/src/correction_monitor.rs": {
+      "expected": "5bb0c8aee5ffdeb16c5ac82f86950647eb13671a1ee740c3a2fed273784952ff",
+      "mac": "5bb0c8aee5ffdeb16c5ac82f86950647eb13671a1ee740c3a2fed273784952ff",
+      "windows": "5bb0c8aee5ffdeb16c5ac82f86950647eb13671a1ee740c3a2fed273784952ff",
+      "pass": true
+    },
+    "src-tauri/src/correction_monitor/macos.rs": {
+      "expected": "e77e5a19b517138fe53e361c627f53f5f484d99c23286841348280e5447fe4bb",
+      "mac": "e77e5a19b517138fe53e361c627f53f5f484d99c23286841348280e5447fe4bb",
+      "windows": "e77e5a19b517138fe53e361c627f53f5f484d99c23286841348280e5447fe4bb",
+      "pass": true
+    },
+    "src-tauri/src/delivery.rs": {
+      "expected": "7bdab282fe9cc98065593af83846c49ee6d3b95dad3988e99c985d53b5f97826",
+      "mac": "7bdab282fe9cc98065593af83846c49ee6d3b95dad3988e99c985d53b5f97826",
+      "windows": "7bdab282fe9cc98065593af83846c49ee6d3b95dad3988e99c985d53b5f97826",
+      "pass": true
+    },
+    "src-tauri/src/delivery/macos.rs": {
+      "expected": "a8a8de904bfb358bbe815fc468ee3cd1398f9b8bfe5fd3f0d03d2e89accc8696",
+      "mac": "a8a8de904bfb358bbe815fc468ee3cd1398f9b8bfe5fd3f0d03d2e89accc8696",
+      "windows": "a8a8de904bfb358bbe815fc468ee3cd1398f9b8bfe5fd3f0d03d2e89accc8696",
+      "pass": true
+    },
+    "src-tauri/src/history.rs": {
+      "expected": "8f53e462e8f7d2cf2badd84193d81dbb4d1f288ec219e7fa17e027de8ecdd2a0",
+      "mac": "8f53e462e8f7d2cf2badd84193d81dbb4d1f288ec219e7fa17e027de8ecdd2a0",
+      "windows": "8f53e462e8f7d2cf2badd84193d81dbb4d1f288ec219e7fa17e027de8ecdd2a0",
+      "pass": true
+    },
+    "src-tauri/src/lib.rs": {
+      "expected": "1a482e0daeab0925668cfb72e726cf97d72cf8aa49e1625b36a4b0bf25f2585d",
+      "mac": "1a482e0daeab0925668cfb72e726cf97d72cf8aa49e1625b36a4b0bf25f2585d",
+      "windows": "1a482e0daeab0925668cfb72e726cf97d72cf8aa49e1625b36a4b0bf25f2585d",
+      "pass": true
+    },
+    "src-tauri/src/vocabulary.rs": {
+      "expected": "7986b870805b9726c3ca546cc73fccdd838452cea253918b6ebf30bdd8dd5c5c",
+      "mac": "7986b870805b9726c3ca546cc73fccdd838452cea253918b6ebf30bdd8dd5c5c",
+      "windows": "7986b870805b9726c3ca546cc73fccdd838452cea253918b6ebf30bdd8dd5c5c",
+      "pass": true
+    },
+    "src/App.jsx": {
+      "expected": "4f559662dba0a9fd65522f3cb76fe4dcf223e2ecd50357fb0c5383d268f0c26b",
+      "mac": "4f559662dba0a9fd65522f3cb76fe4dcf223e2ecd50357fb0c5383d268f0c26b",
+      "windows": "4f559662dba0a9fd65522f3cb76fe4dcf223e2ecd50357fb0c5383d268f0c26b",
+      "pass": true
+    },
+    "src/components/HistoryCorrection.jsx": {
+      "expected": "003ff6400a4e88f601cc1128b991625928628742c82f08c541136dc56e11999b",
+      "mac": "003ff6400a4e88f601cc1128b991625928628742c82f08c541136dc56e11999b",
+      "windows": "003ff6400a4e88f601cc1128b991625928628742c82f08c541136dc56e11999b",
+      "pass": true
+    },
+    "src/components/VocabularySettings.css": {
+      "expected": "286c575d7f6c3ddbcb3fbf05bf0e1ec221a0952c048027d025bb906f38f0df26",
+      "mac": "286c575d7f6c3ddbcb3fbf05bf0e1ec221a0952c048027d025bb906f38f0df26",
+      "windows": "286c575d7f6c3ddbcb3fbf05bf0e1ec221a0952c048027d025bb906f38f0df26",
+      "pass": true
+    },
+    "src/components/VocabularySettings.jsx": {
+      "expected": "66b511eafc4ac70a51b28648b3d69b15027c57b0472db92ea3a75a9e77e71269",
+      "mac": "66b511eafc4ac70a51b28648b3d69b15027c57b0472db92ea3a75a9e77e71269",
+      "windows": "66b511eafc4ac70a51b28648b3d69b15027c57b0472db92ea3a75a9e77e71269",
+      "pass": true
+    },
+    "src/vocabulary/learning.js": {
+      "expected": "bcf4f3b1279c34ef7791b0f93fc924a3abf5f643a693c74275be62ef5e8884c0",
+      "mac": "bcf4f3b1279c34ef7791b0f93fc924a3abf5f643a693c74275be62ef5e8884c0",
+      "windows": "bcf4f3b1279c34ef7791b0f93fc924a3abf5f643a693c74275be62ef5e8884c0",
+      "pass": true
+    },
+    "src/vocabulary/management.js": {
+      "expected": "2bbfb7baf3692b514bb3557998e8c0d1332937417b04f49431a00389522d23ae",
+      "mac": "2bbfb7baf3692b514bb3557998e8c0d1332937417b04f49431a00389522d23ae",
+      "windows": "2bbfb7baf3692b514bb3557998e8c0d1332937417b04f49431a00389522d23ae",
+      "pass": true
+    },
+    "src/vocabulary/rules.js": {
+      "expected": "748980bc2c29474a6f2ec9da518a6d98ca3116ffe8a43fb3a412f2697e3d665e",
+      "mac": "748980bc2c29474a6f2ec9da518a6d98ca3116ffe8a43fb3a412f2697e3d665e",
+      "windows": "748980bc2c29474a6f2ec9da518a6d98ca3116ffe8a43fb3a412f2697e3d665e",
+      "pass": true
+    },
+    "tests/vocabulary-learning.test.mjs": {
+      "expected": "6cd0df388abce3c3bfb7743dd6080e9ae8f5c64d634a96af93c3eab4af3d34fe",
+      "mac": "6cd0df388abce3c3bfb7743dd6080e9ae8f5c64d634a96af93c3eab4af3d34fe",
+      "windows": "6cd0df388abce3c3bfb7743dd6080e9ae8f5c64d634a96af93c3eab4af3d34fe",
+      "pass": true
+    },
+    "tests/vocabulary-management.test.mjs": {
+      "expected": "f1b3dfc4b08b0bbb121aed3b6ec0003afd2c0df3209483037270f36e09cadd92",
+      "mac": "f1b3dfc4b08b0bbb121aed3b6ec0003afd2c0df3209483037270f36e09cadd92",
+      "windows": "f1b3dfc4b08b0bbb121aed3b6ec0003afd2c0df3209483037270f36e09cadd92",
+      "pass": true
+    }
+  },
+  "mismatches": [],
+  "artifacts": {
+    "dist/macos/WithType.app/Contents/MacOS/withtype": {
+      "expected": "1204efc9b159580a3366a20923db5bcc4472b2e2e941d04bc50b2d3311d0c7fe",
+      "actual": "1204efc9b159580a3366a20923db5bcc4472b2e2e941d04bc50b2d3311d0c7fe",
+      "pass": true
+    },
+    "dist/macos/WithType-macos-arm64-vocabulary-20261020.zip": {
+      "expected": "8d6c0c6d717d567f91b9f67ef2d265fc2a2850425245fae651ade7ef7b1df111",
+      "actual": "8d6c0c6d717d567f91b9f67ef2d265fc2a2850425245fae651ade7ef7b1df111",
+      "pass": true
+    }
+  },
+  "heads": {
+    "mac": "a583a8d7399bcb58bb387f246a3e974f7ec2d812",
+    "windows": "6e594fd4c70df5791471b7ca22d9430240550b37"
+  },
+  "statuses": {
+    "mac": "",
+    "windows": ""
+  }
+}

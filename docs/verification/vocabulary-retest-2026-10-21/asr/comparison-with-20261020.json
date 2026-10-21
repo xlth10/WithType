@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-21",
+  "calls": 24,
+  "successful": 24,
+  "failed": 0,
+  "fixtureHashesEqual": true,
+  "textMatchesPrevious": 24,
+  "differences": [],
+  "properNames": [
+    {
+      "round": 1,
+      "condition": "no-vocabulary",
+      "text": "请把纪要发给晨曦和翟云项目名称叫生间，别写成生间",
+      "hits": []
+    },
+    {
+      "round": 1,
+      "condition": "direct-correct-words",
+      "text": "请把纪要发给晨曦和翟昀项目名称叫声笺，别写成声笺",
+      "hits": [
+        "翟昀",
+        "声笺"
+      ]
+    },
+    {
+      "round": 1,
+      "condition": "after-delete",
+      "text": "请把纪要发给晨曦和翟云项目名称叫生间，别写成生间",
+      "hits": []
+    },
+    {
+      "round": 2,
+      "condition": "after-delete",
+      "text": "请把纪要发给晨曦和翟云项目名称叫生间，别写成生间",
+      "hits": []
+    },
+    {
+      "round": 2,
+      "condition": "direct-correct-words",
+      "text": "请把纪要发给晨曦和翟昀项目名称叫声笺，别写成声笺",
+      "hits": [
+        "翟昀",
+        "声笺"
+      ]
+    },
+    {
+      "round": 2,
+      "condition": "no-vocabulary",
+      "text": "请把纪要发给晨曦和翟云项目名称叫生间，别写成生间",
+      "hits": []
+    }
+  ],
+  "scope": "same four synthetic WAVs; Apple on-device Speech bridge; no microphone or text service; authorization belongs to probe process"
+}

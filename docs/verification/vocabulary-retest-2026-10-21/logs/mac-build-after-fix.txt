@@ -1,0 +1,212 @@
+
+> withtype-windows@0.1.0 desktop:build
+> tauri build --target aarch64-apple-darwin --bundles app
+
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build`
+
+> withtype-windows@0.1.0 prebuild
+> node scripts/appearance-baseline.mjs --write
+
+Recorded appearance-baseline.json; bundled font checksum verified.
+
+> withtype-windows@0.1.0 build
+> vite build
+
+vite v6.4.2 building for production...
+transforming...
+✓ 4650 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/index.html                                0.64 kB │ gzip:   0.37 kB
+dist/client/assets/MainSurface-B34TO8np.css           0.80 kB │ gzip:   0.30 kB
+dist/client/assets/VocabularySettings-BgbxTK1o.css    7.03 kB │ gzip:   1.79 kB
+dist/client/assets/index-cKbQeW8B.css                46.57 kB │ gzip:   9.48 kB
+dist/client/assets/HistoryCorrection-C9zx7Kn8.js      1.00 kB │ gzip:   0.61 kB
+dist/client/assets/AppearanceSettings-lNXK7BP-.js     1.58 kB │ gzip:   0.82 kB
+dist/client/assets/Trash.es-JhWMMoTw.js               4.03 kB │ gzip:   1.05 kB
+dist/client/assets/TextSettings-CM5gmiHX.js           6.24 kB │ gzip:   2.58 kB
+dist/client/assets/management-C7KvRhHo.js             7.04 kB │ gzip:   3.19 kB
+dist/client/assets/MainSurface-DPtEPXMK.js           12.48 kB │ gzip:   5.74 kB
+dist/client/assets/SkillEditor-C-pgsjSs.js           17.90 kB │ gzip:   6.47 kB
+dist/client/assets/VocabularySettings-D0rjItLz.js    25.95 kB │ gzip:   8.03 kB
+dist/client/assets/index-CM0Z83oN.js                212.52 kB │ gzip:  65.78 kB
+dist/client/assets/App-D1ZLkbXj.js                  220.16 kB │ gzip:  67.63 kB
+dist/client/assets/learning-ueVFu2Ju.js             308.49 kB │ gzip: 141.86 kB
+✓ built in 1.95s
+   Compiling withtype_windows v0.1.0 (/Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri)
+warning: function `refresh_shortcuts` is never used
+    --> src/lib.rs:1245:4
+     |
+1245 | fn refresh_shortcuts(app: &AppHandle) -> Vec<String> {
+     |    ^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `system_pause` is never used
+   --> src/background.rs:449:8
+    |
+449 | pub fn system_pause(app: &AppHandle, sleep: bool, paused: bool) {
+    |        ^^^^^^^^^^^^
+
+warning: method `pause` is never used
+   --> src/background/state.rs:203:12
+    |
+ 65 | impl Machine {
+    | ------------ method in this implementation
+...
+203 |     pub fn pause(&mut self, sleep: bool, paused: bool, now: u64) -> Option<Vec<String>> {
+    |            ^^^^^
+
+warning: function `record` is never used
+  --> src/delivery.rs:83:4
+   |
+83 | fn record(id: &str, stage: &str, reason: Reason, elapsed_ms: u64, sent_events: u32) {
+   |    ^^^^^^
+
+warning: function `record_target` is never used
+  --> src/delivery.rs:86:4
+   |
+86 | fn record_target(
+   |    ^^^^^^^^^^^^^
+
+warning: function `comparable_lines` is never used
+ --> src/delivery/policy.rs:5:15
+  |
+5 | pub(crate) fn comparable_lines(text: &str) -> Cow<'_, str> {
+  |               ^^^^^^^^^^^^^^^^
+
+warning: enum `Editability` is never used
+  --> src/delivery/policy.rs:14:17
+   |
+14 | pub(crate) enum Editability {
+   |                 ^^^^^^^^^^^
+
+warning: function `editability` is never used
+  --> src/delivery/policy.rs:20:15
+   |
+20 | pub(crate) fn editability(read_only: &[Option<bool>], text_edit: bool) -> Editability {
+   |               ^^^^^^^^^^^
+
+warning: function `text_read_only` is never used
+  --> src/delivery/policy.rs:30:15
+   |
+30 | pub(crate) fn text_read_only(
+   |               ^^^^^^^^^^^^^^
+
+warning: function `may_paste` is never used
+  --> src/delivery/policy.rs:49:15
+   |
+49 | pub(crate) fn may_paste(value: Editability, compatible_edit: bool) -> bool {
+   |               ^^^^^^^^^
+
+warning: variants `Compatibility`, `CaptureBusy`, `CaptureTimeout`, `Cancelled`, `DeliveryTimeout`, and `PlatformUnsupported` are never constructed
+  --> src/delivery/policy.rs:57:5
+   |
+55 | pub enum Reason {
+   |          ------ variants in this enum
+56 |     Ready,
+57 |     Compatibility,
+   |     ^^^^^^^^^^^^^
+...
+65 |     CaptureBusy,
+   |     ^^^^^^^^^^^
+66 |     CaptureTimeout,
+   |     ^^^^^^^^^^^^^^
+...
+74 |     Cancelled,
+   |     ^^^^^^^^^
+...
+78 |     DeliveryTimeout,
+   |     ^^^^^^^^^^^^^^^
+79 |     PlatformUnsupported,
+   |     ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `Reason` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: struct `TextWitness` is never constructed
+   --> src/delivery/policy.rs:112:19
+    |
+112 | pub(crate) struct TextWitness {
+    |                   ^^^^^^^^^^^
+
+warning: method `confirms` is never used
+   --> src/delivery/policy.rs:118:19
+    |
+117 | impl TextWitness {
+    | ---------------- method in this implementation
+118 |     pub(crate) fn confirms(&self, now: &Self, text: &str) -> bool {
+    |                   ^^^^^^^^
+
+warning: variant `Card` is never constructed
+  --> src/floating.rs:31:5
+   |
+28 | pub enum Surface {
+   |          ------- variant in this enum
+...
+31 |     Card,
+   |     ^^^^
+   |
+   = note: `Surface` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: struct `InputPermit` is never constructed
+  --> src/quick_phrase.rs:38:12
+   |
+38 | pub struct InputPermit<'a>(&'a AtomicBool);
+   |            ^^^^^^^^^^^
+
+warning: associated function `acquire` is never used
+  --> src/quick_phrase.rs:40:12
+   |
+39 | impl<'a> InputPermit<'a> {
+   | ------------------------ associated function in this implementation
+40 |     pub fn acquire(busy: &'a AtomicBool) -> Option<Self> {
+   |            ^^^^^^^
+
+warning: function `startup_approved` is never used
+  --> src/startup.rs:21:4
+   |
+21 | fn startup_approved(data: &[u8]) -> bool {
+   |    ^^^^^^^^^^^^^^^^
+
+warning: `withtype_windows` (lib) generated 17 warnings
+    Finished `release` profile [optimized] target(s) in 19.62s
+       Built application at: /Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/target/aarch64-apple-darwin/release/withtype
+    Bundling WithType.app (/Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/WithType.app)
+     Signing with identity "-"
+Signing with identity "-"
+Signing /Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/WithType.app/Contents/MacOS/withtype
+/Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/WithType.app/Contents/MacOS/withtype: replacing existing signature
+Signing with identity "-"
+Signing /Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/WithType.app
+/Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/WithType.app: replacing existing signature
+        Warn skipping app notarization, no APPLE_ID & APPLE_PASSWORD & APPLE_TEAM_ID or APPLE_API_KEY & APPLE_API_ISSUER & APPLE_API_KEY_PATH environment variables found
+    Finished 1 bundle at:
+        /Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/WithType.app
+
+
+> withtype-windows@0.1.0 verify:appearance
+> node scripts/appearance-baseline.mjs --built
+
+{
+  "ok": true,
+  "fontSha256": "a5822f9d6ef83d113dd94741221c16ba7a321f63033a02bd164968188995d547",
+  "paletteTokens": 17,
+  "artifactSha256": {
+    "App-D1ZLkbXj.js": "dfc6249ebfd6e8070e9eca9f9ef3ebcce4fc2694c5195cdfedc6deb66598c8b1",
+    "AppearanceSettings-lNXK7BP-.js": "9510e0297c10c2dbefb53f1e8dcb2c293f2ea0a323bd6fd157f09bcb1069bb34",
+    "HistoryCorrection-C9zx7Kn8.js": "ad78570c7f26c74a1348b10397e6072ec0384bda964938583696f8ba3a1e6e3e",
+    "MainSurface-B34TO8np.css": "20e345879b5e9abb4b1db3a0a3665d95170a6ad801fc77adafcf89e84025a2ed",
+    "MainSurface-DPtEPXMK.js": "6b43f465350b9c0824af33e116525e197dd7167bdb15783428199b7724f5b861",
+    "SkillEditor-C-pgsjSs.js": "c9ab7395a92c0b1811fefae95fae55885398532ba5e657110271f54c4e0e9bd2",
+    "TextSettings-CM5gmiHX.js": "a5646d23e4f948ae6d2d06ad4d3cac9ee8f4026094db1e9d9522922aa9c2f10f",
+    "Trash.es-JhWMMoTw.js": "8faa58d4f141a24d4b501782af1a09f3152075948f6d50f1d8a8751cc8d31406",
+    "VocabularySettings-BgbxTK1o.css": "4102422d1b2106589c4d29f123b99a0cf6115c98c96ba75150b61c6a84d036c6",
+    "VocabularySettings-D0rjItLz.js": "ccce07a429aef34d5f11c46c17d9f55ac4022a93a260b335cef82ed22e839af4",
+    "index-CM0Z83oN.js": "43205be6a7799c4a176688396f9faefe2cec994c7544f7096c721ec81c056ceb",
+    "index-cKbQeW8B.css": "f16201fd47a79af2f9a983bda3805218bf0130da5d7dc7b1822903d1b65401a3",
+    "learning-ueVFu2Ju.js": "fc47dcdde99b2cb40abb8b9ad0ebdd03d02ff3bbbf3991e6a80ff0158b71fbe1",
+    "management-C7KvRhHo.js": "d18fdc54eb0fd54b75b38a67c84c67460408de11985a0b9e7e64023595e0d8ee"
+  }
+}
+可运行 APP：/Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/dist/macos/WithType.app

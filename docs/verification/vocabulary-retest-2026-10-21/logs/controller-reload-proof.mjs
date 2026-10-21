@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {createVoiceController} from '/Users/outsider/.codex/worktrees/withtype-pipeline-macos/15-withtype/src/dictation/controller.js';
+const calls=[],statuses=[];
+const oldFailure={generation:2,phase:'failed',message:'历史载入失败，已暂停录音以保护旧记录：受保护历史读取或保存超时'};
+const controller=createVoiceController({invoke:async(command,args)=>{calls.push(command); if(command==='get_voice_controller')return oldFailure; if(command==='voice_controller_ready')return {...oldFailure,phase:'ready'};return true;},listen:async()=>()=>{},onStatus:s=>statuses.push(s)});
+await controller.start();
+controller.setResourcesReady(true);
+await new Promise(resolve=>setImmediate(resolve));
+assert.equal(calls.filter(x=>x==='voice_controller_ready').length,0);
+assert.equal(statuses.at(-1).phase,'failed');
+console.log(JSON.stringify({scenario:'new page reads pre-existing failed supervisor, then history/resources become ready',calls,statuses,readyAnnouncements:0,verdict:'history success does not clear failed controller'},null,2));
+controller.dispose();

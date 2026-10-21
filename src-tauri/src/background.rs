@@ -438,14 +438,9 @@ pub fn page_loading(app: &AppHandle) {
         let Ok(mut s) = supervisor.state.lock() else {
             return;
         };
-        if s.phase != Phase::Ready {
+        let Some(tasks) = s.page_loading(supervisor.now()) else {
             return;
-        }
-        let tasks = s.invalidate(
-            Phase::Starting,
-            supervisor.now(),
-            "语音页面已重新载入，中断的录音可重新转写".into(),
-        );
+        };
         (tasks, snapshot(&s))
     };
     interrupt(app, transition.0);

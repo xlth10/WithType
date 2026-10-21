@@ -1,0 +1,15 @@
+{
+  "scenario": "new page reads pre-existing failed supervisor, then history/resources become ready",
+  "calls": [
+    "get_voice_controller"
+  ],
+  "statuses": [
+    {
+      "generation": 2,
+      "phase": "failed",
+      "message": "历史载入失败，已暂停录音以保护旧记录：受保护历史读取或保存超时"
+    }
+  ],
+  "readyAnnouncements": 0,
+  "verdict": "history success does not clear failed controller"
+}

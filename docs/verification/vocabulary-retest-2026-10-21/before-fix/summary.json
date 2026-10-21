@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-21",
+  "actualNewRuns": true,
+  "frontend": {
+    "macos": {
+      "tests": 303,
+      "pass": 299,
+      "fail": 0,
+      "skipped": 4
+    },
+    "windows": {
+      "tests": 303,
+      "pass": 299,
+      "fail": 0,
+      "skipped": 4
+    }
+  },
+  "macosNative": {
+    "passed": 89,
+    "failed": 0
+  },
+  "sourceCount": 17,
+  "sourceMismatches": [],
+  "artifactsMatchManifest": true,
+  "macosCodesign": "passed (exit 0)",
+  "windowsIsolatedTypeCheck": "passed (exit 0; 31.16s)",
+  "windowsIsolatedScope": "Real Windows target for vocabulary, UIA, delivery, monitor, history and Tauri handlers; debug_log/write_atomic compile-only boundary stubs",
+  "windowsFullBuild": "not attempted this run; no Windows SDK/runtime",
+  "windowsRuntime": "not tested",
+  "privateAsr": "not called",
+  "userDataAndCredentials": "not accessed",
+  "productCodeModified": false,
+  "heads": {
+    "mac": "a583a8d7399bcb58bb387f246a3e974f7ec2d812",
+    "windows": "6e594fd4c70df5791471b7ca22d9430240550b37"
+  },
+  "worktreesClean": true
+}

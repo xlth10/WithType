@@ -1,0 +1,93 @@
+Window: "WithType", App: WithType.
+0 standard window WithType, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: WithType, URL: tauri://localhost
+			3 container
+				4 text WithType
+				5 text 语音输入
+				6 container 主导航
+					7 button 开始
+					8 button 服务设置
+					9 button 文字整理
+					10 button 个人词库
+					11 button 整理模板
+					12 button 快捷键
+					13 button 历史记录
+					14 button 外观
+				15 text 音频由 Apple 在本机识别 本机识别能力待检查
+				16 button Alt + 1, Help: 语音输入
+				17 button Alt + 2, Help: 随便问
+				18 button Alt + 3, Help: 翻译
+				19 container 历史记录尚未读取
+					20 heading 历史记录尚未读取, Value: 2
+						21 text 历史记录尚未读取
+					22 text 受保护历史读取或保存超时，原历史已保留，请稍后重试。录音已暂停，原记录保留；词库和设置仍可使用。
+					23 button 重新载入应用
+				24 heading 个人词库, Value: 1
+					25 text 个人词库
+				26 text 记住名字和专业术语，让常用词写得更准确。
+				27 container 添加正确词
+					28 heading 添加正确词, Value: 2
+						29 text 添加正确词
+					30 text 直接填写正确写法，例如人名、品牌或项目缩写，无需提供误识别。每词最多 40 字。
+					31 container
+						32 text 正确词
+						33 text field (settable) 正确词, Placeholder: 例如：WithType、徐翔、项目名称
+						34 button (disabled) 添加正确词
+				35 container 已保存词条 1 / 500
+					36 heading 已保存词条 1 / 500, Value: 2
+						37 text 已保存词条 1 / 500
+					38 text 正确词 1 条 · 明确替换 0 条
+					39 button (collapsed) 导入 CSV, Secondary Actions: Expand
+					40 button 导出 CSV
+					41 text 导出 CSV 包含已保存词条及下方手动规则。
+					42 container
+						43 text 搜索词条或误写
+						44 search text field (settable) 搜索词条或误写
+							45 text 搜索词条或误写
+					46 container
+						47 text 按类型筛选
+						48 pop up button (collapsed) 按类型筛选, Value: 全部类型, Secondary Actions: Expand
+					49 container
+						50 text 按来源筛选
+						51 pop up button (collapsed) 按来源筛选, Value: 全部来源, Secondary Actions: Expand
+					52 text 共 1 条词条
+					53 container
+						54 text WithType 手动 · 正确词提示
+						55 button 修改正确词 WithType, Help: 修改正确词
+						56 button 删除正确词 WithType, Help: 删除，且不再自动学习此词
+					57 text 删除正确词后，不再自动学习此词；仍可手动添加回来。
+				58 container 词库如何生效
+					59 heading 词库如何生效, Value: 2
+						60 text 词库如何生效
+					61 heading 自动学习正确词, Value: 3
+						62 text 自动学习正确词
+					63 text 口述后改正短词，符合条件的纠正会记住正确写法。关闭后保留已有词条。
+					64 switch (settable, boolean) 自动学习正确词, Value: on
+					65 text 需要在系统设置中授予辅助功能权限，自动学习才会生效。
+					66 text 自动学习词条 0 / 30；达到上限后暂停新增，可在上方筛选并删除不再使用的词。
+					67 heading Apple 系统语音识别 · 正确词提示已接入, Value: 3
+						68 text Apple 系统语音识别 · 正确词提示已接入
+					69 text 每次识别最多使用 100 个正确词。当前选入 2 个；提示用于辅助识别，结果仍以语音为准。
+					70 summary 查看下次识别可用词提示（2）, Value: off
+						71 text 查看下次识别可用词提示（2）
+				72 container 明确替换规则
+					73 heading 明确替换规则, Value: 2
+						74 text 明确替换规则
+					75 text 需要固定替换时再设置。每行一条：正确写法=误写1|误写2。这里的手动规则优先，也会提供正确词提示。
+					76 container
+						77 text 明确替换规则
+						78 text entry area (settable) 明确替换规则, Value: [text entry area], Placeholder: WithType=with type|威思泰普
+							79 text (settable) Qwen3=快问三|千问三
+				80 text 学习对比在本机完成，只保存短词。支持词提示的识别服务会接收正确词；启用文字整理时，口述内容会发送给已配置的文字服务。
+	81 close button
+	82 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	83 minimize button
+	84 text WithType
+85 menu bar
+	86 WithType
+	87 File
+	88 Edit
+	89 View
+	90 Window
+	91 Help

@@ -1,0 +1,99 @@
+- main:
+  - complementary:
+    - strong: WithType
+    - generic: 语音输入
+    - navigation "主导航":
+      - button "开始":
+        - text: 开始
+      - button "服务设置":
+        - text: 服务设置
+      - button "文字整理":
+        - text: 文字整理
+      - button "个人词库":
+        - text: 个人词库
+      - button "整理模板":
+        - text: 整理模板
+      - button "快捷键":
+        - text: 快捷键
+      - button "历史记录":
+        - text: 历史记录
+      - button "外观":
+        - text: 外观
+    - generic: 录音发往所选语音服务
+    - generic: 语音服务尚未测试
+  - generic: 语音服务待连接
+  - button "Ctrl + Alt + Space":
+    - text: Ctrl + Alt + Space
+  - button "Ctrl + Alt + Shift + Space":
+    - text: Ctrl + Alt + Shift + Space
+  - button "Ctrl + Alt + Shift + T":
+    - text: Ctrl + Alt + Shift + T
+  - text: 文字处理
+  - heading "整理模板" [level=1]
+  - paragraph: 润色日常表达，或整理成邮件、汇报和纪要；也可以保存自己的整理要求。
+  - button "新建模板":
+    - text: 新建模板
+  - complementary "整理模板列表":
+    - text: 常用模板
+    - generic: "6"
+    - button "邮件 沟通 把口述要点整理成邮件。":
+      - strong: 邮件
+      - generic: 沟通
+      - generic: 把口述要点整理成邮件。
+    - button "工作汇报 工作 整理工作进展、结果与下一步。":
+      - strong: 工作汇报
+      - generic: 工作
+      - generic: 整理工作进展、结果与下一步。
+    - button "会议纪要 记录 整理会议内容、结论与待办。":
+      - strong: 会议纪要
+      - generic: 记录
+      - generic: 整理会议内容、结论与待办。
+    - button "开发需求 开发 把口述想法整理成开发需求。":
+      - strong: 开发需求
+      - generic: 开发
+      - generic: 把口述想法整理成开发需求。
+    - button "润色 表达 保留原意和语气，让口述表达更自然、通顺。":
+      - strong: 润色
+      - generic: 表达
+      - generic: 保留原意和语气，让口述表达更自然、通顺。
+    - button "验收用客户记录 自定义 按照你保存的模板要求整理口述。" [pressed]:
+      - strong: 验收用客户记录
+      - generic: 自定义
+      - generic: 按照你保存的模板要求整理口述。
+  - generic: 自定义 · 我的模板
+  - heading "验收用客户记录" [level=2]
+  - paragraph: 按照你保存的模板要求整理口述。
+  - paragraph: 先试一段自己的文字，确认合适后，再用于语音输入。
+  - button "按此模板录音":
+    - text: 按此模板录音
+  - generic: 这次录音的结果显示为卡片，快捷键设置保持原样。
+  - button "设为默认模板 当前未设默认模板 · Ctrl + Alt + Space 语音输入":
+    - strong: 设为默认模板
+    - generic: 当前未设默认模板 · Ctrl + Alt + Space 语音输入
+  - generic "更多用法与整理要求"
+  - group "模板结果去向":
+    - generic: 结果去向
+    - button "输入到光标处" [pressed]
+    - button "显示为卡片"
+  - button "用于动作快捷键 Ctrl + Alt + Shift + T · 语音输入单独设置":
+    - strong: 用于动作快捷键
+    - generic: Ctrl + Alt + Shift + T · 语音输入单独设置
+  - paragraph: 缺项：标为待确认 · 参考样例：2 组 · 版本 2
+  - generic "查看整理要求"
+  - button "编辑模板"
+  - button "删除":
+    - text: 删除
+  - heading "试用模板" [level=2]
+  - paragraph: 先用一段自己的文字，看看整理结果是否合适。
+  - generic: 纯文本
+  - generic: 试用文字
+  - textbox "模板试用文字": 绿川公司希望导出PDF，周四再沟通，完成日期未定。
+  - generic: 参考示例
+  - paragraph: 点击试用，看看这段内容会如何整理。
+  - generic: 当前为浏览器预览，试用仅模拟交互；真实模型效果请在桌面应用中检查。
+  - button "试用这段文字":
+    - text: 试用这段文字
+  - status:
+    - generic: 模板「验收用客户记录」已保存，可试用或设为默认
+    - button "关闭通知":
+  - alert

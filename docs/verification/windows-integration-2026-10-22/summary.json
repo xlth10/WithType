@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-22",
+  "branch": "codex/processing-windows-20261019",
+  "worktree": "/Users/outsider/.codex/worktrees/withtype-pipeline-windows/15-withtype",
+  "windowsParent": "c97e7ff8a565d3348cb907b56dff1dbfb8a80c9c",
+  "importedMainParent": "8414f8dae3084d033a13354d4f544c77a0ca6bdf",
+  "checks": {
+    "targetedTemplateAndPipelineTests": {
+      "pass": 104,
+      "fail": 0
+    },
+    "allJavaScriptTests": {
+      "pass": 307,
+      "skip": 4,
+      "fail": 0
+    },
+    "nativeRustHostTests": {
+      "host": "macOS",
+      "pass": 95,
+      "fail": 0
+    },
+    "frontendBuild": "pass",
+    "appearanceVerification": "pass",
+    "rustFormatting": "pass",
+    "windowsModuleTypeCheck": {
+      "target": "x86_64-pc-windows-msvc",
+      "status": "pass",
+      "productModules": [
+        "skills",
+        "vocabulary",
+        "correction_monitor",
+        "uia",
+        "delivery",
+        "history",
+        "card_position",
+        "background/state"
+      ],
+      "boundaries": [
+        "debug_log is a compile-only no-op",
+        "the full application is not linked or run"
+      ]
+    },
+    "productionBrowserPreview": {
+      "url": "http://127.0.0.1:5196/?page=skills&opening=reduced",
+      "fiveBuiltinTemplatesIncludingPolish": true,
+      "newTemplateDefaultsToOmitMissingSections": true,
+      "inputOutputExampleFieldsEditable": true,
+      "settingsRoundTripPreservesDraftAndNestedExample": true,
+      "explicitCancelReturnsToTemplateList": true,
+      "savedTestTemplate": false
+    }
+  },
+  "limitations": [
+    "No Windows machine, VM or real proprietary ASR endpoint is available.",
+    "No Windows EXE/MSI build or native microphone/UIA/clipboard/ASR runtime claim.",
+    "No external model call was made during this integration."
+  ],
+  "sourceSha256": {
+    "package.json": "920d2ff60c3dce1256eef074651eee59cca6fe36ba5e5ed9d705a3e7009f992f",
+    "src/components/SkillEditor.jsx": "9fdd5d1a3ce44dbbff124393b8d65b4b9816e0388a94ab1b595f2ce1667c349f",
+    "src/text/skillContract.js": "42eaeffd7090345c6be0fb9c91ccaa2c43314d1c650716d4a31adf82aceb7595",
+    "src/text/builtinSkills.js": "d2fa47f90e354935f3b6134ef9504cfd23515ed6be67e0e4e9f755dd75dfea54",
+    "src/text/skillEditorSession.js": "63ce70d905b479aa3c77a0bc3d72fd8f50d867502c70bf064904e9574c96e321",
+    "src/text/skillValidation.js": "e935b25b81ce7af22d48197c91049368e7cd958921d9b91c13a60a3ebc83f7d8",
+    "src/text/skillScenarios.js": "ecaf100c26417ce49655687a215c54e69abb09e5ab46e6624973d98924619689",
+    "src/dictation/pipeline.js": "531e84c6fba22361d7e21c297152c34d67966823e15cd3cf8f545e1f1dcb34b6",
+    "src/dictation/asrProvider.js": "8cb66dcfbf700ccd39663d1445c73cd5cbaa97b4b2bcc053b1a8fb2a09acf497",
+    "src/text/settingsMigration.js": "c572da117144ab3a063e3c3f5ca74d06eb05301efea66fb1bc47e0680147d560",
+    "src/App.jsx": "4f559662dba0a9fd65522f3cb76fe4dcf223e2ecd50357fb0c5383d268f0c26b",
+    "src-tauri/src/skills.rs": "4068faf64091b8f3870001a8b0fe8d35416d1ab23891ae1c6beae8da7c9d14c2",
+    "src-tauri/src/audio.rs": "45a7545636dfd19903dae8423cd967072d86287a5e069a9b2864a7428424ae08",
+    "src-tauri/src/lib.rs": "1a482e0daeab0925668cfb72e726cf97d72cf8aa49e1625b36a4b0bf25f2585d",
+    "src-tauri/src/delivery.rs": "7bdab282fe9cc98065593af83846c49ee6d3b95dad3988e99c985d53b5f97826",
+    "src-tauri/src/delivery/platform.rs": "bdf4e35c72e2f1278d2e4e939330467d2e19caa68409f596b4d44ac44325289a",
+    "src-tauri/src/correction_monitor.rs": "5bb0c8aee5ffdeb16c5ac82f86950647eb13671a1ee740c3a2fed273784952ff",
+    "src-tauri/src/vocabulary.rs": "7986b870805b9726c3ca546cc73fccdd838452cea253918b6ebf30bdd8dd5c5c",
+    "src-tauri/src/history.rs": "8f53e462e8f7d2cf2badd84193d81dbb4d1f288ec219e7fa17e027de8ecdd2a0",
+    "src-tauri/src/background/state.rs": "03799de83bafe54c0a0900c7e017af010484c535ad45e49facca62a73a0a7392",
+    "tests/skill-v2.test.mjs": "c9e8f862c6a180eff751ed91c989a8b7820ebb1248f7c250b12e751727ebc493",
+    "tests/skill-schema.test.mjs": "fce32a2a021a34a46543ccd8acb9a5de2ce4a5e504fc163dd7c5b2ba37c85972",
+    "tests/pipeline.test.mjs": "d6cd05073f38e4f41917626c87aa7a3f938fda0fc9d5f32d26adfcfbcab473be"
+  }
+}

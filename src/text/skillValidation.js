@@ -2,7 +2,7 @@
 // Rust 侧 skills.rs 有一份等价实现（保存前必须再校验一次）；
 // 这里的一份用于界面即时反馈和浏览器预览。
 
-import { OUTPUT_FORMATS, SKILL_LIMITS, SKILL_SCHEMA_VERSION } from "./builtinSkills.js";
+import { OUTPUT_FORMATS, SKILL_LIMITS, SKILL_SCHEMA_VERSION, characterCount, missingInfoPolicyFor, normalizeExamples, sameSkillContent, MISSING_INFO_POLICIES } from "./skillContract.js";
 
 /** 生成自定义模板的 id。非安全上下文（无 crypto.randomUUID）时退回时间戳+随机串。 */
 export function createSkillId() {
@@ -18,7 +18,10 @@ export function createSkillId() {
  */
 export function validateCustomSkill(input, { existing = [], now = new Date().toISOString() } = {}) {
   const source = input && typeof input === "object" ? input : {};
-  const errors = [];
+  const checked = normalizeExamples(source.examples);
+  if (source.missingInfoPolicy !== undefined && !MISSING_INFO_POLICIES.includes(source.missingInfoPolicy)) checked.errors.push("缺项策略无效，请重新选择");
+  const errors = [...checked.errors];
+  if (Number(source.schemaVersion ?? SKILL_SCHEMA_VERSION) > SKILL_SCHEMA_VERSION) errors.push("模板来自更新版本，请升级应用后再打开");
   const name = typeof source.name === "string" ? source.name.trim() : "";
   const description = typeof source.description === "string" ? source.description.trim() : "";
   const instruction = typeof source.instruction === "string" ? source.instruction.trim() : "";
@@ -26,13 +29,13 @@ export function validateCustomSkill(input, { existing = [], now = new Date().toI
   const id = typeof source.id === "string" && source.id.trim() ? source.id.trim() : createSkillId();
 
   if (!name) errors.push("请填写模板名称");
-  else if (name.length > SKILL_LIMITS.name) errors.push(`名称不能超过 ${SKILL_LIMITS.name} 个字符`);
+  else if (characterCount(name) > SKILL_LIMITS.name) errors.push(`名称不能超过 ${SKILL_LIMITS.name} 个字符`);
 
-  if (description.length > SKILL_LIMITS.description) {
+  if (characterCount(description) > SKILL_LIMITS.description) {
     errors.push(`说明不能超过 ${SKILL_LIMITS.description} 个字符`);
   }
   if (!instruction) errors.push("请填写整理要求");
-  else if (instruction.length > SKILL_LIMITS.instruction) {
+  else if (characterCount(instruction) > SKILL_LIMITS.instruction) {
     errors.push(`整理要求不能超过 ${SKILL_LIMITS.instruction} 个字符`);
   }
 
@@ -45,6 +48,10 @@ export function validateCustomSkill(input, { existing = [], now = new Date().toI
 
   if (!id.startsWith("custom.")) errors.push("模板标识无效，请重新创建");
 
+  const previous = existing.find((item) => item.id === id);
+  const content = { name, description, instruction, outputFormat, enabled: source.enabled !== false, missingInfoPolicy: missingInfoPolicyFor(source), examples: checked.examples };
+  const previousRevision = Math.max(1, Math.trunc(Number(previous?.revision) || 1));
+  const revision = previous ? Math.min(2147483647, previousRevision + (sameSkillContent(previous, content) ? 0 : 1)) : Math.max(1, Math.min(2147483647, Math.trunc(Number(source.revision) || 1)));
   return {
     skill: {
       id,
@@ -55,6 +62,9 @@ export function validateCustomSkill(input, { existing = [], now = new Date().toI
       instruction,
       outputFormat,
       enabled: source.enabled !== false,
+      missingInfoPolicy: content.missingInfoPolicy,
+      examples: checked.examples,
+      revision,
       updatedAt: now,
     },
     errors,
@@ -77,7 +87,7 @@ export function validateStoredSkills(raw) {
     const stored = item && typeof item === "object" ? item.updatedAt : null;
     const parsed = typeof stored === "string" ? Date.parse(stored) : Number.NaN;
     const now = Number.isFinite(parsed) ? stored : new Date().toISOString();
-    const { skill, errors } = validateCustomSkill(item, { existing: skills, now });
+    const { skill, errors } = validateCustomSkill(item && typeof item === "object" ? { ...item, schemaVersion: item.schemaVersion ?? 1 } : item, { existing: skills, now });
     if (errors.length) {
       rejected += 1;
       continue;

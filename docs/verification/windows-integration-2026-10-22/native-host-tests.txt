@@ -1,0 +1,463 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling serde_core v1.0.229
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.13
+   Compiling cfg-if v1.0.5
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling cc v1.4.7
+   Compiling litemap v0.8.3
+   Compiling writeable v0.6.4
+   Compiling utf8_iter v1.0.4
+   Compiling siphasher v1.0.3
+   Compiling icu_properties_data v2.3.0
+   Compiling icu_normalizer_data v2.3.0
+   Compiling phf_shared v0.13.1
+   Compiling fastrand v2.5.0
+   Compiling stable_deref_trait v1.2.1
+   Compiling phf_generator v0.13.1
+   Compiling zmij v1.0.23
+   Compiling bytes v1.12.1
+   Compiling serde v1.0.229
+   Compiling smallvec v1.16.1
+   Compiling objc2-exception-helper v0.1.1
+   Compiling objc2 v0.6.4
+   Compiling http v1.5.0
+   Compiling objc2-encode v4.1.0
+   Compiling log v0.4.34
+   Compiling autocfg v1.5.1
+   Compiling time-core v0.1.9
+   Compiling winnow v1.0.4
+   Compiling thiserror v2.0.20
+   Compiling num-conv v0.2.2
+   Compiling syn v3.0.6
+   Compiling syn v2.0.119
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling phf_codegen v0.13.1
+   Compiling serde_json v1.0.151
+   Compiling deranged v0.5.8
+   Compiling typeid v1.0.3
+   Compiling ident_case v1.0.1
+   Compiling toml_writer v1.1.2+spec-1.1.0
+   Compiling powerfmt v0.2.0
+   Compiling strsim v0.11.1
+   Compiling parking_lot_core v0.9.12
+   Compiling erased-serde v0.4.10
+   Compiling byteorder v1.5.0
+   Compiling aho-corasick v1.1.5
+   Compiling scopeguard v1.2.0
+   Compiling new_debug_unreachable v1.0.6
+   Compiling unic-common v0.9.0
+   Compiling regex-syntax v0.8.11
+   Compiling thiserror v1.0.69
+   Compiling bitflags v2.13.2
+   Compiling fnv v1.0.7
+   Compiling unic-char-range v0.9.0
+   Compiling unic-char-property v0.9.0
+   Compiling unic-ucd-version v0.9.0
+   Compiling lock_api v0.4.14
+   Compiling string_cache_codegen v0.6.1
+   Compiling alloc-no-stdlib v2.0.4
+   Compiling equivalent v1.0.2
+   Compiling precomputed-hash v0.1.1
+   Compiling getrandom v0.4.3
+   Compiling hashbrown v0.17.1
+   Compiling parking_lot v0.12.5
+   Compiling web_atoms v0.2.6
+   Compiling alloc-stdlib v0.2.4
+   Compiling unic-ucd-ident v0.9.0
+   Compiling serde_spanned v1.1.1
+   Compiling indexmap v2.14.2
+   Compiling quick-xml v0.42.0
+   Compiling anyhow v1.0.104
+   Compiling base64 v0.23.1
+   Compiling synstructure v0.14.0
+   Compiling darling_core v0.24.1
+   Compiling regex-automata v0.4.18
+   Compiling brotli-decompressor v5.0.3
+   Compiling string_cache v0.9.0
+   Compiling semver v1.0.28
+   Compiling same-file v1.0.6
+   Compiling ctor-proc-macro v0.0.7
+   Compiling percent-encoding v2.3.2
+   Compiling dtoa v1.0.11
+   Compiling version_check v0.9.5
+   Compiling dunce v1.0.5
+   Compiling dtoa-short v0.3.5
+   Compiling brotli v8.0.4
+   Compiling ctor v0.8.0
+   Compiling form_urlencoded v1.2.2
+   Compiling walkdir v2.5.0
+   Compiling uuid v1.26.1
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling phf_macros v0.13.1
+   Compiling zerofrom-derive v0.1.8
+   Compiling yoke-derive v0.8.3
+   Compiling serde_derive v1.0.229
+   Compiling zerovec-derive v0.11.6
+   Compiling displaydoc v0.2.7
+   Compiling thiserror-impl v2.0.20
+   Compiling zerofrom v0.1.8
+   Compiling phf v0.13.1
+   Compiling thiserror-impl v1.0.69
+   Compiling regex v1.13.1
+   Compiling darling_macro v0.24.1
+   Compiling block2 v0.6.2
+   Compiling yoke v0.8.3
+   Compiling darling v0.24.1
+   Compiling dispatch2 v0.3.1
+   Compiling objc2-core-foundation v0.3.2
+   Compiling derive_more-impl v2.1.1
+   Compiling cssparser-macros v0.6.1
+   Compiling tendril v0.5.1
+   Compiling selectors v0.36.1
+   Compiling serde_with_macros v3.23.0
+   Compiling zerovec v0.11.8
+   Compiling zerotrie v0.2.5
+   Compiling indexmap v1.9.3
+   Compiling camino v1.2.6
+   Compiling glob v0.3.4
+   Compiling simd-adler32 v0.3.10
+   Compiling derive_more v2.1.1
+   Compiling cssparser v0.36.0
+   Compiling tinystr v0.8.4
+   Compiling potential_utf v0.1.6
+   Compiling icu_collections v2.3.0
+   Compiling icu_locale_core v2.3.0
+   Compiling objc2-foundation v0.3.2
+   Compiling swift-rs v1.0.8
+   Compiling markup5ever v0.38.0
+   Compiling toml v1.1.6+spec-1.1.0
+   Compiling serde_derive_internals v0.29.1
+   Compiling servo_arc v0.4.3
+   Compiling schemars v0.8.22
+   Compiling crc32fast v1.5.2
+   Compiling icu_provider v2.3.1
+   Compiling adler2 v2.0.1
+   Compiling bit-vec v0.8.0
+   Compiling once_cell v1.21.4
+   Compiling hashbrown v0.12.3
+   Compiling rustc-hash v2.1.3
+   Compiling bit-set v0.8.0
+   Compiling icu_properties v2.3.0
+   Compiling icu_normalizer v2.3.0
+   Compiling schemars_derive v0.8.22
+   Compiling html5ever v0.38.0
+   Compiling idna_adapter v1.2.2
+   Compiling jsonptr v0.6.3
+   Compiling cargo-platform v0.1.9
+   Compiling idna v1.1.0
+   Compiling cfb v0.7.3
+   Compiling time v0.3.55
+   Compiling pin-project-lite v0.2.17
+   Compiling url v2.5.8
+   Compiling dyn-clone v1.0.20
+   Compiling foldhash v0.2.0
+   Compiling base64 v0.21.7
+   Compiling json-patch v3.0.1
+   Compiling dom_query v0.27.0
+   Compiling serde-untagged v0.1.9
+   Compiling infer v0.19.0
+   Compiling urlpattern v0.3.0
+   Compiling cargo_metadata v0.19.2
+   Compiling miniz_oxide v0.9.1
+   Compiling objc2-core-graphics v0.3.2
+   Compiling serde_with v3.23.0
+   Compiling flate2 v1.1.10
+   Compiling plist v1.10.1
+   Compiling option-ext v0.2.0
+   Compiling miniz_oxide v0.8.9
+   Compiling objc2-app-kit v0.3.2
+   Compiling dirs-sys v0.5.0
+   Compiling fdeflate v0.3.7
+   Compiling tokio-macros v2.7.2
+   Compiling mio v1.2.3
+   Compiling socket2 v0.6.5
+   Compiling dirs v6.0.0
+   Compiling tokio v1.53.1
+   Compiling generic-array v0.14.7
+   Compiling rustc_version v0.4.1
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling core-foundation-sys v0.8.7
+   Compiling futures-core v0.3.34
+   Compiling winnow v0.7.15
+   Compiling crossbeam-utils v0.8.23
+   Compiling embed-resource v3.0.11
+   Compiling time-macros v0.2.32
+   Compiling tauri-utils v2.9.3
+   Compiling heck v0.5.0
+   Compiling typenum v1.20.1
+   Compiling tauri-winres v0.3.6
+   Compiling core-foundation v0.10.1
+   Compiling dpi v0.1.2
+   Compiling ring v0.17.14
+   Compiling toml v0.9.12+spec-1.1.0
+   Compiling zerocopy v0.8.57
+   Compiling crossbeam-channel v0.5.17
+   Compiling zerocopy-derive v0.8.57
+   Compiling cookie v0.18.2
+   Compiling num-traits v0.2.19
+   Compiling cargo_toml v0.22.3
+   Compiling raw-window-handle v0.6.2
+   Compiling base64 v0.22.1
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling png v0.18.1
+   Compiling foreign-types-macros v0.2.4
+   Compiling unicode-segmentation v1.13.3
+   Compiling zune-core v0.5.3
+   Compiling bitflags v1.3.2
+   Compiling foreign-types-shared v0.3.1
+   Compiling zeroize v1.9.0
+   Compiling foreign-types v0.5.0
+   Compiling png v0.17.16
+   Compiling rustls-pki-types v1.15.1
+   Compiling keyboard-types v0.7.0
+   Compiling zune-jpeg v0.5.15
+   Compiling objc2-web-kit v0.3.2
+   Compiling digest v0.10.7
+   Compiling core-graphics-types v0.2.0
+   Compiling http-body v1.1.0
+   Compiling cpufeatures v0.2.17
+   Compiling getrandom v0.2.17
+   Compiling untrusted v0.9.0
+   Compiling weezl v0.1.12
+   Compiling wry v0.55.1
+   Compiling slab v0.4.12
+   Compiling quick-error v2.0.1
+   Compiling httparse v1.10.1
+   Compiling fax v0.2.7
+   Compiling tauri-runtime v2.11.3
+   Compiling half v2.7.1
+   Compiling futures-task v0.3.34
+   Compiling pxfm v0.1.30
+   Compiling futures-util v0.3.34
+   Compiling tiff v0.11.3
+   Compiling tauri-build v2.6.3
+   Compiling sha2 v0.10.9
+   Compiling core-graphics v0.25.0
+   Compiling ico v0.5.0
+   Compiling tracing-core v0.1.36
+   Compiling tracing-attributes v0.1.31
+   Compiling mime v0.3.17
+   Compiling getrandom v0.3.4
+   Compiling byteorder-lite v0.1.0
+   Compiling rustls v0.23.45
+   Compiling tower-service v0.3.3
+   Compiling bytemuck v1.25.2
+   Compiling tauri-runtime-wry v2.11.4
+   Compiling try-lock v0.2.5
+   Compiling moxcms v0.8.1
+   Compiling want v0.3.1
+   Compiling tao v0.35.3
+   Compiling rustls-webpki v0.103.15
+   Compiling tauri-codegen v2.6.3
+   Compiling tracing v0.1.44
+   Compiling tauri-plugin v2.6.3
+   Compiling muda v0.19.3
+   Compiling futures-channel v0.3.34
+   Compiling objc2-core-audio-types v0.3.2
+   Compiling serialize-to-javascript-impl v0.1.2
+   Compiling atomic-waker v1.1.2
+   Compiling subtle v2.6.1
+   Compiling unicase v2.9.0
+   Compiling serialize-to-javascript v0.1.2
+   Compiling mime_guess v2.0.5
+   Compiling tray-icon v0.24.2
+   Compiling objc2-core-audio v0.3.2
+   Compiling hyper v1.11.1
+   Compiling window-vibrancy v0.6.0
+   Compiling sync_wrapper v1.0.2
+   Compiling serde_repr v0.1.21
+   Compiling ipnet v2.12.2
+   Compiling tower-layer v0.3.3
+   Compiling embed_plist v1.2.2
+   Compiling objc2-audio-toolbox v0.3.2
+   Compiling tower v0.5.3
+   Compiling image v0.25.10
+   Compiling hyper-util v0.1.20
+   Compiling webpki-roots v1.0.9
+   Compiling security-framework-sys v2.17.0
+   Compiling futures-sink v0.3.34
+   Compiling ryu v1.0.23
+   Compiling cpal v0.18.2
+   Compiling security-framework v3.7.0
+   Compiling serde_urlencoded v0.7.1
+   Compiling tokio-util v0.7.19
+   Compiling coreaudio-rs v0.14.2
+   Compiling tokio-rustls v0.26.5
+   Compiling tauri v2.11.6
+   Compiling tauri-macros v2.6.3
+   Compiling tauri-plugin-global-shortcut v2.3.2
+   Compiling hyper-rustls v0.27.10
+   Compiling withtype_windows v0.1.0 (/Users/outsider/.codex/worktrees/withtype-pipeline-windows/15-withtype/src-tauri)
+   Compiling tower-http v0.6.11
+   Compiling http-body-util v0.1.5
+   Compiling global-hotkey v0.8.0
+   Compiling mach2 v0.6.0
+   Compiling dasp_sample v0.11.0
+   Compiling reqwest v0.12.28
+   Compiling arboard v3.6.1
+   Compiling keyring v3.6.3
+   Compiling tauri-plugin-single-instance v2.4.5
+warning: function `refresh_shortcuts` is never used
+    --> src/lib.rs:1245:4
+     |
+1245 | fn refresh_shortcuts(app: &AppHandle) -> Vec<String> {
+     |    ^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `system_pause` is never used
+   --> src/background.rs:449:8
+    |
+449 | pub fn system_pause(app: &AppHandle, sleep: bool, paused: bool) {
+    |        ^^^^^^^^^^^^
+
+warning: function `insertion_confirmed` is never used
+  --> src/correction_monitor.rs:73:15
+   |
+73 | pub(crate) fn insertion_confirmed(before: &str, after: &str, delivered: &str) -> bool {
+   |               ^^^^^^^^^^^^^^^^^^^
+
+warning: function `record` is never used
+  --> src/delivery.rs:83:4
+   |
+83 | fn record(id: &str, stage: &str, reason: Reason, elapsed_ms: u64, sent_events: u32) {
+   |    ^^^^^^
+
+warning: function `record_target` is never used
+  --> src/delivery.rs:86:4
+   |
+86 | fn record_target(
+   |    ^^^^^^^^^^^^^
+
+warning: variants `Compatibility`, `CaptureBusy`, `CaptureTimeout`, `Cancelled`, `DeliveryTimeout`, and `PlatformUnsupported` are never constructed
+  --> src/delivery/policy.rs:57:5
+   |
+55 | pub enum Reason {
+   |          ------ variants in this enum
+56 |     Ready,
+57 |     Compatibility,
+   |     ^^^^^^^^^^^^^
+...
+65 |     CaptureBusy,
+   |     ^^^^^^^^^^^
+66 |     CaptureTimeout,
+   |     ^^^^^^^^^^^^^^
+...
+74 |     Cancelled,
+   |     ^^^^^^^^^
+...
+78 |     DeliveryTimeout,
+   |     ^^^^^^^^^^^^^^^
+79 |     PlatformUnsupported,
+   |     ^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `Reason` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: `withtype_windows` (lib test) generated 6 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 28.92s
+     Running unittests src/lib.rs (/private/tmp/withtype-windows-integration-20261022-target/debug/deps/withtype_windows_lib-9c6b65dfcc5c920a)
+
+running 95 tests
+test apple_speech::tests::normalizes_default_and_underscore_locale ... ok
+test apple_speech::tests::joins_chinese_and_latin_boundaries_without_duplicate_content ... ok
+test apple_speech::tests::rejects_truncated_and_wrong_format_audio ... ok
+test apple_speech::native::tests::pre_cancelled_transcription_never_calls_speech_or_requests_permission ... ok
+test audio::tests::partial_transcription_keeps_error_and_never_claims_complete ... ok
+test apple_speech::native::tests::temporary_recording_is_private_and_removed_on_drop ... ok
+test apple_speech::tests::native_status_json_requires_boolean_fields ... ok
+test apple_speech::tests::contextual_strings_are_short_deduplicated_and_bounded ... ok
+test apple_speech::tests::contextual_strings_preserve_whole_unicode_names_and_bound_invalid_input ... ok
+test audio::platform::asr_cancellation_tests::session_cancel_reaches_the_recognizer_without_polling_more_audio ... ok
+test audio::platform::asr_cancellation_tests::aborted_recognizer_does_not_mark_audio_as_discarded ... ok
+test audio::tests::wav_header_describes_actual_pcm_payload ... ok
+test background::state::tests::exit_is_final_even_when_late_messages_arrive ... ok
+test audio::tests::silence_gate_never_trips_on_real_speech_levels ... ok
+test background::state::tests::confirmation_dialog_has_a_bounded_hold_and_accepts_no_voice_actions ... ok
+test background::state::tests::failures_are_bounded_and_explicit_repair_resets_the_budget ... ok
+test background::state::tests::old_page_cannot_reactivate_or_replay_after_recovery ... ok
+test background::state::tests::page_reload_cannot_unlock_a_suspended_or_stopped_controller ... ok
+test background::state::tests::page_reload_recovers_a_failed_controller_only_after_a_new_resource_handshake ... ok
+test background::state::tests::responding_page_with_failed_initialization_does_not_wait_forever ... ok
+test background::state::tests::sleep_and_lock_are_independent_and_resume_is_not_a_dead_heartbeat ... ok
+test background::state::tests::startup_is_not_ready_and_claim_is_once_only ... ok
+test background::state::tests::unclaimed_command_expires_even_with_healthy_heartbeats ... ok
+test card_position::tests::fallback_centres_at_bottom_and_clamps_negative_origin_with_dpi ... ok
+test card_position::tests::keeps_window_inside_small_work_area_and_right_edge ... ok
+test card_position::tests::prefers_below_caret_and_moves_above_near_bottom ... ok
+test audio::tests::silence_gate_trips_on_what_the_service_would_misread ... ok
+test correction_monitor::tests::allows_selection_replacement_but_not_missing_or_ambiguous_insertion ... ok
+test correction_monitor::tests::correction_requires_four_seconds_stable_in_the_same_focused_range ... ok
+test correction_monitor::tests::focus_loss_timeout_unreadable_or_invalid_range_does_not_flush_drafts ... ok
+test correction_monitor::tests::exact_utf16_anchors_support_repeated_text_and_reject_surrogate_splits ... ok
+test correction_monitor::tests::only_inserted_range_is_observed ... ok
+test correction_monitor::tests::reverted_correction_or_unchanged_delivery_never_emits ... ok
+test correction_monitor::tests::paste_result_and_cancellation_share_interruptible_channel ... ok
+test correction_monitor::tests::next_delivery_wakes_and_replaces_previous_worker ... ok
+test delivery::policy::tests::active_editable_caret_in_a_read_only_document_accepts_input ... ok
+test delivery::platform::tests::insertion_uses_accessibility_utf16_ranges ... ok
+test delivery::policy::tests::edit_control_with_unsupported_patterns_needs_compatibility_evidence ... ok
+test audio::tests::silence_gate_lets_a_brief_real_sound_through ... ok
+test delivery::policy::tests::retained_selection_in_an_inactive_document_cannot_authorize_input ... ok
+test delivery::policy::tests::scoped_caret_cannot_override_an_explicitly_read_only_edit_control ... ok
+test delivery::policy::tests::unsupported_read_only_is_unknown_and_explicit_read_only_always_wins ... ok
+test delivery::policy::tests::verifies_local_insertion_and_replacement_in_large_documents ... ok
+test delivery::policy::tests::windows_line_endings_do_not_hide_a_confirmed_multiline_paste ... ok
+test entrance_tests::only_hidden_or_minimized_main_windows_replay_the_entrance ... ok
+test entrance_tests::unknown_window_state_does_not_spuriously_replay ... ok
+test floating::tests::borderless_surfaces_keep_their_css_sizes_and_work_area_placement ... ok
+test floating::tests::main_preserves_the_design_content_viewport_at_each_dpi ... ok
+test floating::tests::small_scaled_work_area_clamps_the_entire_main_window ... ok
+test macos_crypto::tests::changed_data_and_wrong_keys_are_rejected ... ok
+test delivery::tests::cancel_before_registration_does_not_revive_and_active_token_survives_eviction ... ok
+test macos_crypto::tests::encrypted_data_roundtrips_with_unique_nonces ... ok
+test quick_phrase::tests::early_return_releases_the_clipboard_lease ... ok
+test quick_phrase::tests::empty_is_storable_but_cannot_be_inserted ... ok
+test quick_phrase::tests::overlapping_inputs_are_rejected_until_the_clipboard_lease_ends ... ok
+test quick_phrase::tests::preserves_leading_zeroes_spaces_and_line_breaks ... ok
+test quick_phrase::tests::rejects_invalid_or_oversized_text_without_silent_truncation ... ok
+test recovered_shortcut_tests::copy_default_does_not_displace_an_existing_phrase_binding ... ok
+test skills::tests::invalid_examples_and_future_versions_fail_validation ... ok
+test skills::tests::legacy_migration_keeps_instructions_and_missing_policy ... ok
+test skills::tests::unicode_counts_match_frontend_and_content_changes_are_detected ... ok
+test startup::tests::apple_silent_login_needs_macos_but_no_network_configuration ... ok
+test audio::tests::segments_only_at_a_pause ... ok
+test apple_speech::tests::prefers_silence_near_the_segment_boundary ... ok
+test startup::tests::disabled_or_malformed_system_state_is_not_reported_as_enabled ... ok
+test startup::tests::remote_silent_login_keeps_legacy_configuration_requirements ... ok
+test startup::tests::silent_login_needs_explicit_argument_and_configuration ... ok
+test tests::apple_requests_need_no_remote_credentials_and_unknown_providers_fail_closed ... ok
+test tests::old_asr_requests_keep_the_openai_provider ... ok
+test tests::cancelled_transcription_does_not_reach_a_service ... ok
+test text_api::tests::build_chat_request_pins_temperature_and_stream ... ok
+test text_api::tests::chat_endpoint_accepts_every_shape_users_type ... ok
+test text_api::tests::clamp_timeout_holds_the_configured_range ... ok
+test text_api::tests::excerpt_masks_a_key_that_sits_inside_the_first_200_chars ... ok
+test skills::tests::examples_and_policy_survive_disk_roundtrip ... ok
+test text_api::tests::excerpt_never_leaks_a_key_shaped_string_whole ... ok
+test text_api::tests::incomplete_nonstream_output_is_not_a_success ... ok
+test text_api::tests::input_limits_are_rejected_without_mutating_messages ... ok
+test text_api::tests::excerpt_strips_control_characters_and_truncates ... ok
+test text_api::tests::parse_content_caps_absurdly_long_output ... ok
+test text_api::tests::parse_content_reads_the_openai_shape ... ok
+test text_api::tests::parse_content_rejects_empty_and_malformed_bodies ... ok
+test tests::probe_wav_is_a_real_tone_not_digital_silence ... ok
+test text_stream::tests::complete_unicode_stream_requires_a_completion_marker ... ok
+test text_stream::tests::length_filter_error_and_malformed_streams_are_not_success ... ok
+test text_api::tests::task_cancellation_stops_active_children_and_rejects_late_children ... ok
+test text_api::tests::invocation_deadline_covers_all_work_and_releases_cancellation_state ... ok
+test text_stream::tests::stop_reason_allows_gateways_without_done_and_output_limit_is_not_silent ... ok
+test audio::tests::apple_live_and_drain_jobs_stay_bounded_when_recognition_falls_behind ... ok
+test correction_monitor::tests::stalled_provider_cannot_spawn_extra_workers_or_block_forever ... ok
+test tests::app_icon_decodes_to_the_largest_frame ... ok
+test history::platform::tests::blocked_protected_store_times_out_without_late_writes_or_worker_accumulation ... ok
+test history::platform::tests::expiry_during_encrypted_temp_verification_preserves_the_primary_and_backup ... ok
+test audio::tests::resampling_is_independent_of_callback_boundaries ... ok
+test apple_speech::tests::segments_long_recording_without_losing_or_repeating_samples ... ok
+
+test result: ok. 95 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s

@@ -1,0 +1,139 @@
+{
+  "evaluatedAt": "2026-10-20T14:18:01.240Z",
+  "model": "deepseek-flash",
+  "endpointOrigin": "https://api.deepseek.com",
+  "fixtureType": "synthetic text, no ASR",
+  "temperature": 0.2,
+  "notes": "Regex checks are targeted checks, not a complete semantic-quality score. Review outputs manually.",
+  "baseline": true,
+  "results": [
+    {
+      "case": "omit-empty",
+      "variant": "before",
+      "input": "登录功能已经完成。",
+      "error": "fetch failed",
+      "ms": 10535,
+      "passed": false
+    },
+    {
+      "case": "omit-empty",
+      "variant": "after",
+      "input": "登录功能已经完成。",
+      "error": "fetch failed",
+      "ms": 10509,
+      "passed": false
+    },
+    {
+      "case": "mark-empty",
+      "variant": "before",
+      "input": "登录功能已经完成。",
+      "error": "fetch failed",
+      "ms": 10498,
+      "passed": false
+    },
+    {
+      "case": "mark-empty",
+      "variant": "after",
+      "input": "登录功能已经完成。",
+      "error": "fetch failed",
+      "ms": 10503,
+      "passed": false
+    },
+    {
+      "case": "numbers-negation",
+      "variant": "before",
+      "input": "金额不是3000元，改为3500元。付款时间还没定，不承诺周五到账。",
+      "error": "fetch failed",
+      "ms": 10497,
+      "passed": false
+    },
+    {
+      "case": "numbers-negation",
+      "variant": "after",
+      "input": "金额不是3000元，改为3500元。付款时间还没定，不承诺周五到账。",
+      "error": "fetch failed",
+      "ms": 10502,
+      "passed": false
+    },
+    {
+      "case": "example-isolation",
+      "variant": "before",
+      "input": "绿川公司预算48000元，计划周四继续沟通，完成时间没定。",
+      "error": "fetch failed",
+      "ms": 10503,
+      "passed": false
+    },
+    {
+      "case": "example-isolation",
+      "variant": "after",
+      "input": "绿川公司预算48000元，计划周四继续沟通，完成时间没定。",
+      "error": "fetch failed",
+      "ms": 10506,
+      "passed": false
+    },
+    {
+      "case": "example-style",
+      "variant": "before",
+      "input": "导出功能完成了，压测还在等待测试环境。",
+      "error": "fetch failed",
+      "ms": 10503,
+      "passed": false
+    },
+    {
+      "case": "example-style",
+      "variant": "after",
+      "input": "导出功能完成了，压测还在等待测试环境。",
+      "error": "fetch failed",
+      "ms": 10502,
+      "passed": false
+    },
+    {
+      "case": "english-template",
+      "variant": "before",
+      "input": "告诉客户方案已收到，明天下午确认进度，不承诺周五上线。",
+      "error": "fetch failed",
+      "ms": 10500,
+      "passed": false
+    },
+    {
+      "case": "english-template",
+      "variant": "after",
+      "input": "告诉客户方案已收到，明天下午确认进度，不承诺周五上线。",
+      "error": "fetch failed",
+      "ms": 10509,
+      "passed": false
+    },
+    {
+      "case": "markdown-template",
+      "variant": "before",
+      "input": "登录已完成，支付等后端，下周二继续联调。",
+      "error": "fetch failed",
+      "ms": 10504,
+      "passed": false
+    },
+    {
+      "case": "markdown-template",
+      "variant": "after",
+      "input": "登录已完成，支付等后端，下周二继续联调。",
+      "error": "fetch failed",
+      "ms": 10502,
+      "passed": false
+    },
+    {
+      "case": "short-natural",
+      "variant": "before",
+      "input": "不是取消，只是时间还没定。",
+      "error": "fetch failed",
+      "ms": 10503,
+      "passed": false
+    },
+    {
+      "case": "short-natural",
+      "variant": "after",
+      "input": "不是取消，只是时间还没定。",
+      "error": "fetch failed",
+      "ms": 10502,
+      "passed": false
+    }
+  ]
+}

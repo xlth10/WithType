@@ -1,0 +1,6 @@
+{
+  "zip": "dist/macos/WithType-aarch64-apple-darwin.zip",
+  "sha256": "dc267331549555290b9fa067c10533104481c569f291a926f66302b4b8eae74e",
+  "bytes": 13379007,
+  "signing": "local ad-hoc; codesign verification passed"
+}

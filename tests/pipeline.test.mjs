@@ -624,7 +624,7 @@ test("skill 模式选中内置 Skill 时把它的说明发给文字模型", asyn
   assert.deepEqual(pasted, ["已完成：月底交付准备"]);
   assert.equal(sent.task, "skill");
   assert.equal(sent.skillId, "builtin.report");
-  assert.equal(sent.messages.length, 2);
+  assert.equal(sent.messages.length, 4);
   assert.ok(sent.messages[0].content.includes(BUILTIN_SKILLS[1].instruction));
   assert.ok(!sent.messages[0].content.includes("嗯那个月底要交付"), "原文不能进 system 消息");
 });
@@ -651,7 +651,7 @@ test("润色与其自定义副本在普通输入中处理短句，保留问句�
     assert.equal(sent.task, "skill");
     assert.equal(sent.skillId, skill.id);
     assert.ok(sent.messages[0].content.includes(polish.instruction));
-    assert.ok(sent.messages[1].content.includes(rawText));
+    assert.ok(sent.messages.at(-1).content.includes(rawText));
     assert.equal(result.text, output);
     assert.deepEqual(pasted, [output]);
     assert.deepEqual(settings, before);
@@ -793,8 +793,8 @@ test("sample 预览只装配消息，完全不发请求", async () => {
 
   assert.equal(result.ok, true);
   assert.equal(result.sample, true);
-  assert.equal(result.messages.length, 2);
-  assert.deepEqual(result.messages.map((message) => message.role), ["system", "user"]);
+  assert.equal(result.messages.length, 4);
+  assert.deepEqual(result.messages.map((message) => message.role), ["system", "user", "assistant", "user"]);
   assert.deepEqual(calls, [], "样例预览不产生任何后端调用");
 });
 

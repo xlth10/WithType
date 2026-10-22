@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-20",
+  "templateTests": {
+    "passed": 40,
+    "failed": 0
+  },
+  "javascript": {
+    "passed": 265,
+    "skipped": 2,
+    "failed": 0
+  },
+  "rust": {
+    "passed": 84,
+    "failed": 0
+  },
+  "ui": {
+    "browser": "Codex IAB",
+    "viewports": [
+      [
+        1280,
+        720
+      ],
+      [
+        640,
+        480
+      ]
+    ],
+    "horizontalOverflow": false,
+    "checks": [
+      "create with name and instruction only",
+      "incomplete example rejected",
+      "save and reload example/policy",
+      "simulated trial result editable",
+      "explicitly add edited result to draft",
+      "save 2 examples and revision 2",
+      "stale result cannot become a sample",
+      "minimum window layout",
+      "trailing whitespace preserves trial freshness",
+      "meaningful instruction change blocks stale sample"
+    ]
+  },
+  "model": {
+    "model": "deepseek-flash",
+    "attempts": 16,
+    "responses": 0,
+    "status": "blocked_dns",
+    "curlStatus": "Resolving timed out after 20005 milliseconds"
+  },
+  "build": {
+    "frontend": "passed",
+    "appearance": "passed",
+    "macos": "passed",
+    "macosRuntime": "not tested",
+    "windowsRuntime": "not tested"
+  }
+}

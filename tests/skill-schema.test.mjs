@@ -46,6 +46,9 @@ test("合法草稿归一化为完整的自定义模板", () => {
     instruction: "列出本周完成的事",
     outputFormat: "plain",
     enabled: true,
+    examples: [],
+    missingInfoPolicy: "omit",
+    revision: 1,
     updatedAt: NOW,
   });
 });
@@ -222,7 +225,7 @@ test("润色及其保存后的自定义副本使用相同的自然正文规则",
   assert.ok(system.includes("只有本任务的整理要求明确指定栏目时"));
   assert.ok(!system.includes("用短标题或「栏目：内容」"), "通用纯文本规则不得强制栏目结构");
   assert.ok(!system.includes(rawText));
-  assert.ok(original[1].content.includes(`${INPUT_OPEN}\n${rawText}\n${INPUT_CLOSE}`));
+  assert.ok(original.at(-1).content.includes(`${INPUT_OPEN}\n${rawText}\n${INPUT_CLOSE}`));
 });
 
 test("copyBuiltinAsCustom 产出的是一份可编辑副本", () => {
@@ -235,6 +238,9 @@ test("copyBuiltinAsCustom 产出的是一份可编辑副本", () => {
     description: BUILTIN_SKILLS[0].description,
     instruction: BUILTIN_SKILLS[0].instruction,
     outputFormat: "plain",
+    examples: BUILTIN_SKILLS[0].examples,
+    missingInfoPolicy: "mark",
+    revision: 1,
     enabled: true,
     updatedAt: NOW,
   });
@@ -244,7 +250,7 @@ test("buildMessages 把固定边界放在 system 的第一段", () => {
   const messages = buildMessages({ instruction: "整理成邮件", rawText: "把这事整理一下" });
   assert.deepEqual(messages.map((message) => message.role), ["system", "user"]);
   assert.ok(messages[0].content.startsWith("你是一个只做文字整理的助手，输入来自语音识别的原始文本。"));
-  assert.ok(messages[0].content.includes("不要补充任何输入里没有的事实、人物、时间、数字或承诺。"));
+  assert.ok(messages[0].content.includes("不虚构人物、时间、数字、结论或承诺"));
   assert.ok(messages[0].content.includes("整理成邮件"), "skill 说明要拼在 system 里");
 });
 

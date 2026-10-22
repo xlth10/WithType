@@ -1,3 +1,4 @@
+import { cloneSkill } from "./skillContract.js";
 import { BUILTIN_SKILLS } from "./builtinSkills.js";
 import { scenarioFor } from "./skillScenarios.js";
 
@@ -23,7 +24,7 @@ export function skillEditorSessionReducer(session, action) {
     case "select":
       return changedSession(session, { viewedId: action.skill.id, draft: null, sampleText: scenarioFor(action.skill).input });
     case "edit":
-      return changedSession(session, { draft: action.draft ? { ...action.draft } : null });
+      return changedSession(session, { draft: cloneSkill(action.draft) });
     case "draft-field":
       return session.draft ? changedSession(session, { draft: { ...session.draft, [action.field]: action.value } }) : session;
     case "sample":

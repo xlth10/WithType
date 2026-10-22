@@ -1,0 +1,25 @@
+
+> withtype-windows@0.1.0 verify:appearance
+> node scripts/appearance-baseline.mjs --built
+
+{
+  "ok": true,
+  "fontSha256": "a5822f9d6ef83d113dd94741221c16ba7a321f63033a02bd164968188995d547",
+  "paletteTokens": 17,
+  "artifactSha256": {
+    "App-CDpj3yJ1.js": "194ed633fcc3a688fae4120abff80f53279677125ef8a3e58e08785c32cb4182",
+    "AppearanceSettings-BEmmDp_G.js": "e925a663201ccc2b6e0a1637ffde4aac93163c3d3ff3577c775295159919d20a",
+    "HistoryCorrection-srQw5oSM.js": "582829b4302868fae26b95b65ab4dea7c12ec42579a95c2403b0a61490f875ae",
+    "MainSurface-B34TO8np.css": "20e345879b5e9abb4b1db3a0a3665d95170a6ad801fc77adafcf89e84025a2ed",
+    "MainSurface-DdUmksg8.js": "52cbfbe5144e03ef85d70edc551963bb71ca557a75e825c35ebc1ffeebf9e729",
+    "SkillEditor-jT78jxvD.js": "c06a6f00835e8bed7ace0f0e09fb58b1ad96484e7355a0576b32293bdc322bf2",
+    "TextSettings-CtCdP4z8.js": "210c36466ce8efbdd45a95529ba6b7a800556d4c45a67b367db2b4758a638018",
+    "Trash.es-DkmrqaGg.js": "1145faaf3f1baee623c1c6b04d51caf6f53b97f4db1c54b8862f52766a52ad77",
+    "VocabularySettings-BgbxTK1o.css": "4102422d1b2106589c4d29f123b99a0cf6115c98c96ba75150b61c6a84d036c6",
+    "VocabularySettings-C5JqJg16.js": "4d227a98646124d6f61f0b00010a556393880e68933b74ecc9c6a53c660ec547",
+    "index-BICi6r_z.js": "8eaf596cfeba5a387f384f4a17a393bf4c42ea5abe24b72720005c38a4cd4548",
+    "index-DrK-DUFI.css": "c0bb3ce3d18a948343534e6abb971c5ee48d8eb5e33d2fba1dc5a166d71611d9",
+    "learning-D3i86S1M.js": "15a47afd97217ffc9fe8485d209dc33d97ac38ebafd7aefc52d15e2448a9bfc7",
+    "management-DrENayWf.js": "bdcc3134bd5a1bc9c67eb646583fa5fb959088adcda1505adad1b9e7adb31077"
+  }
+}
